@@ -1,7 +1,7 @@
 
 -- ------
 -- BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
--- homesteaderstb implementation : © Nick Patron <nick.theboot@gmail.com>
+-- homesteadersnewbeginnings implementation : © Nick Patron <nick.theboot@gmail.com>
 -- 
 -- This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
 -- See http://en.boardgamearena.com/#!doc/Studio for more information.
@@ -19,10 +19,11 @@
 --       you have to restart a game to see your changes in database.
 
 -- This color name is used to create css classes
-ALTER TABLE `player` ADD `color_name`  VARCHAR(16) NOT NULL DEFAULT ' ';
--- rail advancement position
-ALTER TABLE `player` ADD `rail_adv`    INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'rail_adv 0-5';
--- allows showing cancelled/undo actions as crossed out in log.
+ALTER TABLE `player` ADD `color_name` VARCHAR(16) NOT NULL DEFAULT ' ';
+ALTER TABLE `player` ADD `rail_adv`   INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'rail_adv 0-5';
+ALTER TABLE `player` ADD `use_silver` INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'pay workers with silver 0-true, 1-false';
+ALTER TABLE `player` ADD `paid_work`  INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'has paid workers';
+ -- allows showing cancelled/undo actions as crossed out in log.
 ALTER TABLE `gamelog` ADD `cancel` TINYINT(1) NOT NULL DEFAULT 0;
 
 CREATE TABLE IF NOT EXISTS `bids` (
@@ -58,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `buildings` (
   PRIMARY KEY (`building_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 
--- Auction tiles and Events 
+-- Auction tiles 
 CREATE TABLE IF NOT EXISTS `auctions` (
   `auction_id`       INT(2) UNSIGNED NOT NULL COMMENT 'Identity of Auction tile',
   `position`         INT(2) UNSIGNED NOT NULL COMMENT 'position of Auction in Deck (1-10)',
@@ -81,7 +82,6 @@ CREATE TABLE IF NOT EXISTS `resources` (
   `trade`      INT(2) UNSIGNED NOT NULL DEFAULT '0',
   `vp`         INT(3) UNSIGNED NOT NULL DEFAULT '0',
   `paid`       INT(1) UNSIGNED NOT NULL DEFAULT '0',
-  -- has paid workers
   PRIMARY KEY (`player_id`)
 ) ENGINE=InnoDB;
 

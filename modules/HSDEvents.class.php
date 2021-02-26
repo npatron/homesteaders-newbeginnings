@@ -13,7 +13,6 @@ class HSDEvents extends APP_GameClass
 
     function createEvents(){
         // auctions DB is perfectly ok for handing Events. (location == 5) (and event id is offset 70)
-        $this->game->DbQuery("DELETE FROM `auctions`");
         $sql = "INSERT INTO `auctions` (`auction_id`, `position`, `location`) VALUES ";
         $values=array();
         
@@ -43,6 +42,7 @@ class HSDEvents extends APP_GameClass
         $this->game->setGameStateValue('current_event', $this->getEvent($round_number));
     }
     
+    // don't forget events use `auction_id` offset by 70 (to not conflict with auctions)
     function getEvent($round_number){
         $value = $this->game->getGameStateValue('new_beginning_evt');
         if ($value == DISABLED) return 0;

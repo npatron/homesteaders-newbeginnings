@@ -1,15 +1,15 @@
  /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * homesteaders implementation : © Nick Patron <nick.theboot@gmail.com>
+ * homesteadersnewbeginnings implementation : © Nick Patron <nick.theboot@gmail.com>
  *
  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
  * -----
  *
- * homesteaders.js
+ * homesteadersnewbeginnings.js
  *
- * homesteaders user interface script
+ * homesteadersnewbeginnings user interface script
  * 
  * In this file, you are describing the logic of your user interface, in Javascript language.
  *
@@ -141,7 +141,7 @@ function (dojo, declare) {
     // map of tpl id's  used to place the player_zones in turn order.
     const PLAYER_ORDER = ['currentPlayer','First', 'Second', 'Third', 'Fourth',];
 
-    return declare("bgagame.homesteaders", ebg.core.gamegui, {
+    return declare("bgagame.homesteadersnewbeginnings", ebg.core.gamegui, {
         addMoveToLog: override_addMoveToLog,
 
         constructor: function(){
@@ -319,7 +319,7 @@ function (dojo, declare) {
         },
 
         toggleCheckbox: function(event) {
-            this.ajaxcall( "/homesteaders/homesteaders/toggleCheckbox.html", {lock: true, checked:(event.target.checked)}, this, 
+            this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/toggleCheckbox.html", {lock: true, checked:(event.target.checked)}, this, 
                 function( result ) { }, 
                 function( is_error) { } );
         },
@@ -1833,7 +1833,7 @@ function (dojo, declare) {
 
         confirmTrades: function ( evt ){
             if (this.transactionLog.length == 0) { return; }
-            this.ajaxcall( "/homesteaders/homesteaders/trade.html", { 
+            this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/trade.html", { 
                 lock: true, 
                 trade_action: this.transactionLog.join(',')
              }, this, function( result ) {
@@ -2303,7 +2303,7 @@ function (dojo, declare) {
         /***** PLACE WORKERS PHASE *****/
         hireWorkerButton: function() {
             if( this.checkAction( 'hireWorker')){
-                this.ajaxcall( "/homesteaders/homesteaders/hireWorker.html", {lock: true}, this, 
+                this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/hireWorker.html", {lock: true}, this, 
                 function( result ) {/*this.setupUndoTransactionsButtons();*/}, 
                 function( is_error) { } );                
             }
@@ -2326,7 +2326,7 @@ function (dojo, declare) {
         },
 
         ajaxDonePlacingWorkers: function(){
-            this.ajaxcall( "/homesteaders/homesteaders/donePlacingWorkers.html", {lock: true}, this, 
+            this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/donePlacingWorkers.html", {lock: true}, this, 
             function( result ) { 
                 this.clearSelectable('worker', true); 
                 this.clearSelectable('worker_slot', false);
@@ -2382,7 +2382,7 @@ function (dojo, declare) {
             const building_slot = Number(target_divId.split('_')[2]);
 
             const w_key = this.last_selected['worker'].split('_')[2];
-            this.ajaxcall( "/homesteaders/homesteaders/selectWorkerDestination.html", { 
+            this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/selectWorkerDestination.html", { 
                 lock: true, 
                 worker_key: w_key,
                 building_key: building_key,
@@ -2414,7 +2414,7 @@ function (dojo, declare) {
                 }
                 let args = {gold: this.goldAmount, lock: true};
                 if (this.transactionLog.length >0){ // makeTrades first.
-                    this.ajaxcall( "/homesteaders/homesteaders/trade.html", { 
+                    this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/trade.html", { 
                         lock: true, 
                         allowTrade:true,
                         trade_action: this.transactionLog.join(',')
@@ -2432,7 +2432,7 @@ function (dojo, declare) {
                 }
                 let args = {gold: this.goldAmount, lock: true};
                 if (this.transactionLog.length >0){ // makeTrades first.
-                    this.ajaxcall( "/homesteaders/homesteaders/trade.html", { 
+                    this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/trade.html", { 
                         lock: true, 
                         trade_action: this.transactionLog.join(',')
                      }, this, function( result ) {
@@ -2446,7 +2446,7 @@ function (dojo, declare) {
         },
 
         ajaxCallDonePay: function( args){
-            this.ajaxcall( "/homesteaders/homesteaders/donePay.html", args , this, 
+            this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/donePay.html", args , this, 
                 function( result ) { 
                     this.showPay = false;
                     this.disableTradeBoardActions();
@@ -2475,7 +2475,7 @@ function (dojo, declare) {
                     return;
                 }
                 const bid_loc = this.getBidNoFromSlotId(this.last_selected['bid']);
-                this.ajaxcall( "/homesteaders/homesteaders/confirmDummyBid.html", {lock: true, bid_loc: bid_loc}, this, 
+                this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/confirmDummyBid.html", {lock: true, bid_loc: bid_loc}, this, 
                 function( result ) { this.clearSelectable('bid', true); },
                  function( is_error) { } );
             }
@@ -2505,7 +2505,7 @@ function (dojo, declare) {
 
         passBidButton: function() {
             if( this.checkAction( 'pass')){
-                this.ajaxcall( "/homesteaders/homesteaders/passBid.html", {lock: true}, this, 
+                this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/passBid.html", {lock: true}, this, 
                 function( result ) { this.clearSelectable('bid', true); }, 
                 function( is_error) { } );                
             }
@@ -2519,7 +2519,7 @@ function (dojo, declare) {
                     return;
                 }
                 const bid_loc = this.getBidNoFromSlotId(this.last_selected['bid']);
-                this.ajaxcall( "/homesteaders/homesteaders/confirmBid.html", {lock: true, bid_loc: bid_loc}, this, 
+                this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/confirmBid.html", {lock: true, bid_loc: bid_loc}, this, 
                 function( result ) { this.clearSelectable('bid', true); },
                  function( is_error) { } );
             }
@@ -2529,7 +2529,7 @@ function (dojo, declare) {
         cancelTurn: function() {
             this.undoTransactionsButton();
             if( this.checkAction( 'undo' )){
-                this.ajaxcall( "/homesteaders/homesteaders/cancelTurn.html", {lock: true}, this, 
+                this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/cancelTurn.html", {lock: true}, this, 
                 function( result ) {
                     this.resetTradeVals();
                 }, function( is_error) { } ); 
@@ -2554,7 +2554,7 @@ function (dojo, declare) {
                  }
                 const type = this.last_selected['bonus'].split('_')[3];
                 const typeNum = RESOURCES[type];
-                this.ajaxcall( "/homesteaders/homesteaders/doneSelectingBonus.html", {bonus: typeNum, lock: true}, this, 
+                this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/doneSelectingBonus.html", {bonus: typeNum, lock: true}, this, 
                     function( result ) { 
                         this.disableTradeIfPossible();
                         this.disableTradeBoardActions();
@@ -2726,7 +2726,7 @@ function (dojo, declare) {
                 const building_key = Number(building_divId.split("_")[2]);
                 let args = {building_key: building_key, goldAsCow:this.goldAsCow, goldAsCopper:this.goldAsCopper, lock: true};
                 if (this.transactionLog.length >0){ // makeTrades first.
-                    this.ajaxcall( "/homesteaders/homesteaders/trade.html", { 
+                    this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/trade.html", { 
                         lock: true, 
                         trade_action: this.transactionLog.join(',')
                      }, this, function( result ) {
@@ -2740,7 +2740,7 @@ function (dojo, declare) {
         },
 
         ajaxCallBuildBuilding: function ( args ) {
-            this.ajaxcall( "/homesteaders/homesteaders/buildBuilding.html", args, this, 
+            this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/buildBuilding.html", args, this, 
             function( result ) {
                 this.buildingCost = [];
                 this.resetTradeVals();
@@ -2791,7 +2791,7 @@ function (dojo, declare) {
         doNotBuild: function () {
             if (this.checkAction( 'doNotBuild' )){
                 this.confirmationDialog( _('Are you sure you want to not build?'), dojo.hitch( this, function() {
-                    this.ajaxcall( "/homesteaders/homesteaders/doNotBuild.html", {lock: true}, this, 
+                    this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/doNotBuild.html", {lock: true}, this, 
                     function( result ) { 
                         this.clearSelectable('building', true); 
                         this.disableTradeIfPossible();
@@ -2860,7 +2860,7 @@ function (dojo, declare) {
 
         workerForFreeBuilding: function (){
             if (this.checkAction( 'buildBonus' )){
-            this.ajaxcall( "/homesteaders/homesteaders/freeHireWorkerBuilding.html", {lock: true}, this, 
+            this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/freeHireWorkerBuilding.html", {lock: true}, this, 
             function( result ) { }, 
             function( is_error) { } );}
         },
@@ -2868,7 +2868,7 @@ function (dojo, declare) {
         passBuildingBonus: function (){
             if (this.checkAction( 'buildBonus' )){
                 this.confirmationDialog( _('Are you sure you want to pass on bonus?'), dojo.hitch( this, function() {
-                    this.ajaxcall( "/homesteaders/homesteaders/passBuildingBonus.html", {lock: true}, this, 
+                    this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/passBuildingBonus.html", {lock: true}, this, 
                     function( result ) { }, 
                     function( is_error) { } );
                 } ) );
@@ -2927,7 +2927,7 @@ function (dojo, declare) {
         /** called when auction bonus is worker for free and rail advancement. */
         workerForFree: function() {
             if (this.checkAction( 'auctionBonus' )){
-                this.ajaxcall( "/homesteaders/homesteaders/freeHireWorkerAuction.html", {lock: true }, this, 
+                this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/freeHireWorkerAuction.html", {lock: true }, this, 
                 function( result ) { 
                     this.disableTradeIfPossible();
                     this.disableTradeBoardActions();
@@ -2940,7 +2940,7 @@ function (dojo, declare) {
             if (this.checkAction( 'auctionBonus' )){
                 let args = {lock: true, tradeAway: tradeAway, tradeFor: tradeFor};
                 if (this.transactionLog.length >0){
-                    this.ajaxcall( "/homesteaders/homesteaders/trade.html", { 
+                    this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/trade.html", { 
                         lock: true, 
                         trade_action: this.transactionLog.join(',')
                      }, this, function( result ) {
@@ -2955,7 +2955,7 @@ function (dojo, declare) {
         },
 
         ajaxBonusTypeForType(args){
-            this.ajaxcall( "/homesteaders/homesteaders/bonusTypeForType.html", args, this, function( result ) { 
+            this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/bonusTypeForType.html", args, this, function( result ) { 
                     this.disableTradeIfPossible();
                     this.disableTradeBoardActions();
                     this.setupUndoTransactionsButtons();
@@ -2985,7 +2985,7 @@ function (dojo, declare) {
         passBonus: function() {
             if (this.checkAction( 'auctionBonus' )){
                 this.confirmationDialog( _('Are you sure you want to pass on bonus?'), dojo.hitch( this, function() {
-                    this.ajaxcall( "/homesteaders/homesteaders/passAuctionBonus.html", {lock: true}, this, 
+                    this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/passAuctionBonus.html", {lock: true}, this, 
                     function( result ) { 
                         this.clearTransactionLog();
                         this.disableTradeIfPossible();
@@ -3000,7 +3000,7 @@ function (dojo, declare) {
         /***** endBuildRound *****/
         confirmBuildPhase: function () {
             if (this.checkAction( 'done' )){
-                this.ajaxcall( "/homesteaders/homesteaders/confirmChoices.html", {lock: true}, this, 
+                this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/confirmChoices.html", {lock: true}, this, 
                     function( result ) { }, 
                     function( is_error) { } );
             }
@@ -3024,7 +3024,7 @@ function (dojo, declare) {
                 if (this.showConfirmTrade){}   
                     this.setTradeButtonTo(TRADE_BUTTON_CONFIRM);
                 }
-            /*  this.ajaxcall( "/homesteaders/homesteaders/payLoan.html", {lock: true, gold:false}, this, 
+            /*  this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/payLoan.html", {lock: true, gold:false}, this, 
                 function( result ) { }, 
                 function( is_error) { } );*/
         },
@@ -3046,7 +3046,7 @@ function (dojo, declare) {
                     this.setTradeButtonTo(TRADE_BUTTON_CONFIRM);
                 }
             }
-            /*  this.ajaxcall( "/homesteaders/homesteaders/payLoan.html", {lock: true, gold:true}, this, 
+            /*  this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/payLoan.html", {lock: true, gold:true}, this, 
                 function( result ) {}, 
                 function( is_error) { } );*/
         },
@@ -3054,7 +3054,7 @@ function (dojo, declare) {
         cancelUndoTransactions: function () {
             this.undoTransactionsButton();
             if (this.checkAction( 'done' )){
-                this.ajaxcall( "/homesteaders/homesteaders/undoTransactions.html", {lock: true}, this, 
+                this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/undoTransactions.html", {lock: true}, this, 
                 function( result ) {
                 this.resetTradeVals();
                 this.disableTradeIfPossible();
@@ -3065,7 +3065,7 @@ function (dojo, declare) {
         doneEndgameActions: function () {
             if (this.checkAction( 'done' )){
                 if(this.transactionLog.length >0){
-                    this.ajaxcall( "/homesteaders/homesteaders/trade.html", { 
+                    this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/trade.html", { 
                         lock: true, 
                         trade_action: this.transactionLog.join(',')
                      }, this, function( result ) {
@@ -3081,7 +3081,7 @@ function (dojo, declare) {
         },
 
         ajaxDoneEndgame: function ( ){
-            this.ajaxcall( "/homesteaders/homesteaders/doneEndgameActions.html", {lock: true}, this, 
+            this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/doneEndgameActions.html", {lock: true}, this, 
                 function( result ) { 
                     this.disableTradeIfPossible();
                     this.disableTradeBoardActions();
@@ -3098,7 +3098,7 @@ function (dojo, declare) {
             In this method, you associate each of your game notifications with your local method to handle it.
             
             Note: game notification names correspond to "notifyAllPlayers" and "notifyPlayer" calls in
-                  your homesteaders.game.php file.
+                  your homesteadersnewbeginnings.game.php file.
         
         */
        

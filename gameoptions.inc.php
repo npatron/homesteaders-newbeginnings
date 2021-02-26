@@ -3,7 +3,7 @@
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * homesteaders implementation : © Nick Patron <nick.theboot@gmail.com>
+ * homesteadersnewbeginnings implementation : © Nick Patron <nick.theboot@gmail.com>
  *
  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
@@ -11,14 +11,14 @@
  *
  * gameoptions.inc.php
  *
- * homesteaders game options description
+ * homesteadersnewbeginnings game options description
  * 
  * In this file, you can define your game options (= game variants).
  *   
  * Note: If your game has no variant, you don't have to modify this file.
  *
  * Note²: All options defined in this file should have a corresponding "game state labels"
- *        with the same ID (see "initGameStateLabels" in homesteaders.game.php)
+ *        with the same ID (see "initGameStateLabels" in homesteadersnewbeginnings.game.php)
  *
  * !! It is not a good idea to modify this file when a game is running !!
  *

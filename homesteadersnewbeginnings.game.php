@@ -2,13 +2,13 @@
  /**
   *------
   * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
-  * homesteaderstb implementation : © Nick Patron <nick.theboot@gmail.com>
+  * homesteadersnewbeginningstb implementation : © Nick Patron <nick.theboot@gmail.com>
   * 
   * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
   * See http://en.boardgamearena.com/#!doc/Studio for more information.
   * -----
   * 
-  * homesteaders.game.php
+  * homesteadersnewbeginnings.game.php
   *
   * This is the main file for your game logic.
   *
@@ -26,8 +26,9 @@ require_once('modules/HSDAuction.class.php');
 require_once('modules/HSDResource.class.php');
 require_once('modules/HSDScore.class.php');
 
-class homesteaders extends Table
+class homesteadersnewbeginnings extends Table
 {
+    public $playerColorNames = array("ff0000" =>'red', "008000"=>'green', "0000ff"=>'blue', "ffff00"=> 'yellow', "982fff"=> 'purple');
     
 	function __construct( )
 	{
@@ -52,9 +53,9 @@ class homesteaders extends Table
             "last_building"     => 19,
             "b_order"           => 20,
             "show_player_info"  => SHOW_PLAYER_INFO,
-            "rail_no_build"     => 101,
-            "new_beginning_bld" => 110,
-            "new_beginning_evt" => 111,
+            "rail_no_build"     => RAIL_NO_BUILD,
+            "new_beginning_bld" => NEW_BEGINNING_BLD,
+            "new_beginning_evt" => NEW_BEGINNING_EVT,
         ) );
         
         $this->Log      = new HSDLog($this);
@@ -69,7 +70,7 @@ class homesteaders extends Table
     protected function getGameName( )
     {
 		// Used for translations and stuff. Please do not modify.
-        return "homesteaders";
+        return "homesteadersnewbeginnings";
     }	
 
     /*
@@ -111,8 +112,7 @@ class homesteaders extends Table
         $number_auctions = 2;
         if (count($players) == 4){ 
             $number_auctions = 3;
-        }
-        if (count($players) == 5){
+        } else if (count($players) == 5){
             $number_auctions = 4;
         }
         // Init global values with their initial values
@@ -249,7 +249,7 @@ class homesteaders extends Table
 
     /*
         Each time a player is doing some game action, one of the methods below is called.
-        (note: each method below must match an input method in homesteaders.action.php)
+        (note: each method below must match an input method in homesteadersnewbeginnings.action.php)
     */
 
     /*****  Common Methods (loan, trade) *****/

@@ -2,13 +2,13 @@
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * Homesteaders implementation : © Nick Patron <nick.theboot@gmail.com>
+ * homesteadersnewbeginningsNewBeginnings implementation : © Nick Patron <nick.theboot@gmail.com>
  *
  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
  * -----
  *
- * homesteaders.view.php
+ * homesteadersnewbeginnings.view.php
  *
  * This is your "view" file.
  *
@@ -17,7 +17,7 @@
  * _ when a player refreshes the game page (F5)
  *
  * "build_page" method allows you to dynamically modify the HTML generated for the game interface. In
- * particular, you can set here the values of variables elements defined in homesteaders_homesteaders.tpl (elements
+ * particular, you can set here the values of variables elements defined in homesteadersnewbeginnings_homesteadersnewbeginnings.tpl (elements
  * like {MY_VARIABLE_ELEMENT}), and insert HTML block elements (also defined in your HTML template file)
  *
  * Note: if the HTML of your game interface is always the same, you don't have to place anything here.
@@ -26,10 +26,10 @@
   
   require_once( APP_BASE_PATH."view/common/game.view.php" );
   
-  class view_homesteaders_homesteaders extends game_view
+  class view_homesteadersnewbeginnings_homesteadersnewbeginnings extends game_view
   {
     function getGameName() {
-        return "homesteaders";
+        return "homesteadersnewbeginnings";
     }    
   	function build_page( $viewArgs )
   	{		
@@ -57,8 +57,8 @@
         $this->tpl['PAY']              = _("Auto-pay");
         $this->tpl['WITH']             = _("with");
 
-        $this->page->begin_block( "homesteaders_homesteaders", "this_player_zone" );
-        $this->page->begin_block( "homesteaders_homesteaders", "player_zone" );
+        $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "this_player_zone" );
+        $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "player_zone" );
         foreach($players as $p_id=>$player){
           $color = $this->game->playerColorNames[$player['player_color']];
           if ($current_player_id == $p_id){
@@ -72,7 +72,7 @@
           }
         } 
         
-        $this->page->begin_block( "homesteaders_homesteaders", "bid_slot" );
+        $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "bid_slot" );
         
         for ($a=1; $a <= 3; $a++){
           for ($bid=1; $bid < 10; $bid++){          
@@ -80,20 +80,20 @@
           }
         }
 
-        $this->page->begin_block( "homesteaders_homesteaders", "auction_stacks" );
-        $this->page->begin_block( "homesteaders_homesteaders", "future_auction_zones" );
+        $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "auction_stacks" );
+        $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "future_auction_zones" );
         $auctions = $this->game->getGameStateValue('number_auctions');
         for ($a=1; $a <= $auctions; $a++){
           $this->page->insert_block( "auction_stacks", array('A'=> $a));
           $this->page->insert_block( "future_auction_zones", array('A'=> $a, 'AUCTION'=>_("Auction"), 'COLOR'=> 'a'.$a));
         }
         
-        $this->page->begin_block( "homesteaders_homesteaders", "train_advancement");
+        $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "train_advancement");
         for ($i=0; $i<6; $i++){
           $this->page->insert_block( "train_advancement", array('I'=> $i) ); 
         }
 
-        $this->page->begin_block( "homesteaders_homesteaders", "trade_option");
+        $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "trade_option");
         for ($i=0; $i < 12; $i++){
           $this->page->insert_block( "trade_option", array('OPTION'=> $this->game->trade_map[$i])); 
         }
