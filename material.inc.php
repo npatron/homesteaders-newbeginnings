@@ -649,129 +649,129 @@ $this->auction_info = array(
   // Town Events       #11-20
   // City Events       #21-25
 $this->events_info = array(
-  51 => array(
+  1 => array(
     'name'  => _('Abandoned Stockpile'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => _('The winner of Auction 1 builds for one resource less (their choice)'),
     'auc'   => array(1),
     'auc_b' => EVT_AUC_DISCOUNT_1_RES,
   ),
-  52 => array(
+  2 => array(
     'name'  => _('Bureaucratic Error'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => _('Auction 1 is unavailable this round'),
     'auc'   => array(1),
     'auc_b' => EVT_AUC_NO_AUCTION,
   ),
-  53 => array(
+  3 => array(
     'name'  => _('Central Pacific RR'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => _('Players who pass get a ${track}'),
     'pass'  => EVT_PASS_TRACK,
   ),
-  54 => array(
+  4 => array(
     'name'  => _('Eager Investors'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => _('All players who have a ${vp} get 4-${silver}'),
     'all_b' => EVT_VP_4SILVER,
   ),
-  55 => array(
+  5 => array(
     'name'  => _('Extra Lot'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => _('Auction 1 also gives build (Any Type)'),
     'auc'   => array(1),
     'auc_b' => EVT_AUC_BUILD_AGAIN,
   ),
-  56 => array(
+  6 => array(
     'name'  => _('Migrant Workers'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => _('Auction 1 also gives ${worker}'),
     'auc'   => array(1),
     'auc_b' => EVT_AUC_BONUS_WORKER,
   ),
-  57 => array(
+  7 => array(
     'name'  => _('Railroad Contracts'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => _('All auctions also give 2-{silver} ${arrow} ${adv_track}'),
     'auc'   => array(1,2,3,4),
     'auc_b' => EVT_AUC_2SILVER_TRACK,
   ),
-  58 => array(
+  8 => array(
     'name'  => _('Rapid Expansion'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => _('All auctions with bulding opportunities also give a second building opportunity of the same type'),
     'auc'   => array(1,2,3,4),
     'auc_b' => EVT_AUC_SECOND_BUILD,
   ),
-  59 => array(
+  9 => array(
     'name'  => _('Traveling Traders'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => _('All players get a ${trade}'),
     'all_b' => EVT_TRADE,
   ),
-  60 => array(
+  10 => array(
     'name'  => _('Union Pacific RR'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => _('Auction 1 also gives ${track}'),
     'auc'   => array(1),
     'auc_b' => EVT_AUC_TRACK,
   ),
-  61 => array(
+  11 => array(
     'name'  => _('Bank Favors'),
     'stage' => STAGE_TOWN,
     'tt'    => _('The player(s) with the least ${loan} gets ${adv_track}'),
     'all_b' => EVT_LOAN_TRACK,
   ),
-  62 => array(
+  12 => array(
     'name'  => _('Fortune Seeker'),
     'stage' => STAGE_TOWN,
     'tt'    => _('The player(s) with the fewest ${worker} gets a ${worker}'),
     'all_b' => EVT_LEAST_WORKER,
   ),
-  63 => array(
+  13 => array(
     'name'  => _('Industrialization'),
     'stage' => STAGE_TOWN,
     'tt'    => _('All auctions also give ${steel} ${arrow} ${any}'),
     'auc'   => array(1,2,3,4),
     'auc_b' => EVT_AUC_STEEL_ANY,
   ),
-  64 => array(
+  14 => array(
     'name' => _('Interest'),
     'stage' => STAGE_TOWN,
     'tt' => _('Players must pay ${silver} per ${loan} (${loan} taken to pay the interest does not also need to be paid for)'),
     'all_b' => EVT_INTEREST,
   ),
-  65 => array(
+  15 => array(
     'name'  => _('Sharecropping'),
     'stage' => STAGE_TOWN,
     'tt'    => _('players may pay off ${loan} for 1-${food} apiece'),
     'all_b' => EVT_PAY_LOAN_FOOD,
   ),
-  66 => array(
+  16 => array(
     'name'  => _('State Fair'),
     'stage' => STAGE_TOWN,
     'tt'    => _('The player(s) with the most ${copper} plus ${cow} (at least one) gets a ${gold}'),
     'all_b' => EVT_COPPER_COW_GET_GOLD,
   ),
-  67 => array(
+  17 => array(
     'name'  => _('Transcontinental Railroad'),
     'stage' => STAGE_TOWN,
     'tt'    => _('The player(s) who is farthest advanced on the Railroad Development Track gets ${vp3}'),
     'all_b' => EVT_DEV_TRACK_VP3,
   ),
-  68 => array(
+  18 => array(
     'name'  => _('Timber Culture Act'),
     'stage' => STAGE_TOWN,
     'tt'    => _('Players get ${vp} for every ${wood} held'),
     'all_b' => EVT_VP_FOR_WOOD,
   ),
-  69 => array(
+  19 => array(
     'name'  => _('Wartime Demand'),
     'stage' => STAGE_TOWN,
     'tt'    => _('Players may sell any number of resources wthout spending ${trade}'),
     'all_b' => EVT_SELL_NO_TRADE,
   ),
-  70 => array(
+  20 => array(
     'name'  => _('Western Pacific RR'),
     'stage' => STAGE_TOWN,
     'tt'    => _('The player(s) with the fewest Buildings get a ${track}'),

@@ -53,4 +53,53 @@ class HSDEvents extends APP_GameClass
             if ($value['position'] == $round_number)
                 return ($id - 70);
     }
+
+    /**
+     * Is the current event in event phase?
+     * bool true on yes, false on no.
+     * material events_info `all_b`
+     */
+    function eventPhase(){
+        return $this->eventHaskey('auc');
+    }
+
+    /**
+     * Is the current event in event phase?
+     * bool true on yes, false on no.
+     * material events_info `all_b`
+     */
+    function eventAuction1(){
+        if (!$this->auctionPhase()) return false;
+        return (count($this->game->events_info[$this->game->getGameStateValue('current_event')]['auc'])==1);
+    }
+
+    /**
+     * does the current event affect the auction phase?
+     * bool true on yes, false on no.
+     * material events_info `all_b`
+     */
+    function auctionPhase(){
+        return $this->eventHaskey('auc');
+    }
+
+    /**
+     * Does the current event affect auction pass action?
+     * bool true on yes, false on no.
+     * material events_info `all_b`
+     */
+    function passPhase(){
+        return $this->eventHaskey('pass');
+    }
+
+    /**
+     * Does the current event affect auction pass action?
+     * bool true on yes, false on no.
+     * material events_info `all_b`
+     */
+    function eventHaskey($key){
+        $value = $this->game->getGameStateValue('new_beginning_evt');
+        if ($value == DISABLED) return false;
+        $event_id = $this->game->getGameStateValue('current_event');
+        return array_key_exists($key, $this->game->events_info[$event_id]);
+    }
 }

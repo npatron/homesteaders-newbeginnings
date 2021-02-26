@@ -22,12 +22,7 @@
 ALTER TABLE `player` ADD `color_name`  VARCHAR(16) NOT NULL DEFAULT ' ';
 -- rail advancement position
 ALTER TABLE `player` ADD `rail_adv`    INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'rail_adv 0-5';
--- has paid workers
-ALTER TABLE `player` ADD `paid_work`   INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'has paid workers';
--- has recieved income
-ALTER TABLE `player` ADD `paid_income` INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'was paid income';
-
- -- allows showing cancelled/undo actions as crossed out in log.
+-- allows showing cancelled/undo actions as crossed out in log.
 ALTER TABLE `gamelog` ADD `cancel` TINYINT(1) NOT NULL DEFAULT 0;
 
 CREATE TABLE IF NOT EXISTS `bids` (
@@ -85,6 +80,8 @@ CREATE TABLE IF NOT EXISTS `resources` (
   `loan`       INT(2) UNSIGNED NOT NULL DEFAULT '0',
   `trade`      INT(2) UNSIGNED NOT NULL DEFAULT '0',
   `vp`         INT(3) UNSIGNED NOT NULL DEFAULT '0',
+  `paid`       INT(1) UNSIGNED NOT NULL DEFAULT '0',
+  -- has paid workers
   PRIMARY KEY (`player_id`)
 ) ENGINE=InnoDB;
 

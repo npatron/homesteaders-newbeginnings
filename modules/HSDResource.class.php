@@ -27,14 +27,6 @@ class HSDresource extends APP_GameClass
         }
     }
 
-    /**
-     * This will NOT notify the player only for use when notification has already happened (workers), drack, loan, 
-     * updating the trackers: bid_loc, rail_adv, 
-     */
-    function updateResource($p_id, $type, $amount){
-        $this->game->DbQuery( "UPDATE `resources` SET `$type`=$type + $amount WHERE `player_id`= '$p_id'");
-    }
-
     // Payment toggles, (for pay worker state).
     function getPaid($p_id){
         return $this->game->getUniqueValueFromDB( "SELECT `paid` FROM `resources` WHERE `player_id`='$p_id'" ); 
@@ -48,7 +40,15 @@ class HSDresource extends APP_GameClass
         $this->game->DbQuery( "UPDATE `resources` SET `paid`='0' ");
     }
 
-    ////// RESOURCE CLIENT & DB MANIPULATION //////
+      ////// RESOURCE CLIENT & DB MANIPULATION //////
+    /**
+     * This will NOT notify the player only for use when notification has already happened (workers), drack, loan, 
+     * updating the trackers: bid_loc, rail_adv, 
+     */
+    function updateResource($p_id, $type, $amount){
+        $this->game->DbQuery( "UPDATE `resources` SET `$type`=$type + $amount WHERE `player_id`= '$p_id'");
+    }
+
     /**
      * p_id - player id
      * $type - 'resource type' as string
