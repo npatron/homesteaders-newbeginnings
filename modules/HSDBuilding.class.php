@@ -20,7 +20,7 @@ class HSDBuilding extends APP_GameClass
             $values[] = $this->getHomesteadAsValue($p_id);
         for($b_id = BLD_GRAIN_MILL; $b_id <= BLD_RAIL_YARD; $b_id++) 
             $values[] = $this->getBuildingAsValue($b_id);
-        if($this->game->getGameStateValue('new_begin_bld') == 1){
+        if($this->game->getGameStateValue('new_beginning_bld') == ENABLED){
             for($b_id = BLD_LUMBERMILL; $b_id <= BLD_POST_OFFICE; $b_id++) 
                 $values[] = $this->getBuildingAsValue($b_id);
         }

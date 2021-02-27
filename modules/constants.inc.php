@@ -51,7 +51,7 @@
   define("BLD_HOMESTEAD_RED", 2);
   define("BLD_HOMESTEAD_GREEN", 3);
   define("BLD_HOMESTEAD_BLUE", 4);
-  define("BLD_HOMESTEAD_PURPLE", 36);
+  define("BLD_HOMESTEAD_PURPLE", 0);
   // Settlement
   define("BLD_GRAIN_MILL", 5);
   define("BLD_FARM" ,      6);

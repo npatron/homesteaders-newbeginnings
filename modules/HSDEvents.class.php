@@ -18,6 +18,7 @@ class HSDEvents extends APP_GameClass
         
         $settlement = range(71, 80);
         shuffle($settlement);
+        $this->game->setGameStateValue('current_event',$settlement[9]);
         for($i=1;$i <5;$i++){
             $values[] = "(".array_pop($settlement).", $i, 5)";
         }
@@ -33,6 +34,7 @@ class HSDEvents extends APP_GameClass
         }
 
         $sql .= implode( ',', $values ); 
+
         $this->game->DbQuery( $sql );
     }
 

@@ -1524,6 +1524,14 @@ div#sell_board{
    width: 30px;
    max-width: 30px;
 }
+.slot_0_1 {
+   bottom: 10px;
+   left: 14px;
+}
+.slot_0_2 {
+   bottom: 8px;
+   left: 68px;
+}
 .slot_1_1 {
    bottom: 10px;
    left: 14px;
@@ -1884,7 +1892,7 @@ div#auction_tile_30 {
    top: -76px;
 }
 /* EXPANSION BUILDINGS */
-.build_tile_36 { /* Purple homestead */
+.build_tile_0 { /* Purple homestead */
    background-image: url('img/exp_building_144x196.png');
    background-position: 0% 0%;
 }

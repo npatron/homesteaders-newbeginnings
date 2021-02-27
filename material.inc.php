@@ -40,7 +40,7 @@ $this->special_resource_map = array(
   'vp8' => array('vp'=>8),
 );
 
-$this->$playerColorNames = array(
+$this->playerColorNames = array(
   "ff0000" =>'red', 
   "008000"=>'green', 
   "0000ff"=>'blue', 

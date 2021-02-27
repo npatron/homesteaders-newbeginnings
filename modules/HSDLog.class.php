@@ -1,7 +1,7 @@
 <?php
 
 /*
- * homesteadersLog: a class that allows to log some actions
+ * homesteadersnewbeginningsLog: a class that allows to log some actions
  *   and then fetch these actions later
  */
 class HSDLog extends APP_GameClass

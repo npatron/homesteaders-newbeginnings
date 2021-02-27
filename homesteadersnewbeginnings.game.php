@@ -23,6 +23,7 @@ require_once('modules/HSDLog.class.php');
 require_once('modules/HSDBid.class.php');
 require_once('modules/HSDBuilding.class.php');
 require_once('modules/HSDAuction.class.php');
+require_once('modules/HSDEvents.class.php');
 require_once('modules/HSDResource.class.php');
 require_once('modules/HSDScore.class.php');
 
@@ -52,6 +53,7 @@ class homesteadersnewbeginnings extends Table
             "building_bonus"    => 18,
             "last_building"     => 19,
             "b_order"           => 20,
+            "current_event"     => 21,
             "show_player_info"  => SHOW_PLAYER_INFO,
             "rail_no_build"     => RAIL_NO_BUILD,
             "new_beginning_bld" => NEW_BEGINNING_BLD,
@@ -185,7 +187,7 @@ class homesteadersnewbeginnings extends Table
             'can_undo_trades' => (count($this->Log->getLastTransactions($cur_p_id)) > 0 && $this->checkAction('trade', false)),
             'cancel_move_ids' => $this->Log->getCancelMoveIds(),
             'current_auctions' => $this->Auction->getCurrentRoundAuctions(), 
-            'event_info' => $this->event_info,
+//            'event_info' => $this->event_info,
             'first_player' => $this->getGameStateValue( 'first_player'),
             'number_auctions' => $this->getGameStateValue( 'number_auctions' ),
             'player_order' => $this->getNextPlayerTable(),
@@ -642,7 +644,6 @@ class homesteadersnewbeginnings extends Table
         $round_number = $this->getGameStateValue('round_number');
         $this->Resource->clearPaid();
         $this->Building->updateBuildingsForRound($round_number);
-        $this->Event->updateEvent($round_number);
         $this->gamestate->nextState( );
     }
 
