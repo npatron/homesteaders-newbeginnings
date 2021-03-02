@@ -5,6 +5,7 @@
   define("RAIL_NO_BUILD", 101);
   define("NEW_BEGINNING_BLD", 110);
   define("NEW_BEGINNING_EVT", 111);
+  // statuses
   define("DISABLED",      0);
   define("ENABLED",       1);
   // options in show info
@@ -89,12 +90,12 @@
   define("BLD_RAIL_YARD",     35);  
 
   // expansion
-  define("BLD_LUMBERMILL",  37);
-  define("BLD_SALOON",      38);
-  define("BLD_SILVER_MINE", 39);
-  define("BLD_HOTEL",       40);
-  define("BLD_WAREHOUSE",   41);
-  define("BLD_POST_OFFICE", 42);
+  define("BLD_LUMBERMILL",  36);
+  define("BLD_SALOON",      37);
+  define("BLD_SILVER_MINE", 38);
+  define("BLD_HOTEL",       39);
+  define("BLD_WAREHOUSE",   40);
+  define("BLD_POST_OFFICE", 41);
   
   // building location mapping
   define("BLD_LOC_FUTURE",  0);

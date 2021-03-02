@@ -648,7 +648,7 @@ $this->auction_info = array(
   // Settlement Events #1-10
   // Town Events       #11-20
   // City Events       #21-25
-$this->events_info = array(
+$this->event_info = array(
   1 => array(
     'name'  => _('Abandoned Stockpile'),
     'stage' => STAGE_SETTLEMENT,
@@ -692,7 +692,7 @@ $this->events_info = array(
   7 => array(
     'name'  => _('Railroad Contracts'),
     'stage' => STAGE_SETTLEMENT,
-    'tt'    => _('All auctions also give 2-{silver} ${arrow} ${adv_track}'),
+    'tt'    => _('All auctions also give:\n${silver}${silver} ${arrow} Advance the Railroad Track'),
     'auc'   => array(1,2,3,4),
     'auc_b' => EVT_AUC_2SILVER_TRACK,
   ),

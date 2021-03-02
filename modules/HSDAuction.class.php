@@ -67,14 +67,14 @@ class HSDAuction extends APP_GameClass
         $this->game->DbQuery( $sql );
     }
 
-    function getAllAuctionsFromDB(){
-        $sql = "SELECT `auction_id` a_id, `location` FROM `auctions`"; 
+    function getAllAuctionsFromDB(){// ignore events (location == 5)
+        $sql = "SELECT `auction_id` a_id, `location` FROM `auctions` WHERE `location` < 5"; 
         return ($this->game->getCollectionFromDb( $sql ));
     }
 
     function getCurrentRoundAuctions($round_number= null){
         $round_number = ($round_number? :$this->game->getGameStateValue('round_number'));
-        $sql = "SELECT `auction_id` a_id, `location` FROM `auctions` WHERE `location` > 0 AND `position`='$round_number'"; 
+        $sql = "SELECT `auction_id` a_id, `location` FROM `auctions` WHERE `location` in (1,2,3,4) AND `position`='$round_number'"; 
         return ($this->game->getCollectionFromDb( $sql ));
     }
 

@@ -143,7 +143,7 @@ class homesteadersnewbeginnings extends Table
         // create building Tiles (in sql)
         $this->Building->createBuildings($players);
         $this->Auction->createAuctionTiles(count($players));
-        if ($this->getGameStateValue('new_beginning_evt') === ENABLED){
+        if ($this->getGameStateValue('new_beginning_evt') == ENABLED){
             $this->Events->createEvents();
         }
         $this->Bid->setupBidDB($players);
@@ -187,7 +187,8 @@ class homesteadersnewbeginnings extends Table
             'can_undo_trades' => (count($this->Log->getLastTransactions($cur_p_id)) > 0 && $this->checkAction('trade', false)),
             'cancel_move_ids' => $this->Log->getCancelMoveIds(),
             'current_auctions' => $this->Auction->getCurrentRoundAuctions(), 
-//            'event_info' => $this->event_info,
+            'events' => $this->Events->getEvents(),
+            'event_info' => $this->event_info,
             'first_player' => $this->getGameStateValue( 'first_player'),
             'number_auctions' => $this->getGameStateValue( 'number_auctions' ),
             'player_order' => $this->getNextPlayerTable(),

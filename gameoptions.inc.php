@@ -26,8 +26,7 @@
 
 $game_options = array(
 
-    //SHOW_PLAYER_INFO
-    100 => array(
+    100 => array(//SHOW_PLAYER_INFO
         'name' => totranslate('show or hide resources'),
         'values' => array(
             0 => array(//SHOW_ALL_RESOURCES
@@ -35,43 +34,45 @@ $game_options = array(
             ),
             1 => array(//HIDE_ALL_RESOURCES
                 'name' => totranslate('hide resources from other players'),
-                'description' => totranslate('hide player resources'),
+                'description' => totranslate('hide player resources from other players'),
+                'tmdisplay' => totranslate('hide other player resources'),
                 'nobeginner'=>true,
             ),
         ),
     ),
 
-    101  => array(
+    101  => array(//RAIL_NO_BUILD
         'name' => totranslate('Recieve Rail Line if No Build'),
         'values' => array(
-            0 => array('name' => totranslate('normal no-build rule')),
-            1 => array(
+            0 => array(//DISABLED
+                'name' => totranslate('normal no-build rule')),
+            1 => array(//ENABLED
                 'name' => totranslate('Recieve a rail line when passing on build building (recommended for 5 player)'),
                 'tmdisplay' => totranslate('Rail line on no-build'),
             ),
         ),
     ),
 
-    110 => array(
+    110 => array(//
         'name' => totranslate('New Beginnings Buildings'),
         'values' => array(
-            0 => array('name' => totranslate('do not use expansion buildings')),
-            1 => array(
+            0 => array(//DISABLED
+                'name' => totranslate('do not use expansion buildings')),
+            1 => array(//ENABLED
                 'name' => totranslate('use expansion buildings (recommended for 5 players)'),
                 'tmdisplay' => totranslate('New Beginnings Buildings'),
-                'nobeginner' => true,
             ),
         ),
     ),
     
-    111 => array(
+    111 => array(//NEW_BEGINNING_EVT
         'name' => totranslate('Expansion Events'),
         'values' => array(
-            0 => array('name' => totranslate('do not use Events')),
-            1 => array(
-                'name' => totranslate('New Beginnings Events'),
-                'tmdisplay' => totranslate('New Beginnings Events'),
-                'nobeginner' => true,
+            0 => array(//DISABLED
+                'name' => totranslate('do not use Events')),
+            1 => array(//ENABLED
+                'name' => totranslate('Use New Beginnings Events'),
+                'tmdisplay' => totranslate('Use New Beginnings Events'),
             ),
         ),
     ),

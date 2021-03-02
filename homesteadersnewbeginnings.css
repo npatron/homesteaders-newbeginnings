@@ -714,12 +714,15 @@ div#sell_board{
    position: relative;
    display: grid;
    grid-template-columns: repeat(auto-fill, minmax(155px, auto));
-   grid-template-rows: repeat(auto-fill, minmax(200px, auto));
+   /* grid-template-rows: repeat(auto-fill, minmax(200px, auto)); */
 }
 #future_auction_container{
    flex-direction: row;
 }
 #main_building_container{
+   min-width: 700px;
+}
+#events_container{
    min-width: 700px;
 }
 .building_container {
@@ -1169,11 +1172,15 @@ div#sell_board{
    display: block;
    float: center;
 }
+.event_card{
+   border-width: 1px;
+   border-style: solid;
+}
 .tt_container{
    min-width: 100px;
-   /* max-width: 200px; */
-   /* float: center; */
-   /* text-align: center; */
+   max-width: 200px;
+   float: center;
+   text-align: center;
 }
 .tt_break {
    width: 100%; 
@@ -1896,27 +1903,27 @@ div#auction_tile_30 {
    background-image: url('img/exp_building_144x196.png');
    background-position: 0% 0%;
 }
-.build_tile_37 { /* Lumbermill */
+.build_tile_36 { /* Lumbermill */
    background-image: url('img/exp_building_144x196.png');
-   background-position: 14.29% 0%;
+   background-position: 16.6% 0%;
 }
-.build_tile_38 { /* Hotel */
+.build_tile_37 { /* Saloon */
    background-image: url('img/exp_building_144x196.png');
-   background-position: 28.57% 0%;
+   background-position: 50% 0%;
 }
-.build_tile_39 { /* Saloon */
+.build_tile_38 { /* Silver Mine */
    background-image: url('img/exp_building_144x196.png');
-   background-position: 42.86% 0%;
+   background-position: 66.6% 0%;
 }
-.build_tile_40 { /* Silver Mine */
+.build_tile_39 { /* Hotel */
    background-image: url('img/exp_building_144x196.png');
-   background-position: 71.43% 0%;
+   background-position: 33.3% 0%;
 }
-.build_tile_41 { /* Warehouse */
+.build_tile_40 { /* Warehouse */
    background-image: url('img/exp_building_144x196.png');
-   background-position: 85.% 0%;
+   background-position: 83.3% 0%;
 }
-.build_tile_42 { /* Post Office */
+.build_tile_41 { /* Post Office */
    background-image: url('img/exp_building_144x196.png');
    background-position: 100% 0%;
 }

@@ -89,6 +89,7 @@ function (dojo, declare) {
     const TPL_BLD_CLASS ="build_tile_";
     const TPL_AUC_TILE = "auction_tile";
     const TPL_AUC_ZONE = "auction_tile_zone_";
+    
 
     const FIRST_PLAYER_ID = 'first_player_tile';
     const CONFIRM_TRADE_BTN_ID = 'confirm_trade_btn';
@@ -101,6 +102,7 @@ function (dojo, declare) {
     const TOGGLE_BTN_STR_ID = ['bld_future', 'bld_main', 'auc_future', 'bld_discard'];
     const TILE_CONTAINER_ID = ['future_building_container', 'main_building_container', 'future_auction_container', 'past_building_container'];
     const TILE_ZONE_DIVID   = ['future_building_zone', 'main_building_zone', 'future_auction_1', 'past_building_zone'];
+    const EVT_ZONE = "events_zone";
     
     const TRADE_MAP = {'buy_wood':0,  'buy_food':1,  'buy_steel':2, 'buy_gold':3, 'buy_copper':4, 'buy_cow':5,
                        'sell_wood':6, 'sell_food':7, 'sell_steel':8, 'sell_gold':9, 'sell_copper':10, 'sell_cow':11, 
@@ -229,6 +231,7 @@ function (dojo, declare) {
             this.playerCount = 0;
             this.show_player_info = gamedatas.show_player_info;
             this.resource_info = gamedatas.resource_info;
+            this.event_info = gamedatas.event_info;
             
             this.building_info = gamedatas.building_info;
             this.asset_strings = gamedatas.translation_strings;
@@ -260,6 +263,7 @@ function (dojo, declare) {
             this.showCurrentAuctions(gamedatas.current_auctions);
             this.setupBuildings(gamedatas.buildings, gamedatas.building_info);
             this.setupTracks(gamedatas.tracks);
+            this.createEventCards(gamedatas.events);
 
             dojo.place(FIRST_PLAYER_ID, this.player_score_zone_id[gamedatas.first_player]);
             this.first_player = Number(gamedatas.first_player);
@@ -1081,6 +1085,18 @@ function (dojo, declare) {
             else { this.current_auction = 1; }
         },
 
+        /***** events utils ******/
+        createEventCards: function(events){
+            console.log('createEventCards', events);
+            console.log('event_info', this.event_info);
+            for (let i in events){
+                let event = this.event_info[events[i].e_id];
+                console.log('event', events[i].e_id, event);
+                //do a thing for each event...
+                dojo.place(this.format_block('jptpl_evt_tt', {'pos': events[i].position, TITLE: _("Round ") + events[i].position + ":<br>" + event.name, DESC: this.replaceTooltipStrings(event.tt)}), EVT_ZONE,'last');
+            }
+        },
+        
         /***** building utils *****/
         addBuildingToPlayer: function(building, b_info = null){
             const b_id = building.b_id;

@@ -56,6 +56,7 @@
         $this->tpl['FUTURE_BUILDING']  = _("Upcoming Buildings");
         $this->tpl['PAY']              = _("Auto-pay");
         $this->tpl['WITH']             = _("with");
+        $this->tpl['EVENTS']           = _("Events");
 
         $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "this_player_zone" );
         $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "player_zone" );

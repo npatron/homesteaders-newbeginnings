@@ -204,6 +204,10 @@
             <div id="passed_bids" class="bid_token_zone"> </div>
         </div>
     </div>
+    <div id="events_container" class="whiteblock event_container border_black">
+        <span class="biggerFont">{EVENTS}</span>
+        <div id="events_zone" class="main_building_zone"> </div>
+    </div>
     <div id="main_building_container" class="whiteblock building_container border_black">
         <span class="biggerFont">{BUILDING_STOCK}</span>
         <div id="main_building_zone" class="main_building_zone"> </div>
@@ -343,6 +347,8 @@ var jptpl_bld_tt = '<div class="tt_container"><span class="font bold ${type}" st
     <div style="text-align:center;"><span class="font" style="max-width:200px;display:inline-block;">${desc}</span><hr>\
     <span class="income">${INCOME}<br></span>\
     <div class="font">${inc_vals}</div></div></div>';
+var jptpl_evt_tt = '<div class="tt_container event_card" style="order:${pos}">\<span class="font bold" style="text-align:center;">${TITLE}</span><hr>\
+    <div style="text-align:center;"><span class="font" style="max-width:200px;display:inline-block;">${DESC}</span>';
 </script>  
 
 {OVERALL_GAME_FOOTER}
