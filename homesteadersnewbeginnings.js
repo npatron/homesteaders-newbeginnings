@@ -32,7 +32,11 @@ function (dojo, declare) {
       }
     const DUMMY_BID= 0;
     const DUMMY_OPT= -1;
-
+    
+    //user preferences Values
+    const USE_ART_USER_PREF = 100;
+    const ENABLED_USER_PREF = 0;
+    const DISABLED_USER_PREF = 1;
     const NO_BID   = 0;
     const OUTBID   = 10;
     const BID_PASS = 20;
@@ -1032,12 +1036,22 @@ function (dojo, declare) {
             for (let a_id in auctions){
                 const auction = auctions[a_id];
                 if (auction.location !=AUCLOC_DISCARD) {
-                    let color = ASSET_COLORS[10+Number(auction.location)];
-                    dojo.place(this.format_block( 'jstpl_auction_tile', {auc: a_id, color:color}), `future_auction_${auction.location}`);
-                    dojo.style(`${TPL_AUC_TILE}_${a_id}`, 'order', a_id);
+                    this.createAuctionTile(a_id, auction.location, info);
                 }
                 this.addTooltipHtml(`${TPL_AUC_TILE}_${a_id}`, this.formatTooltipAuction(info, a_id));
             }
+        },
+
+        createAuctionTile: function (a_id, location, info){
+            let color = ASSET_COLORS[10+Number(location)];
+            if (this.prefs[100].value == ENABLED_USER_PREF){ // use art (default case)
+                dojo.place(this.format_block( 'jstpl_auction_tile', {auc: a_id, color:color}), `future_auction_${location}`);
+                this.addTooltipHtml(`${TPL_AUC_TILE}_${a_id}`, this.formatTooltipAuction(info, a_id));
+            } else {
+                let text_auction_html = this.formatTooltipAuction(info, a_id);
+                dojo.place(this.format_block('jptpl_auction_text', {auc: a_id, color:color, 'card':text_auction_html}), `future_auction_${location}`);
+            }
+            dojo.style(`${TPL_AUC_TILE}_${a_id}`, 'order', a_id);
         },
 
         /**
@@ -1117,9 +1131,7 @@ function (dojo, declare) {
                     this.moveObject(`${TPL_BLD_TILE}_${b_key}`, this.player_building_zone_id[building.p_id]);
                 }
             } else { // create it as well;
-                dojo.place(this.format_block( 'jstpl_buildings', {key: b_key, id: b_id}), this.player_building_zone_id[building.p_id]);
-                this.addTooltipHtml( b_divId, this.formatTooltipBuilding(b_info) );
-                this.addBuildingWorkerSlots(building, b_info);
+                this.createBuildingTile(building, b_info, this.player_building_zone_id[building.p_id]);
             }
             dojo.query(`#${b_divId}`).style(`order`,`${building.b_order}`);
             this.updateHasBuilding(building.p_id, b_id); 
@@ -1334,11 +1346,21 @@ function (dojo, declare) {
                 dojo.place(zone_id, b_loc);
             }
             if ($(b_divId) == null){ //if missing make the building 
-                dojo.place(this.format_block( 'jstpl_buildings', {key: building.b_key, id: building.b_id}), zone_id);
+                this.createBuildingTile(building, b_info, zone_id);
                 this.b_connect_handler[building.b_key] = dojo.connect($(b_divId), 'onclick', this, 'onClickOnBuilding' );
-                this.addTooltipHtml( b_divId, this.formatTooltipBuilding(b_info) );
-                this.addBuildingWorkerSlots(building, b_info);
                 this.main_building_counts[building.b_id]++;
+            }
+        },
+
+        createBuildingTile(building, b_info, destination){
+            if (this.prefs[100].value == ENABLED_USER_PREF){ // use art (default case)
+                dojo.place(this.format_block( 'jstpl_buildings', {key: building.b_key, id: building.b_id}), destination);
+                this.addTooltipHtml( destination, this.formatTooltipBuilding(b_info));
+                this.addBuildingWorkerSlots(building, b_info);
+            } else { // use text instead of art.
+                let text_building_html = this.formatTooltipBuilding(b_info);
+                dojo.place(this.format_block('jptpl_bld_text', {key: building.b_key, id: building.b_id, 'card':text_building_html}), destination);
+                this.addBuildingWorkerSlots(building, b_info);
             }
         },
 
@@ -2639,6 +2661,7 @@ function (dojo, declare) {
          *          1 if can currently afford (no trades required)
          */
         isBuildingAffordable: function(b_id){
+            //console.log("isBuildingAffordable", b_id);
             if (this.building_info[b_id].cost == null) return 1;// no cost, can afford.
             if (this.building_info[b_id].cost.length == 0) return 1;// no cost, can afford.
             

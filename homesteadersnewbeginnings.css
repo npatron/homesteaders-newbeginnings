@@ -779,6 +779,7 @@ div#sell_board{
   height: 100%;
   background-color: gray;
   opacity: .4;
+  top: 0px;
 }
 .building_tile.selectable.affordable{
    border-color:greenyellow;
@@ -1193,6 +1194,9 @@ div#sell_board{
    background:#fff; 
    padding: 0 10px;
 }
+.auction_card .tt_break span{
+   background:linen; 
+}
 
 /*=============*
  * Token Zones *
@@ -1571,21 +1575,45 @@ div#sell_board{
    bottom: 8px;
    left: 64px;
 }
+.building_card .slot_0_1, .building_card .slot_1_1, .building_card .slot_2_1, .building_card .slot_3_1, .building_card .slot_4_1 {
+   bottom: 42px;
+   left: 31px;
+}
+.building_card .slot_0_2, .building_card .slot_1_2, .building_card .slot_2_2, .building_card .slot_3_2, .building_card .slot_4_2 {
+   bottom: 0px;
+   left: 29px;
+}
 .slot_6_1 {
    bottom: 45px;
    left: 22px;
+}
+.building_card .slot_6_1 {
+   bottom: 58px;
+   left: 12px;
 }
 .slot_6_2 {
    bottom: 11px;
    left: 37px;
 }
+.building_card .slot_6_2 {
+   bottom: 29px;
+   left: 26px;
+}
 .slot_7_1 {
    bottom: 11px;
    left: 51px;
 }
+.building_card .slot_7_1 {
+   bottom: 1px;
+   left: 21px;
+}
 .slot_8_1 {
    bottom: 15px;
    left: 39px;
+}
+.building_card .slot_8_1 {
+   bottom: 60px;
+   left: 32px;
 }
 .slot_12_1 {
    bottom: 14px;
@@ -1599,28 +1627,39 @@ div#sell_board{
    bottom: 12px;
    left: 35px;
 }
+.building_card .slot_15_1, .building_card .slot_16_1 {
+   bottom: 58px;
+   left: 30px;
+}
 .slot_17_3 {
    bottom: 13px;
    left: 28px;
    width: 70px;
    display: grid;
-   grid-template-columns   : 20px 20px;
+   grid-template-columns: 20px 20px;
+}
+.building_card .slot_17_3 {
+   bottom: 0px;
 }
 .slot_23_1 {
    bottom: 48px;
    left: 39px;
 }
+.building_card .slot_23_1 {
+   bottom: 39px;
+   left: 31px;
+}
 .slot_23_2 {
    bottom: 10px;
    left: 39px;
 }
+.building_card .slot_23_2, .building_card .slot_24_1 {
+   bottom: 0px;
+   left: 31px;
+}
 .slot_24_1 {
    bottom: 13px;
    left: 39px;
-}
-.slot_26_1 {
-   bottom: 8px;
-   left: 28px;
 }
 .slot_36_1 {
    bottom: 8px;
@@ -1636,11 +1675,14 @@ div#sell_board{
  *=====================*/
 .auction_tile {
    width: 144px;
-   height: 196px;
+   min-height: 196px;
+   border-radius: 6px;
+   box-shadow: -3px -3px 3px grey inset;
+   background-color: linen;
+}
+.auction_tile:not(.auction_card) {
    background-image: url('img/auctionTiles_144x196.png');
    background-repeat: no-repeat;
-   box-shadow: -3px -3px 3px grey inset;
-   border-radius: 6px;
 }
 
 div#auction_tile_1 { /* Auction 1*/
@@ -1739,12 +1781,15 @@ div#auction_tile_30 {
  *======================*/
 .building_tile {
    width: 144px;
-   height: 196px;
-   background-image: url('img/buildingTiles_144x196.png');
-   background-repeat: no-repeat;
-   box-shadow: -3px -3px 3px grey inset;
+   min-height: 196px;
    border-radius: 6px;
    position: relative;
+   background-color: linen;
+   box-shadow: -3px -3px 3px grey inset;
+}
+.building_tile:not(.building_card) {
+   background-image: url('img/buildingTiles_144x196.png');
+   background-repeat: no-repeat;
 }
 
 .build_tile_1 { /* Yellow Homestead */

@@ -79,4 +79,13 @@ $game_options = array(
 
 );
 
-
+$game_preferences = array(
+    100 => array(
+			'name' => totranslate('Show Tile Art'),
+			'needReload' => true, // after user changes this preference game interface would auto-reload
+			'values' => array(
+					0 => array( 'name' => totranslate( 'Show Art' ), 'cssPref' => 'Show Tile Art' ),
+					1 => array( 'name' => totranslate( 'Show Text instead' ), 'cssPref' => 'Show Text Instead' )
+			)
+	)
+);

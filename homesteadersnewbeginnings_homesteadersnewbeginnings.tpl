@@ -297,9 +297,11 @@
 
 var jstpl_building_stack= '<div id="building_stack_${id}" class="building_zone_diag" style="order: ${order}"></div>';
 var jstpl_buildings='<div id="building_tile_${key}" class="building_tile build_tile_${id}"></div>';
+var jptpl_bld_text = '<div id="building_tile_${key}" class="building_tile build_tile_${id} building_card">${card}</div>';
 var jstpl_building_slot='<div id="slot_${key}_${slot}" class="worker_slot slot_${id}_${slot} key_${key}"></div>'; 
 
-var jstpl_auction_tile='<div id="auction_tile_${auc}" class="auction_tile border_${color}"> </div>';
+var jstpl_auction_tile='<div id="auction_tile_${auc}" class="auction_tile border_${color}"></div>';
+var jptpl_auction_text = '<div id="auction_tile_${auc}" class="auction_tile border_${color} auction_card">${card}</div>';
 
 var jptpl_worker='<div id="token_worker_${id}" class="token_worker"> </div>';
 var jptpl_player_token='<div id="token_${type}_${color}" class="player_token_${color} player_token_${type}"> </div>';
