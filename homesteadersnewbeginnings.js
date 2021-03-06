@@ -373,7 +373,7 @@ function (dojo, declare) {
          * temporary solution to speed up loading, may want to remove for release.
          */
         omitImages: function() {
-            this.dontPreloadImage( 'exp_building_144x196.png' );
+        
         },
 
         /**
@@ -2361,6 +2361,10 @@ function (dojo, declare) {
                     this.ajaxDonePlacingWorkers();
                 }
             }
+        },
+
+        chooseWarehouseIncome: function() {
+
         },
 
         ajaxDonePlacingWorkers: function(){

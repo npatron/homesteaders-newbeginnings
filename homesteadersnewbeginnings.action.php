@@ -79,6 +79,12 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
 
+  public function warehouseIncome() {
+    self::setAjaxMode( );
+    $resource = self::getArg( "resource", AT_posint, true); 
+    $this->game->playerWarehouseIncome($resource);
+    self::ajaxResponse( );
+  }
   // place worker actions
   public function donePlacingWorkers() {
     self::setAjaxMode( );

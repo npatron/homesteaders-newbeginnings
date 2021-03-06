@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS `buildings` (
   `location`      INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'location: 0-future, 1-building offer, 2-player, 3-discard',
   `player_id`     INT(8) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'Player owning the building',
   `worker_slot`   INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'worker_slots, 0, 1, 2, 3-double slot',
+  `state`         INT(3) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'state of building',
   `b_order`       INT(3) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'order built by player',
   PRIMARY KEY (`building_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;

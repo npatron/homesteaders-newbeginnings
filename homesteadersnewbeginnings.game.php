@@ -319,8 +319,14 @@ class homesteadersnewbeginnings extends Table
         $this->DbQuery( $sql );
     }
 
-    public function playerDonePlacingWorkers ()
-    {
+    public function playerWarehouseIncome ($resource){
+        $p_id = $this->getCurrentPlayerId();
+        $this->Resource->collectIncome($p_id);
+        $this->Resource->collectWarehouseIncome($p_id, $resource);
+        $this->gamestate->setPlayerNonMultiactive( $p_id , 'auction' );
+    }
+
+    public function playerDonePlacingWorkers (){
         $p_id = $this->getCurrentPlayerId();
         $this->Resource->collectIncome($p_id);
         $this->gamestate->setPlayerNonMultiactive( $p_id , 'auction' );

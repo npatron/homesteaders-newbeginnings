@@ -65,21 +65,23 @@ $machinestates = array(
         "action" => "stBeginAuction",
         "updateGameProgression" => true,
         "transitions" => array( "auction" => STATE_PLAYER_BID, 
-                                "events"  => STATE_EVENT_PRE_AUCTION,
+                                "events"  => STATE_EVENT_PRE_AUCTION_TRADE,
                                 "2p_auction" => STATE_2_PLAYER_DUMMY_BID,
                                 "endGame" => STATE_ENDGAME_ACTIONS,)
     ),
 
-    STATE_EVENT_PRE_AUCTION => array(
+    STATE_EVENT_PRE_AUCTION_TRADE => array(
         "name" => "eventPhaseAuction",
         "description" => '',
         "type" => "multipleactiveplayer",
         "action" => "stEventPreAuction",
         "args" => "argPreAuction",
         "updateGameProgression" => true,
+        "possibleactions" => array( "payLoan", "takeLoan", "trade", "hireWorker", "done"),
         "transitions" => array( "auction" => STATE_PLAYER_BID, 
                                 "2p_auction" => STATE_2_PLAYER_DUMMY_BID,)
     ),
+    // do any events need more?
 
     STATE_2_PLAYER_DUMMY_BID => array(
         "name" => "dummyPlayerBid",
