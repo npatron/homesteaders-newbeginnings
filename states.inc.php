@@ -70,7 +70,16 @@ $machinestates = array(
                                 "endGame" => STATE_ENDGAME_ACTIONS,)
     ),
 
-    STATE_EVENT_PRE_AUCTION_TRADE => array(
+    STATE_SETUP_EVENT_PRE_AUCTION => array(
+        "name" => "setupEventPreAuction",
+        "description" => '',
+        "type" => "game",
+        "action" => "stSetupEventPreAuction",
+        "updateGameProgression" => true,
+        "transitions" => array( "" => STATE_EVENT_PRE_AUCTION)
+    ),
+
+    STATE_EVENT_PRE_AUCTION => array(
         "name" => "eventPhaseAuction",
         "description" => '',
         "type" => "multipleactiveplayer",

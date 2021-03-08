@@ -72,7 +72,7 @@ class HSDEvents extends APP_GameClass
      * material event_info `all_b`
      */
     function eventPhase(){
-        return $this->eventHaskey('auc');
+        return $this->eventHaskey('all_b');
     }
 
     /**
@@ -113,5 +113,104 @@ class HSDEvents extends APP_GameClass
         if ($value == DISABLED) return false;
         $event_id = $this->game->getGameStateValue('current_event');
         return array_key_exists($key, $this->game->event_info[$event_id]);
+    }
+
+    function setupEventPreAuction(){
+        $current_event = $this->game->getGameStateValue('current_event');
+        $bonus_id = $this->game->events_info[$current_event]['all_b'];
+        switch($bonus_id){
+            case EVT_VP_4SILVER: // all players with vp token, get 4 silver
+                $players = $this->getPlayersWithAtLeastOneResource('vp');
+                foreach ($players as $i=> $p_id){
+                    $this->game->Resource->updateAndNotifyIncome($p_id, 'silver', 4, "event");
+                }
+                break;
+            case EVT_TRADE: //everyone gets a trade token.
+                $resources = $this->game->getCollectionFromDB( "SELECT `player_id` FROM `resources` " );
+                foreach ($resources as $p_id=> $player){
+                    $this->game->Resource->updateAndNotifyIncome($p_id, 'trade', 1, "event");
+                }
+                break;
+            case EVT_LOAN_TRACK: //least loan gets track adv
+                $players = $this->getPlayersWithLeastResource('loan');
+                foreach ($players as $i=> $p_id){
+                    // give them all track advancement,
+                    // make them multi-active, 
+                    // go to new state (multi-active version of choose bonus).
+                }
+                break;
+            case EVT_LEAST_WORKER:
+                $players = $this->getPlayersWithLeastResource('loan');
+                foreach ($players as $i=> $p_id){
+                    // give them all worker, (which should be optional)
+                    // make them multi-active, 
+                    // go to new state (multi-active version of recieve bonus worker state).
+                }
+                break;
+            case EVT_INTEREST:
+                $players = $this->getPlayersWithAtLeastOneResource('vp');
+                foreach ($players as $i=> $p_id){
+                    // send to new multi-active pay state, 
+                    // with cost based upon amount of loans
+                }
+                break;
+            case EVT_PAY_LOAN_FOOD:
+                    // send to new multi-active, 
+                    // where players may trade and pay loans with food.
+                    // should this happen here? or after auction? 
+                    // may need to look at the rules for this one.
+                break;
+            case EVT_COPPER_COW_GET_GOLD:
+                    // for each player with a cow or copper, they recieve a gold.
+                
+                break;
+            case EVT_DEV_TRACK_VP3:
+
+                break;
+            case EVT_VP_FOR_WOOD:
+
+                break;
+            case EVT_SELL_NO_TRADE:
+
+                break;
+            case EVT_LEAST_BLD_TRACK:
+
+                break;
+            case EVT_IND_VP:
+
+                break;
+            case EVT_BLD_TAX_SILVER:
+
+                break;
+            case EVT_RES_ADV_TRACK:
+
+                break;
+        }
+    }
+
+    function getPlayersWithAtLeastOneResource($type){
+        $players = array();
+        $resources = $this->game->getCollectionFromDB( "SELECT `player_id`, `$type` FROM `resources` " );
+        foreach ($resources as $p_id=> $player){
+            if ($player[$type] > 0){
+
+            }
+        }
+        return $players;
+    }
+
+    function getPlayersWithLeastResource($type){
+        $leastPlayers = array();
+        $leastValue = 0;
+        $resources = $this->game->getCollectionFromDB( "SELECT `player_id`, `$type` FROM `resources` " );
+        foreach ($resources as $p_id=> $player){
+            if (empty($leastPlayers) || $player[$type]<$leastValue){
+                $leastPlayers = array($p_id);
+                $leastValue = $player[$type];
+            } else if ($player[$type] == $leastValue){
+                $leastPlayers[] = $p_id;
+            }
+        }
+        return $leastPlayers;
     }
 }

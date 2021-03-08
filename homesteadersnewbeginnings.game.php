@@ -187,8 +187,7 @@ class homesteadersnewbeginnings extends Table
             'can_undo_trades' => (count($this->Log->getLastTransactions($cur_p_id)) > 0 && $this->checkAction('trade', false)),
             'cancel_move_ids' => $this->Log->getCancelMoveIds(),
             'current_auctions' => $this->Auction->getCurrentRoundAuctions(), 
-            'events' => $this->Events->getEvents(),
-            'event_info' => $this->event_info,
+            'events_info' => $this->events_info,
             'first_player' => $this->getGameStateValue( 'first_player'),
             'number_auctions' => $this->getGameStateValue( 'number_auctions' ),
             'player_order' => $this->getNextPlayerTable(),
@@ -686,16 +685,24 @@ class homesteadersnewbeginnings extends Table
         $round_number = $this->getGameStateValue('round_number');
         if ($round_number == 11){
             $this->gamestate->nextState( 'endGame');
-        } else{
-            $this->Bid->clearBids( );
-            $first_player = $this->getGameStateValue('first_player');
-            $this->gamestate->changeActivePlayer( $first_player );
-            if ($this->getPlayersNumber() == 2){
-                $this->gamestate->nextState( '2p_auction' );
+        } else {
+            $this->Bid->clearBids();
+            if ($this->Events->eventPhase()){
+                $this->gamestate->nextState( 'events');
             } else {
-                $this->gamestate->nextState( 'auction' );
+                $first_player = $this->getGameStateValue('first_player');
+                $this->gamestate->changeActivePlayer( $first_player );
+                if ($this->getPlayersNumber() == 2){
+                   $this->gamestate->nextState( '2p_auction' );
+                } else {
+                    $this->gamestate->nextState( 'auction' );
+                }
             }
         }
+    }
+
+    function stSetupEventPreAuction() {
+        $this->Events->setupEventPreAuction();
     }
 
     function stNextBid()

@@ -666,14 +666,15 @@ $this->event_info = array(
   3 => array(
     'name'  => _('Central Pacific RR'),
     'stage' => STAGE_SETTLEMENT,
-    'tt'    => _('Players who pass get a ${track}'),
+    'tt'    => _('Players who pass, get a ${track}'),
     'pass'  => EVT_PASS_TRACK,
   ),
   4 => array(
     'name'  => _('Eager Investors'),
     'stage' => STAGE_SETTLEMENT,
-    'tt'    => _('All players who have a ${vp} get 4-${silver}'),
-    'all_b' => EVT_VP_4SILVER,
+    'tt'    => _('Players with the least loans ${arrow} Advance on Railroad Track'),
+    'all_b' => EVT_LOAN_TRACK,
+    'pre_trd'=> 1,
   ),
   5 => array(
     'name'  => _('Extra Lot'),
@@ -708,6 +709,7 @@ $this->event_info = array(
     'stage' => STAGE_SETTLEMENT,
     'tt'    => _('All players get a ${trade}'),
     'all_b' => EVT_TRADE,
+    'pre_trd'=> 0,
   ),
   10 => array(
     'name'  => _('Union Pacific RR'),
@@ -721,12 +723,14 @@ $this->event_info = array(
     'stage' => STAGE_TOWN,
     'tt'    => _('The player(s) with the least ${loan} gets ${adv_track}'),
     'all_b' => EVT_LOAN_TRACK,
+    'pre_trd'=> 1,
   ),
   12 => array(
     'name'  => _('Fortune Seeker'),
     'stage' => STAGE_TOWN,
     'tt'    => _('The player(s) with the fewest ${worker} gets a ${worker}'),
     'all_b' => EVT_LEAST_WORKER,
+    'pre_trd'=> 0,
   ),
   13 => array(
     'name'  => _('Industrialization'),
@@ -740,42 +744,49 @@ $this->event_info = array(
     'stage' => STAGE_TOWN,
     'tt' => _('Players must pay ${silver} per ${loan} (${loan} taken to pay the interest does not also need to be paid for)'),
     'all_b' => EVT_INTEREST,
+    'pre_trd'=> 1,
   ),
   15 => array(
     'name'  => _('Sharecropping'),
     'stage' => STAGE_TOWN,
     'tt'    => _('players may pay off ${loan} for 1-${food} apiece'),
     'all_b' => EVT_PAY_LOAN_FOOD,
+    'pre_trd'=> 1,
   ),
   16 => array(
     'name'  => _('State Fair'),
     'stage' => STAGE_TOWN,
     'tt'    => _('The player(s) with the most ${copper} plus ${cow} (at least one) gets a ${gold}'),
     'all_b' => EVT_COPPER_COW_GET_GOLD,
+    'pre_trd'=> 1,
   ),
   17 => array(
     'name'  => _('Transcontinental Railroad'),
     'stage' => STAGE_TOWN,
     'tt'    => _('The player(s) who is farthest advanced on the Railroad Development Track gets ${vp3}'),
     'all_b' => EVT_DEV_TRACK_VP3,
+    'pre_trd' => 0,
   ),
   18 => array(
     'name'  => _('Timber Culture Act'),
     'stage' => STAGE_TOWN,
     'tt'    => _('Players get ${vp} for every ${wood} held'),
     'all_b' => EVT_VP_FOR_WOOD,
+    'pre_trd'=> 1,
   ),
   19 => array(
     'name'  => _('Wartime Demand'),
     'stage' => STAGE_TOWN,
     'tt'    => _('Players may sell any number of resources wthout spending ${trade}'),
     'all_b' => EVT_SELL_NO_TRADE,
+    'pre_trd' => 0,
   ),
   20 => array(
     'name'  => _('Western Pacific RR'),
     'stage' => STAGE_TOWN,
     'tt'    => _('The player(s) with the fewest Buildings get a ${track}'),
     'all_b' => EVT_LEAST_BLD_TRACK,
+    'pre_trd' => 0,
   ),
   21 => array(
     'name'  => _('Commercial Dominance'),
@@ -789,6 +800,7 @@ $this->event_info = array(
     'stage' => STAGE_CITY,
     'tt'    => _('The player(s) with the most ${ind} buildings gets ${vp} for each resource they recieved in income (${wood}, ${food}, ${steel}, ${gold}, ${copper}, ${cow} produced by buildings and not from trade)'),
     'all_b' => EVT_IND_VP,
+    'pre_trd' => 0,
   ),
   23 => array(
     'name'  => _('Nelson Act'),
@@ -801,11 +813,13 @@ $this->event_info = array(
     'stage' => STAGE_CITY,
     'tt'    => _('Players must pay ${silver} per Building they have'),
     'all_b' => EVT_BLD_TAX_SILVER,
+    'pre_trd' => 0,
   ),
   25 => array(
     'name'  => _('Residential Dominance'),
     'stage' => STAGE_CITY,
     'tt'    => _('The player(s) with the most ${res} buildings gets ${adv_track}'),
     'all_b' => EVT_RES_ADV_TRACK,
+    'pre_trd' => 0,
   ),
 );

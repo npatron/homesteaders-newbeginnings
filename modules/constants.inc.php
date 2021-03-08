@@ -22,7 +22,9 @@
   define("STATE_PLAYER_BID",         32);
   define("STATE_RAIL_BONUS",         33);
   define("STATE_NEXT_BID",           34);
-  define("STATE_EVENT_PRE_AUCTION",  35);
+  define("STATE_EVENT_PRE_AUCTION_TRADE", 35);
+  define("STATE_SETUP_EVENT_PRE_AUCTION", 36);
+  define("STATE_EVENT_PRE_AUCTION",  37);
   define("STATE_NEXT_BUILDING",      40);
   define("STATE_PAY_AUCTION",        41);
   define("STATE_CHOOSE_BUILDING",    42);
