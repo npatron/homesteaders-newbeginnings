@@ -127,7 +127,7 @@ class HSDBuilding extends APP_GameClass
             // add 'settlement' and 'settlement/town' buildings
             $sql = "UPDATE buildings SET location = '".BLD_LOC_OFFER."' WHERE `stage` in ('".STAGE_SETTLEMENT."','".STAGE_SETTLEMENT_TOWN."');";
             $this->game->DbQuery( $sql );
-            $this->updateClientBuildings(_("SETTLEMENT"));
+            $this->updateClientBuildings(clienttranslate("Settlement"));
         }
         //rd 5 setup buildings
         if($round_number == 5){
@@ -137,7 +137,7 @@ class HSDBuilding extends APP_GameClass
             // remove settlement buildings (not owned)
             $sql = "UPDATE `buildings` SET `location` = '".BLD_LOC_DISCARD."' WHERE `stage` = '".STAGE_SETTLEMENT."' AND `location` = '".BLD_LOC_OFFER."'";
             $this->game->DbQuery( $sql );
-            $this->updateClientBuildings(_('TOWN'));
+            $this->updateClientBuildings(clienttranslate('Town'));
         }
         //rd 9 setup buildings
         if($round_number == 9){
@@ -147,7 +147,7 @@ class HSDBuilding extends APP_GameClass
             // add city buildings
             $sql = "UPDATE buildings SET location = '".BLD_LOC_OFFER."' WHERE `stage` = '".STAGE_CITY."';";
             $this->game->DbQuery( $sql );
-            $this->updateClientBuildings(_('CITY'));
+            $this->updateClientBuildings(clienttranslate('City'));
         }
         // Final round (just income).
         if($round_number == 11){
@@ -189,21 +189,22 @@ class HSDBuilding extends APP_GameClass
         $b_id = $building['b_id'];
         $b_name = $this->getBuildingNameFromId($b_id);
         if (!$afford){
-            throw new BgaUserException( _("You cannot afford to build ").$b_name);
+            throw new BgaUserException( sprintf(clienttranslate("You cannot afford to build %s"),$b_name));
         }
         if ($this->doesPlayerOwnBuilding($p_id, $b_id)){
-            throw new BgaUserException( _("You have already built a ").$b_name);
+            throw new BgaUserException( sprintf(clienttranslate("You have already built a %s"),$b_name));
         }
         
         $this->payForBuilding($p_id, $b_cost);
         $b_order = $this->game->incGameStateValue('b_order', 1);
         $sql = "UPDATE `buildings` SET `location`=".BLD_LOC_PLAYER.", `player_id`='$p_id', `b_order`='$b_order' WHERE `building_key`='$b_key'";
-        $message = '${player_name} '._('builds').' ${building_name}';
+        $message = clienttranslate('${player_name} builds ${building_name}');
         $building['p_id'] = $p_id;
         $building['b_order'] = $b_order;
         $values = array('player_id' => $p_id,
                         'player_name' => $this->game->getPlayerName($p_id),
                         'building' => $building,
+                        'i18n' => array( 'building_name' ), 
                         'building_name' => array('str'=>$b_name, 'type'=>$this->getBuildingTypeFromKey($b_key)));
         if (count($b_cost)>0) {
             $message .= ' ${arrow} ${resources}';
@@ -270,7 +271,7 @@ class HSDBuilding extends APP_GameClass
                     }
                 } else {
                     if (!array_key_exists($slot, $b_info)) 
-                        throw new BgaVisibleSystemException (_("Invalid worker slot selected"));
+                    throw new BgaVisibleSystemException (clienttranslate("Invalid worker slot selected"));
                     else foreach ($b_info[$slot] as $type => $amt){
                         $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id], $type, $amt);
                     }

@@ -111,7 +111,7 @@ class HSDBid extends APP_GameClass
             $this->makeBid($bid_location, $active_player);
             $this->game->setGameStateValue('last_bidder', $active_player);
         } else {
-            throw new BgaUserException( _("Invalid Bid Selection") );
+            throw new BgaUserException( clienttranslate("Invalid Bid Selection") );
         }
     }
 
@@ -152,10 +152,11 @@ class HSDBid extends APP_GameClass
         // then update bid for this 
         $auc = ceil($bid_loc/10);
         $amt = $this->bid_cost_array[$bid_loc%10];
-		$this->game->notifyAllPlayers("moveBid", clienttranslate( '${player_name} Bids ${bidVal} for ${auction}'), array (
+		$this->game->notifyAllPlayers("moveBid", clienttranslate( '${player_name} Bids ${amount} for ${auction}'), array (
+            'i18n' => array('auction'),
                 'player_id' => $p_id,
                 'player_name' => $this->game->loadPlayersBasicInfos()[$p_id]['player_name'],
-                'bidVal' => $amt,
+                'amount' => $amt,
                 'auction' => array('str'=>'auction '.$auc, 'key'=> $auc),
                 'bid_location'=> $bid_loc) );
         $this->game->DbQuery( "UPDATE `bids` SET `bid_loc`='$bid_loc', `outbid`='0' WHERE `player_id`='$p_id'");
@@ -220,7 +221,7 @@ class HSDBid extends APP_GameClass
         if (in_array($bid_location, $valid_bids)){// valid bid
             $this->makeDummyBid($bid_location);
         } else {
-            throw new BgaUserException( _("Invalid Bid Selection") );
+            throw new BgaUserException( clienttranslate("Invalid Bid Selection") );
         }
     }
 
@@ -228,6 +229,7 @@ class HSDBid extends APP_GameClass
         $auc = ceil($bid_loc/10);
         $amt = $this->bid_cost_array[$bid_loc%10];
 		$this->game->notifyAllPlayers("moveBid", clienttranslate( 'Dummy ${token} Bids ${amount} for ${auction}'), array (
+                'i18n' => array('auction'),    
                 'player_id' => DUMMY_BID,
                 'token' => array('token'=> 'bid', 'player_id'=>DUMMY_BID),
                 'amount' => $amt,

@@ -41,19 +41,19 @@
 
         /*********** Place your code below:  ************/
         
-        $this->tpl['ROUND_STRING'] = _("Round: ");
+        $this->tpl['ROUND_STRING'] = self::_("Round: ");
         $round_number = $this->game->getGameStateValue('round_number');
         $this->tpl['ROUND_NUMBER'] = $round_number;
         $this->tpl['SHOW']             = _("Show");
         $this->tpl['HIDE']             = _("Hide");
-        $this->tpl['MAIN_BUILDING']    = _("Current Buildings");
-        $this->tpl['FUTURE_AUCTION']   = _("Upcoming Auctions");
-        $this->tpl['CONFIRM_TRADE']    = _("Confirm Trade");
-        $this->tpl['UNDO_TRADE']       = _("Undo All Trade/Dept");
-        $this->tpl['UNDO_LAST_TRADE']  = _("Undo Last Trade/Dept");
-        $this->tpl['BUILDING_STOCK']   = _("Main Building Stock");
-        $this->tpl['BUILDING_DISCARD'] = _("Building Discard");
-        $this->tpl['FUTURE_BUILDING']  = _("Upcoming Buildings");
+        $this->tpl['MAIN_BUILDING']    = clienttranslate('Current Building Stock');
+        $this->tpl['CONFIRM_TRADE']    = clienttranslate("Confirm Trade");
+        $this->tpl['UNDO_TRADE']       = clienttranslate("Undo All Trade/Dept");
+        $this->tpl['UNDO_LAST_TRADE']  = clienttranslate("Undo Last Trade/Dept");
+        $this->tpl['FUTURE_AUCTION']   = clienttranslate("Show Upcoming Auctions");
+        $this->tpl['BUILDING_STOCK']   = clienttranslate("Show Current Buildings");
+        $this->tpl['BUILDING_DISCARD'] = clienttranslate("Show Building Discard");
+        $this->tpl['FUTURE_BUILDING']  = clienttranslate('Show Upcoming Buildings');
         $this->tpl['PAY']              = _("Auto-pay");
         $this->tpl['WITH']             = _("with");
         $this->tpl['EVENTS']           = _("Events");
@@ -86,7 +86,7 @@
         $auctions = $this->game->getGameStateValue('number_auctions');
         for ($a=1; $a <= $auctions; $a++){
           $this->page->insert_block( "auction_stacks", array('A'=> $a));
-          $this->page->insert_block( "future_auction_zones", array('A'=> $a, 'AUCTION'=>_("Auction"), 'COLOR'=> 'a'.$a));
+          $this->page->insert_block( "future_auction_zones", array('A'=> $a, 'AUCTION'=>clienttranslate("Auction"), 'COLOR'=> 'a'.$a));
         }
         
         $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "train_advancement");

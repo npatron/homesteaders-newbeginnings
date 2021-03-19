@@ -31,7 +31,6 @@
 .font, .biggerFont {
    font-family: 'Old Standard TT';
    font-style: normal;
-   vertical-align: middle;
    font-size: 20px;
 }
 .caps {
@@ -700,21 +699,22 @@ div#sell_board{
    position: relative;
    display: grid;
    grid-template-columns: repeat(auto-fill, 145px);
-   grid-template-rows: repeat(auto-fill, 198px);
 }
-.building_zone_diag .building_tile:nth-child(2) {
-   margin-left: 10px;
-   margin-top: -186px;
- }
- .building_zone_diag .building_tile:nth-child(3) {
-   margin-left: 20px;
-   margin-top: -186px;
+.building_zone_diag {
+   min-height: 200px;
+   display: flex;
+   flex-direction: row-reverse;
+   min-width: 150px;
+   max-width: 170px;
+}
+.building_zone_diag .building_tile:not(:last-child) {
+   margin-left: -154px;
+   margin-top: 10px;
 }
 .main_building_zone {
    position: relative;
    display: grid;
    grid-template-columns: repeat(auto-fill, minmax(155px, auto));
-   /* grid-template-rows: repeat(auto-fill, minmax(200px, auto)); */
 }
 #future_auction_container{
    flex-direction: row;
@@ -1012,6 +1012,7 @@ div#sell_board{
 .building_container .biggerFont{
    margin-left: auto;
    margin-right: auto;
+   margin-bottom: 10px;
 }
 .offset_text{
    display: grid;
@@ -1180,9 +1181,7 @@ div#sell_board{
 }
 .tt_container{
    min-width: 100px;
-   max-width: 200px;
-   float: center;
-   text-align: center;
+   pointer-events: none;
 }
 .tt_break {
    width: 100%; 
@@ -1195,8 +1194,9 @@ div#sell_board{
    background:#fff; 
    padding: 0 10px;
 }
-.auction_card .tt_break span{
+.auction_card .tt_break span, .building_card .tt_break span  {
    background:linen; 
+   padding: 0 5px;
 }
 
 /*=============*
@@ -1479,6 +1479,7 @@ div#sell_board{
    height: 52px;
    position: relative;
    filter: drop-shadow(0px 0px 1px #000000);
+   z-index: 1;
 }
 
 .bid_yellow {
@@ -1783,6 +1784,7 @@ div#auction_tile_30 {
 .building_tile {
    width: 144px;
    min-height: 196px;
+   height: min-content;
    border-radius: 6px;
    position: relative;
    background-color: linen;

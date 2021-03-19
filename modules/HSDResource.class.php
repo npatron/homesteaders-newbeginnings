@@ -260,10 +260,10 @@ class HSDresource extends APP_GameClass
             $amt = 5;
         }
         if (!$this->canPlayerAfford($p_id, array($type=>$amt))){
-            throw new BgaUserException( _("You do not have enough ").$this->game->resource_info[$type]['name'] );
+            throw new BgaUserException( sprintf(clienttranslate("You do not have enough %s"), $this->game->resource_info[$type]['name']) );
         }
         if (!$this->canPlayerAfford($p_id, array('loan'=>1))){
-            throw new BgaUserException( _("You have no DEBT to pay" ) );
+            throw new BgaUserException( clienttranslate("You have no DEBT to pay" ) );
         }
         $this->game->notifyAllPlayers( "loanPaid", clienttranslate( '${player_name} pays ${loan} ${arrow} ${type}' ), array(
             'player_id' => $p_id,
@@ -327,27 +327,35 @@ class HSDresource extends APP_GameClass
             break;
             case TRADE:
                 $this->updateAndNotifyIncome($p_id, 'trade', 1, $rail_bonus_arr, 'train');
+                $this->game->Log->updateResource($p_id, 'trade', 1 );
             break;
             case WOOD:
                 $this->updateAndNotifyIncome($p_id, 'wood', 1, $rail_bonus_arr, 'train');
+                $this->game->Log->updateResource($p_id, 'wood', 1 );
             break;
             case FOOD:
                 $this->updateAndNotifyIncome($p_id, 'food', 1, $rail_bonus_arr, 'train');
+                $this->game->Log->updateResource($p_id, 'food', 1 );
             break;
             case STEEL:
                 $this->updateAndNotifyIncome($p_id, 'steel', 1, $rail_bonus_arr, 'train');
+                $this->game->Log->updateResource($p_id, 'steel', 1 );
             break;
             case GOLD:
                 $this->updateAndNotifyIncome($p_id, 'gold', 1, $rail_bonus_arr, 'train');
+                $this->game->Log->updateResource($p_id, 'gold', 1 );
             break;
             case COPPER:
                 $this->updateAndNotifyIncome($p_id, 'copper', 1, $rail_bonus_arr, 'train');
+                $this->game->Log->updateResource($p_id, 'copper', 1 );
             break;
             case COW:
                 $this->updateAndNotifyIncome($p_id, 'cow', 1, $rail_bonus_arr, 'train');
+                $this->game->Log->updateResource($p_id, 'cow', 1 );
             break;
             case VP:
                 $this->updateAndNotifyIncome($p_id, 'vp3', 1, $rail_bonus_arr, 'train');
+                $this->game->Log->updateResource($p_id, 'vp', 3 );
             break;
         }
     }
@@ -390,7 +398,7 @@ class HSDresource extends APP_GameClass
     function pay($p_id, $silver, $gold, $reason_string, $key=0){
         $cost = array('gold'=>$gold, 'silver'=>$silver);
         if (!$this->canPlayerAfford($p_id, $cost)){
-            throw new BgaUserException( _("Not enough resources. Take loan(s) or trade") );
+            throw new BgaUserException( clienttranslate("Not enough resources. Take loan(s) or trade") );
         }
         if ($key != 0){
             $this->updateAndNotifyPaymentGroup($p_id, $cost, $reason_string, 'auction', $key);
@@ -406,7 +414,7 @@ class HSDresource extends APP_GameClass
         if (array_key_exists('track', $income_arr)){
             $this->game->DbQuery( "INSERT INTO `tracks` (`player_id`) VALUES ($p_id)" );
             $p_tracks = $this->game->getObjectListFromDB( "SELECT `rail_key` FROM `tracks` WHERE `player_id`='$p_id'" );
-            $track_key = $p_tracks[count($p_tracks)-1];
+            $track_key = $p_tracks[count($p_tracks)-1]['rail_key'];
             $values = array('player_id' => $p_id,
                     'player_name' => $this->game->getPlayerName($p_id),
                     'track' => 'track',
@@ -418,6 +426,7 @@ class HSDresource extends APP_GameClass
             $this->game->notifyAllPlayers( "gainTrack", 
                     clienttranslate('${player_name} trades ${tradeAway} ${arrow} ${track} from ${reason_string}'), $values);
             $this->updateResource($p_id, 'track', 1);
+            $this->game->Log->addTrack($p_id, $track_key);
             foreach ($cost_arr as $type=>$amt){
                 $this->updateResource($p_id, $type, -$amt);
                 $this->game->Log->updateResource($p_id, $type, -$amt);
@@ -486,22 +495,22 @@ class HSDresource extends APP_GameClass
             case 'payloan':
                 return $this->payOffLoan($p_id, $tradeAct_segs[1] === 'gold');
             default: 
-                throw new BgaVisibleSystemException (_('Invalid TradeAction: ').$tradeAction);
+            throw new BgaVisibleSystemException ( sprintf(clienttranslate('Invalid TradeAction: %s'),$tradeAction));
         }
         if (!$this->canPlayerAfford($p_id, $tradeAway)){
-            throw new BgaUserException( _("You cannot afford to make this trade") );
+            throw new BgaUserException( clienttranslate("You cannot afford to make this trade") );
         }
         if ($sell && $this->game->Building->doesPlayerOwnBuilding($p_id, BLD_GENERAL_STORE)){
             $tradeFor = $this->updateKeyOrCreate($tradeFor, 'silver', 1);
         }
-        $buy_sell = ($sell?_('sells'):_("buys"));
+        $buy_sell = ($sell? clienttranslate('sell'): clienttranslate("buy"));
         if ($building_name === ""){
-            $this->game->notifyAllPlayers( "trade", clienttranslate('${player_name} ${buy_sell} ${tradeAway} ${arrow} ${tradeFor}'), 
+            $this->game->notifyAllPlayers( "trade", '${player_name} ${buy_sell} ${tradeAway} ${arrow} ${tradeFor}', 
             array(  'player_id' => $p_id,               'player_name' => $p_name,
                     'tradeAway' => $tradeAway,          'tradeFor' => $tradeFor,
                     'buy_sell'  => $buy_sell,           'arrow' => 'arrow', ) );
         } else {
-            $this->game->notifyAllPlayers( "trade", clienttranslate('${player_name} uses ${building_name} ${tradeAway} ${arrow} ${tradeFor} '), 
+            $this->game->notifyAllPlayers( "trade", clienttranslate('${player_name} trades with ${building_name} ${tradeAway} ${arrow} ${tradeFor} '), 
             array(  'player_id' => $p_id,               'player_name' => $p_name,
                     'tradeAway' => $tradeAway,          'tradeFor' => $tradeFor,
                     'building_name'=> $building_name,   'arrow' => 'arrow', ) );

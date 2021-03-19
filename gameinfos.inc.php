@@ -124,9 +124,9 @@ $gameinfos = array(
 // Each paragraph must be wrapped with totranslate() for translation and should not contain html (plain text without formatting).
 // A good length for this text is between 100 and 150 words (about 6 to 9 lines on a standard display)
 'presentation' => array(
-//    totranslate("This wonderful game is about geometric shapes!"),
-//    totranslate("It was awarded best triangle game of the year in 2005 and nominated for the Spiel des Jahres."),
-//    ...
+    totranslate("Homesteaders is an auction and resource management game in which players bid on the opportunity to build certain types of buildings, then spend resource cubes to build one of several buildings of that type. The buildings confer abilities, income, and points; some automatically and some requiring a worker."),
+    totranslate("The game lasts ten rounds, with each round consisting of an auction phase followed by a building phase. After the last round, players take one final income phase and have one last chance to buy and sell goods and use their building abilities before scores are tallied."),
+    totranslate("Players score for their buildings, bonuses conferred by buildings, and points earned throughout the game from selling resource cubes. The player who builds the best combination of buildings and best manages the nine different resources in the game will score the most points and win – as long as they don't take on too much debt!"),
 ),
 
 // Games categories

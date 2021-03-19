@@ -44,14 +44,14 @@ class HSDScore extends APP_GameClass
         $loan_html = '<span title = "loan" class="log_loan token_inline"></span>';
         $players = $this->game->loadPlayersBasicInfos();
         $row1 = array( '' );
-        $row2 = array($vp_html._('Tokens'));
-        $row3 = array(_('building ').$vp_html);
-        $row4 = array(_('bonus building ').$vp_html);
-        $row5 = array($vp_html._(' from ').$gold_html);
-        $row6 = array($vp_html._(' from ').$cow_html);
-        $row7 = array($vp_html._(' from ').$copper_html);
-        $row8 = array($vp_html._(' from ').$loan_html);
-        $row9 = array(_('Total ').$vp_html);
+        $row2 = array(sprintf(clienttranslate('# of %s tokens'), $vp_html,$cow_html));
+        $row3 = array(sprintf(clienttranslate('# of %s from buildings (static)'), $vp_html));
+        $row4 = array(sprintf(clienttranslate('# of %s from buildings (bonus)'), $vp_html));
+        $row5 = array(sprintf(clienttranslate('# of %s from %s'), $vp_html,$gold_html));
+        $row6 = array(sprintf(clienttranslate('# of %s from %s'), $vp_html,$cow_html));
+        $row7 = array(sprintf(clienttranslate('# of %s from %s'), $vp_html,$copper_html));
+        $row8 = array(sprintf(clienttranslate('# of %s from %s'), $vp_html,$loan_html));
+        $row9 = array(sprintf(clienttranslate('Total # of %s'), $vp_html,$cow_html));
         foreach($players as $p_id=>$player){
             $p_score = $this->calculateEndgameScore($p_id);
             $row1[] = array( 'str' => '${player_name}',

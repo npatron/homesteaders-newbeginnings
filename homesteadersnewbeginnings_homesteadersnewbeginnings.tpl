@@ -20,7 +20,7 @@
     <div id="player_zone_{COLOR}" class="whiteblock border_{COLOR} current_player" style="margin-top:4px;">
     <div class="break" style="order:3;"></div>
         <div id="player_resources_{COLOR}" class="this_player_resources">
-            <span id="player_name_{COLOR}" class="boardheader biggerFont" style="color: {COLOR};">{NAME}</span>
+            <span id="player_name_{COLOR}" class="boardheader biggerFont" style="color: {COLOR};margin: auto;">{NAME}</span>
             <span id="silver_group" class="this_player_resource_group"><!-- horiz -->
                 <span id="silvericon_{COLOR}" class="score_token player_silver score"></span>
                 <span id="silver_num" class="player_numbers vert"><!-- vertical -->
@@ -155,16 +155,16 @@
         <a href="#" id="undo_last_trade_btn" class="bgabutton bgabutton_red noshow"><span id='undoLastTrade' class="font">{UNDO_LAST_TRADE}</span></a>
         <a href="#" id="undo_trades_btn" class="bgabutton bgabutton_red noshow"><span id='undoTrade' class="font">{UNDO_TRADE}</span></a>
         <a href="#" id="tgl_future_auc" class="bgabutton bgabutton_gray">
-            <span id='auc_future' class="font">{SHOW} </span><span class="font"> {FUTURE_AUCTION}</span>
+            <span id='auc_future' class="font">{FUTURE_AUCTION}</span>
         </a>
         <a href="#" id="tgl_main_bld" class="bgabutton bgabutton_gray">
-            <span id="bld_main" class="font">{HIDE} </span><span class="font"> {MAIN_BUILDING}</span>
+            <span id="bld_main" class="font">{MAIN_BUILDING}</span>
         </a>
         <a href="#" id="tgl_past_bld" class="bgabutton bgabutton_gray">
-            <span id="bld_discard" class="font">{SHOW} </span><span class="font"> {BUILDING_DISCARD}</span>
+            <span id="bld_discard" class="font">{BUILDING_DISCARD}</span>
         </a>
         <a href="#" id="tgl_future_bld" class="bgabutton bgabutton_gray">
-            <span id="bld_future" class="font">{SHOW} </span><span class="font"> {FUTURE_BUILDING}</span>
+            <span id="bld_future" class="font">{FUTURE_BUILDING}</span>
         </a>
         <a href="#" id="confirm_trade_btn" class="bgabutton bgabutton_blue noshow"><span id='confirmTrade' class="font">{CONFIRM_TRADE}</span></a>
     </div>
@@ -233,7 +233,7 @@
     <!-- BEGIN player_zone -->
     <div id="player_zone_{COLOR}" class="whiteblock border_{COLOR} player_zone" style="margin-top:4px;">
         <div id="player_resources_{COLOR}" class="player_resources">
-            <div id="player_name_{COLOR}" class="boardheader biggerFont" style="color: {COLOR};">{NAME}</div>
+            <span id="player_name_{COLOR}" class="boardheader biggerFont" style="color: {COLOR};margin: auto;">{NAME}</span>
             <span id="silver_group_{COLOR}" class="player_resource_group">
                 <span id="silvericon_{COLOR}" class="score_token player_silver score"></span>
                 <span id="silvercount_{COLOR}" class="player_silver_text player_text">0</span>
@@ -345,8 +345,8 @@ var jptpl_tt_break = '<div class="tt_break"><span font>${text}</span></div>';
 var jptpl_res_tt = '<div class="tt_container" style="text-align:center;">${value}</br>';
 var jptpl_bld_tt = '<div class="tt_container"><span class="font bold ${type}" style="text-align:left;">${name}</span>\
     <p class="alignright"><span aria="${vp}" title="${vp}" class="log_${vp} bld_vp token_inline" ></span></p><br>\
-    <p class="font caps" style="text-align: left;">${COST} ${cost_vals}</p><hr>\
-    <div style="text-align:center;"><span class="font" style="max-width:200px;display:inline-block;">${desc}</span><hr>\
+    <p class="font caps" style="text-align: left;">${COST} ${cost_vals}</p>${hr}\
+    <div style="text-align:center;"><span class="font" style="max-width:200px;display:inline-block;">${desc}</span>${hr}\
     <span class="income">${INCOME}<br></span>\
     <div class="font">${inc_vals}</div></div></div>';
 var jptpl_evt_tt = '<div class="tt_container event_card" style="order:${pos}">\<span class="font bold" style="text-align:center;">${TITLE}</span><hr>\
