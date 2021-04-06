@@ -10,7 +10,7 @@
  * 
  * homesteadersnewbeginnings.action.php
  *
- * homesteadersnewbeginningsNewBeginnings main action entry point
+ * HomesteadersNewBeginnings main action entry point
  *
  *
  * In this file, you are describing all the methods that can be called from your
@@ -48,8 +48,9 @@ class action_homesteadersnewbeginnings extends APP_GameAction
   public function trade(){
     self::setAjaxMode( );
     $trade_action = self::getArg( "trade_action", AT_numberlist, true );
-    $allowTrade = self::getArg( "allowTrade", AT_bool, false);
-    $this->game->playerTrade($trade_action, $allowTrade);
+    $notActive = self::getArg( "notActive", AT_bool, false);
+
+    $this->game->playerTrade($trade_action, $notActive);
     self::ajaxResponse( );
   }
 

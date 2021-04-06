@@ -2,7 +2,7 @@
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * homesteadersnewbeginningstb implementation : © Nick Patron <nick.theboot@gmail.com>
+ * homesteadersnewbeginnings implementation : © Nick Patron <nick.theboot@gmail.com>
  * 
  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
@@ -59,6 +59,10 @@ $this->translation_strings = array(
   3=> clienttranslate('Special'), 
   4=> clienttranslate('Any'), 
   6=> clienttranslate('Building'), 
+  9=> clienttranslate('You have already built this building'),
+  10=> clienttranslate('You can not afford to build this building'),
+  11=> clienttranslate('You can afford to build this building (trades required)'),
+  12=> clienttranslate('You can afford to build this building'),
 );
 
 $this->resource_info = array(
@@ -66,71 +70,72 @@ $this->resource_info = array(
     'name'   => clienttranslate("Silver"),
     'db_int' => SILVER,
     'bank'   => array(),
-    'tt'     => clienttranslate('${silver}<br>Silver:<br>Used to pay ${worker} and to pay for auctions'),
+    'tt'     => clienttranslate('${big_silver}<br>Silver:<br>Used to pay ${worker} and to pay for auctions'),
   ),
   'workers' => array(
     'name'   => clienttranslate("Worker"),
     'db_int' => WORKER,
-    'tt'     => clienttranslate('${worker}<br>Worker:<br>Produces resources when assigned to buildings'),
+    'tt'     => clienttranslate('${big_worker}<br>Worker:<br>Produces resources when assigned to buildings'),
   ),   
   'track' => array(
     'name'   => clienttranslate("Railroad Track"),
     'db_int' => TRACK,
-    'tt'     => clienttranslate('${track}<br>Rail Track<br>Produces ${silver} each round'),
+    'tt'     => clienttranslate('${big_track}<br>Rail Track<br>Produces ${silver} each round'),
   ),
   'wood' => array(
     'name'   => clienttranslate("Wood"),
     'db_int' => WOOD,
     'trade_val' => array('silver'=> 1),
-    'tt'     => clienttranslate('${wood}<br>Wood:<br>Required to build some buildings'),
+    'tt'     => clienttranslate('${big_wood}<br>Wood:<br>Required to build some buildings'),
   ),
   'food' => array(
     'name'   => clienttranslate("Food"),
     'db_int' => FOOD,
     'trade_val' => array('silver'=> 2),
     'market' => array('wood'=>1),
-    'tt'     => clienttranslate('${food}<br>Food:<br>Required to build some buildings<br>Used to Hire new ${worker}'),
+    'tt'     => clienttranslate('${big_food}<br>Food:<br>Required to build some buildings<br>Used to Hire new ${worker}'),
   ),
   'steel' => array(
     'name'   => clienttranslate("Steel"),
     'db_int' => STEEL,
     'trade_val' => array('silver'=> 3),
     'market' => array('food'=>1),
-    'tt'     => clienttranslate('${steel}<br>Steel:<br>Required to build some buildings'),
+    'tt'     => clienttranslate('${big_steel}<br>Steel:<br>Required to build some buildings'),
   ),
   'gold' => array(
     'name'   => clienttranslate("Gold"),
     'db_int' => GOLD,
     'trade_val' => array('silver'=> 4),
-    'tt'     => clienttranslate('${gold}<br>Gold:<br>Required to build some buildings<br>Can be used to pay Workers / Auction costs(as 5 ${silver})<br>End: Worth ${vp2}'),
+    'tt'     => clienttranslate('${big_gold}<br>Gold:<br>Required to build some buildings<br>Can be used to pay Workers / Auction costs(as 5 ${silver})<br>End: Worth ${vp2}'),
   ),
   'copper' => array(
     'name'   => clienttranslate("Copper"),
     'db_int' => COPPER,
     'trade_val' => array('gold'=> 1),
-    'tt'     => clienttranslate('${copper}<br>Copper:<br>Required to build some buildings<br>End: Worth ${vp2}'),
+    'tt'     => clienttranslate('${big_copper}<br>Copper:<br>Required to build some buildings<br>End: Worth ${vp2}'),
   ),
   'cow' => array(
     'name'   => clienttranslate("Livestock"),
     'db_int' => COW,
     'trade_val' => array('gold'=> 1),
-    'tt'     => clienttranslate('${cow}<br>Livestock:<br>Required to build some buildings<br>End: Worth ${vp2}'),
+    'tt'     => clienttranslate('${big_big_cow}<br>Livestock:<br>Required to build some buildings<br>End: Worth ${vp2}'),
   ),
   'loan' => array(
     'name'   => clienttranslate("Debt"),
     'db_int' => LOAN,
     'tt'     => sprintf(clienttranslate('%s<br>Debt:<br>Costs 5 ${silver} (or 1 ${gold}) to pay off<br>End: Penalty for unpaid %s:<br>'.
     '%s lose ${vp}<br>%s lose ${vp3}<br>%s lose ${vp6}<br>%s lose ${vp10}<br> (etc...)'), 
-      '${loan}', '${loan}', '${loan} ${arrow}', '${loan}${loan} ${arrow}', '${loan}${loan}${loan} ${arrow}', '${loan}${loan}${loan}${loan} ${arrow}'),
+      '${big_loan}', '${loan}', '${loan} ${arrow}', '${loan}${loan} ${arrow}', '${loan}${loan}${loan} ${arrow}', '${loan}${loan}${loan}${loan} ${arrow}'),
   ),
   'trade' => array(
     'name'   => clienttranslate("Trade Token"),
     'db_int' => TRADE,
-    'tt'     => clienttranslate('${trade}<br>Trade Token:<br> Required for any trade<br>Used to Hire new ${worker}'),
+    'tt'     => clienttranslate('${big_trade}<br>Trade Token:<br> Required for any trade<br>Used to Hire new ${worker}'),
+  ),
   'vp' => array(
     'name'   => clienttranslate("VP Token"),
     'db_int' => VP,
-    'tt'     => clienttranslate('${vp}<br>VP Token:<br>End: Worth 1 VP'),
+    'tt'     => clienttranslate('${big_vp}<br>VP Token:<br>End: Worth 1 VP'),
   ),
 );
 
@@ -312,7 +317,7 @@ $this->building_info = array_merge(
    ),
    BLD_BANK => array(
     'name' => clienttranslate("Bank"),
-    'desc' => clienttranslate('Allows trades <br>${trade} ${arrow} ${silver}'),
+    'trade'=> 2,
     'stage'=> STAGE_TOWN,
     'type' => TYPE_COMMERCIAL,
     'cost' => array('copper'=>1, 'steel'=>1),

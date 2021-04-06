@@ -13,7 +13,7 @@
 $gameinfos = array( 
 
 // Game Name
-'game_name' => 'homesteadersnewbeginningsNewBeginnings',
+'game_name' => 'HomesteadersNewBeginnings',
 
 // Game designer (or game designers, separated by commas)
 'designer' => 'Alex Rockwell',       

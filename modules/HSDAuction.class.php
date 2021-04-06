@@ -74,7 +74,7 @@ class HSDAuction extends APP_GameClass
 
     function getCurrentRoundAuctions($round_number= null){
         $round_number = ($round_number? :$this->game->getGameStateValue('round_number'));
-        $sql = "SELECT `auction_id` a_id, `location` FROM `auctions` WHERE `location` in (1,2,3,4) AND `position`='$round_number'"; 
+        $sql = "SELECT `auction_id` a_id, `location` FROM `auctions` WHERE `location` IN (1,2,3,4) AND `position`='$round_number'"; 
         return ($this->game->getCollectionFromDb( $sql ));
     }
 
@@ -120,7 +120,9 @@ class HSDAuction extends APP_GameClass
             break;
             case AUC_BONUS_6VP_AND_FOOD_VP:
                 $this->game->Resource->updateAndNotifyIncome($this->game->getActivePlayerId(), 'vp6', 1, clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
+                $this->game->Log->updateResource($this->game->getActivePlayerId(), "vp", 6);
             default:
+                // all others are handled by player actions, so go to that state.
                 $this->game->setGameStateValue( 'auction_bonus', $bonus);
             break;
         }

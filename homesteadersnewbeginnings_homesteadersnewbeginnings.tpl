@@ -3,7 +3,7 @@
 <!-- 
 --------
 -- BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
--- homesteadersnewbeginningstb implementation : © Nick Patron <nick.theboot@gmail.com>
+-- homesteadersnewbeginnings implementation : © Nick Patron <nick.theboot@gmail.com>
 -- 
 -- This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
 -- See http://en.boardgamearena.com/#!doc/Studio for more information.
@@ -20,7 +20,8 @@
     <div id="player_zone_{COLOR}" class="whiteblock border_{COLOR} current_player" style="margin-top:4px;">
     <div class="break" style="order:3;"></div>
         <div id="player_resources_{COLOR}" class="this_player_resources">
-            <span id="player_name_{COLOR}" class="boardheader biggerFont" style="color: {COLOR};margin: auto;">{NAME}</span>
+            <span id="player_name_{COLOR}" class="boardheader biggerFont" style="color: {COLOR};">{NAME}</span>
+            <div id="worker_zone_{COLOR}" class="worker_zone" style='order:10;'></div> 
             <span id="silver_group" class="this_player_resource_group"><!-- horiz -->
                 <span id="silvericon_{COLOR}" class="score_token player_silver score"></span>
                 <span id="silver_num" class="player_numbers vert"><!-- vertical -->
@@ -158,7 +159,7 @@
             <span id='auc_future' class="font">{FUTURE_AUCTION}</span>
         </a>
         <a href="#" id="tgl_main_bld" class="bgabutton bgabutton_gray">
-            <span id="bld_main" class="font">{MAIN_BUILDING}</span>
+            <span id="bld_main" class="font">{BUILDING_STOCK}</span>
         </a>
         <a href="#" id="tgl_past_bld" class="bgabutton bgabutton_gray">
             <span id="bld_discard" class="font">{BUILDING_DISCARD}</span>
@@ -209,7 +210,7 @@
         <div id="events_zone" class="main_building_zone"> </div>
     </div>
     <div id="main_building_container" class="whiteblock building_container border_black">
-        <span class="biggerFont">{BUILDING_STOCK}</span>
+        <span class="biggerFont">{MAIN_BUILDING}</span>
         <div id="main_building_zone" class="main_building_zone"> </div>
     </div>
     <div id='future_auction_container' class='whiteblock border_a1 building_container noshow'>
@@ -233,7 +234,8 @@
     <!-- BEGIN player_zone -->
     <div id="player_zone_{COLOR}" class="whiteblock border_{COLOR} player_zone" style="margin-top:4px;">
         <div id="player_resources_{COLOR}" class="player_resources">
-            <span id="player_name_{COLOR}" class="boardheader biggerFont" style="color: {COLOR};margin: auto;">{NAME}</span>
+            <div id="player_name_{COLOR}" class="boardheader biggerFont" style="color: {COLOR};">{NAME}</div>
+            <div id="worker_zone_{COLOR}" class="worker_zone"></div> 
             <span id="silver_group_{COLOR}" class="player_resource_group">
                 <span id="silvericon_{COLOR}" class="score_token player_silver score"></span>
                 <span id="silvercount_{COLOR}" class="player_silver_text player_text">0</span>
@@ -274,9 +276,7 @@
                 <span id="coppericon_{COLOR}" class="score_token player_copper score"></span>
                 <span id="coppercount_{COLOR}" class="player_copper_text player_text">0</span>
             </span>
-            <div id="worker_zone_{COLOR}" class="worker_zone" style='order:10;'></div> 
-        </div>
-        <div id="token_zone_{COLOR}" class="player_token_zone">
+
         </div>
         <div id="building_zone_{COLOR}" class="building_zone"> </div>
     </div>
@@ -299,6 +299,8 @@ var jstpl_building_stack= '<div id="building_stack_${id}" class="building_zone_d
 var jstpl_buildings='<div id="building_tile_${key}" class="building_tile build_tile_${id}"></div>';
 var jptpl_bld_text = '<div id="building_tile_${key}" class="building_tile build_tile_${id} building_card">${card}</div>';
 var jstpl_building_slot='<div id="slot_${key}_${slot}" class="worker_slot slot_${id}_${slot} key_${key}"></div>'; 
+var jstpl_tt_building_slot='<div id="slot_${key}_${slot}" class="worker_slot slot_${id}_${slot} key_${key}"></div>'; 
+var jstpl_tt_building_slot_3 = '<div id="slot_${key}_${slot}" class="worker_slot slot_${id}_${slot}"></div>';
 
 var jstpl_auction_tile='<div id="auction_tile_${auc}" class="auction_tile border_${color}"></div>';
 var jptpl_auction_text = '<div id="auction_tile_${auc}" class="auction_tile border_${color} auction_card">${card}</div>';
@@ -310,18 +312,18 @@ var jptpl_track='<div id="token_track_${id}" class="token_track border_${color}"
 
 var jstpl_player_board = '\<div class="cp_board">\
     <div class="score_group"><div class="score_flex">\
-    <div id="silvericon_p${id}" class="score_token score_silver score"></div><span id="silvercount_${id}" class="score_silver_text score_text">0</span>\
-    <div id="tradeicon_p${id}"  class="score_token score_trade score"></div><span id="tradecount_${id}" class="score_trade_text score_text">0</span>\
-    <div id="woodicon_p${id}"   class="score_token score_wood score"></div><span id="woodcount_${id}" class="score_wood_text score_text">0</span>\
-    <div id="foodicon_p${id}"   class="score_token score_food score"></div><span id="foodcount_${id}" class="score_food_text score_text">0</span>\
-    <div id="steelicon_p${id}"  class="score_token score_steel score"></div><span id="steelcount_${id}" class="score_steel_text score_text">0</span>\
-    </div><div class="score_flex">\
-    <div id="vpicon_p${id}"     class="score_token score_vp score"></div><span id="vpcount_${id}" class="score_vp_text score_text">0</span>\
-    <div id="loanicon_p${id}"   class="score_loan score score"></div><span id="loancount_${id}" class="score_loan_text score_text">0</span>\
-    <div id="goldicon_p${id}"   class="score_token score_gold score"></div><span id="goldcount_${id}" class="score_gold_text score_text">0</span>\
-    <div id="cowicon_p${id}"    class="score_token score_cow score"></div><span id="cowcount_${id}" class="score_cow_text score_text">0</span>\
-    <div id="coppericon_p${id}" class="score_token score_copper score"></div><span id="coppercount_${id}" class="score_copper_text score_text">0</span>\
-</div></div></div>';
+        <div id="silver_p${id}" class="score_flex_item score_top score_left"><div id="silvericon_p${id}" class="score_token score_silver score"></div><div id="silvercount_${id}" class="score_silver_text score_text">0</div></div>\
+        <div id="trade_p${id}" class="score_flex_item score_top"><div id="tradeicon_p${id}" class="score_token score_trade score"></div><div id="tradecount_${id}" class="score_trade_text score_text">0</div></div>\
+        <div id="wood_p${id}" class="score_flex_item score_top"><div id="woodicon_p${id}" class="score_token score_wood score"></div><div id="woodcount_${id}" class="score_wood_text score_text">0</div></div>\
+        <div id="food_p${id}" class="score_flex_item score_top"><div id="foodicon_p${id}" class="score_token score_food score"></div><div id="foodcount_${id}" class="score_food_text score_text">0</div></div>\
+        <div id="steel_p${id}" class="score_flex_item score_top score_right"><div id="steelicon_p${id}" class="score_token score_steel score"></div><div id="steelcount_${id}" class="score_steel_text score_text">0</div></div>\
+        <div id="vp_p${id}" class="score_flex_item score_bot score_left"><div id="vpicon_p${id}" class="score_token score_vp score"></div><div id="vpcount_${id}" class="score_vp_text score_text">0</div></div>\
+        <div id="loan_p${id}" class="score_flex_item score_bot"><div id="loanicon_p${id}" class="score_loan score score"></div><div id="loancount_${id}" class="score_loan_text score_text">0</div></div>\
+        <div id="gold_p${id}" class="score_flex_item score_bot"><div id="goldicon_p${id}" class="score_token score_gold score"></div><div id="goldcount_${id}" class="score_gold_text score_text">0</div></div>\
+        <div id="cow_p${id}" class="score_flex_item score_bot"><div id="cowicon_p${id}" class="score_token score_cow score"></div><div id="cowcount_${id}" class="score_cow_text score_text">0</div></div>\
+        <div id="copper_p${id}" class="score_flex_item score_bot score_right"><div id="coppericon_p${id}" class="score_token score_copper score"></div><div id="coppercount_${id}" class="score_copper_text score_text">0</div></div>\
+    </div></div>\
+</div>';
 
 var jstpl_pay_button = '<span id="pay_gold" class="font caps" style="display:none">0</span> \
  <span id="pay_gold_tkn" class="log_gold token_inline" style="display:none"></span> \
@@ -341,14 +343,14 @@ var jptpl_breadcrumb_payment = '<span id="breadcrumb_payment" class="breadcrumbs
 var jptpl_breadcrumb_income = '<span id="breadcrumb_income_${id}" class="breadcrumbs_element font" style="${style}">${text}</span><span id="breadcrumb_income_tokens_${id}" class="breadcrumbs_element" style="${style}">${income}</span>'
 var jptpl_breadcrumb_building = '<span id="breadcrumb_building" class="breadcrumbs_element font">${text}</span><span id="breadcrumb_bldCost" class="breadcrumbs_element">${cost}</span>'
 
-var jptpl_tt_break = '<div class="tt_break"><span font>${text}</span></div>';
+var jptpl_tt_break = '<div class="tt_${type}"><span font>${text}</span></div>';
 var jptpl_res_tt = '<div class="tt_container" style="text-align:center;">${value}</br>';
-var jptpl_bld_tt = '<div class="tt_container"><span class="font bold ${type}" style="text-align:left;">${name}</span>\
-    <p class="alignright"><span aria="${vp}" title="${vp}" class="log_${vp} bld_vp token_inline" ></span></p><br>\
-    <p class="font caps" style="text-align: left;">${COST} ${cost_vals}</p>${hr}\
-    <div style="text-align:center;"><span class="font" style="max-width:200px;display:inline-block;">${desc}</span>${hr}\
-    <span class="income">${INCOME}<br></span>\
-    <div class="font">${inc_vals}</div></div></div>';
+var jptpl_bld_tt = '<div class="tt_container">${msg}<span class="font bold ${type} tt_left">${name}</span>\
+    <p class="alignright"><span aria="${vp}" title="${vp}" class="log_${vp} bld_vp token_inline"></span></p><br>\
+    <p class="font caps tt_left">${COST} ${cost_vals}</p>${hr}\
+    <p class="font tt_center">${desc}</p>${hr}\
+    <p class="income tt_center">${INCOME}</p>\
+    <p class="font tt_center">${inc_vals}</p></div>';
 var jptpl_evt_tt = '<div class="tt_container event_card" style="order:${pos}">\<span class="font bold" style="text-align:center;">${TITLE}</span><hr>\
     <div style="text-align:center;"><span class="font" style="max-width:200px;display:inline-block;">${DESC}</span>';
 </script>  

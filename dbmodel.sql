@@ -22,7 +22,7 @@
 ALTER TABLE `player` ADD `color_name` VARCHAR(16) NOT NULL DEFAULT ' ';
 ALTER TABLE `player` ADD `rail_adv`   INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'rail_adv 0-5';
 ALTER TABLE `player` ADD `use_silver` INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'pay workers with silver 0-true, 1-false';
-ALTER TABLE `player` ADD `paid_work`  INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'has paid workers';
+ALTER TABLE `player` ADD `paid_work`  INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'has recieved Income';
  -- allows showing cancelled/undo actions as crossed out in log.
 ALTER TABLE `gamelog` ADD `cancel` TINYINT(1) NOT NULL DEFAULT 0;
 

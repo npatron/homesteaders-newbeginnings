@@ -26,6 +26,14 @@ class HSDresource extends APP_GameClass
             return $this->game->getCollectionFromDB("SELECT `player_id` p_id, `workers`, `track` FROM `resources` " );
         }
     }
+    
+    /**
+     * This will NOT notify the player only for use when notification has already happened (workers), drack, loan, 
+     * updating the trackers: bid_loc, rail_adv, 
+     */
+    function updateResource($p_id, $type, $amount){
+        $this->game->DbQuery( "UPDATE `resources` SET `$type`=$type + $amount WHERE `player_id`= '$p_id'");
+    }
 
     // Payment toggles, (for pay worker state).
     function getPaid($p_id){
@@ -40,15 +48,20 @@ class HSDresource extends APP_GameClass
         $this->game->DbQuery( "UPDATE `resources` SET `paid`='0' ");
     }
 
-      ////// RESOURCE CLIENT & DB MANIPULATION //////
-    /**
-     * This will NOT notify the player only for use when notification has already happened (workers), drack, loan, 
-     * updating the trackers: bid_loc, rail_adv, 
-     */
-    function updateResource($p_id, $type, $amount){
-        $this->game->DbQuery( "UPDATE `resources` SET `$type`=$type + $amount WHERE `player_id`= '$p_id'");
+    // payment toggles, (for income)
+    function getIncomePaid($p_id){
+        return $this->game->getUniqueValueFromDB( "SELECT `paid_work` FROM `player` WHERE `player_id`='$p_id'" ); 
     }
 
+    function setIncomePaid($p_id, $val=1){
+        $this->game->DbQuery( "UPDATE `player` SET `paid_work`='$val' WHERE `player_id`='$p_id'");
+    }
+
+    function clearIncomePaid(){
+        $this->game->DbQuery( "UPDATE `player` SET `paid_work`='0' ");
+    }
+
+    ////// RESOURCE CLIENT & DB MANIPULATION //////
     /**
      * p_id - player id
      * $type - 'resource type' as string
@@ -223,6 +236,10 @@ class HSDresource extends APP_GameClass
         return $values;
     }
 
+    function updateClientResources() {
+        $this->game->notifyAllPlayers( "showResources", "", array( 'resources' => $this->getResources()));
+    }
+
     /** 
      * Helper method to allow automating income of payLoan
      * to force player to get 2 silver if have no loan to payoff
@@ -372,10 +389,14 @@ class HSDresource extends APP_GameClass
     
     function collectIncome($p_id) 
     {
-        $p_tracks = $this->game->getUniqueValueFromDB( "SELECT `track` FROM `resources` WHERE `player_id`='$p_id'" ); 
-        $this->game->Building->buildingIncomeForPlayer( $p_id );
-        if($p_tracks > 0) {
-            $this->updateAndNotifyIncome($p_id, 'silver', $p_tracks, array('track'=>'track'));
+        $has_been_paid = $this->getIncomePaid($p_id);
+        if ($has_been_paid==0){    
+            $this->setIncomePaid($p_id);
+            $p_tracks = $this->game->getUniqueValueFromDB( "SELECT `track` FROM `resources` WHERE `player_id`='$p_id'" ); 
+            $this->game->Building->buildingIncomeForPlayer( $p_id );
+            if($p_tracks > 0) {
+                $this->updateAndNotifyIncome($p_id, 'silver', $p_tracks, array('track'=>'track'));
+            }
         }
     }
 

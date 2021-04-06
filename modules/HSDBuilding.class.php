@@ -127,7 +127,7 @@ class HSDBuilding extends APP_GameClass
             // add 'settlement' and 'settlement/town' buildings
             $sql = "UPDATE buildings SET location = '".BLD_LOC_OFFER."' WHERE `stage` in ('".STAGE_SETTLEMENT."','".STAGE_SETTLEMENT_TOWN."');";
             $this->game->DbQuery( $sql );
-            $this->updateClientBuildings(clienttranslate("Settlement"));
+            $this->updateClientBuildings( clienttranslate("Settlement"));
         }
         //rd 5 setup buildings
         if($round_number == 5){
@@ -137,7 +137,7 @@ class HSDBuilding extends APP_GameClass
             // remove settlement buildings (not owned)
             $sql = "UPDATE `buildings` SET `location` = '".BLD_LOC_DISCARD."' WHERE `stage` = '".STAGE_SETTLEMENT."' AND `location` = '".BLD_LOC_OFFER."'";
             $this->game->DbQuery( $sql );
-            $this->updateClientBuildings(clienttranslate('Town'));
+            $this->updateClientBuildings( clienttranslate('Town'));
         }
         //rd 9 setup buildings
         if($round_number == 9){
@@ -147,21 +147,25 @@ class HSDBuilding extends APP_GameClass
             // add city buildings
             $sql = "UPDATE buildings SET location = '".BLD_LOC_OFFER."' WHERE `stage` = '".STAGE_CITY."';";
             $this->game->DbQuery( $sql );
-            $this->updateClientBuildings(clienttranslate('City'));
+            $this->updateClientBuildings( clienttranslate('City'));
         }
         // Final round (just income).
         if($round_number == 11){
             $sql = "UPDATE buildings SET location = '".BLD_LOC_DISCARD."' WHERE `location` = '".BLD_LOC_OFFER."';";
             $this->game->DbQuery( $sql );
-            $this->updateClientBuildings('Final');
+            $this->updateClientBuildings(clienttranslate('Final'));
+            $this->game->Resource->updateClientResources();
         }
     }
 
     /** cause client to update building Stacks */
     function updateClientBuildings($era){
         $buildings = $this->getAllBuildings();
-        $this->game->notifyAllPlayers( "updateBuildingStocks", clienttranslate( 'Setting up Buildings for ${era} Era' ), array(
-            'buildings' => $buildings, 'era'=>$era));
+        $this->game->notifyAllPlayers( "updateBuildingStocks", clienttranslate( 'Setting up Buildings for ${era_translated} Era' ), array(
+            'i18n' => array( 'era_translated' ),
+            'buildings' => $buildings, 
+            'era_translated'=>$era,
+        ));
     }
 
     /***** BUYING Building *****/

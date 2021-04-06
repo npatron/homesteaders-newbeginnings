@@ -2,7 +2,7 @@
  /**
   *------
   * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
-  * homesteadersnewbeginningstb implementation : © Nick Patron <nick.theboot@gmail.com>
+  * homesteadersnewbeginnings implementation : © Nick Patron <nick.theboot@gmail.com>
   * 
   * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
   * See http://en.boardgamearena.com/#!doc/Studio for more information.
@@ -192,7 +192,7 @@ class homesteadersnewbeginnings extends Table
             'number_auctions' => $this->getGameStateValue( 'number_auctions' ),
             'player_order' => $this->getNextPlayerTable(),
             'player_resources' => $this->getObjectFromDb( "SELECT `player_id` p_id, `silver`, `wood`, `food`, `steel`, `gold`, `copper`, `cow`, `loan`, `trade`, `vp` FROM `resources` WHERE player_id = '$cur_p_id'" ),
-            'resources' => $this->Resource->getResources($cur_p_id),
+            'resources' => $this->Resource->getResources(),
             'resource_info' => $this->resource_info,
             'round_number' => $this->getGameStateValue( 'round_number' ),
             'show_player_info' => $this->getShowPlayerInfo(),
@@ -237,11 +237,10 @@ class homesteadersnewbeginnings extends Table
      * getGameStateValue('show_player_info' );
      */
     function getShowPlayerInfo(){
-        try {
-            return ($this->getGameStateValue( 'show_player_info' ) == 0);
-        } catch (Exception $e) {
-            return false;
+        if ($this->getGameStateValue('round_number') == 11){
+            return true;
         }
+        return ($this->getGameStateValue( 'show_player_info' ) == 0);
     }
     
     
@@ -261,10 +260,10 @@ class homesteadersnewbeginnings extends Table
         $this->Resource->takeLoan($this->getCurrentPlayerId());
     }
     
-    public function playerTrade( $tradeAction_csv, $allowTrade =false )
+    public function playerTrade( $tradeAction_csv, $notActive =false )
     {
         // allow out of turn trade, only when flag is passed during allocateWorkers State.
-        if (!($allowTrade && $this->gamestate->state()['name'] === "allocateWorkers"))
+        if (!($notActive && $this->gamestate->state()['name'] === "allocateWorkers"))
             $this->checkAction( 'trade' );
         $tradeAction_arr = explode(',', $tradeAction_csv);
         foreach( $tradeAction_arr as $key=>$val ){
@@ -278,8 +277,9 @@ class homesteadersnewbeginnings extends Table
         $this->checkAction( 'hireWorker' );
         $cur_p_id = $this->getCurrentPlayerId();
         $worker_cost = array('trade'=>1,'food'=>1);
-        throw new BgaUserException( clienttranslate("You cannot afford to hire a worker"));
-            $this->Resource->updateAndNotifyPaymentGroup($cur_p_id, $worker_cost, clienttranslate('Hire Worker'));
+        if (!$this->Resource->canPlayerAfford($cur_p_id, $worker_cost))
+            throw new BgaUserException( clienttranslate("You cannot afford to hire a worker"));
+        $this->Resource->updateAndNotifyPaymentGroup($cur_p_id, $worker_cost, clienttranslate('Hire Worker'));
         $this->Log->updateResource($cur_p_id, "trade", -1);
         $this->Log->updateResource($cur_p_id, "food", -1);
         $this->Resource->addWorker($cur_p_id, 'hire');
@@ -291,7 +291,7 @@ class homesteadersnewbeginnings extends Table
         $cur_p_id = $this->getCurrentPlayerId();
         $w_owner = $this->getUniqueValueFromDB("SELECT `player_id` FROM `workers` WHERE `worker_key`='$w_key'");
         if ($w_owner != $cur_p_id){ throw new BgaUserException(clienttranslate("The selected worker is not your worker"));}
-        $this->notifyAllPlayers( "workerMoved", clienttranslate( '${player_name} moves ${worker} to ${building_name}' ), array(
+        $this->notifyAllPlayers( "workerMoved", "", array(
             'i18n' => array( 'building_name' ),
             'player_id' => $cur_p_id,
             'worker_key' => $w_key,
@@ -420,7 +420,7 @@ class homesteadersnewbeginnings extends Table
         $act_p_id = $this->getActivePlayerId();
         $options = $this->Resource->getRailAdvBonusOptions($act_p_id);
         if (!in_array ($selected_bonus, $options)){
-            throw new BgaUserException( _("invalid bonus option selected.") );
+            throw new BgaUserException( clienttranslate("invalid bonus option selected") );
         } 
         $this->Resource->recieveRailBonus($act_p_id, $selected_bonus);
         $phase = $this->getGameStateValue( 'phase' );
@@ -469,7 +469,7 @@ class homesteadersnewbeginnings extends Table
             $this->Resource->addWorker($act_p_id, clienttranslate('Auction Bonus'));
             $this->setGameStateValue( 'phase', PHASE_AUC_BONUS);
             $auc_no = $this->getGameStateValue( 'current_auction');
-            $this->Resource->getRailAdv( $act_p_id, sprintf(clienttranslate("Auction %s"), $auc_no), 'auction', $auc_no );
+            $this->Resource->getRailAdv( $act_p_id, sprintf(clienttranslate("Auction %s"),$auc_no), 'auction', $auc_no );
             $this->gamestate->nextState( 'railBonus' );
         } else {
             throw new BgaVisibleSystemException ( sprintf(clienttranslate("Free Hire Worker called, but auction bonus is %s"),$auction_bonus) );
@@ -481,15 +481,15 @@ class homesteadersnewbeginnings extends Table
         $act_p_id = $this->getActivePlayerId();
         $tradeAwayType = $this->resource_map[$tradeAway];
         if (!$this->Resource->canPlayerAfford($act_p_id, array($tradeAwayType=> 1))) {
-            throw new BgaUserException( _("You need a ")."<div class='log_${tradeAwayType} token_inline'></div>"._(" to take this action") );
+            throw new BgaUserException( sprintf(clienttranslate("You need a %s to take this action"),"<div class='log_${tradeAwayType} token_inline'></div>") );
         }
         $tradeForType = 'track'; // default is currently track.
         if ($tradeFor == VP){ // determine if vp2 or vp4.
             if ($tradeAway == FOOD) $tradeForType = 'vp2';
             else $tradeForType = 'vp4';
         }
-        $auc = $this->getGameStateValue('current_auction');
-        $this->Resource->specialTrade($act_p_id, array($tradeAwayType=>1), array($tradeForType=>1), _("auction ").$auc, 'auction', $auc);
+        $auc_no = $this->getGameStateValue('current_auction');
+        $this->Resource->specialTrade($act_p_id, array($tradeAwayType=>1), array($tradeForType=>1), sprintf(clienttranslate("Auction %s"),$auc_no), 'auction', $auc_no);
         
         $this->gamestate->nextState( 'done' );
     }
@@ -638,6 +638,7 @@ class homesteadersnewbeginnings extends Table
     function stStartRound() {
         $round_number = $this->getGameStateValue('round_number');
         $this->Resource->clearPaid();
+        $this->Resource->clearIncomePaid();
         $this->Building->updateBuildingsForRound($round_number);
         $this->gamestate->nextState( );
     }
@@ -675,7 +676,7 @@ class homesteadersnewbeginnings extends Table
         if ($round_number == 11){
             $this->gamestate->nextState( 'endGame');
         } else {
-            $this->Bid->clearBids();
+            $this->Bid->clearBids( );
             if ($this->Events->eventPhase()){
                 $this->gamestate->nextState( 'events');
             } else {

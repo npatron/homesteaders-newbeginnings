@@ -2,7 +2,7 @@
 /**
  *------
  * BGA framework: © Gregory Isabelli <gisabelli@boardgamearena.com> & Emmanuel Colin <ecolin@boardgamearena.com>
- * homesteadersnewbeginningsNewBeginnings implementation : © Nick Patron <nick.theboot@gmail.com>
+ * HomesteadersNewBeginnings implementation : © Nick Patron <nick.theboot@gmail.com>
  *
  * This code has been produced on the BGA studio platform for use on http://boardgamearena.com.
  * See http://en.boardgamearena.com/#!doc/Studio for more information.
@@ -44,19 +44,14 @@
         $this->tpl['ROUND_STRING'] = self::_("Round: ");
         $round_number = $this->game->getGameStateValue('round_number');
         $this->tpl['ROUND_NUMBER'] = $round_number;
-        $this->tpl['SHOW']             = _("Show");
-        $this->tpl['HIDE']             = _("Hide");
         $this->tpl['MAIN_BUILDING']    = clienttranslate('Current Building Stock');
         $this->tpl['CONFIRM_TRADE']    = clienttranslate("Confirm Trade");
         $this->tpl['UNDO_TRADE']       = clienttranslate("Undo All Trade/Dept");
         $this->tpl['UNDO_LAST_TRADE']  = clienttranslate("Undo Last Trade/Dept");
         $this->tpl['FUTURE_AUCTION']   = clienttranslate("Show Upcoming Auctions");
-        $this->tpl['BUILDING_STOCK']   = clienttranslate("Show Current Buildings");
+        $this->tpl['BUILDING_STOCK']   = clienttranslate("Hide Current Buildings");
         $this->tpl['BUILDING_DISCARD'] = clienttranslate("Show Building Discard");
         $this->tpl['FUTURE_BUILDING']  = clienttranslate('Show Upcoming Buildings');
-        $this->tpl['PAY']              = _("Auto-pay");
-        $this->tpl['WITH']             = _("with");
-        $this->tpl['EVENTS']           = _("Events");
 
         $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "this_player_zone" );
         $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "player_zone" );
