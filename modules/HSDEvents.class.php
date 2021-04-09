@@ -118,52 +118,69 @@ class HSDEvents extends APP_GameClass
     function setupEventPreAuction(){
         $current_event = $this->game->getGameStateValue('current_event');
         $bonus_id = $this->game->events_info[$current_event]['all_b'];
+        $next_state = "done";
         switch($bonus_id){
             case EVT_VP_4SILVER: // all players with vp token, get 4 silver
                 $players = $this->getPlayersWithAtLeastOneResource('vp');
-                foreach ($players as $i=> $p_id){
+                foreach ($players as $p_id=> $p){
                     $this->game->Resource->updateAndNotifyIncome($p_id, 'silver', 4, "event");
                 }
+                $this->game->gamestate->nextState( "done" );
                 break;
             case EVT_TRADE: //everyone gets a trade token.
                 $resources = $this->game->getCollectionFromDB( "SELECT `player_id` FROM `resources` " );
                 foreach ($resources as $p_id=> $player){
                     $this->game->Resource->updateAndNotifyIncome($p_id, 'trade', 1, "event");
                 }
+                $this->game->gamestate->nextState( "done" );
                 break;
             case EVT_LOAN_TRACK: //least loan gets track adv
                 $players = $this->getPlayersWithLeastResource('loan');
                 foreach ($players as $i=> $p_id){
                     // give them all track advancement,
-                    // make them multi-active, 
-                    // go to new state (multi-active version of choose bonus).
+                    $this->game->Resource->getRailAdv($p_id, "event");
                 }
+                // make them multi-active, 
+                $this->game->gamestate->setPlayersMultiactive($players);
+                // go to new state (multi-active version of choose bonus).
+                $this->game->gamestate->nextState( "track" );
                 break;
             case EVT_LEAST_WORKER:
-                $players = $this->getPlayersWithLeastResource('loan');
-                foreach ($players as $i=> $p_id){
-                    // give them all worker, (which should be optional)
-                    // make them multi-active, 
-                    // go to new state (multi-active version of recieve bonus worker state).
-                }
+                $players = $this->getPlayersWithLeastResource('worker');
+                $this->game->gamestate->setPlayersMultiactive($players);
+                // go to state to choose to get bonus (worker) or pass 
+                $this->game->gamestate->nextState( "bonus" );
+                // go to new state (multi-active version of recieve bonus worker state).
                 break;
-            case EVT_INTEREST:
-                $players = $this->getPlayersWithAtLeastOneResource('vp');
+            case EVT_INTEREST: //note: players can't pay off loans until end of game.
+                $players = $this->getPlayersWithAtLeastOneResource('loan');
                 foreach ($players as $i=> $p_id){
                     // send to new multi-active pay state, 
                     // with cost based upon amount of loans
                 }
                 break;
-            case EVT_PAY_LOAN_FOOD:
+            case EVT_PAY_LOAN_FOOD: 
                     // send to new multi-active, 
                     // where players may trade and pay loans with food.
                     // should this happen here? or after auction? 
                     // may need to look at the rules for this one.
+                    $this->game->gamestate->nextState( "pay_food" );
                 break;
             case EVT_COPPER_COW_GET_GOLD:
-                    // for each player with a cow or copper, they recieve a gold.
-                
-                break;
+                $players = array();
+                $players_cow = $this->getPlayersWithAtLeastOneResource('cow');
+                foreach($players_cow as $i => $p_id){
+                    $players[$p_id] = 1;
+                }
+                $players_copper = $this->getPlayersWithAtLeastOneResource('copper');
+                // for each player with a cow or copper, they recieve a gold.
+                foreach($players_copper as $i => $p_id){
+                    $players[$p_id] = 1;
+                }
+                foreach($players as $p_id=>$p){
+                    $this->game->Resource->updateAndNotifyPayment($p_id, 'gold', 1, 'event');
+                }
+            break;
             case EVT_DEV_TRACK_VP3:
 
                 break;
@@ -193,7 +210,7 @@ class HSDEvents extends APP_GameClass
         $resources = $this->game->getCollectionFromDB( "SELECT `player_id`, `$type` FROM `resources` " );
         foreach ($resources as $p_id=> $player){
             if ($player[$type] > 0){
-
+                $players[] = $p_id;
             }
         }
         return $players;
@@ -205,8 +222,8 @@ class HSDEvents extends APP_GameClass
         $resources = $this->game->getCollectionFromDB( "SELECT `player_id`, `$type` FROM `resources` " );
         foreach ($resources as $p_id=> $player){
             if (empty($leastPlayers) || $player[$type]<$leastValue){
-                $leastPlayers = array($p_id);
                 $leastValue = $player[$type];
+                $leastPlayers = array($p_id);
             } else if ($player[$type] == $leastValue){
                 $leastPlayers[] = $p_id;
             }
