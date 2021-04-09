@@ -187,7 +187,7 @@ class homesteadersnewbeginnings extends Table
             'can_undo_trades' => (count($this->Log->getLastTransactions($cur_p_id)) > 0 && $this->checkAction('trade', false)),
             'cancel_move_ids' => $this->Log->getCancelMoveIds(),
             'current_auctions' => $this->Auction->getCurrentRoundAuctions(), 
-            'events_info' => $this->events_info,
+            'events_info' => $this->event_info,
             'first_player' => $this->getGameStateValue( 'first_player'),
             'number_auctions' => $this->getGameStateValue( 'number_auctions' ),
             'player_order' => $this->getNextPlayerTable(),
