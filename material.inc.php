@@ -679,8 +679,8 @@ $this->event_info = array(
   4 => array(
     'name'  => clienttranslate('Eager Investors'),
     'stage' => STAGE_SETTLEMENT,
-    'tt'    => clienttranslate('Players with the least loans ${arrow} Advance on Railroad Track'),
-    'all_b' => EVT_LOAN_TRACK,
+    'tt'    => clienttranslate('All players who have a ${vp} get 4-${silver}'),
+    'all_b' => EVT_VP_4SILVER,
     'pre_trd'=> 1,
   ),
   5 => array(
@@ -700,7 +700,7 @@ $this->event_info = array(
   7 => array(
     'name'  => clienttranslate('Railroad Contracts'),
     'stage' => STAGE_SETTLEMENT,
-    'tt'    => clienttranslate('All auctions also give:\n${silver}${silver} ${arrow} Advance the Railroad Track'),
+    'tt'    => clienttranslate('All auctions also give:${silver2} ${arrow} Advance the Railroad Track'),
     'auc'   => array(1,2,3,4),
     'auc_b' => EVT_AUC_2SILVER_TRACK,
   ),

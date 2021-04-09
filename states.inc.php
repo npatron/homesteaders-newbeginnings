@@ -55,42 +55,58 @@ $machinestates = array(
         "action" => "stPayWorkers",
         "args" => "argPayWorkers",
         "possibleactions" => array( "takeLoan",  "trade", "done" ),
-        "transitions" => array( "auction" => STATE_BEGIN_AUCTION)
+        "transitions" => array( "event" => STATE_EVT_PRE_AUCTION,
+                                "auction" => STATE_BEGIN_AUCTION,)
     ),
 
-    STATE_SETUP_PRE_AUCTION_EVENT => array(
+    STATE_EVT_PRE_AUCTION => array(
         "name" => "setupPreAuctionEvent",
         "description" => '',
         "type" => "game",
         "action" => "stSetupPreAuctionEvent",
         "updateGameProgression" => true,
-        "transitions" => array( "done" => STATE_BEGIN_AUCTION,
-                                "track"=> STATE_RAIL_BONUS_MULTI,
-                                "bonus" => STATE_CHOOSE_BONUS_MULTI,
-                                "pay_food" =>STATE_PAY_LOAN_FOOD,
-                                )
+        "transitions" => array( "done"    => STATE_BEGIN_AUCTION,
+                                "evt_trade"=>STATE_EVT_TRADE,                        
+                                "bonus"   => STATE_EVT_BONUS,
+                                "evt_pay" => STATE_EVT_PAY,)
     ),
 
-    STATE_CHOOSE_BONUS_MULTI => array(
-        "name" => "setupPreAuctionEvent",
-        "description" => '',
-        "type" => "game",
-        "action" => "stSetupPreAuctionEvent",
+    STATE_EVT_TRADE => array(
+        "name" => "preEventTrade",
+        "description" => clienttranslate('Some players must choose to trade before event'),
+        "descriptionmyturn" => clienttranslate('${you} players must choose to trade before event'),
+        "type" => "multipleactiveplayer",
+        "action" => "stPreEventTrade",
+        "transitions" => array( "post" => STATE_EVT_POST_TRADE,
+                                "done" => STATE_BEGIN_AUCTION,)
+    ),
+
+    STATE_EVT_BONUS => array(
+        "name" => "EventChooseBonus",
+        "description" => clienttranslate('Some players must choose bonus'),
+        "descriptionmyturn" => clienttranslate('${you} must choose bonus'),
+        "type" => "multipleactiveplayer",
+        "action" => "stEvtBonus",
         "updateGameProgression" => true,
-        "transitions" => array( "done" => STATE_BEGIN_AUCTION,
-                                "track"=> STATE_RAIL_BONUS_MULTI,
-                                "bonus" => STATE_CHOOSE_BONUS_MULTI,
-                                "track")
+        "transitions" => array( "" => STATE_BEGIN_AUCTION,)
     ),
 
-    STATE_RAIL_BONUS_MULTI => array(
+    STATE_EVT_PAY => array(
         "name" => "getRailBonus",
-        "description" => clienttranslate('some players must choose a railroad bonus'),
-        "descriptionmyturn" => clienttranslate('${you} must choose a railroad bonus'),
-        "type" => "activeplayer",
-        "args" => "argRailBonus",
-        "possibleactions" => array( "chooseBonus" ),
-        "transitions" => array( "" => STATE_EVENT_PRE_AUCTION)
+        "description" => clienttranslate('some players must pay for event'),
+        "descriptionmyturn" => clienttranslate('${you} must pay for event'),
+        "type" => "multipleactiveplayer",
+        "args" => "argEventPay",
+        "possibleactions" => array( "trade", "takeLoan", "updateGold", "done" ),
+        "transitions" => array( "" => STATE_BEGIN_AUCTION,)
+    ),
+    
+    STATE_EVT_POST_TRADE => array(
+        "name" => "eventPhaseAuction",
+        "description" => '',
+        "type" => "game",
+        "action" => "stEvtPostTrade",
+        "transitions" => array( "done" => STATE_BEGIN_AUCTION,)
     ),
 
     STATE_BEGIN_AUCTION  => array(
@@ -100,24 +116,19 @@ $machinestates = array(
         "action" => "stBeginAuction",
         "updateGameProgression" => true,
         "transitions" => array( "auction" => STATE_PLAYER_BID, 
-                                "events"  => STATE_SETUP_PRE_AUCTION_EVENT,
+                                "events"  => STATE_EVT_SETUP_AUCTION,
                                 "2p_auction" => STATE_2_PLAYER_DUMMY_BID,
                                 "endGame" => STATE_ENDGAME_ACTIONS,)
     ),
 
-    STATE_PRE_AUCTION_EVENT => array(
-        "name" => "eventPhaseAuction",
+    STATE_EVT_SETUP_AUCTION => array(
+        "name" => "dummyPlayerBid",
         "description" => '',
-        "type" => "multipleactiveplayer",
-        "action" => "stEventPreAuctionMulti",
-        "args" => "argPreAuctionMulti",
-        "updateGameProgression" => true,
-        "possibleactions" => array( "payLoan", "takeLoan", "trade", "hireWorker", "done"),
-        "transitions" => array( "auction" => STATE_PLAYER_BID, 
-                                "2p_auction" => STATE_2_PLAYER_DUMMY_BID,)
+        "type" => "game",
+        "args" => "argSetupAuction",
+        "transitions" => array( "bid"    => STATE_PLAYER_BID,
+                                "2p_bid" => STATE_2_PLAYER_DUMMY_BID,)
     ),
-
-    // do any events need more?
 
     STATE_2_PLAYER_DUMMY_BID => array(
         "name" => "dummyPlayerBid",

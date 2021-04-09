@@ -21,8 +21,9 @@
 -- This color name is used to create css classes
 ALTER TABLE `player` ADD `color_name` VARCHAR(16) NOT NULL DEFAULT ' ';
 ALTER TABLE `player` ADD `rail_adv`   INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'rail_adv 0-5';
-ALTER TABLE `player` ADD `use_silver` INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'pay workers with silver 0-true, 1-false';
-ALTER TABLE `player` ADD `paid_work`  INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'has recieved Income';
+ALTER TABLE `player` ADD `recieve_inc`INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'has recieved Income 0-No, 1-Yes';
+ALTER TABLE `player` ADD `has_paid`   INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'has paid pending cost 0-No, 1-Yes',
+ALTER TABLE `player` ADD `cost`       INT(3) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'pending cost (in silver)',
  -- allows showing cancelled/undo actions as crossed out in log.
 ALTER TABLE `gamelog` ADD `cancel` TINYINT(1) NOT NULL DEFAULT 0;
 
@@ -64,8 +65,15 @@ CREATE TABLE IF NOT EXISTS `buildings` (
 CREATE TABLE IF NOT EXISTS `auctions` (
   `auction_id`       INT(2) UNSIGNED NOT NULL COMMENT 'Identity of Auction tile',
   `position`         INT(2) UNSIGNED NOT NULL COMMENT 'position of Auction in Deck (1-10)',
-  `location`         INT(1) UNSIGNED NOT NULL COMMENT 'location: 0-discard, 1-Auction-1, 2-Auction-2, 3-Auction-3, 4-Auction-4, 5-Events',
+  `location`         INT(1) UNSIGNED NOT NULL COMMENT 'location: 0-discard, 1-Auction-1, 2-Auction-2, 3-Auction-3, 4-Auction-4',
   PRIMARY KEY (`auction_id`)
+) ENGINE=InnoDB ;
+
+CREATE TABLE IF NOT EXISTS `events` (
+  `event_id` INT(2) UNSIGNED NOT NULL COMMENT 'Identity of Event',
+  `position` INT(2) UNSIGNED NOT NULL COMMENT 'position of Event (1-10)',
+  `location` INT(1) UNSIGNED NOT NULL COMMENT 'location: 0-discard 1-Events',
+  PRIMARY KEY (`event_id`)
 ) ENGINE=InnoDB ;
 
 CREATE TABLE IF NOT EXISTS `resources` (
@@ -82,7 +90,6 @@ CREATE TABLE IF NOT EXISTS `resources` (
   `loan`       INT(2) UNSIGNED NOT NULL DEFAULT '0',
   `trade`      INT(2) UNSIGNED NOT NULL DEFAULT '0',
   `vp`         INT(3) UNSIGNED NOT NULL DEFAULT '0',
-  `paid`       INT(1) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (`player_id`)
 ) ENGINE=InnoDB;
 

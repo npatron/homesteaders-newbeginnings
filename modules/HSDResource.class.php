@@ -35,17 +35,17 @@ class HSDresource extends APP_GameClass
         $this->game->DbQuery( "UPDATE `resources` SET `$type`=$type + $amount WHERE `player_id`= '$p_id'");
     }
 
-    // Payment toggles, (for pay worker state).
+    // Payment toggles, (for pay states).
     function getPaid($p_id){
-        return $this->game->getUniqueValueFromDB( "SELECT `paid` FROM `resources` WHERE `player_id`='$p_id'" ); 
+        return $this->game->getUniqueValueFromDB( "SELECT `has_paid` FROM `player` WHERE `player_id`='$p_id'" ); 
     }
 
     function setPaid($p_id, $val=1){
-        $this->game->DbQuery( "UPDATE `resources` SET `paid`='$val' WHERE `player_id`='$p_id'");
+        $this->game->DbQuery( "UPDATE `player` SET `has_paid`='$val' WHERE `player_id`='$p_id'");
     }
 
     function clearPaid(){
-        $this->game->DbQuery( "UPDATE `resources` SET `paid`='0' ");
+        $this->game->DbQuery( "UPDATE `player` SET `has_paid`='0' ");
     }
 
     // payment toggles, (for income)
@@ -59,6 +59,21 @@ class HSDresource extends APP_GameClass
 
     function clearIncomePaid(){
         $this->game->DbQuery( "UPDATE `player` SET `paid_work`='0' ");
+    }
+
+    function getCost($p_id){
+        return $this->game->getUniqueValueFromDB( "SELECT `cost` FROM `player` WHERE `player_id`='$p_id'" ); 
+    }
+    
+    /**
+     * Sets the cost for player with p_id to cost (in silver).
+     */
+    function setCost($p_id, $cost){
+        $this->game->DbQuery( "UPDATE `player` SET `cost`='$cost' WHERE `player_id`='$p_id'");
+    }
+    
+    function clearCost(){
+        $this->game->DbQuery( "UPDATE `player` SET `cost`='0' ");
     }
 
     ////// RESOURCE CLIENT & DB MANIPULATION //////
