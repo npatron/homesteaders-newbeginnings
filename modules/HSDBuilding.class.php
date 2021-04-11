@@ -243,9 +243,7 @@ class HSDBuilding extends APP_GameClass
         return (array_key_exists('vp', $this->game->building_info[$b_id])? $this->game->building_info[$b_id]['vp']:0);
     }
 
-    // INCOME
-    function buildingIncomeForPlayer($p_id){
-        $riverPortWorkers = 0;
+    function getBuildingIncomeForPlayer($p_id){
         $p_bld = $this->getAllPlayerBuildings($p_id);
         $player_workers = $this->game->getCollectionFromDB( "SELECT * FROM `workers` WHERE `player_id` = '$p_id'");
         $income_b_id = array();
@@ -263,6 +261,7 @@ class HSDBuilding extends APP_GameClass
                     $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id], $type, $amt);
             }
         }
+        $riverPortWorkers = 0;
         foreach($player_workers as $worker_key => $worker ) {
             if ($worker['building_key'] != 0){
                 $b_key = $worker['building_key'];
@@ -274,14 +273,19 @@ class HSDBuilding extends APP_GameClass
                         $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id],'gold', 1);
                     }
                 } else {
-                    if (!array_key_exists($slot, $b_info)) 
-                    throw new BgaVisibleSystemException (clienttranslate("Invalid worker slot selected"));
-                    else foreach ($b_info[$slot] as $type => $amt){
+                    if (array_key_exists($slot, $b_info)) 
+                    foreach ($b_info[$slot] as $type => $amt){
                         $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id], $type, $amt);
                     }
                 }
             }
         }
+        return $income_b_id;
+    }
+
+    // INCOME
+    function buildingIncomeForPlayer($p_id){
+        $income_b_id = $this->getBuildingIncomeForPlayer($p_id);
         foreach ($income_b_id as $b_id =>$income) {
             $name = $income['name'];
             $b_key = $income['key'];

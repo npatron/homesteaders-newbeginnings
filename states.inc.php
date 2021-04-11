@@ -63,8 +63,7 @@ $machinestates = array(
         "name" => "setupPreAuctionEvent",
         "description" => '',
         "type" => "game",
-        "action" => "stSetupPreAuctionEvent",
-        "updateGameProgression" => true,
+        "action" => "stSetupEventPreAuction",
         "transitions" => array( "done"    => STATE_BEGIN_AUCTION,
                                 "evt_trade"=>STATE_EVT_TRADE,                        
                                 "bonus"   => STATE_EVT_BONUS,
@@ -76,7 +75,7 @@ $machinestates = array(
         "description" => clienttranslate('Some players must choose to trade before event'),
         "descriptionmyturn" => clienttranslate('${you} players must choose to trade before event'),
         "type" => "multipleactiveplayer",
-        "action" => "stPreEventTrade",
+        "action" => "stSetupTrade",
         "transitions" => array( "post" => STATE_EVT_POST_TRADE,
                                 "done" => STATE_BEGIN_AUCTION,)
     ),
@@ -86,7 +85,7 @@ $machinestates = array(
         "description" => clienttranslate('Some players must choose bonus'),
         "descriptionmyturn" => clienttranslate('${you} must choose bonus'),
         "type" => "multipleactiveplayer",
-        "action" => "stEvtBonus",
+        "args" => "argEventBonus",
         "updateGameProgression" => true,
         "transitions" => array( "" => STATE_BEGIN_AUCTION,)
     ),
@@ -116,18 +115,8 @@ $machinestates = array(
         "action" => "stBeginAuction",
         "updateGameProgression" => true,
         "transitions" => array( "auction" => STATE_PLAYER_BID, 
-                                "events"  => STATE_EVT_SETUP_AUCTION,
                                 "2p_auction" => STATE_2_PLAYER_DUMMY_BID,
                                 "endGame" => STATE_ENDGAME_ACTIONS,)
-    ),
-
-    STATE_EVT_SETUP_AUCTION => array(
-        "name" => "dummyPlayerBid",
-        "description" => '',
-        "type" => "game",
-        "args" => "argSetupAuction",
-        "transitions" => array( "bid"    => STATE_PLAYER_BID,
-                                "2p_bid" => STATE_2_PLAYER_DUMMY_BID,)
     ),
 
     STATE_2_PLAYER_DUMMY_BID => array(
@@ -147,8 +136,19 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argValidBids",
         "possibleactions" => array( "selectBid", "confirmBid", "pass" ),
-        "transitions" => array( "nextBid" => STATE_NEXT_BID, 
+        "transitions" => array( "nextBid" => STATE_NEXT_BID,
+                                "trade" => STATE_EVT_DEBT_TRADE, 
                                 "rail" => STATE_RAIL_BONUS )
+    ),
+
+    STATE_EVT_DEBT_TRADE => array(
+        "name" => "eventDeptPayTrade",
+        "description" => clienttranslate('${actplayer} may trade and pay dept'),
+        "descriptionmyturn" => clienttranslate('${you} may trade and pay dept'),
+        "type" => "activeplayer",
+        "args" => "argEventTrade",
+        "possibleactions" => array( "payLoan", "takeLoan", "trade", "done" ),
+        "transitions" => array( "rail" => STATE_RAIL_BONUS)
     ),
 
     // choose bonus from rail advancement.
@@ -209,8 +209,18 @@ $machinestates = array(
         "transitions" => array( "undoTurn"       => STATE_PAY_AUCTION,
                                 "building_bonus" => STATE_RESOLVE_BUILDING, 
                                 "auction_bonus"  => STATE_AUCTION_BONUS,
+                                "event_bonus"    => STATE_EVT_BLD_BONUS,
                                 "end_build"      => STATE_CONFIRM_AUCTION,
                                 "zombiePass"     => STATE_END_BUILD )
+    ),
+
+    STATE_EVT_BLD_BONUS  => array(
+        "name" => "eventBuildBonus",
+        "description" => '',
+        "type" => "game",
+        "action" => "stGetEventBonus",
+        "transitions" => array( "bonusChoice" => STATE_CHOOSE_BONUS, 
+                                "endBuild" => STATE_CONFIRM_AUCTION )
     ),
 
     STATE_RESOLVE_BUILDING =>  array(

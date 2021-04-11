@@ -51,15 +51,11 @@ class HSDEvents extends APP_GameClass
     }
     ///// END event setup method ////
 
-    function getEvent($round_number){
-        $value = $this->game->getGameStateValue('new_beginning_evt');
-        if ($value == DISABLED) return 0;
-        $sql = "SELECT `auction_id` FROM `auctions` WHERE `location`=1, `position`=$round_number";
-        $events = $this->game->getCollectionFromDb( $sql );
-
-        foreach ($events as $id=>$value)
-            if ($value['position'] == $round_number)
-                return ($id);
+    function getEvent($round_number = null){
+        if ($this->game->getGameStateValue('new_beginning_evt') == DISABLED) return 0;
+        $round_number = (is_null($round_number)?$this->game->getGameStateValue( 'round_number' ):$round_number);
+        $sql = "SELECT `event_id` e_id FROM `events` WHERE `position`=$round_number";
+        return $this->game->getUniqueValueFromDB( $sql );
     }
 
     function updateEvent($round_number){
@@ -168,10 +164,19 @@ class HSDEvents extends APP_GameClass
             case EVT_IND_VP:
                 // The player(s) with the most ${ind} buildings gets 
                 //${vp} for each resource they recieved in income (${wood}, ${food}, ${steel}, ${gold}, ${copper}, ${cow} produced by buildings and not from trade)
+                $res_types = array('wood', 'food', 'steel', 'gold', 'copper', 'cow');
                 $players = $this->getPlayersWithMostBuildings(TYPE_INDUSTRIAL);
                 foreach ($players as $p_id){
-                    $vp = 6;//TODO: need special function to calculate amount of vp;
-                    $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', $vp, _('event'));
+                    $bld_income = $this->game->Building->getBuildingIncomeForPlayer($p_id);
+                    $res = 0;
+                    foreach ($bld_income as $b_id =>$income) {
+                        foreach($income as $type=>$amt){
+                            if (in_array($type, $res_types)){
+                                $res += $amt;
+                            }
+                        }
+                    }
+                    $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', $res, _('event'));
                 }
                 break;
 
@@ -230,10 +235,9 @@ class HSDEvents extends APP_GameClass
     }
 
     // for after trade window of events that need to wait for players to trade before resolving.
-    function resolveEventPreAuction(){
+    function resolveEventPostTrade(){
         $current_event = $this->game->getGameStateValue('current_event');
         $bonus_id = $this->game->events_info[$current_event]['all_b'];
-        $next_state = "done";
         switch($bonus_id){
             case EVT_SELL_NO_TRADE:// no action required
             case EVT_PAY_LOAN_FOOD:// no action required
@@ -262,10 +266,33 @@ class HSDEvents extends APP_GameClass
                 }
                 break;
         }
-        $this->game->gamestate->nextState( $next_state );
+        $this->game->gamestate->nextState( 'done' );
     }
 
+    //// BEGIN pass Bid ////
+    /**
+     * does any bonuses for passing from events, returns next_state
+     */
+    function passBid(){
+        if(!$this->passPhase()){ return "rail"; }
+        $pass_evt = $this->game->events_info[$this->getEvent()]['pass'];
+        switch($pass_evt){
+            case EVT_PASS_TRACK: //Players who pass, get a ${track}
+                $this->game->Resource->addTrack($this->game->getActivePlayerId(), _("event"));
+                return "rail";
+            case EVT_PASS_DEPT_SILVER: //Players who pass may pay off debt for 3-{silver} apiece
+                return "trade";
+        }
+    }
+
+    //// END setup Auction ////
+
     //// BEGIN private HELPER methods for determining effected players & values ////
+    function doesPlayerHaveMostBuildings($p_id, $type){
+        $players = $this->getPlayersWithMostBuildings($type);
+        return array_key_exists($p_id, $players);
+    }
+
     private function getPlayersWithAtLeastOneResource($type){
         $players = array();
         $resources = $this->game->getCollectionFromDB( "SELECT `player_id` FROM `resources` WHERE `$type`>0 " );
@@ -283,7 +310,7 @@ class HSDEvents extends APP_GameClass
      * returns array($p_id=>array('player_id'=>#, 'amt'=>#) ...) with all the players (0 omitted);
      */
     private function getPlayersAmountOfBuildings($type=null){
-        if ($type == null){
+        if (is_null($type)){
             return $this->game->getCollectionFromDB( "SELECT player_id, count(*) amt FROM `buildings` WHERE `player_id`!=0 Group by player_id" );
         } else {
             return $this->game->getCollectionFromDB( "SELECT player_id, count(*) amt FROM `buildings` WHERE `player_id`!=0 AND `building_type`=$type GROUP BY player_id" );
@@ -294,8 +321,8 @@ class HSDEvents extends APP_GameClass
      * type should be integer for building_type 
      * or null for all building types.
      */
-    private function getPlayersWithMostBuildings($type=null){
-        return $this->getMost($this->getPlayersAmountOfBuildings($type), 'amt', 1);
+    private function getPlayersWithMostBuildings($type=null, $min = 1){
+        return $this->getMost($this->getPlayersAmountOfBuildings($type), 'amt', $min);
     }
 
     // could also do in sql with: "SELECT player_id, $type FROM resources WHERE $type = (SELECT MIN($type) FROM resources)";
@@ -331,7 +358,7 @@ class HSDEvents extends APP_GameClass
         $mostValue = $minimum -1;
         foreach ($values as $p_id=> $player){
             $p_value = $player[$key];
-            if ($key2 != null){
+            if (!is_null($key2)){
                 $p_value += $player[$key2];
             }
             if ($p_value > $mostValue){

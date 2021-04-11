@@ -28,13 +28,13 @@
   define("STATE_PLAYER_BID",         32);
   define("STATE_RAIL_BONUS",         33);
   define("STATE_NEXT_BID",           34);
-  define("STATE_EVT_SETUP_AUCTION",  35);
-  define("STATE_EVENT_PRE_AUCTION",  37);
+  define("STATE_EVT_DEBT_TRADE",     36);
   define("STATE_NEXT_BUILDING",      40);
   define("STATE_PAY_AUCTION",        41);
   define("STATE_CHOOSE_BUILDING",    42);
   define("STATE_RESOLVE_BUILDING",   43);
   define("STATE_TRAIN_STATION_BUILD",44);
+  define("STATE_EVT_BLD_BONUS",      45);
   define("STATE_AUCTION_BONUS",      50);
   define("STATE_CHOOSE_BONUS",       51);
   define("STATE_CONFIRM_AUCTION",    52);
@@ -170,9 +170,6 @@
   define("AUC_BONUS_3VP_SELL_FREE",   9);
 
   // Events
-  // Settlement Events #1-10
-  // Town Events #11-20
-  // City Events #21-25
   // all_b (bonus for all players) after income, before bids
   define("EVT_VP_4SILVER",         1);
   define("EVT_TRADE",              2);

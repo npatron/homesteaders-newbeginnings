@@ -164,12 +164,22 @@ class HSDBid extends APP_GameClass
     }
 
     function getValidBids($p_id) {
-        $player_count = $this->game->getPlayersNumber();
-        if ($player_count == 4){
-            $valid_bids = range(1,29);
-        } else {
-            $valid_bids = range(1,19);
+        $bid_start = 1;
+        $bid_end = 19;
+        if ($this->game->Events->getEvent()==2){
+            $bid_start = 11;
         }
+        $player_count = $this->game->getPlayersNumber();
+        if ($player_count == 5){
+            if ($this->game->Auction->isAuctionInCurrentAuctions(BID_A4_B6)){
+                $bid_end = 29;// "no auction" auction.
+            } else {
+                $bid_end = 39;    
+            }
+        } else if ($player_count == 4){
+            $bid_end = 29;
+        }
+        $valid_bids = range($bid_start, $bid_end);
         $valid_bids = \array_diff($valid_bids, [OUTBID, BID_PASS]); // remove outbid & pass
         $bids = $this->game->getObjectListFromDB( "SELECT `bid_loc` FROM `bids`" );
         $offset = 0;
@@ -188,6 +198,10 @@ class HSDBid extends APP_GameClass
                 }
             } else if (($bid > 20) && ($bid < 30)) {
                 for ($j = ($bid - $offset); $j >20; $j--){
+                    $valid_bids = \array_diff($valid_bids, [$j]);
+                }
+            } else if (($bid > 30) && ($bid < 40)) {
+                for ($j = ($bid - $offset); $j >30; $j--){
                     $valid_bids = \array_diff($valid_bids, [$j]);
                 }
             }
@@ -268,6 +282,9 @@ class HSDBid extends APP_GameClass
         $dummy_3 = $this->game->GetUniqueValueFromDB("SELECT `bid_loc` FROM `bids` WHERE `player_id`=".DUMMY_OPT);
         $dummy_1 = $dummy_3 - 20;
         $dummy_2 = $dummy_3 - 10;
+        if ($this->game->Event->getEvent() == 2){
+            return([$dummy_2]);
+        }
         return ([$dummy_1, $dummy_2]);
     }
 }

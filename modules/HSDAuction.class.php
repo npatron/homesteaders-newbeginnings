@@ -67,13 +67,13 @@ class HSDAuction extends APP_GameClass
         $this->game->DbQuery( $sql );
     }
 
-    function getAllAuctionsFromDB(){// ignore events (location == 5)
-        $sql = "SELECT `auction_id` a_id, `location` FROM `auctions` WHERE `location` < 5"; 
+    function getAllAuctionsFromDB(){
+        $sql = "SELECT `auction_id` a_id, `location` FROM `auctions` "; 
         return ($this->game->getCollectionFromDb( $sql ));
     }
 
     function getCurrentRoundAuctions($round_number= null){
-        $round_number = ($round_number? :$this->game->getGameStateValue('round_number'));
+        $round_number = (is_null($round_number)?$this->game->getGameStateValue('round_number'):$round_number);
         $sql = "SELECT `auction_id` a_id, `location` FROM `auctions` WHERE `location` IN (1,2,3,4) AND `position`='$round_number'"; 
         return ($this->game->getCollectionFromDb( $sql ));
     }
@@ -98,8 +98,12 @@ class HSDAuction extends APP_GameClass
         $this->game->DbQuery( $sql);
     }
 
+    function isAuctionInCurrentAuctions($auction_id){
+        return array_key_exists($auction_id, $this->getCurrentRoundAuctions());
+    }
+
     function doesCurrentAuctionHaveBuildPhase(){
-        return (array_key_exists('build', $this->game->auction_info[$this->getCurrentAuctionId()]));
+        return array_key_exists('build', $this->game->auction_info[$this->getCurrentAuctionId()]);
     }
 
     /**

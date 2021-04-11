@@ -41,9 +41,9 @@ $this->special_resource_map = array(
 );
 
 $this->playerColorNames = array(
-  "ff0000" =>'red', 
-  "008000"=>'green', 
-  "0000ff"=>'blue', 
+  "ff0000"=> 'red', 
+  "008000"=> 'green', 
+  "0000ff"=> 'blue', 
   "ffff00"=> 'yellow', 
   "982fff"=> 'purple');    
 
@@ -681,7 +681,6 @@ $this->event_info = array(
     'stage' => STAGE_SETTLEMENT,
     'tt'    => clienttranslate('All players who have a ${vp} get 4-${silver}'),
     'all_b' => EVT_VP_4SILVER,
-    'pre_trd'=> 1,
   ),
   5 => array(
     'name'  => clienttranslate('Extra Lot'),
@@ -716,7 +715,6 @@ $this->event_info = array(
     'stage' => STAGE_SETTLEMENT,
     'tt'    => clienttranslate('All players get a ${trade}'),
     'all_b' => EVT_TRADE,
-    'pre_trd'=> 0,
   ),
   10 => array(
     'name'  => clienttranslate('Union Pacific RR'),
@@ -730,14 +728,12 @@ $this->event_info = array(
     'stage' => STAGE_TOWN,
     'tt'    => clienttranslate('The player(s) with the least ${loan} gets ${adv_track}'),
     'all_b' => EVT_LOAN_TRACK,
-    'pre_trd'=> 1,
   ),
   12 => array(
     'name'  => clienttranslate('Fortune Seeker'),
     'stage' => STAGE_TOWN,
     'tt'    => clienttranslate('The player(s) with the fewest ${worker} gets a ${worker}'),
     'all_b' => EVT_LEAST_WORKER,
-    'pre_trd'=> 0,
   ),
   13 => array(
     'name'  => clienttranslate('Industrialization'),
@@ -751,28 +747,24 @@ $this->event_info = array(
     'stage' => STAGE_TOWN,
     'tt' => clienttranslate('Players must pay ${silver} per ${loan} (${loan} taken to pay the interest does not also need to be paid for)'),
     'all_b' => EVT_INTEREST,
-    'pre_trd'=> 1,
   ),
   15 => array(
     'name'  => clienttranslate('Sharecropping'),
     'stage' => STAGE_TOWN,
     'tt'    => clienttranslate('players may pay off ${loan} for 1-${food} apiece'),
     'all_b' => EVT_PAY_LOAN_FOOD,
-    'pre_trd'=> 1,
   ),
   16 => array(
     'name'  => clienttranslate('State Fair'),
     'stage' => STAGE_TOWN,
     'tt'    => clienttranslate('The player(s) with the most ${copper} plus ${cow} (at least one) gets a ${gold}'),
     'all_b' => EVT_COPPER_COW_GET_GOLD,
-    'pre_trd'=> 1,
   ),
   17 => array(
     'name'  => clienttranslate('Transcontinental Railroad'),
     'stage' => STAGE_TOWN,
     'tt'    => clienttranslate('The player(s) who is farthest advanced on the Railroad Development Track gets ${vp3}'),
     'all_b' => EVT_DEV_TRACK_VP3,
-    'pre_trd' => 0,
   ),
   18 => array(
     'name'  => clienttranslate('Timber Culture Act'),
@@ -786,14 +778,12 @@ $this->event_info = array(
     'stage' => STAGE_TOWN,
     'tt'    => clienttranslate('Players may sell any number of resources wthout spending ${trade}'),
     'all_b' => EVT_SELL_NO_TRADE,
-    'pre_trd' => 0,
   ),
   20 => array(
     'name'  => clienttranslate('Western Pacific RR'),
     'stage' => STAGE_TOWN,
     'tt'    => clienttranslate('The player(s) with the fewest Buildings get a ${track}'),
     'all_b' => EVT_LEAST_BLD_TRACK,
-    'pre_trd' => 0,
   ),
   21 => array(
     'name'  => clienttranslate('Commercial Dominance'),
@@ -807,7 +797,6 @@ $this->event_info = array(
     'stage' => STAGE_CITY,
     'tt'    => clienttranslate('The player(s) with the most ${ind} buildings gets ${vp} for each resource they recieved in income (${wood}, ${food}, ${steel}, ${gold}, ${copper}, ${cow} produced by buildings and not from trade)'),
     'all_b' => EVT_IND_VP,
-    'pre_trd' => 0,
   ),
   23 => array(
     'name'  => clienttranslate('Nelson Act'),
@@ -820,13 +809,11 @@ $this->event_info = array(
     'stage' => STAGE_CITY,
     'tt'    => clienttranslate('Players must pay ${silver} per Building they have'),
     'all_b' => EVT_BLD_TAX_SILVER,
-    'pre_trd' => 0,
   ),
   25 => array(
     'name'  => clienttranslate('Residential Dominance'),
     'stage' => STAGE_CITY,
     'tt'    => clienttranslate('The player(s) with the most ${res} buildings gets ${adv_track}'),
     'all_b' => EVT_RES_ADV_TRACK,
-    'pre_trd' => 0,
   ),
 );

@@ -232,10 +232,6 @@ class homesteadersnewbeginnings extends Table
         return $this->getUniqueValueFromDB( "SELECT `color_name` FROM `player` WHERE `player_id`=$p_id" );
     }
 
-    /** Temporary solution to handle existing games while adding option show_player_info
-     * should be able to just replace it with 
-     * getGameStateValue('show_player_info' );
-     */
     function getShowPlayerInfo(){
         if ($this->getGameStateValue('round_number') == 11){
             return true;
@@ -335,8 +331,9 @@ class homesteadersnewbeginnings extends Table
         $this->checkAction( "pass" );
         $this->Bid->passBid();
         $this->Log->passBid($this->getActivePlayerId());
+        $next_state = $this->Event->passBid($this->getActivePlayerId());
         $this->setGameStateValue('phase', PHASE_BID_PASS );
-        $this->gamestate->nextState( "rail" );
+        $this->gamestate->nextState( $next_state );
     }
 
     public function playerBuildBuilding($selected_building, $goldAsCow, $goldAsCopper){
@@ -356,6 +353,8 @@ class homesteadersnewbeginnings extends Table
             $next_state = 'building_bonus';    
         } else if ($bonus != AUC_BONUS_NONE){      
             $next_state = 'auction_bonus'; 
+        } else if ($this->Event->auctionPhase()){
+            $next_state = 'event_bonus';
         }
         $this->Score->updatePlayerScore($act_p_id);
         $this->gamestate->nextState ($next_state);
@@ -528,7 +527,7 @@ class homesteadersnewbeginnings extends Table
 
         $p_id = $this->getCurrentPlayerId();
         $transactions = $this->Log->getLastTransactions($p_id);
-        if ($transactions == null) {
+        if (is_null($transactions)) {
             throw new BgaUserException(clienttranslate("You have nothing to cancel"));
         }
 
@@ -583,6 +582,27 @@ class homesteadersnewbeginnings extends Table
         return array('valid_bids'=>$dummy_bids);
     }
 
+    function argEventBonus() {
+        $current_event = $this->getGameStateValue( 'current_event' );
+        $players = $this->loadPlayersBasicInfos();
+        $bonus_option = array();
+        foreach($players as $p_id=>$player){
+            $bonus_option[$p_id]['p_id'] = $p_id;
+            $bonus_option[$p_id]['event'] = $current_event;
+            $bonus_option[$p_id]['option'] = $this->Resource->getRailAdvBonusOptions($this->getActivePlayerId());        
+        }
+        return array('bonus_option'=>$bonus_option);
+    }
+
+    function argEventPay(){
+        $cost = $this->getCollectionFromDB("SELECT `player_id`, `cost` FROM `player`");
+        return array('cost'=>$cost);
+    }
+
+    function argEventTrade() {
+        return array('event'=>$this->Event->getEvent());
+    }
+
     function argValidBids() {
         $valid_bids = $this->Bid->getValidBids($this->getActivePlayerId());
         return array("valid_bids"=>$valid_bids );
@@ -594,16 +614,26 @@ class homesteadersnewbeginnings extends Table
     }
 
     function argAuctionCost() {
-        $bid_cost = $this->Bid->getBidCost($this->getActivePlayerId());
+        $act_p_id = $this->getActivePlayerId();
+        $bid_cost = $this->Bid->getBidCost($act_p_id);
+        if ($this->Event->getEvent() == EVT_AUC_COM_DISCOUNT){
+            if ($this->Event->doesPlayerHaveMostBuildings($act_p_id, TYPE_COMMERCIAL)){
+                $bid_cost = floor($bid_cost/2);
+            }
+        }
         return array("auction_cost"=>$bid_cost);
     }
 
     function argAllowedBuildings() {
+        $act_p_id = $this->getActivePlayerId();
         $build_type_options = $this->Auction->getCurrentAuctionBuildTypeOptions();
         $buildings = $this->Building->getAllowedBuildings($build_type_options);
-        $ownsRiverPort = $this->Building->doesPlayerOwnBuilding($this->getActivePlayerId(), BLD_RIVER_PORT);
+        $ownsRiverPort = $this->Building->doesPlayerOwnBuilding($act_p_id, BLD_RIVER_PORT);
+        $ownsLumberMill = $this->Building->doesPlayerOwnBuilding($act_p_id, BLD_LUMBERMILL);
         return(array("allowed_buildings"=> $buildings,
-                    "riverPort"=>$ownsRiverPort,));
+                    "current_event" => $this->Event->getEvent(),
+                    "riverPort"=>$ownsRiverPort,
+                    "lumberMill"=>$ownsLumberMill));
     }
 
     function argTrainStationBuildings() {
@@ -650,25 +680,35 @@ class homesteadersnewbeginnings extends Table
 
     function stPayWorkers() 
     {
-        $resources = $this->getCollectionFromDB( "SELECT `player_id`, `workers`, `gold`, `silver`, `trade`, `paid` FROM `resources` " );
+        $resources = $this->getCollectionFromDB( "SELECT `player_id`, `workers`, `gold`, `silver`, `trade` FROM `resources` " );
         $autoPayPlayers = $this->getCollectionFromDB( "SELECT `player_id`, `use_silver` FROM `player`");
         $pendingPlayers = array();
         foreach($resources as $p_id => $player){
-            if ($resources[$p_id]['paid']==1) continue;
-            /* player has no gold/trade or has auto-pay selected and they can afford it with out loans */
-            if ($player['silver'] >= $player['workers'] && 
-            (($player['gold'] == 0 && $player['trade'] == 0) || $autoPayPlayers[$p_id]['use_silver'] === '1')){
+            if ($this->Resource->getPaid($p_id)) continue;
+            if ($player['silver'] >= $player['workers'] && $player['gold'] == 0 && $player['trade'] == 0){
                 $this->Resource->updateAndNotifyPayment($p_id, 'silver', $player['workers'], array('worker' => 'worker'));
             } else { // ask this player to choose payment.
                 $pendingPlayers[] = $p_id;
                 $this->giveExtraTime($p_id);
             }
         }
-        if (count($pendingPlayers) == 0){
-            $this->gamestate->nextState('auction');
-        } else {
-            $this->gamestate->setPlayersMultiactive($pendingPlayers, 'auction');
+        $next_state = "auction";
+        if ($this->Event->eventPhase()){
+            $next_state = "event";
         }
+        if (count($pendingPlayers) == 0){
+            $this->gamestate->nextState($next_state);
+        } else {
+            $this->gamestate->setPlayersMultiactive($pendingPlayers, $next_state);
+        }
+    }
+
+    function stSetupEventPreAuction() {
+        $this->Events->setupEventPreAuction();
+    }
+
+    function stEvtPostTrade() {
+        $this->Events->resolveEventPostTrade();
     }
     
     function stBeginAuction() {
@@ -677,22 +717,18 @@ class homesteadersnewbeginnings extends Table
             $this->gamestate->nextState( 'endGame');
         } else {
             $this->Bid->clearBids( );
-            if ($this->Events->eventPhase()){
-                $this->gamestate->nextState( 'events');
+            $first_player = $this->getGameStateValue('first_player');
+            $this->gamestate->changeActivePlayer( $first_player );
+            if ($this->getPlayersNumber() == 2){
+                $this->gamestate->nextState( '2p_auction' );
             } else {
-                $first_player = $this->getGameStateValue('first_player');
-                $this->gamestate->changeActivePlayer( $first_player );
-                if ($this->getPlayersNumber() == 2){
-                   $this->gamestate->nextState( '2p_auction' );
-                } else {
-                    $this->gamestate->nextState( 'auction' );
-                }
+                $this->gamestate->nextState( 'auction' );
             }
         }
     }
 
-    function stSetupEventPreAuction() {
-        $this->Events->setupEventPreAuction();
+    function argSetupAuction(){
+
     }
 
     function stNextBid()
@@ -787,6 +823,10 @@ class homesteadersnewbeginnings extends Table
             $this->gamestate->nextState('train_station_build');
         }
         //the other case (BUILD_BONUS_WORKER) waits for player_choice so we don't always want to go to next state
+    }
+
+    function stGetEventBonus(){
+
     }
 
     function stGetAuctionBonus()
