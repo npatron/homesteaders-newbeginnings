@@ -128,6 +128,7 @@ class homesteadersnewbeginnings extends Table
         $this->setGameStateInitialValue( 'auction_bonus',  0 );
         $this->setGameStateInitialValue( 'building_bonus', 0 );
         $this->setGameStateInitialValue( 'last_building',  0 );
+        $this->setGameStateInitialValue( 'b_order' ,       0 );
         $this->setGameStateInitialValue( 'current_event',  0 );
         
         $values = array();
@@ -139,7 +140,6 @@ class homesteadersnewbeginnings extends Table
 
             $values[] = "(".$player_id.")";
         }
-        
         // create building Tiles (in sql)
         $this->Building->createBuildings($players);
         $this->Auction->createAuctionTiles(count($players));
@@ -148,6 +148,7 @@ class homesteadersnewbeginnings extends Table
         }
         $this->Bid->setupBidDB($players);
 
+        
         // setup resources table
         $sql = "INSERT INTO `resources` (player_id) VALUES ";
         $sql .= implode( ',', $values ); 
@@ -180,13 +181,14 @@ class homesteadersnewbeginnings extends Table
         return array(
             'auctions' => $this->Auction->getAllAuctionsFromDB(),
             'auction_info' => $this->auction_info,
-            'players' => $this->getCollectionFromDb( "SELECT `player_id` p_id, `player_score` score, `color_name`, `player_name`, `rail_adv`, `use_silver` FROM `player` " ),
+            'players' => $this->getCollectionFromDb( "SELECT `player_id` p_id, `player_score` score, `color_name`, `player_name`, `rail_adv` FROM `player` " ),
             'buildings' => $this->Building->getAllBuildings(),
             'building_info' => $this->building_info,
             'bids' => $this->getCollectionFromDB( "SELECT `player_id` p_id, `bid_loc` FROM `bids`" ),
             'can_undo_trades' => (count($this->Log->getLastTransactions($cur_p_id)) > 0 && $this->checkAction('trade', false)),
             'cancel_move_ids' => $this->Log->getCancelMoveIds(),
             'current_auctions' => $this->Auction->getCurrentRoundAuctions(), 
+            'events' =>$this->Event->getEvents(),
             'events_info' => $this->event_info,
             'first_player' => $this->getGameStateValue( 'first_player'),
             'number_auctions' => $this->getGameStateValue( 'number_auctions' ),
@@ -350,11 +352,11 @@ class homesteadersnewbeginnings extends Table
         $bonus = $this->Auction->getCurrentAuctionBonus();
         $next_state = 'end_build';
         if ($building_bonus != BUILD_BONUS_NONE){
-            $next_state = 'building_bonus';    
+            $next_state = 'building_bonus';     
+        } else if ($this->Event->isAuctionAffected()){
+            $next_state = 'event_bonus';
         } else if ($bonus != AUC_BONUS_NONE){      
             $next_state = 'auction_bonus'; 
-        } else if ($this->Event->auctionPhase()){
-            $next_state = 'event_bonus';
         }
         $this->Score->updatePlayerScore($act_p_id);
         $this->gamestate->nextState ($next_state);
@@ -587,6 +589,7 @@ class homesteadersnewbeginnings extends Table
         $players = $this->loadPlayersBasicInfos();
         $bonus_option = array();
         foreach($players as $p_id=>$player){
+            $bonus_option[$p_id]= array();
             $bonus_option[$p_id]['p_id'] = $p_id;
             $bonus_option[$p_id]['event'] = $current_event;
             $bonus_option[$p_id]['option'] = $this->Resource->getRailAdvBonusOptions($this->getActivePlayerId());        
@@ -681,7 +684,6 @@ class homesteadersnewbeginnings extends Table
     function stPayWorkers() 
     {
         $resources = $this->getCollectionFromDB( "SELECT `player_id`, `workers`, `gold`, `silver`, `trade` FROM `resources` " );
-        $autoPayPlayers = $this->getCollectionFromDB( "SELECT `player_id`, `use_silver` FROM `player`");
         $pendingPlayers = array();
         foreach($resources as $p_id => $player){
             if ($this->Resource->getPaid($p_id)) continue;
@@ -825,8 +827,8 @@ class homesteadersnewbeginnings extends Table
         //the other case (BUILD_BONUS_WORKER) waits for player_choice so we don't always want to go to next state
     }
 
-    function stGetEventBonus(){
-
+    function stSetupBuildEventBonus(){
+        $this->Event->resolveBuildEventPhase();
     }
 
     function stGetAuctionBonus()
@@ -968,7 +970,6 @@ class homesteadersnewbeginnings extends Table
             if(count($result)==0){
                 self::DbQuery( "INSERT INTO global (global_id, global_value) VALUES ('20','0');");
             }
-            self::DbQuery("UPDATE `player` SET `use_silver`='0'");
         }
         // Example:
 //        if( $from_version <= 1404301345 )

@@ -14,28 +14,30 @@ class HSDEvents extends APP_GameClass
     ///// BEGIN event setup method ////
     // for setup of backend sql.
     function createEvents(){
-        $sql = "INSERT INTO `event_id` (`event_id`, `position`, `location`) VALUES ";
+        $sql = "INSERT INTO `events` (`event_id`, `position`, `location`) VALUES ";
         $values=array();
         
         $settlement = range(1, 10);
         shuffle($settlement);
-        $this->game->setGameStateValue('current_event',$settlement[9]);
-        for($i=1;$i <=4;$i++){
-            $values[] = "(".array_pop($settlement).", $i, 1)";
-        }
         $town = range(11, 20);
         shuffle($town);
-        for($i=5;$i <=8;$i++){
-            $values[] = "(".array_pop($town).", $i, 1)";
+        for($i=0; $i <4;$i++){
+            $evt_set_id = $settlement[$i];
+            $pos_set = 1+$i;
+            $values[] = "($evt_set_id, $pos_set, 1)";
+            $evt_town_id = $town[$i];
+            $pos_town = 9+$i;
+            $values[] = "($evt_town_id, $pos_town, 2)";
         }
         $city = range(21, 25);
         shuffle($city);
-        for($i=9;$i <=10;$i++){
-            $values[] = "(".array_pop($city).", $i, 1)";
+        for($i=0;$i <2;$i++){
+            $evt_city_id = $city[$i];
+            $pos_city = 9+$i;
+            $values[] = "($evt_city_id, $pos_city, 3)";
         }
 
         $sql .= implode( ',', $values ); 
-
         $this->game->DbQuery( $sql );
     }
     
@@ -75,19 +77,27 @@ class HSDEvents extends APP_GameClass
     }
 
     /**
-     * Is the current event in event phase?
+     * does the current event affect auction?
      * bool true on yes, false on no.
-     * material event_info `all_b`
      */
-    function eventAuction1(){
+    function eventAuction($auc = AUC_EVT_ALL){
         if (!$this->auctionPhase()) return false;
-        return (count($this->game->event_info[$this->game->getGameStateValue('current_event')]['auc'])==1);
+        return ($this->game->event_info[$this->game->getGameStateValue('current_event')]['auc']==$auc);
+    }
+
+    function isAuctionAffected($auction = null) {
+        if (!$this->auctionPhase()) return false;
+        $auction = (is_null($auction)?$this->game->getGameStateValue('current_auction'):$auction);
+        if ($auction ==1) { 
+            return true;
+        }
+        return ($this->eventAuction());
     }
 
     /**
      * does the current event affect the auction phase?
      * bool true on yes, false on no.
-     * material event_info `all_b`
+     * material event_info `auc`
      */
     function auctionPhase(){
         return $this->eventHaskey('auc');
@@ -267,6 +277,43 @@ class HSDEvents extends APP_GameClass
                 break;
         }
         $this->game->gamestate->nextState( 'done' );
+    }
+
+    function resolveBuildEventPhase(){
+        if (!$this->isAuctionAffected()) {
+            $next_state = "done";
+        } else {
+            $next_state = "";
+            $event = $this->game->event_info[$this->game->getGameStateValue('current_event')]['auc_b'];
+            switch($event){
+                case EVT_AUC_DISCOUNT_1_RES:
+                case EVT_AUC_NO_AUCTION:
+                case EVT_AUC_COM_DISCOUNT:
+                    break;
+                case EVT_AUC_BUILD_AGAIN:
+                    // can build again (any).
+                case EVT_AUC_SECOND_BUILD:
+                    // build again (same types)
+                case EVT_AUC_STEEL_ANY:
+                    // player may pay a steel to build any building
+                    $next_state = "evt_build";
+                    break;
+                case EVT_AUC_BONUS_WORKER:
+                    // can reciever worker
+                    $next_state = "bonus";
+                break;
+                case EVT_AUC_2SILVER_TRACK:
+                    // pay 2 silver for track advancement
+                    $next_state = "bonus";
+                break;
+                case EVT_AUC_TRACK:
+                    // gains a rail track
+                    $this->game->Resource->addTrack($this->game->getActivePlayerId(), _("event"));
+                    $next_state = "done";
+                break;
+            }
+        }
+        $this->game->gamestate->nextstate( $next_state );
     }
 
     //// BEGIN pass Bid ////

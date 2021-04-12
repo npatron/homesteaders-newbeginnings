@@ -23,23 +23,30 @@
   define("STATE_EVT_BONUS",          26);
   define("STATE_EVT_PAY",            27);
   define("STATE_EVT_POST_TRADE",     28);
+  define("STATE_EVT_DEBT_TRADE",     36);
+  
   define("STATE_BEGIN_AUCTION",      30);
   define("STATE_2_PLAYER_DUMMY_BID", 31);
   define("STATE_PLAYER_BID",         32);
   define("STATE_RAIL_BONUS",         33);
   define("STATE_NEXT_BID",           34);
-  define("STATE_EVT_DEBT_TRADE",     36);
+
   define("STATE_NEXT_BUILDING",      40);
   define("STATE_PAY_AUCTION",        41);
   define("STATE_CHOOSE_BUILDING",    42);
   define("STATE_RESOLVE_BUILDING",   43);
   define("STATE_TRAIN_STATION_BUILD",44);
-  define("STATE_EVT_BLD_BONUS",      45);
+
+  define("STATE_EVT_BLD_BONUS",      46);
+  define("STATE_EVT_BUILD_AGAIN",    47);
+  define("STATE_EVT_BUILD_BONUS",    48);
+
   define("STATE_AUCTION_BONUS",      50);
   define("STATE_CHOOSE_BONUS",       51);
   define("STATE_CONFIRM_AUCTION",    52);
   define("STATE_END_BUILD",          53);
   define("STATE_END_ROUND",          59);
+  
   define("STATE_ENDGAME_ACTIONS",    60);
   define("STATE_UPDATE_SCORES",      61);
   define("STATE_END_GAME",           99);
@@ -52,7 +59,9 @@
   define("AUC_LOC_2",   2);
   define("AUC_LOC_3",   3);
   define("AUC_LOC_4",   4);
-  define("EVT_LOC",     5);
+
+  define("AUC_EVT_ONE", 1);
+  define("AUC_EVT_ALL", 2);
   
   // Building IDs
   define("BLD_HOMESTEAD_YELLOW", 1);

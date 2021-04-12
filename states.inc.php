@@ -214,15 +214,6 @@ $machinestates = array(
                                 "zombiePass"     => STATE_END_BUILD )
     ),
 
-    STATE_EVT_BLD_BONUS  => array(
-        "name" => "eventBuildBonus",
-        "description" => '',
-        "type" => "game",
-        "action" => "stGetEventBonus",
-        "transitions" => array( "bonusChoice" => STATE_CHOOSE_BONUS, 
-                                "endBuild" => STATE_CONFIRM_AUCTION )
-    ),
-
     STATE_RESOLVE_BUILDING =>  array(
         "name" => "resolveBuilding",
         "description" => clienttranslate('${actplayer} may recieve a build bonus'),
@@ -232,9 +223,43 @@ $machinestates = array(
         "action" => "stResolveBuilding",
         "possibleactions" => array("buildBonus"),
         "transitions" => array( "auction_bonus" => STATE_AUCTION_BONUS, 
-                                "rail_bonus" => STATE_RAIL_BONUS,
+                                "rail_bonus"    => STATE_RAIL_BONUS,
                                 "train_station_build"=> STATE_TRAIN_STATION_BUILD,
-                                "zombiePass"     => STATE_END_BUILD)
+                                "zombiePass"    => STATE_END_BUILD)
+    ),
+
+    STATE_EVT_BLD_BONUS  => array(
+        "name" => "eventBuildBonus",
+        "description" => '',
+        "type" => "game",
+        "action" => "stSetupBuildEventBonus",
+        "transitions" => array( "evt_build" => STATE_EVT_BUILD_AGAIN, 
+                                "bonus"     => STATE_EVT_BUILD_BONUS,
+                                "done"      => STATE_AUCTION_BONUS )
+    ),
+
+    STATE_EVT_BUILD_AGAIN  => array(
+        "name" => "eventBuildAgain",
+        "description" => clienttranslate('${actplayer} may build another building'),
+        "descriptionmyturn" => clienttranslate('${you} may build another building'),
+        "type" => "activeplayer",
+        "args" => "argEventBuildings",
+        "action" => "stSetupTrade",
+        "possibleactions" => array( "trade", "buildBuilding", "takeLoan", "doNotBuild", "undo" ),
+        "transitions" => array( "undoTurn"           => STATE_PAY_AUCTION,
+                                "building_bonus" => STATE_RESOLVE_BUILDING, 
+                                "auction_bonus"  => STATE_AUCTION_BONUS,
+                                "end_build"      => STATE_CONFIRM_AUCTION,
+                                "zombiePass"     => STATE_END_BUILD )
+    ),
+
+    STATE_EVT_BUILD_BONUS => array(
+        "name" => "eventBuildBonus",
+        "description" => '',
+        "type" => "game",
+        "action" => "stGetEventBuildBonus",
+        "transitions" => array( "auction_bonus" => STATE_AUCTION_BONUS,
+                                "endBuild"      => STATE_CONFIRM_AUCTION )
     ),
 
     STATE_TRAIN_STATION_BUILD => array(
