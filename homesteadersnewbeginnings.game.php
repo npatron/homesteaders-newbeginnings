@@ -575,8 +575,9 @@ class homesteadersnewbeginnings extends Table
 
     function argPayWorkers()
     {
-        $args = $this->getCollectionFromDB("SELECT `player_id`, `workers`, `paid` FROM `resources`");
-        return array('args'=>$args);
+        $args = $this->getCollectionFromDB("SELECT `player_id`, `workers` FROM `resources`");
+        $paid = $this->getCollectionFromDB("SELECT `player_id`, `has_paid` FROM `player`");
+        return array('args'=>$args, 'paid'=>$paid);
     }
 
     function argDummyValidBids() {
@@ -957,7 +958,7 @@ class homesteadersnewbeginnings extends Table
         // For example, if the game was running with a release of your game named "140430-1345",
         // $from_version is equal to 1404301345
         
-        if ( $from_version <= 2102040920 ){
+        /*if ( $from_version <= 2102040920 ){
             $result = self::getUniqueValueFromDB("SHOW COLUMNS FROM `buildings` LIKE 'b_order'");
             if(is_null($result)){
                 self::DbQuery("ALTER TABLE buildings ADD b_order INT(3) UNSIGNED NOT NULL DEFAULT '0';");
@@ -970,26 +971,6 @@ class homesteadersnewbeginnings extends Table
             if(count($result)==0){
                 self::DbQuery( "INSERT INTO global (global_id, global_value) VALUES ('20','0');");
             }
-        }
-        // Example:
-//        if( $from_version <= 1404301345 )
-//        {
-//            // ! important ! Use DBPREFIX_<table_name> for all tables
-//
-//            $sql = "ALTER TABLE DBPREFIX_xxxxxxx ....";
-//            self::applyDbUpgradeToAllDB( $sql );
-//        }
-//        if( $from_version <= 1405061421 )
-//        {
-//            // ! important ! Use DBPREFIX_<table_name> for all tables
-//
-//            $sql = "CREATE TABLE DBPREFIX_xxxxxxx ....";
-//            self::applyDbUpgradeToAllDB( $sql );
-//        }
-//        // Please add your future database scheme changes here
-//
-//
-
-
+        }*/
     }    
 }
