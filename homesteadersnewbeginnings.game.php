@@ -64,7 +64,7 @@ class homesteadersnewbeginnings extends Table
         $this->Bid      = new HSDBid($this);
         $this->Building = new HSDBuilding($this);
         $this->Auction  = new HSDAuction($this);
-        $this->Events   = new HSDEvents($this);
+        $this->Event   = new HSDEvents($this);
         $this->Resource = new HSDresource($this);
         $this->Score    = new HSDScore($this);
 	}
@@ -144,7 +144,7 @@ class homesteadersnewbeginnings extends Table
         $this->Building->createBuildings($players);
         $this->Auction->createAuctionTiles(count($players));
         if ($this->getGameStateValue('new_beginning_evt') == ENABLED){
-            $this->Events->createEvents();
+            $this->Event->createEvents();
         }
         $this->Bid->setupBidDB($players);
 
@@ -188,8 +188,8 @@ class homesteadersnewbeginnings extends Table
             'can_undo_trades' => (count($this->Log->getLastTransactions($cur_p_id)) > 0 && $this->checkAction('trade', false)),
             'cancel_move_ids' => $this->Log->getCancelMoveIds(),
             'current_auctions' => $this->Auction->getCurrentRoundAuctions(), 
-            'events' =>$this->Event->getEvents(),
-            'events_info' => $this->event_info,
+            'events' => $this->Event->getEvents(),
+            'event_info' => $this->event_info,
             'first_player' => $this->getGameStateValue( 'first_player'),
             'number_auctions' => $this->getGameStateValue( 'number_auctions' ),
             'player_order' => $this->getNextPlayerTable(),
@@ -707,11 +707,11 @@ class homesteadersnewbeginnings extends Table
     }
 
     function stSetupEventPreAuction() {
-        $this->Events->setupEventPreAuction();
+        $this->Event->setupEventPreAuction();
     }
 
     function stEvtPostTrade() {
-        $this->Events->resolveEventPostTrade();
+        $this->Event->resolveEventPostTrade();
     }
     
     function stBeginAuction() {

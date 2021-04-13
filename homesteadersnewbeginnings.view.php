@@ -52,6 +52,7 @@
         $this->tpl['BUILDING_STOCK']   = clienttranslate("Hide Current Buildings");
         $this->tpl['BUILDING_DISCARD'] = clienttranslate("Show Building Discard");
         $this->tpl['FUTURE_BUILDING']  = clienttranslate('Show Upcoming Buildings');
+        $this->tpl['EVENTS']           = clienttranslate("Events");
 
         $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "this_player_zone" );
         $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "player_zone" );

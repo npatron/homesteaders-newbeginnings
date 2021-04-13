@@ -43,7 +43,7 @@ class HSDEvents extends APP_GameClass
     
     // for setup of frontend...
     function getEvents(){
-        $sql = "SELECT `event_id` e_id, `position` FROM `events` WHERE `location`=1"; 
+        $sql = "SELECT `event_id` e_id, `position` FROM `events` WHERE `location`>0"; 
         $events = $this->game->getCollectionFromDb( $sql );
         $offset_events = array();
         foreach ($events as $e_id => $event){

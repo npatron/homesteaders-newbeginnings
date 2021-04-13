@@ -116,6 +116,18 @@
 .a4 {
    color: purple;
 }
+.auc1{
+   text-decoration: underline overline lightseagreen 3px;
+}
+.auc2{
+   text-decoration: underline overline orange 3px;
+}
+.auc3{
+   text-decoration: underline overline hotpink 3px;
+}
+.auc4{
+   text-decoration: underline overline purple 3px;
+}
 .auction_column .auction_string{
    font-size: 30px;
 }
@@ -569,6 +581,10 @@ div[id$=trade_market_wood_food]{
    position: unset;
    margin-left: auto;
    margin-right: auto;
+}
+.tt_container.event_card {
+   border-style: solid;
+   border-width: 1px;
 }
 div[id$=trade_market_food_steel]{
    left: 38px;
@@ -1257,6 +1273,23 @@ div#sell_board{
    padding: 0 5px;
 }
 
+/*===============*
+ * Score Tooltip *
+ *===============*/
+
+ .tt_table td {
+   border: 1px solid #ddd;
+   padding: 4px;
+   text-align: center;
+}
+.tt_table tr:nth-child(even){background-color: #f2f2f2;}
+.tt_table th{
+   text-align: center;
+   padding: 4px;
+   background-color: #666666;
+   color: white;
+}
+
 /*=============*
  * Token Zones *
  *=============*/
@@ -1691,6 +1724,14 @@ div#sell_board{
    max-width: unset;
    display: inline-flex;
 }
+.slot_0_1 {
+   bottom: 10px;
+   left: 14px;
+}
+.slot_0_2 {
+   bottom: 8px;
+   left: 68px;
+}
 .slot_1_1 {
    bottom: 10px;
    left: 14px;
@@ -2078,30 +2119,37 @@ div#auction_tile_30 {
 }
 /* EXPANSION BUILDINGS */
 .build_tile_0:not(.building_card) { /* Purple homestead */
-   background-image: url('img/exp_building_144x196.png');
+   background-image: url('img/exp_building.png');
    background-position: 0% 0%;
+   background-size: 1008px 196px;
 }
 .build_tile_36:not(.building_card) { /* Lumbermill */
-   background-image: url('img/exp_building_144x196.png');
+   background-image: url('img/exp_building.png');
    background-position: 16.6% 0%;
+   background-size: 1008px 196px;
 }
 .build_tile_37:not(.building_card) { /* Saloon */
-   background-image: url('img/exp_building_144x196.png');
+   background-image: url('img/exp_building.png');
    background-position: 50% 0%;
+   background-size: 1008px 196px;
 }
 .build_tile_38:not(.building_card) { /* Silver Mine */
-   background-image: url('img/exp_building_144x196.png');
+   background-image: url('img/exp_building.png');
    background-position: 66.6% 0%;
+   background-size: 1008px 196px;
 }
 .build_tile_39:not(.building_card) { /* Hotel */
-   background-image: url('img/exp_building_144x196.png');
+   background-image: url('img/exp_building.png');
    background-position: 33.3% 0%;
+   background-size: 1008px 196px;
 }
 .build_tile_40:not(.building_card) { /* Warehouse */
-   background-image: url('img/exp_building_144x196.png');
+   background-image: url('img/exp_building.png');
    background-position: 83.3% 0%;
+   background-size: 1008px 196px;
 }
 .build_tile_41:not(.building_card) { /* Post Office */
-   background-image: url('img/exp_building_144x196.png');
+   background-image: url('img/exp_building.png');
    background-position: 100% 0%;
+   background-size: 1008px 196px;
 }
