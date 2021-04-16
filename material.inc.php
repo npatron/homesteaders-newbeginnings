@@ -59,7 +59,7 @@ $this->translation_strings = array(
   3=> clienttranslate('Special'), 
   4=> clienttranslate('Any'), 
   6=> clienttranslate('Building'), 
-  7=> clienttranslate('Advance on Railroad track'),
+  7=> clienttranslate('Advance the Railroad track'),
   9=> clienttranslate('You have already built this building'),
   10=> clienttranslate('You can not afford to build this building'),
   11=> clienttranslate('You can afford to build this building (trades required)'),
@@ -620,13 +620,13 @@ $this->auction_info = array(
     'bonus' => AUC_BONUS_6VP_AND_FOOD_VP,
   ),
   31 => array(
-    'build' => array(TYPE_RESIDENTIAL),
-  ),
-  32 => array(
     'build' => array(TYPE_INDUSTRIAL, TYPE_COMMERCIAL),
   ),
+  32 => array(
+    'build' => array(TYPE_RESIDENTIAL),
+  ),
   33 => array(
-    'build' => array(TYPE_INDUSTRIAL),
+    'bonus' => AUC_BONUS_TRACK_RAIL_ADV,
   ),
   34 => array(
     'bonus'=> AUC_BONUS_NONE,
@@ -638,16 +638,16 @@ $this->auction_info = array(
     'build' => array(TYPE_COMMERCIAL, TYPE_SPECIAL),
   ),
   37 => array(
-    'bonus' => AUC_BONUS_WORKER_RAIL_ADV,
+    'build' => array(TYPE_INDUSTRIAL),
   ),
   38 => array(
     'bonus' => AUC_BONUS_4DEPT_FREE,
   ),
   39 => array(
-    'build' => array(TYPE_RESIDENTIAL, TYPE_COMMERCIAL, TYPE_INDUSTRIAL, TYPE_SPECIAL),
+    'bonus' => AUC_BONUS_3VP_SELL_FREE,
   ),
   40 => array(
-    'bonus' => AUC_BONUS_3VP_SELL_FREE,
+    'build' => array(TYPE_RESIDENTIAL, TYPE_COMMERCIAL, TYPE_INDUSTRIAL, TYPE_SPECIAL),
   ),
   
 );
@@ -680,7 +680,7 @@ $this->event_info = array(
   4 => array(
     'name'  => clienttranslate('Eager Investors'),
     'stage' => STAGE_SETTLEMENT,
-    'tt'    => clienttranslate('All players who have a ${vp} get 4-${silver}'),
+    'tt'    => clienttranslate('All players who have a ${vp} get ${silver}${silver}${silver}${silver}'),
     'all_b' => EVT_VP_4SILVER,
   ),
   5 => array(
@@ -700,7 +700,7 @@ $this->event_info = array(
   7 => array(
     'name'  => clienttranslate('Railroad Contracts'),
     'stage' => STAGE_SETTLEMENT,
-    'tt'    => clienttranslate('All auctions also give:2-${silver} ${arrow} Advance the Railroad Track'),
+    'tt'    => clienttranslate('All auctions also give:${silver}${silver} ${arrow} Advance the Railroad Track'),
     'auc'   => AUC_EVT_ALL,
     'auc_b' => EVT_AUC_2SILVER_TRACK,
   ),
@@ -802,7 +802,7 @@ $this->event_info = array(
   23 => array(
     'name'  => clienttranslate('Nelson Act'),
     'stage' => STAGE_CITY,
-    'tt'    => clienttranslate('Players who pass may pay off debt for 3-{silver} apiece'),
+    'tt'    => clienttranslate('Players who pass may pay off debt for ${silver}${silver}${silver} apiece'),
     'pass' => EVT_PASS_DEPT_SILVER,
   ),
   24 => array(

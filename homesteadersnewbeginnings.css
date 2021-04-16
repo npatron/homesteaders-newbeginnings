@@ -75,6 +75,15 @@
 .log_inline_loan.crossout:before{
    left: 2px;
 }
+.player_score_value_loan:before{
+   content: " (";
+}
+.player_score_value_loan:after{
+   content: ")";
+}
+.gamerank {
+   z-index: 1;
+}
 
 .res {text-decoration: underline;
    -webkit-text-decoration-color: lightgreen;
@@ -161,9 +170,10 @@
 }
 #board_area{
    order: 4;
-   flex-direction: column;
+   flex-direction: row;
    display: flex;
    flex-grow: 1;
+   flex-wrap: wrap;
 }
 #board {
    background-image: url('img/auctionBoard.jpg');
@@ -174,6 +184,15 @@
    background-repeat: no-repeat;
    margin:auto;
    order: 1;
+}
+#board_2 {
+   background-image: url('img/auc4-board.png');
+   position: relative;
+   width: 290px;
+   height: 545px;
+   background-size: 296px auto;
+   background-repeat: no-repeat;
+   margin: auto;
 }
 #top {
    display: flex;
@@ -353,7 +372,7 @@ div#pending_bids{
    height: 50px;
    width: 200px;
    display: grid;
-   grid-template-columns: repeat(4, 50px);
+   grid-template-columns: repeat(5, 50px);
 }
 div#passed_bids{
    bottom: 1%;
@@ -423,6 +442,19 @@ div#bid_slot_3_16{
 div#bid_slot_3_21{
    left: 86.9%;
  }
+div[id^=bid_slot_4_]{
+   width: 18%;
+   left: 16%;
+}
+div#bid_slot_4_12{
+   left: 34%;
+ }
+div#bid_slot_4_16{
+   left: 52%;
+ }
+div#bid_slot_4_21{
+   left: 70%;
+ }
 
 /*===============*
  * Auction Zones *
@@ -431,7 +463,6 @@ div#bid_slot_3_21{
    position: absolute;
    top: 27%;
    height: 36%;
-   width: 20%;
 }
 #auction_tile_zone_1 {
    left: 13.25%;
@@ -441,6 +472,9 @@ div#bid_slot_3_21{
 }
 #auction_tile_zone_3 {
    left: 73.25%;
+}
+#auction_tile_zone_4 {
+   left: 34.5%;
 }
 .building_location {
    display: grid;
@@ -582,9 +616,15 @@ div[id$=trade_market_wood_food]{
    margin-left: auto;
    margin-right: auto;
 }
+.event_card{
+   box-shadow: -3px -3px 3px grey inset;
+}
 .tt_container.event_card {
    border-style: solid;
    border-width: 1px;
+   min-height: 200px;
+   background-color: linen;
+   border-radius: 6px;
 }
 div[id$=trade_market_food_steel]{
    left: 38px;
@@ -723,6 +763,11 @@ div#sell_board{
    display: grid;
    grid-template-columns: repeat(auto-fill, minmax(155px, auto));
 }
+.main_event_zone {
+   position: relative;
+   display: grid;
+   grid-template-columns: repeat(auto-fill, 150px);
+}
 #future_auction_container{
    flex-direction: row;
 }
@@ -733,7 +778,7 @@ div#sell_board{
    min-width: 700px;
    flex-grow: 1;
 }
-.building_container {
+.building_container, .event_container {
    min-width: 600px;
    flex-grow: 10;
    margin-top: 4px;
@@ -823,64 +868,64 @@ div#sell_board{
 /** Player Borders */
 .border_yellow {
    border-color:yellow;
-   border-radius: 2px;
+   border-radius: 6px;
    border-style: solid;
 }
 .border_blue {
    border-color:blue;
-   border-radius: 2px;
+   border-radius: 6px;
    border-style: solid;
 }
 .border_green {
    border-color:green;
-   border-radius: 2px;
+   border-radius: 6px;
    border-style: solid;
 }
 .border_red {
    border-color: red;
-   border-radius: 2px;
+   border-radius: 6px;
    border-style: solid;
 }
 .border_purple {
    border-color:purple;
-   border-radius: 2px;
+   border-radius: 6px;
    border-style: solid;
 }
 /* TileZone Borders */
 .border_black {
    border-color:black;
-   border-radius: 2px;
+   border-radius: 6px;
    border-style: solid;
 }
 .border_gray {
    border-color: gray;
-   border-radius: 2px;
+   border-radius: 6px;
    border-style: solid;
 }
 .border_white {
    border-color: white;
-   border-radius: 2px;
+   border-radius: 6px;
    border-style: solid;
 }
 /* auction borders */
 .border_a1{
    border-color:lightseagreen;
-   border-radius: 2px;
+   border-radius: 6px;
    border-style: solid;
 }
 .border_a2{
    border-color:orange;
-   border-radius: 2px;
+   border-radius: 6px;
    border-style: solid;
 }
 .border_a3{
    border-color:hotpink;
-   border-radius: 2px;
+   border-radius: 6px;
    border-style: solid;
 }
 .border_a4{
    border-color:purple;
-   border-radius: 2px;
+   border-radius: 6px;
    border-style: solid;
 }
 
@@ -1069,7 +1114,7 @@ div#sell_board{
 .this_player_resource_group:last-child{
    border-right: none;
 }
-.building_container .biggerFont{
+.building_container .biggerFont, .event_container .biggerFont{
    margin-left: auto;
    margin-right: auto;
    margin-bottom: 10px;
@@ -1947,6 +1992,56 @@ div#auction_tile_29 {
 }
 div#auction_tile_30 {
    background-position: 100% 100%;
+}
+div#auction_tile_31 { /* Auction 3*/
+   background-image: url('img/auc4-tiles.png');
+   background-size: cover;
+   background-position: 0% ;
+}
+div#auction_tile_32 {
+   background-image: url('img/auc4-tiles.png');
+   background-size: cover;
+   background-position: 11.11%;
+}
+div#auction_tile_33 {
+   background-image: url('img/auc4-tiles.png');
+   background-size: cover;
+   background-position: 22.22% ;
+}
+div#auction_tile_34 {
+   background-image: url('img/auc4-tiles.png');
+   background-size: cover;
+   background-position: 33.33% ;
+}
+div#auction_tile_35 {
+   background-image: url('img/auc4-tiles.png');
+   background-size: cover;
+   background-position: 44.44% ;
+}
+div#auction_tile_36 {
+   background-image: url('img/auc4-tiles.png');
+   background-size: cover;
+   background-position: 55.55% ;
+}
+div#auction_tile_37 {
+   background-image: url('img/auc4-tiles.png');
+   background-size: cover;
+   background-position: 66.66% ;
+}
+div#auction_tile_38 {
+   background-image: url('img/auc4-tiles.png');
+   background-size: cover;
+   background-position: 77.77%;
+}
+div#auction_tile_39 {
+   background-image: url('img/auc4-tiles.png');
+   background-size: cover;
+   background-position: 88.88%;
+}
+div#auction_tile_40 {
+   background-image: url('img/auc4-tiles.png');
+   background-size: cover;
+   background-position: 100%;
 }
 
 /*======================*

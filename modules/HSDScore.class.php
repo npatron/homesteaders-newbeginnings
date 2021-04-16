@@ -172,8 +172,7 @@ class HSDScore extends APP_GameClass
                 $bld_score['vp']['static'] + 
                 $bld_score['vp']['bonus'] + 
                 $vp + 
-                $vp_res['gold'] + $vp_res['copper'] + $vp_res['cow'] +
-                $vp_loan;
+                $vp_res['gold'] + $vp_res['copper'] + $vp_res['cow'];
         } else {
             $total = 
                 $bld_score['vp']['static'] + 

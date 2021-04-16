@@ -195,10 +195,16 @@
             <div id="train_bonus_5_vp" class="train_bonus"> </div>
             <div id="passed_bids" class="bid_token_zone"> </div>
         </div>
+        <div id="board_2" class="shadow" style="order:2;"> 
+            <!-- BEGIN bid_slot_auc_4 -->
+            <div id="bid_slot_4_{B}" class="bid_slot"> </div>
+            <!-- END bid_slot_auc_4 -->
+            <div id="auction_tile_zone_4" class="auction_tiles_zone"> </div>
+        </div>
     </div>
     <div id="events_container" class="whiteblock event_container border_black">
         <span class="biggerFont">{EVENTS}</span>
-        <div id="events_zone" class="main_building_zone"> </div>
+        <div id="events_zone" class="main_event_zone"> </div>
     </div>
     <div id="main_building_container" class="whiteblock building_container border_black">
         <span class="biggerFont">{MAIN_BUILDING}</span>

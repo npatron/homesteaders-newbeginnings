@@ -440,6 +440,12 @@ class homesteadersnewbeginnings extends Table
         $this->gamestate->nextState( $next_state );
     }
 
+    function playerActionCancel() {
+        $this->gamestate->checkPossibleAction('actionCancel');
+        // also need to remove income, and undo the income... so slightly more required...
+        $this->gamestate->setPlayersMultiactive(array ($this->getCurrentPlayerId() ), 'error', false);
+    }
+
     /**** Building Bonus Player actions *****/
     public function playerFreeHireWorkerBuilding()
     {
@@ -759,11 +765,6 @@ class homesteadersnewbeginnings extends Table
     function stSetupTrade()
     {
         $this->Log->allowTrades($this->getActivePlayerId());
-    }
-
-    function stWinAuction()
-    {
-        
     }
 
     function stBuildingPhase()

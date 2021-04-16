@@ -80,9 +80,16 @@
         $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "auction_stacks" );
         $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "future_auction_zones" );
         $auctions = $this->game->getGameStateValue('number_auctions');
-        for ($a=1; $a <= $auctions; $a++){
+        for ($a=1; $a <= $auctions && $a <= 3; $a++){
           $this->page->insert_block( "auction_stacks", array('A'=> $a));
           $this->page->insert_block( "future_auction_zones", array('A'=> $a, 'AUCTION'=>clienttranslate("Auction"), 'COLOR'=> 'a'.$a));
+        }
+        if ($auctions == 4){
+          $this->page->insert_block( "future_auction_zones", array('A'=> 4, 'AUCTION'=>clienttranslate("Auction"), 'COLOR'=> 'a4'));
+          $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "bid_slot_auc_4" );
+          for ($bid=1; $bid < 10; $bid++){          
+            $this->page->insert_block( "bid_slot_auc_4", array('B'=> $this->game->Bid->bid_cost_array[$bid]) );
+          }
         }
         
         $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "train_advancement");

@@ -175,8 +175,11 @@
   define("AUC_BONUS_COW_FOR_VP",      5);
   define("AUC_BONUS_6VP_AND_FOOD_VP", 6);
   define("AUC_BONUS_FOOD_FOR_VP",     7);
-  define("AUC_BONUS_4DEPT_FREE",      8);
-  define("AUC_BONUS_3VP_SELL_FREE",   9);
+  // new beginnings auctions events.
+  define("AUC_BONUS_NO_AUCTION",      8);
+  define("AUC_BONUS_TRACK_RAIL_ADV",  9);
+  define("AUC_BONUS_4DEPT_FREE",     10);
+  define("AUC_BONUS_3VP_SELL_FREE",  11);
 
   // Events
   // all_b (bonus for all players) after income, before bids

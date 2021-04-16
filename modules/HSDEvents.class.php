@@ -23,10 +23,10 @@ class HSDEvents extends APP_GameClass
         shuffle($town);
         for($i=0; $i <4;$i++){
             $evt_set_id = $settlement[$i];
-            $pos_set = 1+$i;
+            $pos_set = 1 + $i;
             $values[] = "($evt_set_id, $pos_set, 1)";
             $evt_town_id = $town[$i];
-            $pos_town = 9+$i;
+            $pos_town = 5 + $i;
             $values[] = "($evt_town_id, $pos_town, 2)";
         }
         $city = range(21, 25);

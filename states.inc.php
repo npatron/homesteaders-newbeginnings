@@ -191,7 +191,6 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} must pay for ${auction}'),
         "type" => "activeplayer",
         "args" => "argAuctionCost",
-        "action" => "stWinAuction",
         "possibleactions" => array( "trade", "takeLoan", "updateGold", "done" ),
         "transitions" => array( "build" => STATE_CHOOSE_BUILDING, 
                                 "auction_bonus" => STATE_AUCTION_BONUS,
