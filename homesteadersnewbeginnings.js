@@ -2342,25 +2342,35 @@ function (dojo, declare) {
         showBuildingCost: function( b_id ) {
             this.updateTrade(this.buildingCost, true);
             let cost = [];
-            if (b_id > 0 && this.building_info[b_id].cost != null){
-                cost = this.invertArray(this.building_info[b_id].cost);
-            }
-            this.buildingCost = cost;
-            this.updateTrade(cost);
-            if (b_id == 0){
+            if (b_id == 0) {
                 this.destroyBuildingBreadcrumb();
                 this.createBuildingBreadcrumb();
-            } else {
+            } else if (this.building_info[b_id].cost != null){
+                cost = this.invertArray(this.building_info[b_id].cost);
+                this.buildingCost = cost;
+                this.updateTrade(cost);
                 cost = this.invertArray(cost);
-                    if (this.goldAsCopper && ('copper' in cost)){
-                        this.addOrSetArrayKey(cost, 'gold', cost.copper);
-                        delete cost.copper;
-                    } 
-                    if (this.goldAsCow && ('cow' in cost)){
-                        this.addOrSetArrayKey(cost, 'gold', cost.cow);
-                        delete cost.cow;
+                for(let type in this.cost_replace){
+                    let max_loop = Math.max(this.cost_replace[type], cost[type]);
+                    for(let i =0; i< max_loop;i++ ){
+                        for(let replace_type in COST_REPLACE_TYPE[type]){
+                            cost = this.addOrSetArrayKey(cost, replace_type, COST_REPLACE_TYPE[type][replace_type]);
+                        }
+                        cost[type]--;
                     }
-                    this.createBuildingBreadcrumb(_(this.building_info[b_id].name), this.building_info[b_id].type, cost);
+                }
+                if (this.goldAsCopper && ('copper' in cost)){
+                    this.addOrSetArrayKey(cost, 'gold', cost.copper);
+                    delete cost.copper;
+                } 
+                if (this.goldAsCow && ('cow' in cost)){
+                    this.addOrSetArrayKey(cost, 'gold', cost.cow);
+                    delete cost.cow;
+                }
+                this.createBuildingBreadcrumb(_(this.building_info[b_id].name), this.building_info[b_id].type, cost);
+            } else {
+                this.destroyBuildingBreadcrumb();
+                this.createBuildingBreadcrumb(_(this.building_info[b_id].name), this.building_info[b_id].type, cost);
             }
         },
 
