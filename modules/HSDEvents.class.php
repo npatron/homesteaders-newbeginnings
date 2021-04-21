@@ -82,7 +82,7 @@ class HSDEvents extends APP_GameClass
      */
     function eventAuction($auc = AUC_EVT_ALL){
         if (!$this->auctionPhase()) return false;
-        return ($this->game->event_info[$this->game->getGameStateValue('current_event')]['auc']==$auc);
+        return ($this->game->event_info[$this->getEvent()]['auc']==$auc);
     }
 
     function isAuctionAffected($auction = null) {
@@ -120,15 +120,16 @@ class HSDEvents extends APP_GameClass
     function eventHaskey($key){
         $value = $this->game->getGameStateValue('new_beginning_evt');
         if ($value == DISABLED) return false;
-        $event_id = $this->game->getGameStateValue('current_event');
+        $event_id = $this->getEvent();
         return array_key_exists($key, $this->game->event_info[$event_id]);
     }
     ///// END event phase helper methods ////
 
     ///// BEGIN pre auction Event Phase Handling methods ////
     function setupEventPreAuction(){
-        $current_event = $this->game->getGameStateValue('current_event');
-        $bonus_id = $this->game->events_info[$current_event]['all_b'];
+        $current_event = $this->getEvent();
+        $this->game->setGameStateValue('current_event', $current_event);
+        $bonus_id = $this->game->event_info[$current_event]['all_b'];
         $next_state = 'done';
         switch($bonus_id){
             //// next_state='evt_trade' states ////
@@ -247,7 +248,7 @@ class HSDEvents extends APP_GameClass
     // for after trade window of events that need to wait for players to trade before resolving.
     function resolveEventPostTrade(){
         $current_event = $this->game->getGameStateValue('current_event');
-        $bonus_id = $this->game->events_info[$current_event]['all_b'];
+        $bonus_id = $this->game->event_info[$current_event]['all_b'];
         switch($bonus_id){
             case EVT_SELL_NO_TRADE:// no action required
             case EVT_PAY_LOAN_FOOD:// no action required
@@ -322,7 +323,7 @@ class HSDEvents extends APP_GameClass
      */
     function passBid(){
         if(!$this->passPhase()){ return "rail"; }
-        $pass_evt = $this->game->events_info[$this->getEvent()]['pass'];
+        $pass_evt = $this->game->event_info[$this->getEvent()]['pass'];
         switch($pass_evt){
             case EVT_PASS_TRACK: //Players who pass, get a ${track}
                 $this->game->Resource->addTrack($this->game->getActivePlayerId(), _("event"));

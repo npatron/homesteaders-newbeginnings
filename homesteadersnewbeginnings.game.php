@@ -810,23 +810,42 @@ class homesteadersnewbeginnings extends Table
         $bonus = $this->getGameStateValue('building_bonus');
         $b_key = $this->getGameStateValue('last_building');
         $b_name = $this->Building->getBuildingNameFromKey($b_key);
-        if ($bonus <3){ 
-            if ($bonus == BUILD_BONUS_PAY_LOAN){
+        switch($bonus){
+            case BUILD_BONUS_TRADE_TRADE:
+                $this->Resource->updateAndNotifyIncome($active_p_id, 'trade', 2, $b_name, 'building', $b_key);
+                $this->Log->updateResource($active_p_id, 'trade', 2);
+                $this->gamestate->nextState("auction_bonus");
+            break;
+            case BUILD_BONUS_PAY_LOAN:
                 $this->Resource->payLoanOrRecieveSilver($active_p_id, $b_name, 'building', $b_key);
-            } else if ($bonus == BUILD_BONUS_TRADE){
+                $this->gamestate->nextState("auction_bonus");
+            break;
+            case BUILD_BONUS_TRADE:
                 $this->Resource->updateAndNotifyIncome($active_p_id, 'trade', 1, $b_name, 'building', $b_key);
                 $this->Log->updateResource($active_p_id, 'trade', 1);
-            }
-            $this->gamestate->nextState("auction_bonus");
-        } else if ($bonus == BUILD_BONUS_RAIL_ADVANCE){
-            $this->Resource->getRailAdv($active_p_id, $b_name, 'building', $b_key);
-            $this->setGameStateValue('phase', PHASE_BLD_BONUS);
-            $this->gamestate->nextState('rail_bonus');
-        } else if ($bonus == BUILD_BONUS_TRACK_AND_BUILD) {
-            $this->Resource->addTrack($active_p_id, $b_name, 'building', $b_key);
-            $this->gamestate->nextState('train_station_build');
+                $this->gamestate->nextState("auction_bonus");
+            break;
+            case BUILD_BONUS_SILVER_WORKERS: // silver per worker.
+                $amt = $this->Resource->getPlayerResourceAmount($active_p_id, 'workers');
+                $this->Resource->updateAndNotifyIncome($active_p_id, 'silver', $amt, $b_name, 'building', $b_key);
+                $this->Log->updateResource($active_p_id, 'silver', $amt);
+                $this->gamestate->nextState("auction_bonus");
+            break;
+            case BUILD_BONUS_RAIL_ADVANCE:
+                $this->Resource->getRailAdv($active_p_id, $b_name, 'building', $b_key);
+                $this->setGameStateValue('phase', PHASE_BLD_BONUS);
+                $this->gamestate->nextState('rail_bonus');
+            break;
+            case BUILD_BONUS_TRACK_AND_BUILD:
+                $this->Resource->addTrack($active_p_id, $b_name, 'building', $b_key);
+                $this->gamestate->nextState('train_station_build');
+            break;
+            case BUILD_BONUS_WORKER:
+                //the other case (BUILD_BONUS_WORKER) waits for player_choice so we don't want to go to next state
+            break;
         }
-        //the other case (BUILD_BONUS_WORKER) waits for player_choice so we don't always want to go to next state
+
+
     }
 
     function stSetupBuildEventBonus(){

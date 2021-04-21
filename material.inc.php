@@ -470,7 +470,7 @@ $this->building_info = array_merge(
     'stage'=> STAGE_SETTLEMENT_TOWN,
     'type' => TYPE_COMMERCIAL,
     'cost' => array(),
-    'on_b' => BUILD_BONUS_SILVER_SILVER,
+    'on_b' => BUILD_BONUS_TRADE_TRADE,
     'vp'   => 1,
     'amt'  => 2,
    ),

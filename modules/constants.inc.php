@@ -163,7 +163,7 @@
   define("BUILD_BONUS_WORKER",          3);
   define("BUILD_BONUS_RAIL_ADVANCE",    4);
   define("BUILD_BONUS_TRACK_AND_BUILD", 5);
-  define("BUILD_BONUS_SILVER_SILVER",   6);
+  define("BUILD_BONUS_TRADE_TRADE",     6);
   define("BUILD_BONUS_SILVER_WORKERS",  7);
   define("BUILD_BONUS_PLACE_RESOURCES", 8);
 

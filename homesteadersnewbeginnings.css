@@ -168,31 +168,42 @@
    order: 0;
    flex-basis: 75%;
 }
-#board_area{
+#main_board_area{
    order: 4;
    flex-direction: row;
    display: flex;
    flex-grow: 1;
    flex-wrap: wrap;
 }
+#board_area{
+   order: 4;
+   flex-direction: row;
+   display: flex;
+   flex: 1;
+   min-width: 740px;
+   max-width: 1050px;
+   margin: auto;
+}
 #board {
    background-image: url('img/auctionBoard.jpg');
    position: relative;
-   width: 740px;
+   width: 100%;
    height: 545px;
    background-size: 740px 545px;
-   background-repeat: no-repeat;
-   margin:auto;
+   margin: auto;
    order: 1;
+   flex: 0 1 740px;
+   background-repeat: no-repeat;
 }
 #board_2 {
    background-image: url('img/auc4-board.png');
    position: relative;
-   width: 290px;
+   width: 100%;
    height: 545px;
    background-size: 296px auto;
    background-repeat: no-repeat;
    margin: auto;
+   flex: 0 1 296px;
 }
 #top {
    display: flex;
@@ -204,6 +215,12 @@
 }
 #trade_top {
    order: 1;
+   display: grid;
+   flex-direction: row;
+   min-width: 290px;
+   max-width: 580px;
+   margin: auto;
+   grid-template-columns: repeat(auto-fill, 145px);
 }
 #top_texts {
    width: 180px;
@@ -216,6 +233,19 @@
    flex-basis: min-content;
 }
 
+@media all and (max-width:1280px){
+   #board_area{
+      flex-wrap: wrap;
+   }
+}
+@media all and (min-width:1280px){
+   #trade_top{
+      max-width: 290px;
+   }
+   #board_area{
+      min-width: none;
+   }
+}
 /*============*
  * Button css *
  *============*/
@@ -653,9 +683,9 @@ div#trade_bank_trade_silver{
 div#buy_board{
    background-image: url('img/trade_2.jpg');
    position: relative;
-   width: 290px;
+   min-width: 290px;
    height: 200px;
-   background-size: 580px auto;
+   background-size: 580px 200px;
    background-repeat: no-repeat;
    margin: auto;
    box-shadow: -3px -3px 3px grey inset;
@@ -665,10 +695,10 @@ div#buy_board{
 div#sell_board{
    background-image: url('img/trade_2.jpg');
    position: relative;
-   width: 290px;
+   min-width: 290px;
    height: 200px;
-   background-size: 580px auto;
-   background-position-x: -290px;
+   background-size: 580px 200px;
+   background-position-x: 100%;
    background-repeat: no-repeat;
    margin: auto;
    box-shadow: -3px -3px 3px grey inset;
@@ -2220,12 +2250,12 @@ div#auction_tile_40 {
 }
 .build_tile_36:not(.building_card) { /* Lumbermill */
    background-image: url('img/exp_building.png');
-   background-position: 16.6% 0%;
+   background-position: 33.3% 0%;
    background-size: 1008px 196px;
 }
 .build_tile_37:not(.building_card) { /* Saloon */
    background-image: url('img/exp_building.png');
-   background-position: 50% 0%;
+   background-position: 83.3% 0%;
    background-size: 1008px 196px;
 }
 .build_tile_38:not(.building_card) { /* Silver Mine */
@@ -2235,12 +2265,12 @@ div#auction_tile_40 {
 }
 .build_tile_39:not(.building_card) { /* Hotel */
    background-image: url('img/exp_building.png');
-   background-position: 33.3% 0%;
+   background-position: 16.6% 0%;
    background-size: 1008px 196px;
 }
 .build_tile_40:not(.building_card) { /* Warehouse */
    background-image: url('img/exp_building.png');
-   background-position: 83.3% 0%;
+   background-position: 50% 0%;
    background-size: 1008px 196px;
 }
 .build_tile_41:not(.building_card) { /* Post Office */

@@ -161,45 +161,54 @@
         <a href="#" id="confirm_trade_btn" class="bgabutton bgabutton_blue noshow"><span id='confirmTrade' class="font">{CONFIRM_TRADE}</span></a>
     </div>
 
-    <div id="board_area" class="full_size">
-        <div id="trade_top" class="noshow"></div>
-        <div id="trade_board" style="order:2;">
-            <!-- BEGIN trade_option -->
-            <div id="trade_{OPTION}" class="trade_option"> </div>
-            <!-- END trade_option -->
+    <div id="main_board_area" class="full_size">
+        <div id="trade_top" >
+            <div id="buy_board" style="order:2;">
+                <!-- BEGIN buy_trade_option -->
+                <div id="trade_{OPTION}" class="trade_option"> </div>
+                <!-- END buy_trade_option -->
+            </div>
+            <div id="sell_board" style="order:2;"> 
+                <!-- BEGIN sell_trade_option -->
+                <div id="trade_{OPTION}" class="trade_option"> </div>
+                <!-- END sell_trade_option -->
+            </div>
         </div>
+        
         <!-- Auction Board -->
-        <div id="board" class="shadow" style="order:2;">
-            <div id="pending_bids" class="bid_token_zone"> </div>
-            <!-- BEGIN bid_slot -->
-            <div id="bid_slot_{A}_{B}" class="bid_slot"> </div>
-            <!-- END bid_slot -->
+        <div id="board_area">
+            <div id="board" class="shadow" style="order:2;">
+                <div id="pending_bids" class="bid_token_zone"> </div>
+                <!-- BEGIN bid_slot -->
+                <div id="bid_slot_{A}_{B}" class="bid_slot"> </div>
+                <!-- END bid_slot -->
 
-            <!-- BEGIN auction_stacks -->
-            <div id="auction_tile_zone_{A}" class="auction_tiles_zone"> </div>
-            <!-- END auction_stacks -->
+                <!-- BEGIN auction_stacks -->
+                <div id="auction_tile_zone_{A}" class="auction_tiles_zone"> </div>
+                <!-- END auction_stacks -->
 
-            <!-- BEGIN train_advancement -->
-            <div id="train_advancement_{I}" class="train_advance"> </div>
-            <!-- END train_advancement -->
+                <!-- BEGIN train_advancement -->
+                <div id="train_advancement_{I}" class="train_advance"> </div>
+                <!-- END train_advancement -->
 
-            <div id="train_bonus_1_trade" class="train_bonus"> </div>
-            <div id="train_bonus_2_track" class="train_bonus"> </div>
-            <div id="train_bonus_3_worker" class="train_bonus"> </div>
-            <div id="train_bonus_4_wood" class="train_bonus"> </div>
-            <div id="train_bonus_4_food" class="train_bonus"> </div>
-            <div id="train_bonus_4_steel" class="train_bonus"> </div>
-            <div id="train_bonus_4_gold" class="train_bonus"> </div>
-            <div id="train_bonus_4_copper" class="train_bonus"> </div>
-            <div id="train_bonus_4_cow" class="train_bonus"> </div>
-            <div id="train_bonus_5_vp" class="train_bonus"> </div>
-            <div id="passed_bids" class="bid_token_zone"> </div>
-        </div>
-        <div id="board_2" class="shadow" style="order:2;"> 
-            <!-- BEGIN bid_slot_auc_4 -->
-            <div id="bid_slot_4_{B}" class="bid_slot"> </div>
-            <!-- END bid_slot_auc_4 -->
-            <div id="auction_tile_zone_4" class="auction_tiles_zone"> </div>
+                <div id="train_bonus_1_trade" class="train_bonus"> </div>
+                <div id="train_bonus_2_track" class="train_bonus"> </div>
+                <div id="train_bonus_3_worker" class="train_bonus"> </div>
+                <div id="train_bonus_4_wood" class="train_bonus"> </div>
+                <div id="train_bonus_4_food" class="train_bonus"> </div>
+                <div id="train_bonus_4_steel" class="train_bonus"> </div>
+                <div id="train_bonus_4_gold" class="train_bonus"> </div>
+                <div id="train_bonus_4_copper" class="train_bonus"> </div>
+                <div id="train_bonus_4_cow" class="train_bonus"> </div>
+                <div id="train_bonus_5_vp" class="train_bonus"> </div>
+                <div id="passed_bids" class="bid_token_zone"> </div>
+            </div>
+            <div id="board_2" class="shadow" style="order:2;"> 
+                <!-- BEGIN bid_slot_auc_4 -->
+                <div id="bid_slot_4_{B}" class="bid_slot"> </div>
+                <!-- END bid_slot_auc_4 -->
+                <div id="auction_tile_zone_4" class="auction_tiles_zone"> </div>
+            </div>
         </div>
     </div>
     <div id="events_container" class="whiteblock event_container border_black">

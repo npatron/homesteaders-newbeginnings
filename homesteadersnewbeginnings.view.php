@@ -97,9 +97,14 @@
           $this->page->insert_block( "train_advancement", array('I'=> $i) ); 
         }
 
-        $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "trade_option");
-        for ($i=0; $i < 12; $i++){
-          $this->page->insert_block( "trade_option", array('OPTION'=> $this->game->trade_map[$i])); 
+        $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "buy_trade_option");
+        for ($i=0; $i < 6; $i++){
+          $this->page->insert_block( "buy_trade_option", array('OPTION'=> $this->game->trade_map[$i])); 
+        }
+
+        $this->page->begin_block( "homesteadersnewbeginnings_homesteadersnewbeginnings", "sell_trade_option");
+        for ($i=6; $i < 12; $i++){
+          $this->page->insert_block( "sell_trade_option", array('OPTION'=> $this->game->trade_map[$i])); 
         }
         
         /*********** Do not change anything below this line  ************/
