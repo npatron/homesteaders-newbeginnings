@@ -1205,8 +1205,8 @@ function (dojo, declare) {
 
         /***** events utils ******/
         createEventCards: function(events){
-            console.log('createEventCards', events);
-            console.log('event_info', this.event_info);
+            //console.log('createEventCards', events);
+            //console.log('event_info', this.event_info);
             for (let i in events){
                 let event = this.event_info[events[i].e_id];
                 //console.log('event', events[i].e_id, event);
@@ -1281,7 +1281,7 @@ function (dojo, declare) {
                 } else {
                     var phase = _("Town");
                 }
-                var title = `<span class="font bold a${auction_no}">${phase}</span><hr>`
+                var title = `<span class="font caps bold a${auction_no}">${phase}</span><hr>`
             }
             tt += title ;
             if (a_info[a_id].build != null){// there is a build
@@ -2033,7 +2033,7 @@ function (dojo, declare) {
                     return;
                 }
                 // show trade
-                this.enableTradeIfPossible(); 
+                this.enableTradeIfPossible();
                 this.setTradeButtonTo( TRADE_BUTTON_HIDE );
             }
         },
@@ -2042,26 +2042,21 @@ function (dojo, declare) {
          * 
          */
         enableTradeIfPossible: function() {
-            if (dojo.query(`#${BUY_BOARD_ID}`).length == 0){
-                dojo.place(this.format_block('jptpl_buy_sell_board',{}), `building_zone_${this.player_color[this.player_id]}`, 'first');
-                for(let i = 0; i <12; i++) {
-                    let buy_sell = (i<6?'buy':'sell');
-                    let id = `tr${buy_sell.substr(0,3)}_${Object.keys(TRADE_MAP).find(key => TRADE_MAP[key] === i)}`;
-                    dojo.place(`<div id="${id}" class="${buy_sell}_option selectable"></div>`, `${buy_sell}_board`, 'last');
-                    dojo.connect($(id),'onclick', this, 'onSelectTradeAction');
-                }
+            if (!this.tradeEnabled){
+                let b_zone = `building_zone_${this.player_color[this.player_id]}`;
+                dojo.place(BUY_BOARD_ID, b_zone, 'first');
+                dojo.place(SELL_BOARD_ID, b_zone, 'first');
+                this.tradeEnabled = true;
+                dojo.query('#trade_top').style('display','none');
             }
-            this.updateTradeAffordability();
-            this.tradeEnabled = true;
         },
 
         disableTradeIfPossible: function() {
-            this.tradeEnabled = false;
-            if(dojo.query(`#${BUY_BOARD_ID}`).length >0){
-                dojo.destroy($(BUY_BOARD_ID));
-            }
-            if(dojo.query(`#${SELL_BOARD_ID}`).length >0){
-                dojo.destroy($(SELL_BOARD_ID));
+            if (this.tradeEnabled){
+                this.tradeEnabled = false;
+                dojo.place(BUY_BOARD_ID, `trade_top`, 'first');
+                dojo.place(SELL_BOARD_ID, `trade_top`, 'first');
+                dojo.query('#trade_top').style('display','grid');
             }
         },
 

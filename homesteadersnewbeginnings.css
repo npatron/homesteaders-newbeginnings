@@ -705,47 +705,25 @@ div#sell_board{
    grid-column: span 2;
    border-radius: 6px;
 }
-#trbuy_buy_wood, #trbuy_buy_food, #trade_buy_wood, #trade_buy_food,
-#trsel_sell_wood, #trsel_sell_food, #trade_sell_wood, #trade_sell_food{
-   top: 21%;
+[id^=tr][id$=_wood], [id^=tr][id$=_food]{
+   top: 20.5%;
 }
-#trbuy_buy_steel, #trbuy_buy_gold, #trade_buy_steel, #trade_buy_gold,
-#trsel_sell_steel, #trsel_sell_gold, #trade_sell_steel, #trade_sell_gold{
-   top: 40.5%;
+[id^=tr][id$=_steel], [id^=tr][id$=_gold]{
+   top: 38.5%;
 }
-#trbuy_buy_copper, #trbuy_buy_cow, #trade_buy_copper, #trade_buy_cow,
-#trsel_sell_copper, #trsel_sell_cow, #trade_sell_copper, #trade_sell_cow{
-   top: 60%;
+[id^=tr][id$=_copper], [id^=tr][id$=_cow]{
+   top: 57%;
 }
-#trbuy_buy_wood, #trbuy_buy_steel, #trbuy_buy_copper, 
-#trsel_sell_wood, #trsel_sell_steel, #trsel_sell_copper{
+[id^=tr][id$=_wood], [id^=tr][id$=_steel], [id^=tr][id$=_copper]{
    right: 50.5%;
 }
-#trbuy_buy_food, #trbuy_buy_gold, #trbuy_buy_cow, 
-#trsel_sell_food, #trsel_sell_gold, #trsel_sell_cow{
+[id^=tr][id$=_food], [id^=tr][id$=_gold],[id^=tr][id$=_cow] {
    left: 50.5%;
 }
-#trade_buy_wood, #trade_buy_steel, #trade_buy_copper{
-   left: 5%;
-}
-#trade_buy_food, #trade_buy_gold, #trade_buy_cow{
-   left: 25%;
-}
-#trade_sell_food, #trade_sell_gold, #trade_sell_cow{
-   right: 5%;
-}
-#trade_sell_wood, #trade_sell_steel, #trade_sell_copper{
-   right: 25%;
-}
 
-.trade_option {
-   height: 20%;
-   width: 19.5%;
-   position: absolute;
-}
-.buy_option,.sell_option {
-   height: 20%;
-   width: 40%;
+.trade_option, .buy_option, .sell_option {
+   height: 17.5%;
+   width: 39%;
    position: absolute;
 }
 /*================*
@@ -863,6 +841,7 @@ div#sell_board{
   background-color: gray;
   opacity: .4;
   top: 0px;
+  border-radius: 6px;
 }
 .building_container .building_tile {
    border-style: dashed;
@@ -960,7 +939,7 @@ div#sell_board{
 }
 
 .tile_tip {
-   border-radius:4px;
+   border-radius: 6px;
    width:200px;
    border-style: solid;
    border-width: 3px;
@@ -1328,6 +1307,9 @@ div#sell_board{
 }
 .tt_container .font:not(.bold){
    font-size: 15px;
+}
+.tt_container .font:not(.bold):not(:last-child){
+   margin-bottom: 0px;
 }
 .tt_break, .tt_dot {
    width: 100%; 
@@ -1789,10 +1771,22 @@ div#sell_board{
 }
 .tt_container .worker_slot{
    background-image: url('img/drawn_tokens_2.png');
-   background-size: 361px 108.2px;
-   background-position: -125px -73px;
+   background-size: 1100%;
+   background-position: 38% 98%;
    width: 33px;
    height: 35px;
+   position: unset;
+   left: unset;
+   bottom: unset;
+   max-width: unset;
+   display: inline-flex;
+}
+.dijitTooltipContainer .worker_slot {
+   background-image: url('img/drawn_tokens_2.png');
+   background-size: 1100%;
+   background-position: 38% 98%;
+   width: 20px;
+   height: 25px;
    position: unset;
    left: unset;
    bottom: unset;
@@ -1917,6 +1911,10 @@ div#sell_board{
    bottom: 8px;
    left: 64px;
 }
+.slot_38_1 {
+   left: 15%;
+   bottom: 7%;
+} 
 
 /*=====================*
  * Auction Tile images *
@@ -2023,52 +2021,52 @@ div#auction_tile_29 {
 div#auction_tile_30 {
    background-position: 100% 100%;
 }
-div#auction_tile_31 { /* Auction 3*/
+div#auction_tile_31:not(.auction_card) { /* Auction 3*/
    background-image: url('img/auc4-tiles.png');
    background-size: cover;
    background-position: 0% ;
 }
-div#auction_tile_32 {
+div#auction_tile_32:not(.auction_card) {
    background-image: url('img/auc4-tiles.png');
    background-size: cover;
    background-position: 11.11%;
 }
-div#auction_tile_33 {
+div#auction_tile_33:not(.auction_card) {
    background-image: url('img/auc4-tiles.png');
    background-size: cover;
    background-position: 22.22% ;
 }
-div#auction_tile_34 {
+div#auction_tile_34:not(.auction_card) {
    background-image: url('img/auc4-tiles.png');
    background-size: cover;
    background-position: 33.33% ;
 }
-div#auction_tile_35 {
+div#auction_tile_35:not(.auction_card) {
    background-image: url('img/auc4-tiles.png');
    background-size: cover;
    background-position: 44.44% ;
 }
-div#auction_tile_36 {
+div#auction_tile_36:not(.auction_card) {
    background-image: url('img/auc4-tiles.png');
    background-size: cover;
    background-position: 55.55% ;
 }
-div#auction_tile_37 {
+div#auction_tile_37:not(.auction_card) {
    background-image: url('img/auc4-tiles.png');
    background-size: cover;
    background-position: 66.66% ;
 }
-div#auction_tile_38 {
+div#auction_tile_38:not(.auction_card) {
    background-image: url('img/auc4-tiles.png');
    background-size: cover;
    background-position: 77.77%;
 }
-div#auction_tile_39 {
+div#auction_tile_39:not(.auction_card) {
    background-image: url('img/auc4-tiles.png');
    background-size: cover;
    background-position: 88.88%;
 }
-div#auction_tile_40 {
+div#auction_tile_40:not(.auction_card) {
    background-image: url('img/auc4-tiles.png');
    background-size: cover;
    background-position: 100%;
