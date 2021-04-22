@@ -472,6 +472,7 @@ $this->building_info = array_merge(
     'cost' => array(),
     'on_b' => BUILD_BONUS_TRADE_TRADE,
     'vp'   => 1,
+    'inc'  => array('silver'=>1),
     'amt'  => 2,
    ),
    BLD_SILVER_MINE => array(
