@@ -1873,11 +1873,12 @@ div#sell_board{
    border-width: 0px;
 }
 .w_slot .slot_17_1{
-   width: 33px;
+   background-position: 37% 99%;
+   width: 32px;
 }
 .w_slot .slot_17_2{
-   background-position: -132px -73px;
-   width: 33px;
+   background-position: 40% 99%;
+   width: 32px;
 }
 .w_slot [id^="slot_"][id$="_3"] {
    width: 65px;
