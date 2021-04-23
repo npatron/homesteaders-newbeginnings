@@ -282,7 +282,8 @@ $machinestates = array(
         "type" => "game",
         "action" => "stGetAuctionBonus",
         "transitions" => array( "bonusChoice" => STATE_CHOOSE_BONUS, 
-                                "endBuild" => STATE_CONFIRM_AUCTION )
+                                "endBuild"    => STATE_CONFIRM_AUCTION,
+                                "rail_bonus" => STATE_RAIL_BONUS)
     ),
 
     STATE_CHOOSE_BONUS => array(

@@ -630,7 +630,7 @@ $this->auction_info = array(
     'bonus' => AUC_BONUS_TRACK_RAIL_ADV,
   ),
   34 => array(
-    'bonus'=> AUC_BONUS_NONE,
+    'bonus'=> AUC_BONUS_NO_AUCTION,
   ),
   35 => array(
     'build' => array(TYPE_RESIDENTIAL, TYPE_INDUSTRIAL),

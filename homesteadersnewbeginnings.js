@@ -132,14 +132,14 @@ function (dojo, declare) {
     // other Auction Locations are the auction number (1-3).
     const AUCLOC_DISCARD = 0;
 
-    const AUCBONUS_NONE            = 0;
-    const AUCBONUS_WORKER          = 1;
-    const AUCBONUS_WORKER_RAIL_ADV = 2;
-    const AUCBONUS_WOOD_FOR_TRACK  = 3;
-    const AUCBONUS_COPPER_FOR_VP   = 4;
-    const AUCBONUS_COW_FOR_VP      = 5;
-    const AUCBONUS_6VP_AND_FOOD_VP = 6;
-    const AUCBONUS_FOOD_FOR_VP     = 7;
+    const AUC_BONUS_NONE            = 0;
+    const AUC_BONUS_WORKER          = 1;
+    const AUC_BONUS_WORKER_RAIL_ADV = 2;
+    const AUC_BONUS_WOOD_FOR_TRACK  = 3;
+    const AUC_BONUS_COPPER_FOR_VP   = 4;
+    const AUC_BONUS_COW_FOR_VP      = 5;
+    const AUC_BONUS_6VP_AND_FOOD_VP = 6;
+    const AUC_BONUS_FOOD_FOR_VP     = 7;
     // auc 4 events (expansion)
     const AUC_BONUS_NO_AUCTION     = 8;
     const AUC_BONUS_TRACK_RAIL_ADV = 9;
@@ -1047,29 +1047,37 @@ function (dojo, declare) {
         onUpdateActionButtons_bonusChoice: function (args) {
             const option = Number(args.auction_bonus);
             switch (option){
-                case AUCBONUS_WORKER:
-                case AUCBONUS_WORKER_RAIL_ADV:
+                case AUC_BONUS_WORKER:
+                case AUC_BONUS_WORKER_RAIL_ADV:
                     this.addActionButton( 'btn_bonus_worker', dojo.string.substitute(_('(FREE) Hire ${worker}'), {worker:this.tkn_html['worker']}) , 'workerForFree');
                 break;
-                case AUCBONUS_WOOD_FOR_TRACK:
+                case AUC_BONUS_WOOD_FOR_TRACK:
                     this.addActionButton( 'btn_wood_track', `${this.tkn_html['wood']} ${this.tkn_html['arrow']} ${this.tkn_html['track']}`, 'woodForTrack');
                 break;
-                case AUCBONUS_COPPER_FOR_VP:
+                case AUC_BONUS_COPPER_FOR_VP:
                     this.addActionButton( 'btn_copper_vp', `${this.tkn_html['copper']} ${this.tkn_html['arrow']} ${this.tkn_html['vp4']}`, 'copperFor4VP');
                     if (args.riverPort){
                         this.addActionButton( 'btn_gold_copper', `${this.tkn_html['gold']} ${this.tkn_html['arrow']} ${this.tkn_html['vp4']}`, 'goldFor4VP');
                     }
                     break;
-                case AUCBONUS_COW_FOR_VP:
+                case AUC_BONUS_COW_FOR_VP:
                     this.addActionButton( 'btn_cow_vp', `${this.tkn_html['cow']} ${this.tkn_html['arrow']} ${this.tkn_html['vp4']}`, 'cowFor4VP');
                     if (args.riverPort){
                         this.addActionButton( 'btn_gold_cow', `${this.tkn_html['gold']} ${this.tkn_html['arrow']} ${this.tkn_html['vp4']}`, 'goldFor4VP');
                     }
                     break;
-                case AUCBONUS_6VP_AND_FOOD_VP:
-                case AUCBONUS_FOOD_FOR_VP:
+                case AUC_BONUS_6VP_AND_FOOD_VP:
+                case AUC_BONUS_FOOD_FOR_VP:
                     this.addActionButton( 'btn_food_vp', `${this.tkn_html['food']} ${this.tkn_html['arrow']} ${this.tkn_html['vp2']}`, 'foodFor2VP');
                     break;
+                case AUC_BONUS_4DEPT_FREE:
+                    break;
+                case AUC_BONUS_3VP_SELL_FREE:
+                    // sell for free (no trade)
+                    break;
+                case AUC_BONUS_TRACK_RAIL_ADV: // should not come here
+                    break;
+                
             }
             this.addActionButton( 'btn_pass_bonus',       _('Do Not Get Bonus'), 'passBonus', null, false, 'red');
             this.addActionButton( 'btn_redo_build_phase', _('Cancel'),           'cancelTurn', null, false, 'red');
@@ -1306,25 +1314,25 @@ function (dojo, declare) {
                     bonus_html = this.tkn_html.and;
                 }
                 switch (a_info[a_id].bonus){
-                    case AUCBONUS_WORKER:
+                    case AUC_BONUS_WORKER:
                         bonus_html += this.replaceTooltipStrings(_("May hire a ${worker} (for free)"));
                     break;
-                    case AUCBONUS_WORKER_RAIL_ADV:
+                    case AUC_BONUS_WORKER_RAIL_ADV:
                         bonus_html += this.replaceTooltipStrings(_("May hire a ${worker} (for free) ${and} Advance the Railroad track"));
                     break;
-                    case AUCBONUS_WOOD_FOR_TRACK:
+                    case AUC_BONUS_WOOD_FOR_TRACK:
                         bonus_html += this.replaceTooltipStrings(_("May trade ${wood} for ${track}(once)"));
                     break;
-                    case AUCBONUS_COPPER_FOR_VP:
+                    case AUC_BONUS_COPPER_FOR_VP:
                         bonus_html += this.replaceTooltipStrings(_("May trade ${copper} for ${vp4}(once)"));
                     break;
-                    case AUCBONUS_COW_FOR_VP:
+                    case AUC_BONUS_COW_FOR_VP:
                         bonus_html += this.replaceTooltipStrings(_("May trade ${cow} for ${vp4}(once)"));
                     break;
-                    case AUCBONUS_6VP_AND_FOOD_VP:
+                    case AUC_BONUS_6VP_AND_FOOD_VP:
                         bonus_html += this.replaceTooltipStrings(_("Gain ${vp6} ${and} May trade ${food} for ${vp2}(once)"))
                     break;
-                    case AUCBONUS_FOOD_FOR_VP:
+                    case AUC_BONUS_FOOD_FOR_VP:
                         bonus_html += this.replaceTooltipStrings(_("May trade ${food} for ${vp2}(once)"));
                     break;
                     case AUC_BONUS_NO_AUCTION:

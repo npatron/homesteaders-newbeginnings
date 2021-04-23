@@ -82,6 +82,8 @@ class HSDBid extends APP_GameClass
                 return $player_id;
             } if ($current_auction == 3  && $bid['bid_loc'] >= BID_A3_B3 && $bid['bid_loc'] <= BID_A3_B21 ){
                 return $player_id;
+            } if ($current_auction == 4  && $bid['bid_loc'] >= BID_A4_B3 && $bid['bid_loc'] <= BID_A4_B21 ){
+                return $player_id;
             }
         }
         return 0;

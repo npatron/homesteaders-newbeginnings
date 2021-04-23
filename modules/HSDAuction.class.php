@@ -116,18 +116,30 @@ class HSDAuction extends APP_GameClass
     }
 
     function setupCurrentAuctionBonus(){
-        $next_state = "bonusChoice";
+        $next_state = "bonusChoice"; // default state where player chooses stuff
         $bonus = $this->getCurrentAuctionBonus();
+        $this->game->setGameStateValue( 'auction_bonus', $bonus);
         switch($bonus){
             case AUC_BONUS_NONE:
+            case AUC_BONUS_NO_AUCTION:
                 $next_state = 'endBuild';
+            break;
+            case AUC_BONUS_TRACK_RAIL_ADV:
+                $this->game->Resource->addTrack($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction' , 4);
+                $this->game->Resource->getRailAdv($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', 4);
+                $this->game->setGameStateValue('phase', PHASE_AUC_BONUS);
+                $next_state = "rail_bonus";
+            break;
+            case AUC_BONUS_3VP_SELL_FREE:
+                $this->game->Resource->updateAndNotifyIncome($this->game->getActivePlayerId(), 'vp3', 1, clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
+                $this->game->Log->updateResource($this->game->getActivePlayerId(), "vp", 3);
             break;
             case AUC_BONUS_6VP_AND_FOOD_VP:
                 $this->game->Resource->updateAndNotifyIncome($this->game->getActivePlayerId(), 'vp6', 1, clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
                 $this->game->Log->updateResource($this->game->getActivePlayerId(), "vp", 6);
+            break;
             default:
                 // all others are handled by player actions, so go to that state.
-                $this->game->setGameStateValue( 'auction_bonus', $bonus);
             break;
         }
         $this->game->gamestate->nextState( $next_state );
