@@ -40,6 +40,15 @@ $this->special_resource_map = array(
   'vp8' => array('vp'=>8),
 );
 
+$this->warehouse_map = array(
+  'wood' => 1,
+  'food' => 2,
+  'steel' => 4,
+  'gold' => 8,
+  'wood' => 16,
+  'food' => 32,
+);
+
 $this->playerColorNames = array(
   "ff0000"=> 'red', 
   "008000"=> 'green', 
@@ -417,8 +426,8 @@ $this->building_info = array_merge(
     'vp_b' => VP_B_TRACK,
     'amt'  => 2,
    ),
-   BLD_RESTARAUNT => array(
-    'name' => clienttranslate("Restaraunt"),
+   BLD_RESTAURANT => array(
+    'name' => clienttranslate("Restaurant"),
     'stage'=> STAGE_CITY,
     'type' => TYPE_COMMERCIAL,
     'cost' => array('cow'=>1,'wood'=>1),
@@ -454,7 +463,7 @@ $this->building_info = array_merge(
     'vp_b' => VP_B_BUILDING,
     'amt'  => 1,
    ),
-   BLD_LUMBERMILL => array(
+   BLD_LUMBER_MILL => array(
     'name' => clienttranslate("Lumbermill"),
     'desc' => clienttranslate('May use ${wood}${vp} in place of ${steel} in building costs'),
     'stage'=> STAGE_SETTLEMENT,

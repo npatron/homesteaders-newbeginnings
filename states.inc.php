@@ -288,8 +288,8 @@ $machinestates = array(
 
     STATE_CHOOSE_BONUS => array(
         "name" => "bonusChoice",
-        "description" => clienttranslate('${actplayer} may recieve a Bonus '),
-        "descriptionmyturn" => clienttranslate('${you} may recieve a Bonus '),
+        "description" => clienttranslate('${actplayer} may receive a Bonus '),
+        "descriptionmyturn" => clienttranslate('${you} may receive a Bonus '),
         "type" => "activeplayer",
         "args" => "argBonusOption",
         "action" => "stSetupTrade",

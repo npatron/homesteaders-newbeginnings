@@ -100,13 +100,13 @@
   define("BLD_DUDE_RANCH",    29);
   define("BLD_TOWN_HALL",     30);
   define("BLD_TERMINAL",      31);
-  define("BLD_RESTARAUNT",    32);
+  define("BLD_RESTAURANT",    32);
   define("BLD_TRAIN_STATION", 33);
   define("BLD_CIRCUS",        34);
   define("BLD_RAIL_YARD",     35);  
 
   // expansion
-  define("BLD_LUMBERMILL",  36);
+  define("BLD_LUMBER_MILL",  36);
   define("BLD_SALOON",      37);
   define("BLD_SILVER_MINE", 38);
   define("BLD_HOTEL",       39);

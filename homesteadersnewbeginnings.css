@@ -238,7 +238,7 @@
       flex-wrap: wrap;
    }
 }
-@media all and (min-width:1280px){
+@media all and (min-width:1300px){
    #trade_top{
       max-width: 290px;
    }

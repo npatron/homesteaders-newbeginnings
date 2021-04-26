@@ -86,6 +86,9 @@ function (dojo, declare) {
     const BLD_RIVER_PORT = 17;
     const BLD_BANK   = 22;
     const BLD_RODEO  = 26;
+    const BLD_LUMBER_MILL = 36;
+    const BLD_WAREHOUSE = 40;
+    const BLD_POST_OFFICE = 41;
 
     // string templates for dynamic assets
     const TPL_BLD_TILE  = "building_tile";
@@ -668,6 +671,21 @@ function (dojo, declare) {
             this.resetTradeVals();
         },
 
+        setupWarehouseButtons: function(){
+            for (let type in this.warehouse_state){
+                this.addActionButton( `btn_warehouse_${type}`, this.tkn_html[$type], `onClickWarehouseResource`);
+            }
+            // auto select last key...
+            this.warehouse = this.warehouse_state[this.warehouse_state.length-1];
+        },
+        
+        onClickWarehouseResource: function( evt ){
+            let target_id = evt.target.id;
+            let target_type = target_id.split('_')[2];
+            this.warehouse = target_type;
+            this.setOffsetForIncome();
+        },
+
         /**
          * Connects click actions to the bonus actions for get Rail advancement action.
          * 
@@ -911,6 +929,11 @@ function (dojo, declare) {
             dojo.query( `#player_zone_${this.player_color[this.player_id]} .token_worker` ).addClass('selectable');
             // also make building_slots selectable.
             dojo.query( `#${TPL_BLD_ZONE}${this.player_color[this.player_id]} .worker_slot` ).addClass( 'selectable' );
+
+            // warehouse
+            if (this.hasBuilding[this.player_id][BLD_WAREHOUSE]){
+                this.setupWarehouseButtons();
+            }
             
             this.addActionButton( 'btn_done',_('Confirm'), 'donePlacingWorkers' );
             this.addActionButton( 'btn_hire_worker', _('Hire New Worker'), 'hireWorkerButton', null, false, 'gray' );
@@ -931,7 +954,7 @@ function (dojo, declare) {
                 this.setOffsetForPaymentButtons();
             } 
             if (!(dojo.query( `#button_unpass`).length == 1)){
-                this.addActionButton('button_unpass', _('undo'), 'onUnpass');
+                this.addActionButton('button_unpass', _('undo'), 'onUnPass');
                 dojo.place('button_unpass', 'generalactions', 'first');    
             }
         },
@@ -1877,7 +1900,17 @@ function (dojo, declare) {
                     // special income
                     if (b_id == BLD_RODEO){
                         this.income_arr[b_id].silver = Math.min(5, this.getPlayerWorkerCount(this.player_id));
-                    } else{
+                    } else if (b_id == BLD_BANK){
+                        if (this.board_resourceCounters[this.player_id][loan].getValue() == 0){
+                            this.income_arr[b_id].silver = 2;
+                        } else {
+                            this.income_arr[b_id].loan = -1;
+                        }
+                    } else if (b_id == BLD_WAREHOUSE){
+                        if (this.warehouse != ''){
+                            this.income_arr[b_id][this.warehouse] = 1;
+                        }
+                    } else {
                         for(let type in this.building_info[b_id].inc){
                             if (type == 'vp2'){
                                 this.income_arr[b_id] = this.addOrSetArrayKey(this.income_arr[b_id], 'vp',(2* this.building_info[b_id].inc.vp2));
@@ -2652,16 +2685,8 @@ function (dojo, declare) {
             }
         },
 
-        onUnpass: function () {
-            this.ajaxcall("/" + this.game_name + "/" +  this.game_name + "/actionCancel.html", {}, this); // no checkAction!
-        },
-
-        chooseWarehouseIncome: function() {
-
-        },
-
         ajaxDonePlacingWorkers: function(){
-            this.ajaxcall("/" + this.game_name + "/" +  this.game_name + "/donePlacingWorkers.html", {lock: true}, this, 
+            this.ajaxcall("/" + this.game_name + "/" +  this.game_name + "/donePlacingWorkers.html", {lock: true, warehouse:this.warehouse}, this, 
             function( result ) { 
                 this.clearSelectable('worker', true); 
                 this.clearSelectable('worker_slot', false);
@@ -2672,6 +2697,10 @@ function (dojo, declare) {
                 this.clearOffset();
                 this.showPay = true;
             }, function( is_error) { } );
+        },
+
+        onUnPass: function () {
+            this.ajaxcall("/" + this.game_name + "/" +  this.game_name + "/actionCancel.html", {}, this); // no checkAction!
         },
         
         onClickOnWorker: function( evt )

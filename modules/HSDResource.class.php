@@ -3,7 +3,7 @@
 /*
  * HSDBuilding: a class that handles building related actions.
  */
-class HSDresource extends APP_GameClass
+class HSDResource extends APP_GameClass
 {
     
     public $game;
@@ -402,13 +402,13 @@ class HSDresource extends APP_GameClass
         return $enough;
     }
     
-    function collectIncome($p_id) 
+    function collectIncome($p_id, $warehouse) 
     {
         $has_been_paid = $this->getIncomePaid($p_id);
-        if ($has_been_paid==0){    
+        if ($has_been_paid==0){
             $this->setIncomePaid($p_id);
+            $this->game->Building->buildingIncomeForPlayer( $p_id, $warehouse );
             $p_tracks = $this->game->getUniqueValueFromDB( "SELECT `track` FROM `resources` WHERE `player_id`='$p_id'" ); 
-            $this->game->Building->buildingIncomeForPlayer( $p_id );
             if($p_tracks > 0) {
                 $this->updateAndNotifyIncome($p_id, 'silver', $p_tracks, array('track'=>'track'));
             }

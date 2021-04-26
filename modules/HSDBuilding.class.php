@@ -21,7 +21,7 @@ class HSDBuilding extends APP_GameClass
         for($b_id = BLD_GRAIN_MILL; $b_id <= BLD_RAIL_YARD; $b_id++) 
             $values[] = $this->getBuildingAsValue($b_id);
         if($this->game->getGameStateValue('new_beginning_bld') == ENABLED){
-            for($b_id = BLD_LUMBERMILL; $b_id <= BLD_POST_OFFICE; $b_id++) 
+            for($b_id = BLD_LUMBER_MILL; $b_id <= BLD_POST_OFFICE; $b_id++) 
                 $values[] = $this->getBuildingAsValue($b_id);
         }
         $sql .= implode( ',', $values ); 
@@ -243,7 +243,16 @@ class HSDBuilding extends APP_GameClass
         return (array_key_exists('vp', $this->game->building_info[$b_id])? $this->game->building_info[$b_id]['vp']:0);
     }
 
-    function getBuildingIncomeForPlayer($p_id){
+    function canPlayerReceiveWarehouseIncome($p_id, $type){
+        $sql = "SELECT `state` FROM `buildings` WHERE `player_id`=$p_id AND `building_id`=".BLD_WAREHOUSE;
+        $warehouseState = $this->game->getUniqueValuefromDB($sql);
+        if (is_null($warehouseState)) return false; // don't own warehouse
+        // if the value in warehouseState includes
+        // checking using bitwise and (see $this->game->warehouse_map for bit_locations)
+        return ($warehouseState & $this->game->warehouse_map[$type] >0);
+    }
+
+    function getBuildingIncomeForPlayer($p_id, $warehouse_type =null){
         $p_bld = $this->getAllPlayerBuildings($p_id);
         $player_workers = $this->game->getCollectionFromDB( "SELECT * FROM `workers` WHERE `player_id` = '$p_id'");
         $income_b_id = array();
@@ -252,13 +261,21 @@ class HSDBuilding extends APP_GameClass
             $b_info = $this->game->building_info[$b_id];
             $income_b_id[$b_id] = array ('name' => $b_info['name'], 'key' =>$b_key);
             if ($b_id == BLD_BANK){
-                $this->game->Resource->payLoanOrRecieveSilver($p_id, $b_info['name'], 'building', $b_key);
+                $loans = $this->game->Resource->getPlayerResourceAmount($p_id, 'loan');
+                if ($loans ==0){
+                    $income_b_id[$b_id]['silver'] = 2;
+                } else {
+                    $income_b_id[$b_id]['loan'] = 1;
+                }
             } else if ($b_id == BLD_RODEO){
                 $rodeoIncome = min(count($player_workers), 5);
-                $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id], 'silver', $rodeoIncome);
-            } else {
-                foreach ((array_key_exists('inc', $b_info)?$b_info['inc']:array()) as $type => $amt)
+                $income_b_id[$b_id]['silver'] = $rodeoIncome;
+            } else if ($b_id == BLD_WAREHOUSE) {
+                $income_b_id[$b_id][$warehouse_type]= 1;
+            } else if (array_key_exists('inc', $b_info)) {
+                foreach ($b_info['inc'] as $type => $amt){
                     $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id], $type, $amt);
+                }
             }
         }
         $riverPortWorkers = 0;
@@ -268,14 +285,17 @@ class HSDBuilding extends APP_GameClass
                 $b_id = $this->getBuildingIdFromKey($b_key);
                 $b_info = $this->game->building_info[$b_id];
                 $slot = "s".$worker['building_slot'];
-                if ($slot == "s3"){ // only BLD_RIVER_PORT.
-                    if ($riverPortWorkers++ ==1){// only triggers on 2nd worker assigned to this building
-                        $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id],'gold', 1);
+                if ($slot == "s3"){ 
+                    if ($b_id == BLD_RIVER_PORT){// only BLD_RIVER_PORT.
+                        if ($riverPortWorkers++ ==1){// only triggers on 2nd worker assigned to this building
+                            $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id],'gold', 1);
+                        }
                     }
                 } else {
-                    if (array_key_exists($slot, $b_info)) 
-                    foreach ($b_info[$slot] as $type => $amt){
-                        $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id], $type, $amt);
+                    if (array_key_exists($slot, $b_info)) {
+                        foreach ($b_info[$slot] as $type => $amt){
+                            $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id], $type, $amt);
+                        }
                     }
                 }
             }
