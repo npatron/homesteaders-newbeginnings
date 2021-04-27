@@ -54,8 +54,8 @@
         $this->tpl['FUTURE_BUILDING']  = clienttranslate('Show Upcoming Buildings');
         $this->tpl['EVENTS']           = clienttranslate("Events");
 
-        $this->page->begin_block( $this->getGameName()."_"+$this->getGameName(), "this_player_zone" );
-        $this->page->begin_block( $this->getGameName()."_"+$this->getGameName(), "player_zone" );
+        $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "this_player_zone" );
+        $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "player_zone" );
         foreach($players as $p_id=>$player){
           $color = $this->game->playerColorNames[$player['player_color']];
           if ($current_player_id == $p_id){
@@ -69,7 +69,7 @@
           }
         } 
         
-        $this->page->begin_block( $this->getGameName()."_"+$this->getGameName(), "bid_slot" );
+        $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "bid_slot" );
         
         for ($a=1; $a <= 3; $a++){
           for ($bid=1; $bid < 10; $bid++){          
@@ -77,8 +77,8 @@
           }
         }
 
-        $this->page->begin_block( $this->getGameName()."_"+$this->getGameName(), "auction_stacks" );
-        $this->page->begin_block( $this->getGameName()."_"+$this->getGameName(), "future_auction_zones" );
+        $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "auction_stacks" );
+        $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "future_auction_zones" );
         $auctions = $this->game->getGameStateValue('number_auctions');
         for ($a=1; $a <= $auctions && $a <= 3; $a++){
           $this->page->insert_block( "auction_stacks", array('A'=> $a));
@@ -86,23 +86,23 @@
         }
         if ($auctions == 4){
           $this->page->insert_block( "future_auction_zones", array('A'=> 4, 'AUCTION'=>clienttranslate("Auction"), 'COLOR'=> 'a4'));
-          $this->page->begin_block( $this->getGameName()."_"+$this->getGameName(), "bid_slot_auc_4" );
+          $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "bid_slot_auc_4" );
           for ($bid=1; $bid < 10; $bid++){          
             $this->page->insert_block( "bid_slot_auc_4", array('B'=> $this->game->Bid->bid_cost_array[$bid]) );
           }
         }
         
-        $this->page->begin_block( $this->getGameName()."_"+$this->getGameName(), "train_advancement");
+        $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "train_advancement");
         for ($i=0; $i<6; $i++){
           $this->page->insert_block( "train_advancement", array('I'=> $i) ); 
         }
 
-        $this->page->begin_block( $this->getGameName()."_"+$this->getGameName(), "buy_trade_option");
+        $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "buy_trade_option");
         for ($i=0; $i < 6; $i++){
           $this->page->insert_block( "buy_trade_option", array('OPTION'=> $this->game->trade_map[$i])); 
         }
 
-        $this->page->begin_block( $this->getGameName()."_"+$this->getGameName(), "sell_trade_option");
+        $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "sell_trade_option");
         for ($i=6; $i < 12; $i++){
           $this->page->insert_block( "sell_trade_option", array('OPTION'=> $this->game->trade_map[$i])); 
         }

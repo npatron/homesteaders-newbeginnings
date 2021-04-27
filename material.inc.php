@@ -128,7 +128,7 @@ $this->resource_info = array(
     'name'   => clienttranslate("Livestock"),
     'db_int' => COW,
     'trade_val' => array('gold'=> 1),
-    'tt'     => clienttranslate('${big_big_cow}<br>Livestock:<br>Required to build some buildings<br>End: Worth ${vp2}'),
+    'tt'     => clienttranslate('${big_cow}<br>Livestock:<br>Required to build some buildings<br>End: Worth ${vp2}'),
   ),
   'loan' => array(
     'name'   => clienttranslate("Debt"),

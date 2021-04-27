@@ -1021,48 +1021,11 @@ div#sell_board{
    margin: auto;
    filter: drop-shadow(0px 0px 1px #000000);
 }
-.score_silver{
-   background-size: 275px 85px;
-   background-position: -72px -1px;
-   width: 28px;
-   height: 28px;
-}
-.score_trade{
-   background-size: 275px 85px;
-   background-position: -104px -1px;
-   width: 26px;
-   height: 27px;
-}
-.score_wood{
-   background-size: 260px 81px;
-   background-position: -1px -1px;
-   width: 11px;
-   height: 28px;
-}
-.score_food {
-   background-size: 325px 100px;
-   background-position: -56px -1px;
-   width: 25px;
-   height: 29px;
-}
-.score_steel{
-   background-size: 339px 107px;
-   background-position: -73px -75px;
-   width: 28px;
-   height: 29px;
-}
-/* row 2 */
-.score_vp{
-   background-size: 225px 70px;
-   background-position: -138px -1px;
-   width: 25px;
-   height: 27px;
-}
 .score_loan {
    background-image: url('img/rail_debt_85x102.png');
    background-position: -89% 28%;
-   height: 28px;
-   width: 30px;
+   height: 25px;
+   width: 28px;
    background-size: 100px 77px;
    margin: auto;
 }
@@ -1070,24 +1033,6 @@ div#sell_board{
    height: 20px;
    width: 20px;
    background-size: 75px 30px;
-}
-.score_gold{
-   background-size: 285px 90px;
-   background-position: -17px -2px;
-   width: 28px;
-   height: 28px;
-}
-.score_cow{
-   background-size: 320px 107px;
-   background-position: -38px -42px;
-   width: 33px;
-   height: 28px;
-}
-.score_copper{
-   background-size: 305px 121px;
-   background-position: -71px -47px;
-   width: 35px;
-   height: 28px;
 }
 .player_resources{
    display: flex;
@@ -1158,7 +1103,7 @@ div#sell_board{
    display: flex;
    flex-direction: column;
 }
-.buy{
+/* .buy{
    background-image: url('img/drawn_tokens_2.png');
    background-size: 1000px 300px;
    background-position: -312px -216px;
@@ -1173,24 +1118,11 @@ div#sell_board{
    height: 20px;
    width: 20px;
    grid-row: 3 / 4;
-}
+} */
 
-.player_silver, .log_big_silver {
-   background-size: 353px 111px;
-   background-position: -92px -2px;
-   width: 36px;
-   height: 36px;
-}
 .signed{
    margin: auto;
    text-decoration: underline;
-}
-.player_trade, .log_big_trade {
-   background-size: 353px 117px;
-   background-position: -129px -1px;
-   width: 38px;
-   height: 38px;
-   filter: drop-shadow(0px 0px 1px #000000);
 }
 .player_loan {
    background-image: url('img/rail_debt_85x102.png');
@@ -1210,48 +1142,129 @@ div#sell_board{
    width: 20px;
    grid-row: 1 / 2;
 }
-.player_vp, .log_big_vp {
-   background-size: 342px 100px;
-   background-position: -210px -1px;
-   width: 38px;
-   height: 38px;
+/*** Square Icons 
+ * silver, trade, food, steel, gold, vp(all of them)
+***/
+/** size ***/
+.player_silver, .log_big_silver, .player_trade, .log_big_trade,
+.player_food,   .log_big_food,   .player_steel, .log_big_steel,
+.player_gold,  .log_big_gold,    .player_vp,    .log_big_vp   {
+   width: 40px;
+   height: 40px;
+}
+.bld_vp {
+   width: 30px;
+   height: 30px;
+}
+.score_silver, .score_trade, .score_food, .score_steel, .score_vp, .score_gold{
+   width: 25px;
+   height: 25px;
+   transform: scale(1.25);
+}
+.log_silver, .log_trade, .log_food, .log_steel, .log_gold,
+.log_vp0, .log_vp, .log_vp2, .log_vp3, .log_vp4, .log_vp6, .log_vp8, .log_vp10{
+   width: 20px;
+   height: 20px;
+}
+/*** position & scale for types ***/
+.player_silver, .log_big_silver, .log_silver, .score_silver {
+   background-size: 950%;
+   background-position: 29% 0%;
+}
+.player_trade, .log_big_trade, .log_trade, .score_trade {
+   background-size: 1000%;
+   background-position: -69.5% 0%;
+}
+.player_food, .log_big_food, .log_food, .score_food {
+   background-size: 1250%;
+   background-position: 18.5% 6%;
+}
+.player_steel, .log_big_steel, .log_steel, .score_steel {
+   background-size: 1200%;
+   background-position: 23.5% -42%;
+}
+.player_gold, .log_big_gold, .log_gold, .score_gold {
+   background-size: 1000%;
+   background-position: 6.5% 1%;
+}
+/** vps */
+.player_vp, .log_big_vp, .log_vp, .bld_vp, .score_vp {
+   background-size: 800%;
+   background-position: -45% 1%;
+}
+.log_vp0 {
+   background-size: 800%;
+   background-position: -60% 1%;
+}
+.log_vp2{
+   background-size: 800%;
+   background-position: -30% 1%;
+}
+.log_vp3{
+   background-size: 800%;
+   background-position: -15% 1%;
+}
+.log_vp4{
+   background-size: 800%;
+   background-position: -60% 77%;
+}
+.log_vp6{
+   background-size: 800%;
+   background-position: -45% 77%;
+}
+.log_vp8{
+   background-size: 800%;
+   background-position: -30% 77%;
+}
+.log_vp10{
+   background-size: 800%;
+   background-position: -15% 77%;
+}
+
+/*** different shaped icons 
+ * (wood, copper, cow, worker) ***/
+/*** Wood ***/
+.player_wood, .log_big_wood, .log_wood, .score_wood {
+   background-size: 2000%;
+   background-position: 0% 0%;
 }
 .player_wood, .log_big_wood {
-   background-size: 392px 117px;
-   background-position: -2px -1px;
-   width: 17px;
+   width: 19px;
    height: 40px;
 }
-.player_food, .log_big_food {
-   background-size: 487px 146px;
-   background-position: -83px -6px;
-   width: 37px;
-   height: 38px;
+.score_wood {
+   width: 12px;
+   height: 25px;
+   transform: scale(1.25) rotate(45deg);
 }
-.player_steel, .log_big_steel {
-   background-size: 520px 156px;
-   background-position: -113px -113px;
-   width: 41px;
-   height: 40px;
+.log_wood{
+   width: 9.5px;
+   height: 20px;
 }
-.player_gold, .log_big_gold{
-   background-size: 435px 130.5px;
-   background-position: -27px -3.5px;
-   width: 41px;
-   height: 40px;
+/*** copper cow ***/
+.player_cow, .log_big_cow, .log_cow, .score_cow {
+   background-size: 962%;
+   background-position: 13% 51%;
 }
-.player_cow, .log_big_cow {
-   background-size: 526px 158px;
-   background-position: -62.6px -63px;
+.player_copper, .log_big_copper, .log_copper, .score_copper {
+   background-size: 900%;
+   background-position: 26.5% 50%;
+}
+.player_copper, .log_big_copper, .player_cow, .log_big_cow {
    width: 55px;
    height: 40px;
 }
-.player_copper, .log_big_copper {
-   background-size: 463px 176px;
-   background-position: -110px -70.6px;
-   width: 50px;
-   height: 40px;
+.score_cow, .score_copper{
+   width: 35px;
+   height: 30px;
+   transform: scale(1.25);
 }
+.log_cow, .log_copper{
+   width: 30px;
+   height: 20px;
+   transform: scale(1.25);
+}
+/***   ***/
 .tt_loan{
    background-image: url('img/rail_debt_85x102.png');
    height: 45px;
@@ -1398,22 +1411,17 @@ div#sell_board{
    flex-direction: row-reverse;
    filter: drop-shadow(0px 0px 1px #000000);
 }
-.log_token:not(:last-child) {
+.log_token:not(:last-child), .log_container .token_inline:not(:last-child) {
    margin-left: -10px;
  }
- .log_wood.log_token:not(:last-child) {
+ .log_wood.log_token:not(:last-child), .log_container .log_wood.token_inline:not(:last-child) {
    margin-left: -3px;
  }
-.tt_container .log_token:not(:last-child), #breadcrumb_bldCost .log_token:not(:last-child) {
+ .tt_container .log_token:not(:last-child), #breadcrumb_bldCost .log_token:not(:last-child), 
+ .tt_container .token_inline:not(:last-child), #breadcrumb_bldCost .log_token:not(:last-child) {
    margin-left: -0px;
 }
-.log_wood{
-   background-size: 200px 60px;
-   background-position: -1px -1px;
-   width: 10px;
-   height: 20px;
-}
-.log_gold{
+/* .log_gold{
    background-size: 217.4px 65.2px;
    background-position: -13px -2px;
    width: 21px;
@@ -1430,13 +1438,7 @@ div#sell_board{
    background-position: -53px -1px;
    width: 21px;
    height: 20px;
-}
-.log_trade{
-   background-size: 202px 61px;
-   background-position: -76px -1px;
-   width: 20px;
-   height: 20px;
-}
+} */
 .log_loan{
    display: inline-block;
    background-image: url('img/rail_debt_85x102.png');
@@ -1446,59 +1448,7 @@ div#sell_board{
    width: 31px;
    background-size: 115px 63px; 
 }
-.log_vp0 {
-   background-size: 171px 51px;
-   background-position: 55% 3%;
-   width: 20px;
-   height: 20px;
-}
-.log_vp{
-   background-size: 171px 51px;
-   background-position: -43.5% 3%;
-   width: 20px;
-   height: 20px;
-}
-.log_vp2{
-   background-size: 171px 51px;
-   background-position: -29.5% 3%;
-   width: 20px;
-   height: 20px;
-}
-.log_vp3{
-   background-size: 171px 51px;
-   background-position: -15% 3%;
-   width: 20px;
-   height: 20px;
-}
-.log_vp4{
-   background-size: 171px 51px;
-   background-position: 55% 75%;
-   width: 20px;
-   height: 20px;
-}
-.log_vp6{
-   background-size: 171px 51px;
-   background-position: -43.5% 75%;
-   width: 20px;
-   height: 20px;
-}
-.log_vp8{
-   background-size: 171px 51px;
-   background-position: -29.5% 75%;
-   width: 20px;
-   height: 20px;
-}
-.log_vp10{
-   background-size: 171px 51px;
-   background-position: -15% 75%;
-   width: 20px;
-   height: 20px;
-}
-.bld_vp{
-   background-size: 256px 77px;
-   width: 29px;
-   height: 30px;
-}
+
 .log_worker{
    background-size: 122px 36.6px;
    background-position: 0px -13.9px;
@@ -1514,7 +1464,7 @@ div#sell_board{
 .log_container .log_worker:not(:last-child) {
    margin-left: -8px;
  }
-.log_cow{
+/* .log_cow{
    background-size: 263px 79px;
    background-position: -31px -32px;
    width: 27px;
@@ -1525,25 +1475,28 @@ div#sell_board{
    background-position: -66px -35px;
    width: 30px;
    height: 20px;
+} */
+.log_track, .log_big_track{
+   background-position: -94.5% -37%;
 }
 .log_track{
    background-size: 259.7px 77.9px;
-   background-position: -33.5px -56px;
    width: 20px;
    height: 20px;
 }
 .log_big_track{
    background-size: 520px 156px;
-   background-position: -67px -132px;
    width: 40px;
    height: 40px;
 }
-.log_steel{
-   background-size: 259.7px 77.9px;
-   background-position: -56.6px -56.1px;
-   width: 21px;
-   height: 20px;
+/* .log_steel{
+   background-size: 1200%;
+   background-position: 23.5% -38%;
 }
+.log_steel{
+   width: 20px;
+   height: 20px;
+} */
 .log_arrow{
    background-size: 689.7px 206.9px;
    background-position: -249.6px -83.45px;
