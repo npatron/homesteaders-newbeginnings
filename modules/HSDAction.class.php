@@ -18,7 +18,7 @@ class HSDAction extends APP_GameClass
         $this->game->Resource->takeLoan($p_id);
     }
 
-    public function playerTrade( $p_id, $tradeAction_csv, $notActive =false )
+    public function playerTrade( $p_id, $tradeAction_csv, $notActive )
     {
         // allow out of turn trade, only when flag is passed during allocateWorkers State.
         if (!($notActive && $this->game->gamestate->state()['name'] === "allocateWorkers"))
@@ -31,17 +31,6 @@ class HSDAction extends APP_GameClass
     }
 
     /***  place workers phase ***/
-    public function playerHireWorker($p_id){
-        $this->game->checkAction( 'hireWorker' );
-        
-        $worker_cost = array('trade'=>1,'food'=>1);
-        if (!$this->game->Resource->canPlayerAfford($p_id, $worker_cost))
-            throw new BgaUserException( clienttranslate("You cannot afford to hire a worker"));
-        $this->game->Resource->updateAndNotifyPaymentGroup($p_id, $worker_cost, clienttranslate('Hire Worker'));
-        $this->game->Log->updateResource($p_id, "trade", -1);
-        $this->game->Log->updateResource($p_id, "food", -1);
-        $this->game->Resource->addWorker($p_id, 'hire');
-    }
 
     public function playerSelectWorkerDestination($p_id, $w_key, $b_key, $building_slot) 
     {
@@ -125,53 +114,11 @@ class HSDAction extends APP_GameClass
         $this->game->gamestate->nextState( "auction_bonus" ); 
     }
 
-    public function playerPay($p_id, $gold) {
-        $state = $this->game->gamestate->state();
-        if ($state['name'] === 'payWorkers'){
-            $this->payWorkers($p_id, $gold);
-        } else if ($state['name'] === 'allocateWorkers'){ 
-            $this->payWorkers($p_id, $gold, true);
-        } else if ($state['name'] === 'payAuction') {
-            $this->payAuction($gold);
-        } else {
-            throw new BgaVisibleSystemException ( clienttranslate("player pay called from wrong state") );
-        }
-    }
+    
 
-    public function payWorkers($p_id, $gold, $early=false) {
-        if (!$early){
-            $this->game->checkAction( "done" );
-        }
-        if ($this->game->Resource->getPaid($p_id) == 0){ // to prevent charging twice.
-            $workers = $this->game->Resource->getPlayerResourceAmount($p_id,'workers');
-            $cost = max($workers - (5*$gold), 0);
-            $this->game->Resource->pay($p_id, $cost, $gold, "workers");
-            $this->game->Resource->setPaid($p_id);
-        }
-        if (!$early){
-            $this->game->gamestate->setPlayerNonMultiactive($p_id, "auction" );
-        } else {
-            $this->game->notifyPlayer($p_id, 'workerPaid', "", array());
-        }
-    }
 
-    public function payAuction($gold) {
-        $this->game->checkAction( "done" );
-        if ($gold <0){ 
-            throw new BgaUserException ( clienttranslate("cannot have negative gold value"));
-        }
-        $act_p_id = $this->game->getActivePlayerId();
-        
-        $bid_cost = $this->game->Bid->getBidCost($act_p_id);
-        $bid_cost = max($bid_cost - 5*$gold, 0);
-        $auc_no = $this->game->getGameStateValue('current_auction');
-        $this->game->Resource->pay($act_p_id, $bid_cost, $gold, sprintf(clienttranslate("Auction %s"), $auc_no), $auc_no);
-        if ($this->game->Auction->doesCurrentAuctionHaveBuildPhase()){
-            $this->game->gamestate->nextstate( 'build' );
-        } else {
-            $this->game->gamestate->nextstate( 'auction_bonus');
-        }
-    }
+
+    
 
     public function playerSelectRailBonus($selected_bonus) {
         $act_p_id = $this->game->getActivePlayerId();
@@ -283,19 +230,6 @@ class HSDAction extends APP_GameClass
 
         $this->game->Log->cancelPhase();
         $this->game->gamestate->nextState('undoTurn');
-    }
-        
-    public function playerCancelTransactions($p_id)
-    {
-        $this->game->checkAction('trade');
-
-        $transactions = $this->game->Log->getLastTransactions($p_id);
-        if (is_null($transactions)) {
-            throw new BgaUserException(clienttranslate("You have nothing to cancel"));
-        }
-
-        // Undo the turn
-        $this->game->Log->cancelTransactions($p_id);
     }
 
     /** endBuildRound */

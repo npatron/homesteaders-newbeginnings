@@ -145,6 +145,8 @@ class HSDBid extends APP_GameClass
             $auction_bid_start = 11;
         } else if ($bid_loc > 20 && $bid_loc < 30) {
             $auction_bid_start = 21;
+        } else if ($bid_loc > 30 && $bid_loc < 40) {
+            $auction_bid_start = 31;
         }
         $outbid = $this->game->getCollectionFromDb( 
             "SELECT `player_id` FROM `bids` WHERE `bid_loc` BETWEEN '$auction_bid_start' AND '$bid_loc'");

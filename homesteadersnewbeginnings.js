@@ -2136,7 +2136,7 @@ function (dojo, declare) {
 
         confirmTrades: function ( notActive ){
             if (this.transactionLog.length == 0) { return; }
-            this.ajaxcall( "/homesteaders/homesteaders/trade.html", { 
+            this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/trade.html", { 
                 lock: true, 
                 trade_action: this.transactionLog.join(','),
                 notActive: notActive,
@@ -2663,9 +2663,8 @@ function (dojo, declare) {
         /***** PLACE WORKERS PHASE *****/
         hireWorkerButton: function() {
             if( this.checkAction( 'hireWorker')){
-                this.ajaxcall( "/homesteaders/homesteaders/hireWorker.html", {lock: true}, this, 
-                function( result ) {/*this.setupUndoTransactionsButtons();*/}, 
-                function( is_error) { } );                
+                this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/hireWorker.html", {lock: true}, this, 
+                function( result ) {}, function( is_error) { } );                
             }
         },
         

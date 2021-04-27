@@ -113,7 +113,7 @@ class action_homesteadersnewbeginnings extends APP_GameAction
   public function confirmBid (){
     self::setAjaxMode( );
     $bid_loc = self::getArg( "bid_loc", AT_posint, true);
-    $this->game->playerConfirmBid( $bid_loc );
+    $this->game->Action->playerConfirmBid( $bid_loc );
     self::ajaxResponse( );
   }
 

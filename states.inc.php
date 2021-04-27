@@ -215,8 +215,8 @@ $machinestates = array(
 
     STATE_RESOLVE_BUILDING =>  array(
         "name" => "resolveBuilding",
-        "description" => clienttranslate('${actplayer} may recieve a build bonus'),
-        "descriptionmyturn" => clienttranslate('${you} may recieve a build bonus'),
+        "description" => clienttranslate('${actplayer} may receive a build bonus'),
+        "descriptionmyturn" => clienttranslate('${you} may receive a build bonus'),
         "type" => "activeplayer",
         "args" => "argBuildingBonus",
         "action" => "stResolveBuilding",
@@ -254,9 +254,10 @@ $machinestates = array(
 
     STATE_EVT_BUILD_BONUS => array(
         "name" => "eventBuildBonus",
-        "description" => '',
-        "type" => "game",
-        "action" => "stGetEventBuildBonus",
+        "description" => clienttranslate('${actplayer} may receive a build bonus'),
+        "descriptionmyturn" => clienttranslate('${you} may receive a build bonus'),
+        "type" => "activeplayer",
+        "action" => "argEventBuildBonus",
         "transitions" => array( "auction_bonus" => STATE_AUCTION_BONUS,
                                 "endBuild"      => STATE_CONFIRM_AUCTION )
     ),

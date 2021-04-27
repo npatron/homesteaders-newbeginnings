@@ -65,6 +65,12 @@ class HSDEvents extends APP_GameClass
         if ($value == DISABLED) return;
         $this->game->setGameStateValue('current_event', $this->getEvent($round_number));
     }
+
+    function getEventAucB($round_number = null){
+        $event = $this->getEvent($round_number);
+        if ($event == 0) return 0;
+        return $this->game->event_info[$event]['auc_b'];
+    }
     
     ///// BEGIN event phase helper methods ////
     /**
@@ -284,8 +290,8 @@ class HSDEvents extends APP_GameClass
         if (!$this->isAuctionAffected()) {
             $next_state = "done";
         } else {
-            $next_state = "";
-            $event = $this->game->event_info[$this->game->getGameStateValue('current_event')]['auc_b'];
+            $next_state = "done";
+            $event = $this->getEventAucB();
             switch($event){
                 case EVT_AUC_DISCOUNT_1_RES:
                 case EVT_AUC_NO_AUCTION:

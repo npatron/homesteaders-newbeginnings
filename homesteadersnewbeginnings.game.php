@@ -249,47 +249,97 @@ class homesteadersnewbeginnings extends Table
 //////////// 
 
     /*
-        actions with no currentPlayerId() are only in HSDAction 
-        have been moved to HSDAction or $this->game->Action
+        actions with no currentPlayerId() are in HSDAction 
+        otherwise player actions are here.
     */
 
-    function playerTakeLoan(){
+    public function playerTakeLoan(){
         $this->Action->playerTakeLoan($this->getCurrentPlayerId());
     }
 
-    function playerTrade($trade_action, $notActive){
-        $this->Action->playerTrade($this->getCurrentPlayerId(), $trade_action, $notActive);
+    public function playerTrade($tradeAction_csv, $notActive =false){
+        $this->Action->playerTrade($this->getCurrentPlayerId(), $tradeAction_csv, $notActive);
     }
 
-    function playerHireWorker(){
+    public function playerHireWorker(){
         $this->Action->playerHireWorker($this->getCurrentPlayerId());
     }
     
-    function playerSelectWorkerDestination( $w_key, $b_key, $building_slot){
-        $this->Action->playerHireWorker($this->getCurrentPlayerId(), $w_key, $b_key, $building_slot);
+    public function playerSelectWorkerDestination( $w_key, $b_key, $building_slot){
+        $this->Action->playerSelectWorkerDestination($this->getCurrentPlayerId(), $w_key, $b_key, $building_slot);
     }
 
-    function playerDonePlacingWorkers($warehouse){
+    public function playerDonePlacingWorkers($warehouse){
         $this->Action->playerDonePlacingWorkers($this->getCurrentPlayerId(), $warehouse);
     }
 
-    function playerConfirmBid( $bid_loc){
-        $this->Action->playerConfirmBid($this->getCurrentPlayerId(), $bid_loc);
+
+    public function playerCancelTransactions(){
+        $this->checkAction('trade');
+        $cur_p_id = $this->getCurrentPlayerId();
+        $transactions = $this->Log->getLastTransactions($cur_p_id);
+        if (is_null($transactions)) {
+            throw new BgaUserException(clienttranslate("You have nothing to cancel"));
+        }
+
+        // Undo the turn
+        $this->Log->cancelTransactions($cur_p_id);
     }
 
-    function playerCancelTransactions(){
-        $this->Action->playerCancelTransactions($this->getCurrentPlayerId());
+    public function playerPay($gold){
+        $state = $this->gamestate->state();
+        if ($state['name'] === 'payWorkers'){
+            $this->payWorkers($gold);
+        } else if ($state['name'] === 'allocateWorkers'){ 
+            $this->payWorkers($gold, true);
+        } else if ($state['name'] === 'payAuction') {
+            $this->payAuction($gold);
+        } else {
+            throw new BgaVisibleSystemException ( clienttranslate("player pay called from wrong state") );
+        }
     }
 
-    function playerPay($gold){
-        $this->Action->playerPay($this->getCurrentPlayerId(), $gold);
+    public function payWorkers($gold, $early=false) {
+        if (!$early){
+            $this->checkAction( "done" );
+        }
+        $cur_p_id = $this->getCurrentPlayerId();
+        if ($this->Resource->getPaid($cur_p_id) == 0){ // to prevent charging twice.
+            $this->Resource->setPaid($cur_p_id);
+            $workers = $this->Resource->getPlayerResourceAmount($cur_p_id,'workers');
+            $cost = max($workers - (5*$gold), 0);
+            $this->Resource->pay($cur_p_id, $cost, $gold, "workers");
+        }
+        if (!$early){
+            $this->gamestate->setPlayerNonMultiactive($cur_p_id, "auction" );
+        } else {
+            $this->notifyPlayer($cur_p_id, 'workerPaid', "", array());
+        }
     }
 
-    function playerPayLoan( $gold){
+    public function payAuction($gold) {
+        $this->checkAction( "done" );
+        $p_id = $this->getActivePlayerId();
+        if ($gold <0){ 
+            throw new BgaUserException ( clienttranslate("cannot have negative gold value"));
+        }
+    
+        $bid_cost = $this->Bid->getBidCost($p_id);
+        $bid_cost = max($bid_cost - 5*$gold, 0);
+        $auc_no = $this->getGameStateValue('current_auction');
+        $this->Resource->pay($p_id, $bid_cost, $gold, sprintf(clienttranslate("Auction %s"), $auc_no), $auc_no);
+        if ($this->Auction->doesCurrentAuctionHaveBuildPhase()){
+            $this->gamestate->nextstate( 'build' );
+        } else {
+            $this->gamestate->nextstate( 'auction_bonus');
+        }
+    }
+
+    public function playerPayLoan( $gold){
         $this->Action->playerCancelTransactions($this->getCurrentPlayerId(), $gold);
     }
 
-    function playerDoneEndgame(){
+    public function playerDoneEndgame(){
         $this->Action->playerDoneEndgame($this->getCurrentPlayerId());
     }
 
@@ -334,6 +384,11 @@ class homesteadersnewbeginnings extends Table
             $bonus_option[$p_id]['event'] = $current_event;
             $bonus_option[$p_id]['option'] = $this->Resource->getRailAdvBonusOptions($this->getActivePlayerId());        
         }
+        return array('bonus_option'=>$bonus_option);
+    }
+
+    function argEventBuildBonus() {
+        $bonus_option = $this->Event->getEventAucB();
         return array('bonus_option'=>$bonus_option);
     }
 
