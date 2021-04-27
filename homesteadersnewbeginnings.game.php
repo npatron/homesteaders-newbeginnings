@@ -632,8 +632,6 @@ class homesteadersnewbeginnings extends Table
                 //the other case (BUILD_BONUS_WORKER) waits for player_choice so we don't want to go to next state
             break;
         }
-
-
     }
 
     function stSetupBuildEventBonus(){

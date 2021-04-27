@@ -19,8 +19,7 @@ class HSDResource extends APP_GameClass
     }
 
     function getResources(){
-        $show_player_info = $this->game->getGameStateValue('show_player_info');
-        if ($show_player_info == SHOW_ALL_RESOURCES){
+        if ($this->game->getShowPlayerInfo()){
             return $this->game->getCollectionFromDB( "SELECT `player_id` p_id, `workers`, `track`, `silver`, `wood`, `food`, `steel`, `gold`, `copper`, `cow`, `loan`, `trade`, `vp` FROM `resources`" );
         } else {
             return $this->game->getCollectionFromDB("SELECT `player_id` p_id, `workers`, `track` FROM `resources` " );
@@ -251,8 +250,9 @@ class HSDResource extends APP_GameClass
         return $values;
     }
 
+    /** updates the client for round 11, to show all player resources */
     function updateClientResources() {
-        $this->game->notifyAllPlayers( "showResources", "", array( 'resources' => $this->getResources()));
+        $this->game->notifyAllPlayers( "showResources", clienttranslate("Showing all player resources for final round"), array( 'resources' => $this->getResources()));
     }
 
     /** 
@@ -270,6 +270,7 @@ class HSDResource extends APP_GameClass
             $this->updateResource ($p_id, 'loan', -1);
             $this->game->Log->updateResource($p_id, 'loan', -1);
         }
+        $this->game->Score->updatePlayerScore($p_id);
     }
 
     function takeLoan($p_id){
@@ -281,6 +282,7 @@ class HSDResource extends APP_GameClass
             'loan' => 'loan',
           ) );
         $this->game->Log->takeLoan($p_id);
+        $this->game->Score->updatePlayerScore($p_id);
     }
 
     function payOffLoan($p_id, $gold){
@@ -306,17 +308,19 @@ class HSDResource extends APP_GameClass
           ) );
         $this->updateResource ($p_id, $type, -$amt);
         $this->updateResource ($p_id, 'loan', -1);
-        $this->game->Log->payOffLoan($p_id, $type, $amt);
+        $this->game->Log->payOffLoan($p_id, $type, $amt); 
+        $this->game->Score->updatePlayerScore($p_id);
     }
 
-    function freePayOffLoan($player_id, $reason, $origin ="", $key =0)
+    function freePayOffLoan($p_id, $reason, $origin ="", $key =0)
     {
-        $values = array(  'player_id' => $player_id,
-                      'player_name' => $this->game->getPlayerName($player_id),
+        $values = array(  'player_id' => $p_id,
+                      'player_name' => $this->game->getPlayerName($p_id),                  
                       'reason_string' => $reason,
                       'loan' => 'loan',);
         $values = $this->updateArrForNotify($values, $origin, $key);
         $this->game->notifyAllPlayers( "loanPaid", clienttranslate( '${reason_string} buys ${player_name}\'s ${loan}' ), $values);
+        $this->game->Score->updatePlayerScore($p_id);
     }
 
     /////// RAIL ADVANCEMENT METHODS /////
@@ -407,8 +411,8 @@ class HSDResource extends APP_GameClass
         $has_been_paid = $this->getIncomePaid($p_id);
         if ($has_been_paid==0){
             $this->setIncomePaid($p_id);
-            $this->game->Building->buildingIncomeForPlayer( $p_id, $warehouse );
             $p_tracks = $this->game->getUniqueValueFromDB( "SELECT `track` FROM `resources` WHERE `player_id`='$p_id'" ); 
+            $this->game->Building->buildingIncomeForPlayer( $p_id, $warehouse );
             if($p_tracks > 0) {
                 $this->updateAndNotifyIncome($p_id, 'silver', $p_tracks, array('track'=>'track'));
             }
@@ -443,6 +447,7 @@ class HSDResource extends APP_GameClass
         } else {
             $this->updateAndNotifyPaymentGroup($p_id, $cost, array('worker'=>$reason_string));
         }
+        $this->game->Score->updatePlayerScore($p_id);
     }
 
     function specialTrade($p_id, $cost_arr, $income_arr, $reason_string, $origin="", $key=0){
@@ -491,6 +496,7 @@ class HSDResource extends APP_GameClass
             }
             $this->game->Log->tradeResource($p_id, $cost_arr, $log_inc_arr);
         }
+        $this->game->Score->updatePlayerScore($p_id);
     }
 
     function trade($p_id, $tradeAction) {
@@ -558,6 +564,7 @@ class HSDResource extends APP_GameClass
         foreach($tradeFor as $type=>$amt){
             $this->updateResource($p_id, $type, $amt);
         }
+        $this->game->Score->updatePlayerScore($p_id);
     }
 
     /**updates an array by setting  */

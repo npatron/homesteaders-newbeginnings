@@ -220,7 +220,7 @@ function (dojo, declare) {
             this.worker_height = 35;
             this.worker_width = 33;
             
-            this.playerCount = 0;
+            this.player_count = 0;
             this.goldAmount = 0;
             this.silverCost = 0;
             this.first_player = 0;
@@ -263,7 +263,7 @@ function (dojo, declare) {
             this.setupResourceTokens();
             // Setting up player boards
             for( let p_id in gamedatas.players ) {
-                this.playerCount++;
+                this.player_count++;
                 const player = gamedatas.players[p_id];
                 this.setupPlayerAssets(player);
             }
@@ -274,12 +274,12 @@ function (dojo, declare) {
             } else {
                 this.spectatorFormatting();
             }
-            if (this.playerCount == 2){
+            if (this.player_count == 2){
                 this.player_color[DUMMY_BID] = this.getAvailableColor();
                 this.player_color[DUMMY_OPT] = this.player_color[0];
             }
             this.omitImages();
-            if (this.playerCount < 5){
+            if (this.player_count < 5){
                 // create Auction 4 Board.
             }
             
@@ -354,11 +354,11 @@ function (dojo, declare) {
         orientPlayerZones: function (order_table){
             dojo.place(`player_zone_${this.player_color[this.player_id]}`, PLAYER_ORDER[0] , 'replace');
             let next_pId = order_table[this.player_id];
-            for (let i = 1; i < this.playerCount; i++){
+            for (let i = 1; i < this.player_count; i++){
                 dojo.place(`player_zone_${this.player_color[next_pId]}`, PLAYER_ORDER[i] , 'replace');
                 next_pId = order_table[this.player_id];
             }
-            for(let i = this.playerCount; i < PLAYER_ORDER.length; i++){
+            for(let i = this.player_count; i < PLAYER_ORDER.length; i++){
                 dojo.destroy(PLAYER_ORDER[i]);
             }
         },
@@ -588,7 +588,7 @@ function (dojo, declare) {
             this.bid_zone_divId[ZONE_PENDING] = 'pending_bids';
             this.bid_zone_divId[ZONE_PASSED] = 'passed_bids';
             
-            let auc_end = (this.playerCount==5?4:3);
+            let auc_end = (this.player_count==5?4:3);
             for (let auc = 1; auc <= auc_end; auc++){
                 this.bid_zone_divId[auc] = [];
                 for (let bid =0; bid < BID_VAL_ARR.length; bid ++){
@@ -2747,7 +2747,7 @@ function (dojo, declare) {
             const building_slot = Number(target_divId.split('_')[2]);
 
             const w_key = this.last_selected['worker'].split('_')[2];
-            this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/selectWorkerDestination.html", { 
+            this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/selectWorkerDestination.html", { 
                 lock: true, 
                 worker_key: w_key,
                 building_key: building_key,
@@ -3272,7 +3272,7 @@ function (dojo, declare) {
 
         doNotBuild: function () {
             if (this.checkAction( 'doNotBuild' )){
-                this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/doNotBuild.html", {lock: true}, this, 
+                this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/doNotBuild.html", {lock: true}, this, 
                 function( result ) { 
                     this.clearSelectable('building', true); 
                     this.disableTradeIfPossible();
@@ -3440,14 +3440,14 @@ function (dojo, declare) {
 
         workerForFreeBuilding: function (){
             if (this.checkAction( 'buildBonus' )){
-            this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/freeHireWorkerBuilding.html", {lock: true}, this, 
+            this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/freeHireWorkerBuilding.html", {lock: true}, this, 
             function( result ) { }, 
             function( is_error) { } );}
         },
         
         passBuildingBonus: function (){
             if (this.checkAction( 'buildBonus' )){
-                this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/passBuildingBonus.html", {lock: true}, this, 
+                this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/passBuildingBonus.html", {lock: true}, this, 
                 function( result ) { }, 
                 function( is_error) { } );
             } 
@@ -3505,7 +3505,7 @@ function (dojo, declare) {
         /** called when auction bonus is worker for free and rail advancement. */
         workerForFree: function() {
             if (this.checkAction( 'auctionBonus' )){
-                this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/freeHireWorkerAuction.html", {lock: true }, this, 
+                this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/freeHireWorkerAuction.html", {lock: true }, this, 
                 function( result ) { 
                     this.disableTradeIfPossible();
                     this.disableTradeBoardActions();
@@ -3518,7 +3518,7 @@ function (dojo, declare) {
             if (this.checkAction( 'auctionBonus' )){
                 let args = {lock: true, tradeAway: tradeAway, tradeFor: tradeFor};
                 if (this.transactionLog.length >0){
-                    this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/trade.html", { 
+                    this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/trade.html", { 
                         lock: true, 
                         trade_action: this.transactionLog.join(',')
                      }, this, function( result ) {
@@ -3533,7 +3533,7 @@ function (dojo, declare) {
         },
 
         ajaxBonusTypeForType(args){
-            this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/bonusTypeForType.html", args, this, function( result ) { 
+            this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/bonusTypeForType.html", args, this, function( result ) { 
                     this.disableTradeIfPossible();
                     this.disableTradeBoardActions();
                     this.setupUndoTransactionsButtons();
@@ -3562,7 +3562,7 @@ function (dojo, declare) {
 
         passBonus: function() {
             if (this.checkAction( 'auctionBonus' )){
-                this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/passAuctionBonus.html", {lock: true}, this, 
+                this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/passAuctionBonus.html", {lock: true}, this, 
                     function( result ) { 
                         this.clearTransactionLog();
                         this.disableTradeIfPossible();
@@ -3576,7 +3576,7 @@ function (dojo, declare) {
         /***** endBuildRound *****/
         confirmBuildPhase: function () {
             if (this.checkAction( 'done' )){
-                this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/confirmChoices.html", {lock: true}, this, 
+                this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/confirmChoices.html", {lock: true}, this, 
                     function( result ) { }, 
                     function( is_error) { } );
             }
@@ -3621,7 +3621,7 @@ function (dojo, declare) {
         cancelUndoTransactions: function () {
             this.undoTransactionsButton();
             if (this.checkAction( 'done' )){
-                this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/undoTransactions.html", {lock: true}, this, 
+                this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/undoTransactions.html", {lock: true}, this, 
                 function( result ) {
                 this.resetTradeVals();
                 this.disableTradeIfPossible();
@@ -3635,7 +3635,7 @@ function (dojo, declare) {
         doneEndgameActions: function () {
             if (this.checkAction( 'done' )){
                 if(this.transactionLog.length >0){
-                    this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/trade.html", { 
+                    this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/trade.html", { 
                         lock: true, 
                         trade_action: this.transactionLog.join(',')
                      }, this, function( result ) {
@@ -3651,7 +3651,7 @@ function (dojo, declare) {
         },
 
         ajaxDoneEndgame: function ( ){
-            this.ajaxcall( "/homesteadersnewbeginnings/homesteadersnewbeginnings/doneEndgameActions.html", {lock: true}, this, 
+            this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/doneEndgameActions.html", {lock: true}, this, 
                 function( result ) { 
                     this.disableTradeIfPossible();
                     this.disableTradeBoardActions();
@@ -4150,7 +4150,7 @@ function (dojo, declare) {
         notif_score: function( notif ){
             //console.log('notif_score');
             const p_id = notif.args.player_id;
-            let score = 0;
+            this.scoreCtrl[p_id].setValue(0);
             for(let b_key in notif.args.building){
                 const building = notif.args.building[b_key];
                 var bld_score = 0;
@@ -4161,11 +4161,12 @@ function (dojo, declare) {
                     bld_score += Number(building.bonus);
                 }
                 this.displayScoring( `${TPL_BLD_TILE}_${b_key}`, this.player_color[notif.args.player_id], bld_score, 2000 );
+                this.scoreCtrl[p_id].incValue(bld_score);
             } 
             dojo.place(`<div id="score_grid_${p_id}" class="score_grid"></div>`, this.player_score_zone_id[p_id]);
             for(let type in notif.args.resource){
                 const amt = notif.args.resource[type];
-                this.score_resourceCounters[p_id][type].setValue(amt);
+                this.scoreCtrl[p_id].incValue(amt);
             }
             this.updateScore(p_id, score);
         },
