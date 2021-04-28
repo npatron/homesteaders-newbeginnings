@@ -803,7 +803,7 @@ div#sell_board{
 .future_auction_zone {
    display: grid;
    order: 2;
-   flex-grow: 10;
+   /* flex-grow: 10; */
 }
 .break {
    flex-basis: 100%;
