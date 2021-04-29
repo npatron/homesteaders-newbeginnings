@@ -44,15 +44,15 @@
         $this->tpl['ROUND_STRING'] = self::_("Round: ");
         $round_number = $this->game->getGameStateValue('round_number');
         $this->tpl['ROUND_NUMBER'] = $round_number;
-        $this->tpl['MAIN_BUILDING']    = clienttranslate('Current Building Stock');
-        $this->tpl['CONFIRM_TRADE']    = clienttranslate("Confirm Trade");
-        $this->tpl['UNDO_TRADE']       = clienttranslate("Undo All Trade/Dept");
-        $this->tpl['UNDO_LAST_TRADE']  = clienttranslate("Undo Last Trade/Dept");
-        $this->tpl['FUTURE_AUCTION']   = clienttranslate("Show Upcoming Auctions");
-        $this->tpl['BUILDING_STOCK']   = clienttranslate("Hide Current Buildings");
-        $this->tpl['BUILDING_DISCARD'] = clienttranslate("Show Building Discard");
-        $this->tpl['FUTURE_BUILDING']  = clienttranslate('Show Upcoming Buildings');
-        $this->tpl['EVENTS']           = clienttranslate("Events");
+        $this->tpl['MAIN_BUILDING']    = self::_('Current Building Stock');
+        $this->tpl['CONFIRM_TRADE']    = self::_("Confirm Trade");
+        $this->tpl['UNDO_TRADE']       = self::_("Undo All Trade/Dept");
+        $this->tpl['UNDO_LAST_TRADE']  = self::_("Undo Last Trade/Dept");
+        $this->tpl['FUTURE_AUCTION']   = self::_("Show Upcoming Auctions");
+        $this->tpl['BUILDING_STOCK']   = self::_("Hide Current Buildings");
+        $this->tpl['BUILDING_DISCARD'] = self::_("Show Building Discard");
+        $this->tpl['FUTURE_BUILDING']  = self::_('Show Upcoming Buildings');
+        $this->tpl['EVENTS']           = self::_("Events");
 
         $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "this_player_zone" );
         $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "player_zone" );

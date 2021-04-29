@@ -153,6 +153,12 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     $this->game->Action->playerSelectRailBonus( $bonus );
     self::ajaxResponse( );
   }
+  
+  public function cancelBidPass() {
+    self::setAjaxMode();
+    $this->game->Action->playerCancelBidPass( );
+    self::ajaxResponse( );
+  }
 
   public function passBuildingBonus() {
     self::setAjaxMode( );

@@ -93,10 +93,12 @@ class HSDResource extends APP_GameClass
         $this->game->notifyAllPlayers( "playerIncome", clienttranslate( '${reason_string} earned ${player_name} ${type}' ), $values );
         if (in_array($type, $this->game->resource_map)){
             $this->updateResource($p_id, $type, $amt);
+            $this->game->Log->updateResource($p_id, $type, $amt);
         } else { // handle 'vp2' 'vp4', 'vp8' and other special tokens I want to display in log.
             $actual_type = array_keys($this->game->special_resource_map[$type])[0];
             $amount = $amt * $this->game->special_resource_map[$type][$actual_type];
             $this->updateResource($p_id, $actual_type, $amount);
+            $this->game->Log->updateResource($p_id, $actual_type, $amount);
         }
         $this->game->Score->updatePlayerScore($p_id);
     }
@@ -121,10 +123,12 @@ class HSDResource extends APP_GameClass
             foreach( $income_arr as $type => $amt ){
                 if (in_array($type, $this->game->resource_map)){
                     $this->updateResource($p_id, $type, $amt);
+                    $this->game->Log->updateResource($p_id, $type, $amt);
                 } else { // handle 'vp2' 'vp4', 'vp8' and other special tokens I want to display in log.
                     $actual_type = array_keys($this->game->special_resource_map[$type])[0];
                     $amount = $amt * $this->game->special_resource_map[$type][$actual_type];
                     $this->updateResource($p_id, $actual_type, $amount);
+                    $this->game->Log->updateResource($p_id, $actual_type, $amount);
                 }
             }
             $this->game->Score->updatePlayerScore($p_id);
@@ -150,6 +154,7 @@ class HSDResource extends APP_GameClass
         $values = $this->updateArrForNotify($values, $origin, $key);
         $this->game->notifyAllPlayers( "playerPayment", clienttranslate( '${reason_string} cost ${player_name} ${type}' ), $values );
         $this->updateResource($p_id, $type, -$amount);
+        $this->game->Log->updateResource($p_id, $type, -$amount);
         $this->game->Score->updatePlayerScore($p_id);
     }
 
@@ -171,6 +176,7 @@ class HSDResource extends APP_GameClass
             foreach( $payment_arr as $type => $amt ){
                 if ($amt != 0){
                     $this->updateResource($p_id, $type, -$amt);
+                    $this->game->Log->updateResource($p_id, $type, -$amt);
                 }
             }
             $this->game->Score->updatePlayerScore($p_id);
@@ -264,7 +270,6 @@ class HSDResource extends APP_GameClass
         $playerLoan = $this->game->getUniqueValueFromDb("SELECT `loan` FROM `resources` WHERE `player_id`='".$p_id."'");
         if ($playerLoan== 0){
             $this->updateAndNotifyIncome($p_id, 'silver', 2, $reason_string, $origin, $key);
-            $this->game->Log->updateResource($p_id, 'silver', 2);
         } else {
             $this->freePayOffLoan($p_id, $reason_string, $origin, $key);
             $this->updateResource ($p_id, 'loan', -1);
@@ -329,16 +334,14 @@ class HSDResource extends APP_GameClass
         $sql = "SELECT `rail_adv` FROM `player` WHERE `player_id`='".$player_id."'";
         $rail_adv = $this->game->getUniqueValueFromDB( $sql );
         $options = array();
-        if($rail_adv >0){
-            $options[] = TRADE; 
-        } 
-        if($rail_adv >1){
+        $options[] = TRADE; 
+        if($rail_adv > 1){
             $options[] = TRACK; 
         } 
-        if($rail_adv >2){
+        if($rail_adv > 2){
             $options[] = WORKER;
         }  
-        if($rail_adv >3){
+        if($rail_adv > 3){
             $options[] = WOOD;
             $options[] = FOOD;
             $options[] = STEEL;
@@ -346,7 +349,7 @@ class HSDResource extends APP_GameClass
             $options[] = COPPER;
             $options[] = COW;
         } 
-        if($rail_adv >4){
+        if($rail_adv > 4){
             $options[] = VP;
         }
         return $options; 
@@ -363,35 +366,27 @@ class HSDResource extends APP_GameClass
             break;
             case TRADE:
                 $this->updateAndNotifyIncome($p_id, 'trade', 1, $rail_bonus_arr, 'train');
-                $this->game->Log->updateResource($p_id, 'trade', 1 );
             break;
             case WOOD:
                 $this->updateAndNotifyIncome($p_id, 'wood', 1, $rail_bonus_arr, 'train');
-                $this->game->Log->updateResource($p_id, 'wood', 1 );
             break;
             case FOOD:
                 $this->updateAndNotifyIncome($p_id, 'food', 1, $rail_bonus_arr, 'train');
-                $this->game->Log->updateResource($p_id, 'food', 1 );
             break;
             case STEEL:
                 $this->updateAndNotifyIncome($p_id, 'steel', 1, $rail_bonus_arr, 'train');
-                $this->game->Log->updateResource($p_id, 'steel', 1 );
             break;
             case GOLD:
                 $this->updateAndNotifyIncome($p_id, 'gold', 1, $rail_bonus_arr, 'train');
-                $this->game->Log->updateResource($p_id, 'gold', 1 );
             break;
             case COPPER:
                 $this->updateAndNotifyIncome($p_id, 'copper', 1, $rail_bonus_arr, 'train');
-                $this->game->Log->updateResource($p_id, 'copper', 1 );
             break;
             case COW:
                 $this->updateAndNotifyIncome($p_id, 'cow', 1, $rail_bonus_arr, 'train');
-                $this->game->Log->updateResource($p_id, 'cow', 1 );
             break;
             case VP:
                 $this->updateAndNotifyIncome($p_id, 'vp3', 1, $rail_bonus_arr, 'train');
-                $this->game->Log->updateResource($p_id, 'vp', 3 );
             break;
         }
     }
@@ -442,8 +437,6 @@ class HSDResource extends APP_GameClass
         }
         if ($key != 0){
             $this->updateAndNotifyPaymentGroup($p_id, $cost, $reason_string, 'auction', $key);
-            if ($silver > 0) $this->game->Log->updateResource($p_id, 'silver', -$silver );
-            if ($gold > 0) $this->game->Log->updateResource($p_id, 'gold', -$gold );
         } else {
             $this->updateAndNotifyPaymentGroup($p_id, $cost, array('worker'=>$reason_string));
         }

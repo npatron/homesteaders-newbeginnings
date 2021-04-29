@@ -143,10 +143,11 @@ class HSDAction extends APP_GameClass
         $this->game->gamestate->nextState( $next_state );
     }
 
-    function playerActionCancel() {
-        $this->game->gamestate->checkPossibleAction('actionCancel');
-        // also need to remove income, and undo the income... so slightly more required...
-        $this->game->gamestate->setPlayersMultiactive(array ($this->game->getCurrentPlayerId() ), 'error', false);
+    public function playerCancelBidPass () {
+        $this->game->checkAction('undo');
+        $this->game->Bid->cancelPass();
+        $this->game->Log->cancelPass();
+        $this->game->gamestate->nextState('undoPass');
     }
 
     /**** Building Bonus Player actions *****/

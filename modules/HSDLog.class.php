@@ -169,6 +169,13 @@ class HSDLog extends APP_GameClass
     }
   }
 
+  /**
+   * creates undo point for when player un-does income after placing workers
+   */
+  public function donePlacing($p_id){
+    $this->insert($p_id, 0, 'donePlacing');
+  }
+
   /*
    * addBuild: add a new build entry to log
    */
@@ -229,9 +236,9 @@ class HSDLog extends APP_GameClass
 
 
   // BID Actions
-  public function passBid($p_id)
+  public function passBid($p_id, $last_bid)
   {
-    $this->insert($p_id, 0, 'passBid');
+    $this->insert($p_id, $last_bid, 'passBid');
   }
 
   public function outbidPlayer($outbid_p_id, $outbidding_p_id)
@@ -256,13 +263,15 @@ class HSDLog extends APP_GameClass
 
   /*
    * getLastActions : get works and actions of player (used to cancel previous action)
-   * for undo trades set afterAction = 'allowTrades', for undo afterAction = 'winAuction'
+   *  default (no parameters) will get work for Build Phase undo.
+   *   for undo transactions:        afterAction = 'allowTrades'
+   *   for undo auctionBuild undo:   afterAction = 'winAuction' 
+   *   for undo after worker income: afterAction = 'donePlacing'
    */
-  public function getLastActions($p_id = null, $actions = ['build', 'trade', 'loan', 'gainTrack', 'gainWorker', 'railAdv', 'updateResource'], $afterAction = 'winAuction')
+  public function getLastActions($p_id, $actions = ['build', 'trade', 'loan', 'gainTrack', 'gainWorker', 'railAdv', 'updateResource'], $afterAction = 'winAuction')
   {
-    $p_id = $p_id ?: $this->game->getActivePlayerId();
     $actionsNames = "'" . implode("','", $actions) . "'";
-    $sql = "SELECT * FROM `log` WHERE `action` IN ($actionsNames) AND `player_id` = '$p_id' AND log_id > (SELECT `log_id` FROM `log` WHERE `player_id` = '$p_id' AND `action` = '$afterAction' ORDER BY log_id DESC LIMIT 1) ORDER BY `log_id` DESC";
+    $sql = "SELECT * FROM `log` WHERE `action` IN ($actionsNames) AND `player_id` = '$p_id' AND log_id >= (SELECT `log_id` FROM `log` WHERE `player_id` = '$p_id' AND `action` = '$afterAction' ORDER BY log_id DESC LIMIT 1) ORDER BY `log_id` DESC";
     return $this->game->getCollectionFromDB( $sql );
   }
 
@@ -271,21 +280,6 @@ class HSDLog extends APP_GameClass
     $p_id = $p_id ?: $this->game->getActivePlayerId();
     $actions =  $this->getLastActions($p_id, ['trade', 'loan', 'gainWorker', 'updateResource', 'loanPaid'], 'allowTrades');
     return $actions;
-  }
-
-  /*
-   * cancelTurn: cancel the last actions of active player of current turn
-   */
-  public function cancelTransactions($p_id = null)
-  {
-    $p_id = $p_id ?: $this->game->getActivePlayerId();
-    $logs = $this->getLastTransactions($p_id);
-    $transactions = $this->cancelLogs($p_id, $logs);
-    $this->game->notifyAllPlayers('cancel', clienttranslate('${player_name} cancels Transactions'), array(
-      'player_name' => $this->game->getActivePlayerName(),
-      'actions' => $transactions['action'],
-      'move_ids' => $transactions['move_ids'],
-      'player_id' => $p_id));
   }
 
   /*
@@ -304,12 +298,52 @@ class HSDLog extends APP_GameClass
     $this->insert($p_id, 0, "cancel");
   }
 
+  /*
+   * cancelTurn: cancel the last transactions of active player (or current if p_id supplied) within the current phase.
+   */
+  public function cancelTransactions($p_id = null)
+  {
+    $p_id = $p_id ?: $this->game->getActivePlayerId();
+    $logs = $this->getLastTransactions($p_id);
+    $transactions = $this->cancelLogs($p_id, $logs);
+    $this->game->notifyAllPlayers('cancel', clienttranslate('${player_name} cancels Transactions'), array(
+      'player_name' => $this->game->getPlayerName($p_id),
+      'actions' => $transactions['action'],
+      'move_ids' => $transactions['move_ids'],
+      'player_id' => $p_id));
+  }
+
+  /** 
+   * cancelTurn: cancel the last actions of p_id, usable to allow making them active in allocate worker phase.
+   */
+  public function cancelWorkerIncomePhase($p_id)
+  {
+    $logs = $this->getLastActions($p_id, ['updateResource','donePlacing'], 'donePlacing');
+    $transactions = $this->cancelLogs($p_id, $logs);
+    $this->game->notifyAllPlayers('cancel', clienttranslate('${player_name} un-does income'), array(
+      'player_name' => $this->game->getPlayerName($p_id),
+      'actions' => $transactions['action'],
+      'move_ids' => $transactions['move_ids'],
+      'player_id' => $p_id));
+  }
+
+  public function cancelPass()
+  {
+    $p_id = $this->game->getActivePlayerId();
+    $logs = $this->getLastActions($p_id, ['railAdv', 'gainTrack', 'updateResource', 'passBid'], 'passBid');
+    $transactions = $this->cancelLogs($p_id, $logs);
+    $this->game->notifyAllPlayers('cancel', '', array(
+      'actions' => $transactions['action'],
+      'move_ids' => $transactions['move_ids'],
+      'player_id' => $p_id));
+  }
+
   public function cancelLogs($p_id, $logs)
   {
     $ids = array();
     $js_update_arr = array();
     $move_arr = array();
-    foreach ($logs as $log) { // todo: add move workers to log-undo
+    foreach ($logs as $log) {
       $args = json_decode($log['action_arg'], true);
       switch ($log['action']) {
         case 'build':
@@ -379,6 +413,12 @@ class HSDLog extends APP_GameClass
             $this->game->Resource->updateResource($p_id, $type, -$amt);
             $js_update_arr[] = array('action'=>'updateResource', 'type'=>$type,'amt'=> -$amt);
         break; 
+        case 'passBid':
+          $this->game->DbQuery("UPDATE `bids` SET `bid_loc` ='".$log['piece_id']."', `outbid`='1' WHERE `player_id` = '$p_id'");
+          $js_update_arr[] = array('action'=>$log['action'], 'last_bid'=>$log['piece_id']);
+      break;
+      default:
+          $js_update_arr[] = array('action'=>$log['action']);
       }
 
       // Undo statistics

@@ -91,6 +91,8 @@ class HSDBid extends APP_GameClass
 
     function passBid(){
         $p_id = $this->game->getActivePlayerId();
+        $last_bid = $this->game->getUniqueValueFromDB("SELECT `bid_loc` from `bids` WHERE `player_id`='$p_id'");
+        $this->game->Log->passBid($p_id, $last_bid);
         $token_arr = array('token'=> 'bid', 'player_id'=>$p_id);
 		$this->game->notifyAllPlayers("moveBid", clienttranslate( '${player_name} passes ${token}'), array (
                 'player_id' => $p_id,
@@ -104,6 +106,12 @@ class HSDBid extends APP_GameClass
         //phase is used for rail adv, so it knows where to go next.
         $this->game->setGameStateValue('phase', 2);
         $this->game->Resource->getRailAdv($p_id, $token_arr);
+    }
+
+    function cancelPass(){
+        if ($this->game->getPlayersNumber() == 2)
+            $this->updateDummyBidWeight(false);
+        $this->game->incGameStateValue('players_passed', -1);
     }
 
     function confirmBid($bid_location){

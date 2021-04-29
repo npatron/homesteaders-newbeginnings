@@ -73,6 +73,14 @@ $this->translation_strings = array(
   10=> clienttranslate('You can not afford to build this building'),
   11=> clienttranslate('You can afford to build this building (trades required)'),
   12=> clienttranslate('You can afford to build this building'),
+  15=> clienttranslate('Show Upcoming Buildings'), 
+  16=> clienttranslate('Show Current Buildings'),
+  17=> clienttranslate('Show Upcoming Auctions'), 
+  18=> clienttranslate('Show Building Discard'),
+  20=> clienttranslate('Hide Upcoming Buildings'), 
+  21=> clienttranslate('Hide Current Buildings'),
+  22=> clienttranslate('Hide Upcoming Auctions'), 
+  23=> clienttranslate('Hide Building Discard'),
 );
 
 $this->resource_info = array(
@@ -185,7 +193,7 @@ $this->building_info = array_merge(
    ),
    BLD_MARKET => array(
     'name' => clienttranslate("Market"),
-    'desc' => clienttranslate('Allows trades <br>${trade}${wood} ${arrow}${food}<br>${trade}${food} ${arrow} ${steel}'),
+    'trade'=> 1,
     'type' => TYPE_COMMERCIAL,
     'stage'=> STAGE_SETTLEMENT,
     'cost' => array('wood'=>1),

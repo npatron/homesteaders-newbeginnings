@@ -252,6 +252,17 @@ class HSDBuilding extends APP_GameClass
         return ($warehouseState & $this->game->warehouse_map[$type] >0);
     }
 
+    // INCOME
+    function buildingIncomeForPlayer($p_id){
+        $income_b_id = $this->getBuildingIncomeForPlayer($p_id);
+        foreach ($income_b_id as $b_id =>$income) {
+            $name = $income['name'];
+            $b_key = $income['key'];
+            $income = array_diff_key($income, array_flip(['name','key']));
+            $this->game->Resource->updateAndNotifyIncomeGroup($p_id, $income, $name, 'building', $b_key);
+        }
+    }
+    
     function getBuildingIncomeForPlayer($p_id, $warehouse_type =null){
         $p_bld = $this->getAllPlayerBuildings($p_id);
         $player_workers = $this->game->getCollectionFromDB( "SELECT * FROM `workers` WHERE `player_id` = '$p_id'");
@@ -301,17 +312,6 @@ class HSDBuilding extends APP_GameClass
             }
         }
         return $income_b_id;
-    }
-
-    // INCOME
-    function buildingIncomeForPlayer($p_id){
-        $income_b_id = $this->getBuildingIncomeForPlayer($p_id);
-        foreach ($income_b_id as $b_id =>$income) {
-            $name = $income['name'];
-            $b_key = $income['key'];
-            $income = array_diff_key($income, array_flip(['name','key']));
-            $this->game->Resource->updateAndNotifyIncomeGroup($p_id, $income, $name, 'building' ,$b_key);
-        }
     }
 
 }

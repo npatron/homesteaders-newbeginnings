@@ -345,6 +345,14 @@ class homesteadersnewbeginnings extends Table
 
 
     
+    public function playerActionCancel() {
+        $this->gamestate->checkPossibleAction('actionCancel');
+        $p_id = $this->getCurrentPlayerId();
+        $this->gamestate->setPlayersMultiactive(array ($p_id), 'error', false);
+        $this->Log->cancelWorkerIncomePhase($p_id);
+        $this->Resource->setIncomePaid($p_id, 0);
+        $this->Resource->setPaid($p_id, 0);
+    }
     
 //////////////////////////////////////////////////////////////////////////////
 //////////// Game state arguments
@@ -555,6 +563,11 @@ class homesteadersnewbeginnings extends Table
         $this->Log->allowTrades($this->getActivePlayerId());
     }
 
+    function stWinAuction()
+    {
+        
+    }
+    
     function stBuildingPhase()
     {
         $next_state = "";
