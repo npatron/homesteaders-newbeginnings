@@ -189,7 +189,7 @@
    background-size: 740px 545px;
    margin: auto;
    order: 1;
-   flex: 0 1 740px;
+   flex: 0 0 740px;
    background-repeat: no-repeat;
 }
 #board_2 {
@@ -200,7 +200,7 @@
    background-size: 296px auto;
    background-repeat: no-repeat;
    margin: auto;
-   flex: 0 1 296px;
+   flex: 0 0 296px;
 }
 #top {
    display: flex;

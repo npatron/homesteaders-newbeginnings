@@ -105,7 +105,7 @@ class action_homesteadersnewbeginnings extends APP_GameAction
 
   public function actionCancel() {
     self::setAjaxMode();
-    $this->game->Action->playerActionCancel();
+    $this->game->playerActionCancel();
     self::ajaxResponse();
   }
 

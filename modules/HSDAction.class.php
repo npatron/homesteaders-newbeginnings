@@ -78,13 +78,12 @@ class HSDAction extends APP_GameClass
     public function playerPassBid(){
         $this->game->checkAction( "pass" );
         $this->game->Bid->passBid();
-        $this->game->Log->passBid($this->game->getActivePlayerId());
         $next_state = $this->game->Event->passBid($this->game->getActivePlayerId());
         $this->game->setGameStateValue('phase', PHASE_BID_PASS );
         $this->game->gamestate->nextState( $next_state );
     }
 
-    public function playerBuildBuilding($selected_building, $goldAsCow, $goldAsCopper){
+    public function playerBuildBuilding($selected_building, $goldAsCow, $goldAsCopper, $woodVpAsSteel){
         $this->game->checkAction( "buildBuilding" );
         $act_p_id = $this->game->getActivePlayerId();
         $this->game->Building->buildBuilding($act_p_id, $selected_building, $goldAsCow, $goldAsCopper);
@@ -110,15 +109,29 @@ class HSDAction extends APP_GameClass
 
     public function playerDoNotBuild () {
         $this->game->checkAction( "doNotBuild" );
+        if ($this->game->getGameStateValue( 'rail_no_build') == ENABLED){
+            $this->game->Resource->addTrack($this->game->getActivePlayerId(), clienttranslate('In place of Build'), 'auction' , $this->game->getGameStateValue( 'current_auction' ));
+            $this->game->Score->updatePlayerScore($this->game->getActivePlayerId());
+        }
         //goto next state;
-        $this->game->gamestate->nextState( "auction_bonus" ); 
+        $next_state = 'end_build';
+        if ($this->game->Event->isAuctionAffected()){
+            $next_state = 'event_bonus';
+        } else if ($this->game->Auction->getCurrentAuctionBonus() != AUC_BONUS_NONE){      
+            $next_state = 'auction_bonus'; 
+        }
+        $this->game->gamestate->nextState ($next_state);
     }
 
-    
-
-
-
-    
+    public function playerHireWorker($p_id){
+        $worker_cost = array('trade'=>1,'food'=>1);
+        if (!$this->Resource->canPlayerAfford($p_id, $worker_cost))
+            throw new BgaUserException( clienttranslate("You cannot afford to hire a worker"));
+        $this->Resource->updateAndNotifyPaymentGroup($p_id, $worker_cost, clienttranslate('Hire Worker'));
+        $this->Log->updateResource($p_id, "trade", -1);
+        $this->Log->updateResource($p_id, "food", -1);
+        $this->Resource->addWorker($p_id, 'hire');
+    }
 
     public function playerSelectRailBonus($selected_bonus) {
         $act_p_id = $this->game->getActivePlayerId();
