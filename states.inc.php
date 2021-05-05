@@ -91,7 +91,7 @@ $machinestates = array(
     ),
 
     STATE_EVT_PAY => array(
-        "name" => "getRailBonus",
+        "name" => "EventPay",
         "description" => clienttranslate('some players must pay for event'),
         "descriptionmyturn" => clienttranslate('${you} must pay for event'),
         "type" => "multipleactiveplayer",
@@ -239,7 +239,7 @@ $machinestates = array(
     ),
 
     STATE_EVT_BUILD_AGAIN  => array(
-        "name" => "eventBuildAgain",
+        "name" => "event_chooseBuildingToBuild",
         "description" => clienttranslate('${actplayer} may build another building'),
         "descriptionmyturn" => clienttranslate('${you} may build another building'),
         "type" => "activeplayer",
@@ -247,14 +247,15 @@ $machinestates = array(
         "action" => "stSetupTrade",
         "possibleactions" => array( "trade", "buildBuilding", "takeLoan", "doNotBuild", "undo" ),
         "transitions" => array( "undoTurn"           => STATE_PAY_AUCTION,
-                                "building_bonus" => STATE_RESOLVE_BUILDING, 
-                                "auction_bonus"  => STATE_AUCTION_BONUS,
-                                "end_build"      => STATE_CONFIRM_AUCTION,
-                                "zombiePass"     => STATE_END_BUILD )
+                                "building_bonus"     => STATE_RESOLVE_BUILDING, 
+                                "event_bonus"        => STATE_AUCTION_BONUS,
+                                "auction_bonus"      => STATE_AUCTION_BONUS,
+                                "end_build"          => STATE_CONFIRM_AUCTION,
+                                "zombiePass"         => STATE_END_BUILD )
     ),
 
     STATE_EVT_BUILD_BONUS => array(
-        "name" => "eventBuildBonus",
+        "name" => "event_BuildBonus",
         "description" => clienttranslate('${actplayer} may receive a build bonus'),
         "descriptionmyturn" => clienttranslate('${you} may receive a build bonus'),
         "type" => "activeplayer",

@@ -110,9 +110,29 @@ class HSDAction extends APP_GameClass
     public function playerDoNotBuild () {
         $this->game->checkAction( "doNotBuild" );
         if ($this->game->getGameStateValue( 'rail_no_build') == ENABLED){
-            $this->game->Resource->addTrack($this->game->getActivePlayerId(), clienttranslate('In place of Build'), 'auction' , $this->game->getGameStateValue( 'current_auction' ));
-            $this->game->Score->updatePlayerScore($this->game->getActivePlayerId());
+            $currentState = $this->gamestate->state();
+            if ($currentState === 'event_chooseBuildingToBuild' && $this->game->Event->$this->getEventAucB() == EVT_AUC_STEEL_ANY){
+                //don't get free track.
+            } else {
+                $this->game->Resource->addTrack($this->game->getActivePlayerId(), clienttranslate('In place of Build'), 'auction' , $this->game->getGameStateValue( 'current_auction' ));
+                $this->game->Score->updatePlayerScore($this->game->getActivePlayerId());
+            }
         }
+        //goto next state;
+        $next_state = 'end_build';
+        if ($this->game->Event->isAuctionAffected()){
+            $next_state = 'event_bonus';
+        } else if ($this->game->Auction->getCurrentAuctionBonus() != AUC_BONUS_NONE){      
+            $next_state = 'auction_bonus'; 
+        }
+        $this->game->gamestate->nextState ($next_state);
+    }
+    
+    public function playerDoNotBuild_steelTrack () {
+        $this->game->checkAction( "doNotBuild" );
+        $this->game->Resource->specialTrade($this->game->getActivePlayerId(), array('steel'=>1), array('track'=>1), clienttranslate('In place of Build'), 'auction' , $this->game->getGameStateValue( 'current_auction' ));
+        $this->game->Score->updatePlayerScore($this->game->getActivePlayerId());
+        
         //goto next state;
         $next_state = 'end_build';
         if ($this->game->Event->isAuctionAffected()){

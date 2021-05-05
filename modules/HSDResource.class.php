@@ -443,6 +443,8 @@ class HSDResource extends APP_GameClass
         $this->game->Score->updatePlayerScore($p_id);
     }
 
+    // allows 1 notification for trades for auction trades, 
+    // (for tracks or vp2, vp4, vp6 etc).
     function specialTrade($p_id, $cost_arr, $income_arr, $reason_string, $origin="", $key=0){
         $p_name = $this->game->getPlayerName($p_id);
         if (array_key_exists('track', $income_arr)){

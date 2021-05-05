@@ -213,6 +213,7 @@ function (dojo, declare) {
             this.transactionCost = [];
             this.transactionLog = [];
             this.buildingCost = [];
+
             this.allowTrade = false;
             this.tradeEnabled = false;
             this.showPay = true;
@@ -240,7 +241,10 @@ function (dojo, declare) {
             this.goldAsCopper = false;
             this.goldAsCow = false;
             this.undoPay = false;
+            
+            //new vars from expansion,
             this.cost_replace = [];
+            this.additionalBuildCost = [];
         },
         
         /*
@@ -262,6 +266,7 @@ function (dojo, declare) {
             this.show_player_info = gamedatas.show_player_info;
             this.resource_info = gamedatas.resource_info;
             this.event_info = gamedatas.event_info;
+            this.rail_no_build = gamedatas.rail_no_build;
             
             this.building_info = gamedatas.building_info;
             this.asset_strings = gamedatas.translation_strings;
@@ -1079,21 +1084,24 @@ function (dojo, declare) {
         ////////////////////
         //// EVENTS onUpdateActionButtons states 
         ////////////////////
-        onUpdateActionButtons_eventBuildAgain: function (args) {
+        onUpdateActionButtons_event_chooseBuildingToBuild: function (args) {
             this.allowed_buildings = args.allowed_buildings;
             let option = Number(args.event_bonus);
             //
             switch (option){
                 case EVT_AUC_SECOND_BUILD: // build again (same types)
                 case EVT_AUC_BUILD_AGAIN: // can build again (any).
-                    this.genericSetupBuildBuildings();
+                    this.additionalBuildCost = [];
                 break;
                 case EVT_AUC_STEEL_ANY: // player may pay a steel to build any building
-                    this.addActionButton( 'btn_pay_steel_to_build', dojo.string.substitute(_("Pay ${steel} to build again"), {steel:this.tkn_html.steel}), 'paySteelToBuild', null, false, 'blue');
-                    this.addActionButton( 'btn_pass_steel_to_build', _("Pass"), 'passSteelToBuild', null, false, 'red');
-                    this.addTradeActionButton();
+                    this.additionalBuildCost = {'steel':1};    
                 break;
             }
+            this.genericSetupBuildBuildings();
+        },
+        
+        onUpdateActionButtons_event_BuildBonus: function (args) {
+        
         },
 
         
@@ -1125,39 +1133,6 @@ function (dojo, declare) {
             this.showCurrentAuctions(auction_tiles, round_number);
         },
 
-        genericSetupBuildBuildings: function(){
-            this.updateBuildingAffordability();
-            this.showTileZone(BLD_LOC_OFFER);
-            this.orderZone(BLD_LOC_OFFER, 0);
-            this.last_selected['building']="";
-            this.createBuildingBreadcrumb();
-            this.makeBuildingsSelectable(this.allowed_buildings);
-            this.addActionButton( 'btn_choose_building', dojo.string.substitute(_('Build ${building_name}'), {building_name:'<span id="bld_name"></span>'}), 'chooseBuilding');
-            dojo.addClass('btn_choose_building' ,'disabled');
-            if (this.hasBuilding[this.player_id][BLD_RIVER_PORT]){
-                if (this.goldAsCow){
-                    this.addActionButton( 'btn_gold_cow', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<span id='cow_as'>", gold:this.tkn_html.gold, type:this.tkn_html.cow, end:"</span>"}), 'toggleGoldAsCow', null, false, 'blue');
-                } else {
-                    this.addActionButton( 'btn_gold_cow', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<span id='cow_as' class='no'>", gold:this.tkn_html.gold, type:this.tkn_html.cow, end:"</span>"}), 'toggleGoldAsCow', null, false, 'red');
-                }
-                if (this.goldAsCopper){
-                    this.addActionButton( 'btn_gold_copper', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<span id='copper_as'>", gold:this.tkn_html.gold, type:this.tkn_html.copper, end:"</span>"}), 'toggleGoldAsCopper', null, false, 'blue');
-                } else {
-                    this.addActionButton( 'btn_gold_copper', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<span id='copper_as' class='no'>", gold:this.tkn_html.gold, type:this.tkn_html.copper, end:"</span>"}), 'toggleGoldAsCopper', null, false, 'red');
-                }
-            }
-            if (this.hasBuilding[this.player_id][BLD_LUMBER_MILL]){
-                this.lumberMill_WoodVP_Steel=0;
-                this.addActionButton( 'btn_more_steel', dojo.string.substitute(_('More ${wood}${vp}${arrow}${steel}'), {gold: this.tkn_html.gold}), 'raiseWoodSteel', null, false, 'gray');
-                this.addActionButton( 'btn_less_steel', dojo.string.substitute(_('Less ${wood}${vp}${arrow}${steel}'), {gold: this.tkn_html.gold}), 'lowerWoodSteel', null, false, 'gray');
-                dojo.style( $('btn_more_steel'), 'display', 'none');
-                dojo.style( $('btn_less_steel'), 'display', 'none');
-            }
-            this.addActionButton( 'btn_do_not_build', _('Do Not Build'), 'doNotBuild', null, false, 'red');
-            this.addActionButton( 'btn_cancel_button', _('Cancel'), 'cancelUndoTransactions', null, false, 'red');
-            this.can_cancel = true;
-            this.addTradeActionButton();
-        },
         /**
          * Update the main building stock to match the current state.  
          * It should only be called on round 5 & 8, but could be called more.
@@ -1172,6 +1147,7 @@ function (dojo, declare) {
             }
         },
 
+        /***** Auction utils ******/
         setupAuctionTiles: function (auctions, info){
             for (let a_id in auctions){
                 const auction = auctions[a_id];
@@ -1183,7 +1159,7 @@ function (dojo, declare) {
 
         createAuctionTile: function (a_id, location, info){
             let color = ASSET_COLORS[10+Number(location)];
-            if (this.prefs[100].value == ENABLED_USER_PREF){ // use art (default case)
+            if (this.prefs[USE_ART_USER_PREF].value == ENABLED_USER_PREF){ // use art (default case)
                 dojo.place(this.format_block( 'jstpl_auction_tile', {auc: a_id, color:color}), `future_auction_${location}`);
                 this.addTooltipHtml(`${TPL_AUC_TILE}_${a_id}`, this.formatTooltipAuction(info, a_id));
             } else {
@@ -1191,6 +1167,85 @@ function (dojo, declare) {
                 dojo.place(this.format_block('jptpl_auction_text', {auc: a_id, color:color, 'card':text_auction_html}), `future_auction_${location}`);
             }
             dojo.style(`${TPL_AUC_TILE}_${a_id}`, 'order', a_id);
+        },
+
+        formatTooltipAuction: function (a_info, a_id){
+            var tt = '<div style="text-align: center;" class="font">';
+            var auction_no = Math.ceil(a_id/10); // (1-10) = 1; (11-20) = 2; etc...
+            if (auction_no== 1) {// order fixed in A-1
+                let round_string = dojo.string.substitute(_('Round ${a_id}'),{a_id:a_id});
+                var title = `<span class="font caps bold a1">${round_string} </span><hr>`;
+            } else { //order by phase in other auctions
+                if ((a_id-1)%10 <4){
+                    var phase = _("Settlement");
+                } else if ((a_id-1)%10 >7){
+                    var phase = _("City");
+                } else {
+                    var phase = _("Town");
+                }
+                var title = `<span class="font caps bold a${auction_no}">${phase}</span><hr>`
+            }
+            tt += title ;
+            if (a_info[a_id].build){// there is a build
+                var build = "";
+                let build_arr = a_info[a_id].build;
+                if (build_arr.length == 4){//any
+                    build += this.replaceTooltipStrings(_(" Build: ${any} type"));
+                } else {
+                    let build_html = [];
+                    for(let i in build_arr){
+                        let b_type = build_arr[i];
+                        build_html[i]= dojo.string.substitute(_(" Build: ${building_type}"), {building_type:this.tkn_html[ASSET_COLORS[b_type]]} );
+                    }
+                    build += build_html.join(this.tkn_html.or);
+                }
+                tt += build;
+            }
+
+            if (a_info[a_id].bonus) {// there is a bonus;
+                var bonus_html = "";
+                if (a_info[a_id].build){
+                    bonus_html = this.tkn_html.and;
+                }
+                switch (a_info[a_id].bonus){
+                    case AUC_BONUS_WORKER:
+                        bonus_html += this.replaceTooltipStrings(_("May hire a ${worker} (for free)"));
+                    break;
+                    case AUC_BONUS_WORKER_RAIL_ADV:
+                        bonus_html += this.replaceTooltipStrings(_("May hire a ${worker} (for free) ${and} Advance the Railroad track"));
+                    break;
+                    case AUC_BONUS_WOOD_FOR_TRACK:
+                        bonus_html += this.replaceTooltipStrings(_("May trade ${wood} for ${track}(once)"));
+                    break;
+                    case AUC_BONUS_COPPER_FOR_VP:
+                        bonus_html += this.replaceTooltipStrings(_("May trade ${copper} for ${vp4}(once)"));
+                    break;
+                    case AUC_BONUS_COW_FOR_VP:
+                        bonus_html += this.replaceTooltipStrings(_("May trade ${cow} for ${vp4}(once)"));
+                    break;
+                    case AUC_BONUS_6VP_AND_FOOD_VP:
+                        bonus_html += this.replaceTooltipStrings(_("Gain ${vp6} ${and} May trade ${food} for ${vp2}(once)"))
+                    break;
+                    case AUC_BONUS_FOOD_FOR_VP:
+                        bonus_html += this.replaceTooltipStrings(_("May trade ${food} for ${vp2}(once)"));
+                    break;
+                    case AUC_BONUS_NO_AUCTION:
+                        bonus_html += this.replaceTooltipStrings(_("No Auction"));
+                    break;
+                    case AUC_BONUS_TRACK_RAIL_ADV:
+                        bonus_html += this.replaceTooltipStrings(_("${track} ${and} Advance the Railroad track"));
+                    break;
+                    case AUC_BONUS_4DEPT_FREE:
+                        bonus_html += this.replaceTooltipStrings(_("may pay off up to 4 ${loan}"));
+                    break;
+                    case AUC_BONUS_3VP_SELL_FREE:
+                        bonus_html += this.replaceTooltipStrings(_("${vp3} ${and} May sell any number of resources without spending ${trade}"));
+                    break;
+                }
+                tt += bonus_html;
+            }
+
+            return tt + '</div>';
         },
 
         /**
@@ -1283,6 +1338,43 @@ function (dojo, declare) {
             this.updateHasBuilding(building.p_id, b_id); 
         },
 
+        genericSetupBuildBuildings: function( ){
+            this.updateBuildingAffordability();
+            this.showTileZone(BLD_LOC_OFFER);
+            this.orderZone(BLD_LOC_OFFER, 0);
+            this.last_selected['building']="";
+            this.createBuildingBreadcrumb();
+            this.makeBuildingsSelectable(this.allowed_buildings);
+            this.addActionButton( 'btn_choose_building', dojo.string.substitute(_('Build ${building_name}'), {building_name:'<span id="bld_name"></span>'}), 'chooseBuilding');
+            dojo.addClass('btn_choose_building' ,'disabled');
+            if (this.hasBuilding[this.player_id][BLD_RIVER_PORT]){
+                if (this.goldAsCow){
+                    this.addActionButton( 'btn_gold_cow', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<span id='cow_as'>", gold:this.tkn_html.gold, type:this.tkn_html.cow, end:"</span>"}), 'toggleGoldAsCow', null, false, 'blue');
+                } else {
+                    this.addActionButton( 'btn_gold_cow', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<span id='cow_as' class='no'>", gold:this.tkn_html.gold, type:this.tkn_html.cow, end:"</span>"}), 'toggleGoldAsCow', null, false, 'red');
+                }
+                if (this.goldAsCopper){
+                    this.addActionButton( 'btn_gold_copper', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<span id='copper_as'>", gold:this.tkn_html.gold, type:this.tkn_html.copper, end:"</span>"}), 'toggleGoldAsCopper', null, false, 'blue');
+                } else {
+                    this.addActionButton( 'btn_gold_copper', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<span id='copper_as' class='no'>", gold:this.tkn_html.gold, type:this.tkn_html.copper, end:"</span>"}), 'toggleGoldAsCopper', null, false, 'red');
+                }
+            }
+            if (this.hasBuilding[this.player_id][BLD_LUMBER_MILL]){
+                this.lumberMill_WoodVP_Steel=0;
+                this.addActionButton( 'btn_more_steel', dojo.string.substitute(_('More ${wood}${vp} As ${steel}'), {gold: this.tkn_html.gold}), 'raiseWoodSteel', null, false, 'gray');
+                this.addActionButton( 'btn_less_steel', dojo.string.substitute(_('Less ${wood}${vp} As ${steel}'), {gold: this.tkn_html.gold}), 'lowerWoodSteel', null, false, 'gray');
+                //dojo.style( $('btn_more_steel'), 'display', 'none');
+                dojo.style( $('btn_less_steel'), 'display', 'none');
+            }
+            if (this.additionalBuildCost.length >0 && this.rail_no_build){
+                this.addActionButton( 'btn_do_not_build', this.replaceTooltipStrings(_('Do Not Build (${steel} ${arrow} ${track})')), 'doNotBuild_steelTrack', null, false, 'red');    
+            }
+            this.addActionButton( 'btn_do_not_build', _('Do Not Build'), 'doNotBuild', null, false, 'red');
+            this.addActionButton( 'btn_cancel_button', _('Cancel'), 'cancelUndoTransactions', null, false, 'red');
+            this.can_cancel = true;
+            this.addTradeActionButton();
+        },
+
         formatTooltipBuilding:function (b_id, b_key, msg_id = null){
             let b_info = this.building_info[b_id];
             var vp = 'vp'+ ( b_info.vp == null?'0':(Number(b_info.vp)==1)?'':Number(b_info.vp));
@@ -1301,85 +1393,6 @@ function (dojo, declare) {
                 inc_vals: this.formatBuildingIncome(b_id, b_key),
                 hr: this.tkn_html.dot,
             });
-        },
-
-        formatTooltipAuction: function (a_info, a_id){
-            var tt = '<div style="text-align: center;" class="font">';
-            var auction_no = Math.ceil(a_id/10); // (1-10) = 1; (11-20) = 2; etc...
-            if (auction_no== 1) {// order fixed in A-1
-                let round_string = dojo.string.substitute(_('Round ${a_id}'),{a_id:a_id});
-                var title = `<span class="font caps bold a1">${round_string} </span><hr>`;
-            } else { //order by phase in other auctions
-                if ((a_id-1)%10 <4){
-                    var phase = _("Settlement");
-                } else if ((a_id-1)%10 >7){
-                    var phase = _("City");
-                } else {
-                    var phase = _("Town");
-                }
-                var title = `<span class="font caps bold a${auction_no}">${phase}</span><hr>`
-            }
-            tt += title ;
-            if (a_info[a_id].build){// there is a build
-                var build = "";
-                let build_arr = a_info[a_id].build;
-                if (build_arr.length == 4){//any
-                    build += this.replaceTooltipStrings(_(" Build: ${any} type"));
-                } else {
-                    let build_html = [];
-                    for(let i in build_arr){
-                        let b_type = build_arr[i];
-                        build_html[i]= dojo.string.substitute(_(" Build: ${building_type}"), {building_type:this.tkn_html[ASSET_COLORS[b_type]]} );
-                    }
-                    build += build_html.join(this.tkn_html.or);
-                }
-                tt += build;
-            }
-
-            if (a_info[a_id].bonus) {// there is a bonus;
-                var bonus_html = "";
-                if (a_info[a_id].build){
-                    bonus_html = this.tkn_html.and;
-                }
-                switch (a_info[a_id].bonus){
-                    case AUC_BONUS_WORKER:
-                        bonus_html += this.replaceTooltipStrings(_("May hire a ${worker} (for free)"));
-                    break;
-                    case AUC_BONUS_WORKER_RAIL_ADV:
-                        bonus_html += this.replaceTooltipStrings(_("May hire a ${worker} (for free) ${and} Advance the Railroad track"));
-                    break;
-                    case AUC_BONUS_WOOD_FOR_TRACK:
-                        bonus_html += this.replaceTooltipStrings(_("May trade ${wood} for ${track}(once)"));
-                    break;
-                    case AUC_BONUS_COPPER_FOR_VP:
-                        bonus_html += this.replaceTooltipStrings(_("May trade ${copper} for ${vp4}(once)"));
-                    break;
-                    case AUC_BONUS_COW_FOR_VP:
-                        bonus_html += this.replaceTooltipStrings(_("May trade ${cow} for ${vp4}(once)"));
-                    break;
-                    case AUC_BONUS_6VP_AND_FOOD_VP:
-                        bonus_html += this.replaceTooltipStrings(_("Gain ${vp6} ${and} May trade ${food} for ${vp2}(once)"))
-                    break;
-                    case AUC_BONUS_FOOD_FOR_VP:
-                        bonus_html += this.replaceTooltipStrings(_("May trade ${food} for ${vp2}(once)"));
-                    break;
-                    case AUC_BONUS_NO_AUCTION:
-                        bonus_html += this.replaceTooltipStrings(_("No Auction"));
-                    break;
-                    case AUC_BONUS_TRACK_RAIL_ADV:
-                        bonus_html += this.replaceTooltipStrings(_("${track} ${and} Advance the Railroad track"));
-                    break;
-                    case AUC_BONUS_4DEPT_FREE:
-                        bonus_html += this.replaceTooltipStrings(_("may pay off up to 4 ${loan}"));
-                    break;
-                    case AUC_BONUS_3VP_SELL_FREE:
-                        bonus_html += this.replaceTooltipStrings(_("${vp3} ${and} May sell any number of resources without spending ${trade}"));
-                    break;
-                }
-                tt += bonus_html;
-            }
-
-            return tt + '</div>';
         },
 
         /**
@@ -1408,11 +1421,11 @@ function (dojo, declare) {
             let b_info = this.building_info[b_id];
             var full_desc = '';
             
-            if (b_info.desc){
+            if ('desc' in b_info){
                 full_desc += this.replaceTooltipStrings(_(b_info.desc));
             }
 
-            if (b_info.on_b){
+            if ('on_b' in b_info){
                 switch(b_info.on_b){
                     case 1: //BUILD_BONUS_PAY_LOAN
                         var on_build_desc = this.replaceTooltipStrings(_("When built: Pay off ${loan}"));
@@ -1445,7 +1458,7 @@ function (dojo, declare) {
                 }
                 full_desc = on_build_desc +'<br>'+ full_desc;
             }
-            if (b_info.vp_b){
+            if ('vp_b' in b_info){
                 const END = _("End: ${vp} per ${type}");
                 switch(b_info.vp_b){
                     case 0: //VP_B_RESIDENTIAL
@@ -1471,7 +1484,7 @@ function (dojo, declare) {
                 }
                 full_desc += vp_b +'<br>';
             }
-            if (b_info.trade){
+            if ('trade' in b_info){
                 switch(b_info.trade){
                     case 1: //MARKET
                         full_desc += _("Allows trades:") + dojo.string.substitute("${start}${trade}${wood} ${arrow}${food}${mid}${trade}${food} ${arrow} ${steel}${end}", 
@@ -1500,10 +1513,10 @@ function (dojo, declare) {
         formatBuildingIncome: function(b_id, b_key){
             let b_info = this.building_info[b_id];
             var income_values = '';
-            if (b_info.inc == null && b_info.slot == null){
+            if (!('inc' in b_info) && !('slot' in b_info)){
                 income_values = this.format_block('jstpl_color_log', {string:_("none"), color:''});
             }
-            if (b_info.inc){
+            if ('inc' in b_info){
                 if (b_info.inc.silver =='x'){
                     income_values = this.replaceTooltipStrings(_('${silver} per ${worker} (max 5)'));
                 } else if (b_info.inc.loan == '-1') {
@@ -1512,7 +1525,7 @@ function (dojo, declare) {
                     income_values = this.getResourceArrayHtmlBigVp(b_info.inc, true);
                 }
             }
-            if (b_info.slot){
+            if ('slot' in b_info){
                 if (b_info.slot ==1){
                     income_values += dojo.string.substitute("${start}${worker} ${inc_arrow} ${income}${end}", 
                     {   start:'<div class="w_slot">',
@@ -1582,7 +1595,7 @@ function (dojo, declare) {
 
         createBuildingZoneIfMissing(building){
             const b_id = building.b_id;
-            if (this.main_building_counts[b_id] == 0 || this.main_building_counts[b_id] == null){ // make the zone if missing
+            if (this.main_building_counts[b_id] == 0 || !(b_id in this.main_building_counts)){ // make the zone if missing
                 const b_order = (30*Number(building.b_type)) + Number(b_id);
                 dojo.place(this.format_block( 'jstpl_building_stack', 
                 {id: b_id, order: b_order}), TILE_ZONE_DIVID[building.location]);
@@ -1608,10 +1621,10 @@ function (dojo, declare) {
         },
         
         updateHasBuilding(p_id, b_id) {
-            if (this.hasBuilding[p_id] == null){
+            if (!(p_id in this.hasBuilding)){
                 this.hasBuilding[p_id] = [];
             }
-            if (this.hasBuilding[p_id][b_id] == null){
+            if (!(b_id in this.hasBuilding[p_id])){
                 this.hasBuilding[p_id][b_id] = true;
             }
         },
@@ -1879,6 +1892,9 @@ function (dojo, declare) {
 
         createBuildingBreadcrumb: function(b_name=_("???"), b_type=4, cost={}){ // defaults are ??? building with no cost.
             let b_name_html = this.format_block('jstpl_color_log', {'string':_(b_name), 'color':ASSET_COLORS[b_type]});
+            for(let type in this.additionalBuildCost){
+                cost = this.addOrSetArrayKey(cost, type, this.additionalBuildCost[type]);
+            }
             let b_html = this.format_block( 'jptpl_breadcrumb_building', {text:dojo.string.substitute(_("Build ${building_name}"),{building_name:b_name_html}), cost:this.getResourceArrayHtml(this.invertArray(cost), true, "position: relative; top: 9px;")})
             if (dojo.query('#breadcrumb_building').length==1){
                 dojo.destroy('breadcrumb_bldCost');
@@ -2236,6 +2252,8 @@ function (dojo, declare) {
                 this.updateTradeAffordability();
                 this.setupUndoTransactionsButtons();
                 this.updateConfirmTradeButton(TRADE_BUTTON_SHOW);
+            } else {
+                this.showMessage( _("You cannot afford this"), 'error' );
             }
         },
 
@@ -2274,6 +2292,8 @@ function (dojo, declare) {
                 this.updateTradeAffordability();
                 this.setupUndoTransactionsButtons();
                 this.updateConfirmTradeButton(TRADE_BUTTON_SHOW);
+            } else {
+                this.showMessage( _("You cannot afford this"), 'error' );
             }
         },
 
@@ -2302,6 +2322,8 @@ function (dojo, declare) {
                 this.updateTradeAffordability();
                 this.setupUndoTransactionsButtons();
                 this.updateConfirmTradeButton(TRADE_BUTTON_SHOW);
+            } else {
+                this.showMessage( _("You cannot afford this"), 'error' );
             }
         },
 
@@ -2341,6 +2363,8 @@ function (dojo, declare) {
                 this.updateTradeAffordability();
                 this.setupUndoTransactionsButtons();
                 this.updateConfirmTradeButton(TRADE_BUTTON_SHOW);
+            } else {
+                this.showMessage( _("You cannot afford this"), 'error' );
             }
         },
         
@@ -2367,6 +2391,8 @@ function (dojo, declare) {
                 this.updateTradeAffordability();
                 this.setupUndoTransactionsButtons();
                 this.updateConfirmTradeButton(TRADE_BUTTON_SHOW);
+            } else {
+                this.showMessage( _("You cannot afford this"), 'error' );
             }
         },
 
@@ -2778,33 +2804,6 @@ function (dojo, declare) {
              }, function( is_error) { });
         },
 
-        paySteelToBuild: function() {
-            if (this.transactionLog.length >0){ // makeTrades first.
-                this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/trade.html", { 
-                    lock: true, 
-                    trade_action: this.transactionLog.join(',')
-                 }, this, function( result ) {
-                    this.clearTransactionLog();
-                    this.ajaxCallPaySteelToBuild();
-                 }, function( is_error) {});    
-            } else { // if no trades, just pay.
-                this.ajaxCallPaySteelToBuild();
-            }
-            genericSetupBuildBuildings
-        },
-
-        ajaxCallPaySteelToBuild() {
-            this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/trade.html", { 
-                lock: true, 
-                trade_action: this.transactionLog.join(',')
-             }, this, function( result ) {
-                this.clearTransactionLog()
-             }, function( is_error) {});   
-        },
-
-        passSteelToBuild: function() {
-
-        },
 
         /**remove all buttons... 
          * be careful...
@@ -3075,7 +3074,7 @@ function (dojo, declare) {
             // bank 
             if (this.hasBuilding[this.player_id][BLD_BANK]){
                 let node_loc =  `#${BANK_DIVID}`;
-                if (this.canAddTrade({trade:-1})){ // can afford
+                if (this.canAddTrade({'trade':-1})){ // can afford
                     this.updateAffordability(node_loc, AFFORDABLE);
                 } else {// can not afford
                     this.updateAffordability(node_loc, UNAFFORDABLE);
@@ -3352,6 +3351,42 @@ function (dojo, declare) {
             }
         },
 
+        doNotBuild_steelTrack: function () {
+            if (this.checkAction( 'doNotBuild' )){
+                if (!this.canAddTrade({'steel':-1})){
+                    this.showMessage( _("You cannot afford this"), 'error' );
+                    return;
+                }
+                if (this.transactionLog.length >0){ // makeTrades first.
+                    this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/trade.html", { 
+                        lock: true, 
+                        trade_action: this.transactionLog.join(',')
+                    }, this, function( result ) {
+                        this.clearTransactionLog();
+                        this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/doNotBuild_steelTrack.html", {lock: true}, this, 
+                        function( result ) { 
+                            this.clearSelectable('building', true); 
+                            this.disableTradeIfPossible();
+                            this.disableTradeBoardActions();
+                            this.setupUndoTransactionsButtons();
+                        }, function( is_error) { } );
+                    }, function( is_error) {});   
+                } else { // if no trades, just pay.
+                    this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/doNotBuild_steelTrack.html", {lock: true}, this, 
+                    function( result ) { 
+                        this.clearSelectable('building', true); 
+                        this.disableTradeIfPossible();
+                        this.disableTradeBoardActions();
+                        this.setupUndoTransactionsButtons();
+                    }, function( is_error) { } );
+                }
+            }
+        },
+
+        ajaxDoNotBuild: function (){
+            
+        },
+
         updateScore: function (p_id, score_left, score_right = null) {
             if (p_id in this.score_leftCounter){    // when we have their resources.
                 this.score_leftCounter[p_id].setValue(score_left);
@@ -3470,10 +3505,10 @@ function (dojo, declare) {
             let bld_type = [0,0,0,0,0,0,0];// count of bld of types: [res,com,ind,spe]
             let vp_b =     [0,0,0,0,0,0,0];//vp_b [Res, Com, Ind, Spe, Wrk, Trk, Bld]
             for(let b_id in this.hasBuilding[p_id]){
-                if (this.building_info[b_id].vp){
+                if ('vp' in this.building_info[b_id]){
                     static += this.building_info[b_id].vp;
                 }
-                if (this.building_info[b_id].vp_b){
+                if ('vp_b' in this.building_info[b_id]){
                     if (this.building_info[b_id].vp_b == VP_B_WRK_TRK){
                         vp_b[VP_B_WORKER] ++;
                         vp_b[VP_B_TRACK] ++;
@@ -3668,7 +3703,9 @@ function (dojo, declare) {
                 this.transactionLog.push(TRADE_MAP.payloan_silver);
                 this.setupUndoTransactionsButtons();
                 this.updateConfirmTradeButton(TRADE_BUTTON_SHOW);
-                }
+            } else {
+                this.showMessage( _("You cannot afford this"), 'error' );
+            }
         },
 
         payLoanGold: function () {
@@ -3685,6 +3722,8 @@ function (dojo, declare) {
                 this.transactionLog.push(TRADE_MAP.payloan_gold);
                 this.setupUndoTransactionsButtons();
                 this.updateConfirmTradeButton(TRADE_BUTTON_SHOW);
+            } else {
+                this.showMessage( _("You cannot afford this"), 'error' );
             }
         },
 

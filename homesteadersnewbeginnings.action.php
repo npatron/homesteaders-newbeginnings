@@ -137,6 +137,12 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
    }
 
+   public function doNotBuild_steelTrack() {
+    self::setAjaxMode( );
+    $this->game->Action->playerDoNotBuild_steelTrack( );
+    self::ajaxResponse( );
+   }
+
   public function buildBuilding(){
     self::setAjaxMode( );
     $building_key = self::getArg( "building_key", AT_posint, true);
