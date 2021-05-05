@@ -42,7 +42,7 @@ $machinestates = array(
         "type" => "multipleactiveplayer",
         "action" => "stPlaceWorkers",
         "args" => "argPayWorkers",
-        "possibleactions" => array( "placeWorker", "hireWorker", "updateGold", "trade", "takeLoan", "done" ),
+        "possibleactions" => array( "placeWorker", "hireWorker", "updateGold", "trade", "takeLoan", "done", "actionCancel" ),
         "transitions" => array( "auction" => STATE_PAY_WORKERS )
     ),
 
@@ -158,10 +158,11 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} must choose a railroad bonus'),
         "type" => "activeplayer",
         "args" => "argRailBonus",
-        "possibleactions" => array( "chooseBonus" ),
+        "possibleactions" => array( "chooseBonus", "undo"),
         "transitions" => array( "nextBid" => STATE_NEXT_BID, 
                                 "auctionBonus" => STATE_AUCTION_BONUS, 
-                                "endAuction" => STATE_END_BUILD)
+                                "endAuction" => STATE_END_BUILD,
+                                "undoPass"=> STATE_PLAYER_BID)
     ),
 
     //game state that determines next bidder/end of auction, and assigns next player.

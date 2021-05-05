@@ -287,30 +287,21 @@ class HSDEvents extends APP_GameClass
     }
 
     function resolveBuildEventPhase(){
-        if (!$this->isAuctionAffected()) {
-            $next_state = "done";
-        } else {
-            $next_state = "done";
+        $next_state = "done";
+        if ($this->isAuctionAffected()) {
             $event = $this->getEventAucB();
             switch($event){
                 case EVT_AUC_DISCOUNT_1_RES:
                 case EVT_AUC_NO_AUCTION:
                 case EVT_AUC_COM_DISCOUNT:
                     break;
-                case EVT_AUC_BUILD_AGAIN:
-                    // can build again (any).
-                case EVT_AUC_SECOND_BUILD:
-                    // build again (same types)
-                case EVT_AUC_STEEL_ANY:
-                    // player may pay a steel to build any building
+                case EVT_AUC_BUILD_AGAIN:// can build again (any).
+                case EVT_AUC_SECOND_BUILD:// build again (same types)
+                case EVT_AUC_STEEL_ANY:// player may pay a steel to build any building
                     $next_state = "evt_build";
                     break;
-                case EVT_AUC_BONUS_WORKER:
-                    // can reciever worker
-                    $next_state = "bonus";
-                break;
-                case EVT_AUC_2SILVER_TRACK:
-                    // pay 2 silver for track advancement
+                case EVT_AUC_BONUS_WORKER:// can recieve worker
+                case EVT_AUC_2SILVER_TRACK:// pay 2 silver for track advancement
                     $next_state = "bonus";
                 break;
                 case EVT_AUC_TRACK:
@@ -321,6 +312,21 @@ class HSDEvents extends APP_GameClass
             }
         }
         $this->game->gamestate->nextstate( $next_state );
+    }
+
+    function getAllowedBuildings(){
+        $event = $this->getEventAucB();
+        switch($event){
+            case EVT_AUC_SECOND_BUILD: // build again (same types)
+                $build_type_options = $this->game->Auction->getCurrentAuctionBuildTypeOptions();
+                return ($this->Building->getAllowedBuildings($build_type_options));
+            case EVT_AUC_BUILD_AGAIN: // can build again (any).
+            case EVT_AUC_STEEL_ANY: // player may pay a steel to build any building
+                $build_type_options = array(TYPE_RESIDENTIAL, TYPE_COMMERCIAL, TYPE_INDUSTRIAL, TYPE_SPECIAL);
+                return ($this->Building->getAllowedBuildings($build_type_options));
+            default:
+                throw new BgaVisibleSystemException ( clienttranslate("State incorrectly entered.") );
+        }
     }
 
     //// BEGIN pass Bid ////
