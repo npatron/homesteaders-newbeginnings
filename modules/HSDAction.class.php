@@ -83,28 +83,15 @@ class HSDAction extends APP_GameClass
         $this->game->gamestate->nextState( $next_state );
     }
 
-    public function playerBuildBuilding($selected_building, $goldAsCow, $goldAsCopper, $woodVpAsSteel){
+    public function playerBuildBuilding($b_key, $costReplaceArgs){
         $this->game->checkAction( "buildBuilding" );
-        $act_p_id = $this->game->getActivePlayerId();
-        $this->game->Building->buildBuilding($act_p_id, $selected_building, $goldAsCow, $goldAsCopper);
-        if ($this->game->Building->doesPlayerOwnBuilding($act_p_id, BLD_FORGE) && 
-            $this->game->Building->getBuildingIdFromKey($selected_building) != BLD_FORGE){
-            $this->game->Resource->updateAndNotifyIncome($act_p_id, 'vp', 1, array('type'=>TYPE_INDUSTRIAL, 'str'=>"Forge") );
-            $this->game->Log->updateResource($act_p_id, 'vp', 1);
-        }
-        $building_bonus = $this->game->Building->getOnBuildBonusForBuildingKey($selected_building);
-        $this->game->setGameStateValue('building_bonus', $building_bonus);
-        $bonus = $this->game->Auction->getCurrentAuctionBonus();
-        $next_state = 'end_build';
-        if ($building_bonus != BUILD_BONUS_NONE){
-            $next_state = 'building_bonus';     
-        } else if ($this->game->Event->isAuctionAffected()){
-            $next_state = 'event_bonus';
-        } else if ($bonus != AUC_BONUS_NONE){      
-            $next_state = 'auction_bonus'; 
-        }
-        $this->game->Score->updatePlayerScore($act_p_id);
-        $this->game->gamestate->nextState ($next_state);
+        $this->game->Building->buildBuilding($this->game->getActivePlayerId(), $b_key, $costReplaceArgs);
+        $this->game->gamestate->nextState ('doneBuild');
+    }
+
+    public function playerBuildBuildingDiscount($b_key, $costReplaceArgs, $discount){
+        $this->game->checkAction( "buildBuilding" );
+        //TODO this method.
     }
 
     public function playerDoNotBuild () {
@@ -119,13 +106,8 @@ class HSDAction extends APP_GameClass
             }
         }
         //goto next state;
-        $next_state = 'end_build';
-        if ($this->game->Event->isAuctionAffected()){
-            $next_state = 'event_bonus';
-        } else if ($this->game->Auction->getCurrentAuctionBonus() != AUC_BONUS_NONE){      
-            $next_state = 'auction_bonus'; 
-        }
-        $this->game->gamestate->nextState ($next_state);
+        $this->game->setGameStateValue('building_bonus', BUILD_BONUS_NONE);
+        $this->game->gamestate->nextState('done');
     }
     
     public function playerDoNotBuild_steelTrack () {
@@ -134,13 +116,8 @@ class HSDAction extends APP_GameClass
         $this->game->Score->updatePlayerScore($this->game->getActivePlayerId());
         
         //goto next state;
-        $next_state = 'end_build';
-        if ($this->game->Event->isAuctionAffected()){
-            $next_state = 'event_bonus';
-        } else if ($this->game->Auction->getCurrentAuctionBonus() != AUC_BONUS_NONE){      
-            $next_state = 'auction_bonus'; 
-        }
-        $this->game->gamestate->nextState ($next_state);
+        $this->game->setGameStateValue('building_bonus', BUILD_BONUS_NONE);
+        $this->game->gamestate->nextState('done');
     }
 
     public function playerHireWorker($p_id){
@@ -253,6 +230,45 @@ class HSDAction extends APP_GameClass
             $next_state = 'railBonus';
         }
         $this->game->gamestate->nextState( $next_state );
+    }
+
+    /***** Event Bonus *****/
+    public function playerFreeHireWorkerEvent ( ) 
+    {
+        $this->game->checkAction( "eventBonus" );
+        $act_p_id = $this->game->getActivePlayerId();
+        if (!$this->game->Event->isAuctionAffected()){
+            throw new BgaVisibleSystemException ( clienttranslate("Free Hire Worker called, but there is no event bonus"));
+        }
+        if ($this->game->Event->getEventAucB() != EVT_AUC_BONUS_WORKER) {
+            throw new BgaVisibleSystemException ( sprintf(clienttranslate("Free Hire Worker called, but event bonus is %s"),$this->game->Event->getEventAucB()));
+        }
+        
+        $this->game->Resource->addWorker($act_p_id, clienttranslate('Event Bonus'));
+        $this->game->Event->postBuildBonusNav();
+    }
+
+    public function playerSilver2forTrackEvent ( ) 
+    {
+        $this->game->checkAction( "eventBonus" );
+        if (!$this->game->Event->isAuctionAffected()){
+            throw new BgaVisibleSystemException ( clienttranslate("trade 2 Silver for track called, but there is no event bonus"));
+        }
+        if ($this->game->Event->getEventAucB() != EVT_AUC_2SILVER_TRACK) {
+            throw new BgaVisibleSystemException ( sprintf(clienttranslate("trade 2 Silver for track called, but event bonus is %s"),$this->game->Event->getEventAucB()));
+        }
+        $this->game->Resource->specialTrade($this->game->getActivePlayerId(), array('silver'=>2), array('track'=>1), clienttranslate('Event Reward'), 'event');
+        $this->game->Event->postBuildBonusNav();
+    }
+
+    public function playerPassEventBonus() {
+        $this->game->checkAction( "eventBonus" );
+        $act_p_id = $this->game->getActivePlayerId();
+        $this->game->notifyAllPlayers( "passBonus", clienttranslate( '${player_name} passes on Event Bonus' ), array(
+            'player_id' => $act_p_id,
+            'player_name' => $this->game->getActivePlayerName()));
+
+        $this->game->Event->postBuildBonusNav();
     }
 
     /*

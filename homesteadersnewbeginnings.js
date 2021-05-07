@@ -153,6 +153,34 @@ function (dojo, declare) {
     const AUC_BONUS_4DEPT_FREE     = 10;
     const AUC_BONUS_3VP_SELL_FREE  = 11;
 
+    const EVT_VP_4SILVER          = 1;
+    const EVT_TRADE               = 2;
+    const EVT_LOAN_TRACK          = 3;
+    const EVT_LEAST_WORKER        = 4;
+    const EVT_INTEREST            = 5;
+    const EVT_PAY_LOAN_FOOD       = 6;
+    const EVT_COPPER_COW_GET_GOLD = 7;
+    const EVT_DEV_TRACK_VP3       = 8;
+    const EVT_VP_FOR_WOOD         = 9;
+    const EVT_SELL_NO_TRADE       = 10;
+    const EVT_LEAST_BLD_TRACK     = 11;
+    const EVT_IND_VP              = 12;
+    const EVT_BLD_TAX_SILVER      = 13;
+    const EVT_RES_ADV_TRACK       = 14;
+    // auc_b (auction bonus)
+    const EVT_AUC_DISCOUNT_1_RES  = 15;
+    const EVT_AUC_NO_AUCTION      = 16;
+    const EVT_AUC_BUILD_AGAIN     = 17;
+    const EVT_AUC_BONUS_WORKER    = 18;
+    const EVT_AUC_2SILVER_TRACK   = 19;
+    const EVT_AUC_SECOND_BUILD    = 20;
+    const EVT_AUC_TRACK           = 21;
+    const EVT_AUC_STEEL_ANY       = 22;
+    const EVT_AUC_COM_DISCOUNT    = 23;
+    // pass_b (bonus when passing)
+    const EVT_PASS_TRACK          = 24;
+    const EVT_PASS_DEPT_SILVER    = 25;
+
     const ALREADY_BUILT = 9;
     const UNAFFORDABLE = 10;
     const TRADEABLE    = 11;
@@ -987,6 +1015,19 @@ function (dojo, declare) {
             this.addActionButton( 'btn_pass',    _('Pass'),    'passBidButton', null, false, 'red' );
         },
         onUpdateActionButtons_getRailBonus: function(args){
+            this.setupRailBonus(args);
+        },
+        onUpdateActionButtons_getRailBonus_auction: function(args){
+            this.setupRailBonus(args);
+        },
+        onUpdateActionButtons_getRailBonus_build: function(args){
+            this.setupRailBonus(args);
+        },
+        onUpdateActionButtons_getRailBonus_event: function(args){
+            this.setupRailBonus(args);
+        },
+        // does buttons for these
+        setupButtonsForRailBonus: function (args){
             if (args.can_undo){
                 this.addActionButton( 'btn_undo_pass', _('undo'), 'onUndoBidPass', null, false, 'red');
             }
@@ -1020,7 +1061,7 @@ function (dojo, declare) {
             this.onUpdateActionButtons_chooseBuildingToBuild(args);
         },
         // currently only bonus involving a choice is hire worker.
-        onUpdateActionButtons_resolveBuilding: function (args) {
+        onUpdateActionButtons_buildingBonus: function (args) {
             if (args.building_bonus == BUILD_BONUS_WORKER){
                 this.addActionButton( 'btn_bonus_worker', dojo.string.substitute(_('(FREE) Hire ${worker}'), {worker:this.tkn_html.worker}), 'workerForFreeBuilding');
                 this.addActionButton( 'btn_pass_bonus',   _('Do Not Get Bonus'), 'passBuildingBonus', null, false, 'red');
@@ -1033,7 +1074,7 @@ function (dojo, declare) {
             switch (option){
                 case AUC_BONUS_WORKER:
                 case AUC_BONUS_WORKER_RAIL_ADV:
-                    this.addActionButton( 'btn_bonus_worker', dojo.string.substitute(_('(FREE) Hire ${worker}'), {worker:this.tkn_html.worker}) , 'workerForFree');
+                    this.addActionButton( 'btn_bonus_worker', dojo.string.substitute(_('(FREE) Hire ${worker}'), {worker:this.tkn_html.worker}) , 'workerForFreeAuction');
                 break;
                 case AUC_BONUS_WOOD_FOR_TRACK:
                     this.addActionButton( 'btn_wood_track', `${this.tkn_html.wood} ${this.tkn_html.arrow} ${this.tkn_html.track}`, 'woodForTrack');
@@ -1084,7 +1125,7 @@ function (dojo, declare) {
         ////////////////////
         //// EVENTS onUpdateActionButtons states 
         ////////////////////
-        onUpdateActionButtons_event_chooseBuildingToBuild: function (args) {
+        onUpdateActionButtons_chooseBuildingToBuild_event: function (args) {
             this.allowed_buildings = args.allowed_buildings;
             let option = Number(args.event_bonus);
             //
@@ -1100,8 +1141,23 @@ function (dojo, declare) {
             this.genericSetupBuildBuildings();
         },
         
-        onUpdateActionButtons_event_BuildBonus: function (args) {
-        
+        onUpdateActionButtons_BuildBonus_event: function (args) {
+            
+            let option = Number(args.event_bonus);
+            switch (option){
+                case EVT_AUC_BONUS_WORKER: // Auc 1 also gives worker
+                    this.addActionButton( 'btn_bonus_worker', dojo.string.substitute(_('(FREE) Hire ${worker}'), {worker:this.tkn_html.worker}) , 'workerForFreeEvent');
+                break;
+                case EVT_AUC_2SILVER_TRACK: // auction winners can pay 2 silver for track
+                    this.addActionButton( 'btn_silver_track', `${this.tkn_html.silver}${this.tkn_html.silver} ${this.tkn_html.arrow} ${this.tkn_html.track}`, 'silver2ForTrack');
+                break;
+                case EVT_AUC_TRACK: // Auc 1 also gives track should be handled in backend...
+                    console.log('EVT_AUC_TRACK, INVALID!!!!!!!!!');
+                break;
+            }
+            this.addActionButton( 'btn_pass_bonus', _('Do Not Get Bonus'), 'passEventBonus', null, false, 'red');
+            this.addActionButton( 'btn_redo_build_phase', _('Cancel'),     'cancelTurn', null, false, 'red');
+            this.addTradeActionButton();
         },
 
         
@@ -3274,7 +3330,7 @@ function (dojo, declare) {
                     return;
                 }
                 const building_key = Number(building_divId.split("_")[2]);
-                let args = {building_key: building_key, goldAsCow:this.goldAsCow, goldAsCopper:this.goldAsCopper, lock: true};
+                let args = {building_key: building_key, goldAsCow:this.goldAsCow, goldAsCopper:this.goldAsCopper, steelReplace:(this.cost_replace.steel??0), lock: true};
                 if (this.transactionLog.length >0){ // makeTrades first.
                     this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/trade.html", { 
                         lock: true, 
@@ -3608,7 +3664,7 @@ function (dojo, declare) {
         /***** Auction Bonus *****/
         /** called (directly) when auction bonus is only worker for Free */
         /** called when auction bonus is worker for free and rail advancement. */
-        workerForFree: function() {
+        workerForFreeAuction: function() {
             if (this.checkAction( 'auctionBonus' )){
                 this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/freeHireWorkerAuction.html", {lock: true }, this, 
                 function( result ) { 
@@ -3668,6 +3724,44 @@ function (dojo, declare) {
         passBonus: function() {
             if (this.checkAction( 'auctionBonus' )){
                 this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/passAuctionBonus.html", {lock: true}, this, 
+                    function( result ) { 
+                        this.clearTransactionLog();
+                        this.disableTradeIfPossible();
+                        this.resetTradeValues();
+                        this.disableTradeBoardActions();
+                        this.setupUndoTransactionsButtons(); }, 
+                    function( is_error) { } );
+            }
+        },
+
+        /***** eventBonus ******/
+
+        workerForFreeEvent: function() {
+            if (this.checkAction( 'eventBonus' )){
+                this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/freeHireWorkerEvent.html", {lock: true }, this, 
+                function( result ) { 
+                    this.disableTradeIfPossible();
+                    this.disableTradeBoardActions();
+                    this.setupUndoTransactionsButtons();
+                }, function( is_error) { } );
+            }
+        },
+
+        silver2ForTrack: function(){
+            if (this.checkAction( 'eventBonus' )){
+                this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/silver2forTrackEvent.html", {lock: true }, this, 
+                function( result ) { 
+                    this.disableTradeIfPossible();
+                    this.disableTradeBoardActions();
+                    this.setupUndoTransactionsButtons();
+                }, function( is_error) { } );
+            }
+        },
+
+
+        passEventBonus: function {
+            if (this.checkAction( 'eventBonus' )){
+                this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/passEventBonus.html", {lock: true}, this, 
                     function( result ) { 
                         this.clearTransactionLog();
                         this.disableTradeIfPossible();

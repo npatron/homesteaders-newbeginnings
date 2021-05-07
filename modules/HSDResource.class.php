@@ -572,4 +572,21 @@ class HSDResource extends APP_GameClass
         return $arr;
     }
 
+    /**
+     * replacing cost using building replacement abilities
+     * River_Port -> gold as cow/copper.
+     * Lumber_Mill -> lumber+vp as steel.
+     */ 
+    function costReplace($arr, $type, $amt){
+        $cost_replace = $this->game->costReplace[$type];
+        foreach($cost_replace as $r_type=>$r_amt){
+            $arr[$type] -= $amt;
+            if ($arr[$type]==0){
+                unset($arr[$type]);
+            }
+            $arr = $this->updateKeyOrCreate($arr, $r_type, ($r_amt * $amt));
+        }
+        return $arr;
+    }
+
 }

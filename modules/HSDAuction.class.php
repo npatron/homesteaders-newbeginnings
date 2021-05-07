@@ -112,7 +112,7 @@ class HSDAuction extends APP_GameClass
     function getCurrentAuctionBonus(){
         $a_id = $this->getCurrentAuctionId();
         // if exists, otherwise return AUC_BONUS_NONE;
-        return (array_key_exists('bonus', $this->game->auction_info[$a_id])?$this->game->auction_info[$a_id]['bonus']:AUC_BONUS_NONE);
+        return ($this->game->auction_info[$a_id]['bonus']??AUC_BONUS_NONE);
     }
 
     function setupCurrentAuctionBonus(){
@@ -151,6 +151,12 @@ class HSDAuction extends APP_GameClass
     function getCurrentAuctionBuildTypeOptions(){
         $a_id = $this->getCurrentAuctionId(); 
         // if exists, otherwise return array();
-        return (array_key_exists('build', $this->game->auction_info[$a_id])?$this->game->auction_info[$a_id]['build']:array());
+        return ($this->game->auction_info[$a_id]['build']??array());
+    }
+
+    function setCurrentAuctionBuildType(){
+        $b_type_options = $this->getCurrentAuctionBuildTypeOptions();
+        $b_type_int = $this->game->Building->buildTypeArrayIntoInt($b_type_options);
+        $this->game->setGameStateValue('build_type_int', $b_type_int);
     }
 }

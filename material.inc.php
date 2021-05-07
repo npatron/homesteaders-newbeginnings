@@ -49,6 +49,12 @@ $this->warehouse_map = array(
   'food' => 32,
 );
 
+$this->costReplace = array(
+  'cow' => array('gold'=> 1),
+  'copper' => array('gold'=> 1),
+  'steel' => array('wood'=> 1, 'vp'=>1),
+);
+
 $this->playerColorNames = array(
   "ff0000"=> 'red', 
   "008000"=> 'green', 

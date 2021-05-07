@@ -169,7 +169,6 @@
    order: 4;
    flex-direction: row;
    display: flex;
-   flex-grow: 1;
    flex-wrap: wrap;
 }
 #board_area{
@@ -184,7 +183,7 @@
 #board {
    background-image: url('img/auctionBoard.jpg');
    position: relative;
-   width: 100%;
+   width: 740px;
    height: 545px;
    background-size: 740px 545px;
    margin: auto;
@@ -195,7 +194,7 @@
 #board_2 {
    background-image: url('img/auc4-board.png');
    position: relative;
-   width: 100%;
+   width: 296px;
    height: 545px;
    background-size: 296px auto;
    background-repeat: no-repeat;

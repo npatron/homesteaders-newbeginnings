@@ -35,20 +35,26 @@
   define("STATE_PAY_AUCTION",        41);
   define("STATE_CHOOSE_BUILDING",    42);
   define("STATE_RESOLVE_BUILDING",   43);
-  define("STATE_TRAIN_STATION_BUILD",44);
+  define("STATE_BUILDING_BONUS",     44);
+  define("STATE_BUILD_RAIL_BONUS",   45);
+  define("STATE_TRAIN_STATION_BUILD",46);
 
-  define("STATE_EVT_BLD_BONUS",      46);
-  define("STATE_EVT_BUILD_AGAIN",    47);
-  define("STATE_EVT_BUILD_BONUS",    48);
+  define("STATE_EVT_SETUP_BONUS",    71);
+  define("STATE_EVT_BUILD_AGAIN",    72);
+  define("STATE_EVT_BUILD_BONUS",    73);
+  define("STATE_EVT_RAIL_BONUS",     74);
 
   define("STATE_AUCTION_BONUS",      50);
-  define("STATE_CHOOSE_BONUS",       51);
-  define("STATE_CONFIRM_AUCTION",    52);
-  define("STATE_END_BUILD",          53);
-  define("STATE_END_ROUND",          59);
+  define("STATE_AUCTION_RAIL_BONUS", 51);
+  define("STATE_CHOOSE_BONUS",       52);
+  define("STATE_CONFIRM_AUCTION",    53);
+  define("STATE_END_BUILD",          59);
+
+  define("STATE_END_ROUND",          69);
   
   define("STATE_ENDGAME_ACTIONS",    60);
   define("STATE_UPDATE_SCORES",      61);
+
   define("STATE_END_GAME",           99);
 
   define('DUMMY_BID', 0);

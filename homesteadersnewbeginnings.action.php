@@ -146,10 +146,42 @@ class action_homesteadersnewbeginnings extends APP_GameAction
   public function buildBuilding(){
     self::setAjaxMode( );
     $building_key = self::getArg( "building_key", AT_posint, true);
-    $goldAsCow = self::getArg( "goldAsCow", AT_bool, true);
-    $goldAsCopper = self::getArg( "goldAsCopper", AT_bool, true);
-    
-    $this->game->Action->playerBuildBuilding( $building_key, $goldAsCow, $goldAsCopper );
+    $costReplaceArgs = array();
+    $goldAsCow = self::getArg( "goldAsCow", AT_posint, false);
+    if ($goldAsCow??0>0){
+      $costReplaceArgs['cow']=$goldAsCow;
+    }
+    $goldAsCopper = self::getArg( "goldAsCopper", AT_posint, false);
+    if ($goldAsCopper??0>0){
+      $costReplaceArgs['copper']=$goldAsCopper;
+    }
+    $steelReplace = self::getArg( "steelReplace", AT_posint, false);
+    if ($steelReplace??0>0){
+      $costReplaceArgs['steel']=$steelReplace;
+    }
+
+    $this->game->Action->playerBuildBuilding( $building_key, $costReplaceArgs);
+    self::ajaxResponse( );
+  }
+
+  public function buildBuildingDiscount(){
+    self::setAjaxMode( );
+    $building_key = self::getArg( "building_key", AT_posint, true);
+    $costReplaceArgs = array();
+    $goldAsCow = self::getArg( "goldAsCow", AT_posint, false);
+    if ($goldAsCow??0>0){
+      $costReplaceArgs['cow']=$goldAsCow;
+    }
+    $goldAsCopper = self::getArg( "goldAsCopper", AT_posint, false);
+    if ($goldAsCopper??0>0){
+      $costReplaceArgs['copper']=$goldAsCopper;
+    }
+    $steelReplace = self::getArg( "steelReplace", AT_posint, false);
+    if ($steelReplace??0>0){
+      $costReplaceArgs['steel']=$steelReplace;
+    }
+    $discount = self::getArg( "discount", AT_posint, true);
+    $this->game->Action->playerBuildBuildingDiscount( $building_key, $costReplaceArgs, $discount);
     self::ajaxResponse( );
   }
   
@@ -184,6 +216,18 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
 
+  public function freeHireWorkerEvent (){
+    self::setAjaxMode( );
+    $this->game->Action->playerFreeHireWorkerEvent();
+    self::ajaxResponse( );
+  }
+
+  public function silver2forTrackEvent (){
+    self::setAjaxMode( );
+    $this->game->Action->playerSilver2forTrackEvent();
+    self::ajaxResponse( );
+  }
+
   public function bonusTypeForType (){
     self::setAjaxMode( );
     $tradeAway = self::getArg( "tradeAway", AT_int, true);
@@ -195,6 +239,12 @@ class action_homesteadersnewbeginnings extends APP_GameAction
   public function passAuctionBonus (){
     self::setAjaxMode( );
     $this->game->Action->playerPassAuctionBonus( );
+    self::ajaxResponse( );
+  }
+
+  public function passEventBonus (){
+    self::setAjaxMode( );
+    $this->game->Action->playerPassEventBonus( );
     self::ajaxResponse( );
   }
 

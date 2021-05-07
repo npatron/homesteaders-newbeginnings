@@ -55,6 +55,7 @@ class homesteadersnewbeginnings extends Table
             "last_building"     => 19,
             "b_order"           => 20,
             "current_event"     => 21,
+            "build_type_int"    => 22,
             "show_player_info"  => SHOW_PLAYER_INFO,
             "rail_no_build"     => RAIL_NO_BUILD,
             "new_beginning_bld" => NEW_BEGINNING_BLD,
@@ -319,6 +320,7 @@ class homesteadersnewbeginnings extends Table
             $this->gamestate->setPlayerNonMultiactive($cur_p_id, "auction" );
         } else {
             $this->notifyPlayer($cur_p_id, 'workerPaid', "", array());
+            //allows updating ui.
         }
     }
 
@@ -334,6 +336,7 @@ class homesteadersnewbeginnings extends Table
         $auc_no = $this->getGameStateValue('current_auction');
         $this->Resource->pay($act_p_id, $bid_cost, $gold, sprintf(clienttranslate("Auction %s"), $auc_no), $auc_no);
         if ($this->Auction->doesCurrentAuctionHaveBuildPhase()){
+            $this->Auction->setCurrentAuctionBuildType();
             $this->gamestate->nextstate( 'build' );
         } else {
             $this->gamestate->nextstate( 'auction_bonus');
@@ -418,12 +421,12 @@ class homesteadersnewbeginnings extends Table
             $bonus_option[$p_id]['event'] = $current_event;
             $bonus_option[$p_id]['option'] = $this->Resource->getRailAdvBonusOptions($this->getActivePlayerId());        
         }
-        return array('bonus_option'=>$bonus_option);
+        return array('event_bonus'=>$bonus_option);
     }
 
     function argEventBuildBonus() {
         $bonus_option = $this->Event->getEventAucB();
-        return array('bonus_option'=>$bonus_option);
+        return array('event_bonus'=>$bonus_option);
     }
 
     function argEventPay(){
@@ -460,6 +463,7 @@ class homesteadersnewbeginnings extends Table
     function argAllowedBuildings() {
         $act_p_id = $this->getActivePlayerId();
         $build_type_options = $this->Auction->getCurrentAuctionBuildTypeOptions();
+        
         $buildings = $this->Building->getAllowedBuildings($build_type_options);
         $ownsRiverPort = $this->Building->doesPlayerOwnBuilding($act_p_id, BLD_RIVER_PORT);
         $ownsLumberMill = $this->Building->doesPlayerOwnBuilding($act_p_id, BLD_LUMBER_MILL);
@@ -686,12 +690,15 @@ class homesteadersnewbeginnings extends Table
         }
     }
 
-    function stSetupBuildEventBonus(){
-        $this->Event->resolveBuildEventPhase();
+    function stResolveBuilding(){
+        $this->Building->resolveBuilding();
     }
 
-    function stGetAuctionBonus()
-    {
+    function stSetupBuildEventBonus(){
+        $this->Event->setupBuildEventBonus();
+    }
+
+    function stSetupAuctionBonus(){
         $this->Auction->setupCurrentAuctionBonus();
     }
 

@@ -69,7 +69,7 @@ class HSDEvents extends APP_GameClass
     function getEventAucB($round_number = null){
         $event = $this->getEvent($round_number);
         if ($event == 0) return 0;
-        return $this->game->event_info[$event]['auc_b'];
+        return $this->game->event_info[$event]['auc_b']??0;
     }
     
     ///// BEGIN event phase helper methods ////
@@ -286,7 +286,7 @@ class HSDEvents extends APP_GameClass
         $this->game->gamestate->nextState( 'done' );
     }
 
-    function resolveBuildEventPhase(){
+    function setupBuildEventBonus(){
         $next_state = "done";
         if ($this->isAuctionAffected()) {
             $event = $this->getEventAucB();
@@ -345,7 +345,16 @@ class HSDEvents extends APP_GameClass
         }
     }
 
+    function postBuildBonusNav(){
+        $next_state = 'done';
+        if ($this->game->Auction->getCurrentAuctionBonus() != AUC_BONUS_NONE){
+            $next_state = 'auction_bonus';
+        }
+        $this->game->gamestate->nextState($next_state);
+    }
+
     //// END setup Auction ////
+
 
     //// BEGIN private HELPER methods for determining effected players & values ////
     function doesPlayerHaveMostBuildings($p_id, $type){
