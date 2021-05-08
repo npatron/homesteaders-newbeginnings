@@ -1015,16 +1015,16 @@ function (dojo, declare) {
             this.addActionButton( 'btn_pass',    _('Pass'),    'passBidButton', null, false, 'red' );
         },
         onUpdateActionButtons_getRailBonus: function(args){
-            this.setupRailBonus(args);
+            this.setupButtonsForRailBonus(args);
         },
         onUpdateActionButtons_getRailBonus_auction: function(args){
-            this.setupRailBonus(args);
+            this.setupButtonsForRailBonus(args);
         },
         onUpdateActionButtons_getRailBonus_build: function(args){
-            this.setupRailBonus(args);
+            this.setupButtonsForRailBonus(args);
         },
         onUpdateActionButtons_getRailBonus_event: function(args){
-            this.setupRailBonus(args);
+            this.setupButtonsForRailBonus(args);
         },
         // does buttons for these
         setupButtonsForRailBonus: function (args){
@@ -1055,13 +1055,20 @@ function (dojo, declare) {
         },
         onUpdateActionButtons_chooseBuildingToBuild: function(args){
             this.allowed_buildings = args.allowed_buildings;
+            if (Number(args.current_event)== 1){
+                this.building_discount = true;
+            } else {
+                this.building_discount = false;
+            }
             this.genericSetupBuildBuildings();
         },
         onUpdateActionButtons_trainStationBuild: function(args){
-            this.onUpdateActionButtons_chooseBuildingToBuild(args);
+            this.allowed_buildings = args.allowed_buildings;
+            this.building_discount = false;
+            this.genericSetupBuildBuildings();
         },
         // currently only bonus involving a choice is hire worker.
-        onUpdateActionButtons_buildingBonus: function (args) {
+        onUpdateActionButtons_bonusChoice_build: function (args) {
             if (args.building_bonus == BUILD_BONUS_WORKER){
                 this.addActionButton( 'btn_bonus_worker', dojo.string.substitute(_('(FREE) Hire ${worker}'), {worker:this.tkn_html.worker}), 'workerForFreeBuilding');
                 this.addActionButton( 'btn_pass_bonus',   _('Do Not Get Bonus'), 'passBuildingBonus', null, false, 'red');
@@ -1069,7 +1076,7 @@ function (dojo, declare) {
                 this.can_cancel = true;
             } 
         },
-        onUpdateActionButtons_bonusChoice: function (args) {
+        onUpdateActionButtons_bonusChoice_auction: function (args) {
             let option = Number(args.auction_bonus);
             switch (option){
                 case AUC_BONUS_WORKER:
@@ -1129,6 +1136,7 @@ function (dojo, declare) {
             this.allowed_buildings = args.allowed_buildings;
             let option = Number(args.event_bonus);
             //
+            this.building_discount = false;
             switch (option){
                 case EVT_AUC_SECOND_BUILD: // build again (same types)
                 case EVT_AUC_BUILD_AGAIN: // can build again (any).
@@ -1160,6 +1168,12 @@ function (dojo, declare) {
             this.addTradeActionButton();
         },
 
+        onUpdateActionButtons_event_pass: function (args) {
+            // state for 
+            this.addActionButton( 'btn_undo_pass', _('undo'), 'onUndoBidPass', null, false, 'red');
+
+            this.addTradeActionButton();
+        },
         
         ////////////////////
         //// END updateActionButtons
@@ -1426,7 +1440,7 @@ function (dojo, declare) {
                 this.addActionButton( 'btn_do_not_build', this.replaceTooltipStrings(_('Do Not Build (${steel} ${arrow} ${track})')), 'doNotBuild_steelTrack', null, false, 'red');    
             }
             this.addActionButton( 'btn_do_not_build', _('Do Not Build'), 'doNotBuild', null, false, 'red');
-            this.addActionButton( 'btn_cancel_button', _('Cancel'), 'cancelUndoTransactions', null, false, 'red');
+            this.addActionButton( 'btn_redo_build_phase', _('Cancel'),   'cancelTurn', null, false, 'red');
             this.can_cancel = true;
             this.addTradeActionButton();
         },
@@ -3229,7 +3243,6 @@ function (dojo, declare) {
             //console.log("isBuildingAffordable", b_id);
             if (this.building_info[b_id].cost == null) return 1;// no cost, can afford.
             if (this.building_info[b_id].cost.length == 0) return 1;// no cost, can afford.
-            
             const p_id = this.player_id;
             let cost = this.building_info[b_id].cost;
             let off_gold = this.getOffsetValue('gold');
@@ -3274,10 +3287,10 @@ function (dojo, declare) {
                 }
             }
             let trade_avail = this.board_resourceCounters[p_id].trade.getValue() + this.getOffsetValue('trade') + this.getIncomeOffset('trade');
-            //console.log(this.building_info[b_id].name, 'trade_Cost', trade_cost, 'trade_avail', trade_avail);
-            if (trade_cost <= 0)// no trades required.
+            
+            if (trade_cost <= (this.building_discount?1:0))// no trades required.
                 return 1;
-            if (trade_avail >= trade_cost) 
+            if ((this.hasBuilding[p_id][BLD_RIVER_PORT]?trade_avail-1:trade_avail) >= (this.building_discount?trade_cost-2:trade_cost)) 
                 return 0;
             else
                 return -1;
@@ -3329,8 +3342,11 @@ function (dojo, declare) {
                     this.showMessage( _("You must select a building"), 'error' );
                     return;
                 }
+                if (this.building_discount){
+                    if (this.chooseBuildingWithDiscount()) return;
+                }
                 const building_key = Number(building_divId.split("_")[2]);
-                let args = {building_key: building_key, goldAsCow:this.goldAsCow, goldAsCopper:this.goldAsCopper, steelReplace:(this.cost_replace.steel??0), lock: true};
+                let args = {building_key: building_key, goldAsCow:this.goldAsCow?1:0, goldAsCopper:this.goldAsCopper?1:0, steelReplace:(this.cost_replace.steel??0), lock: true};
                 if (this.transactionLog.length >0){ // makeTrades first.
                     this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/trade.html", { 
                         lock: true, 
@@ -3342,6 +3358,33 @@ function (dojo, declare) {
                 } else { // if no trades, just pay.
                     this.ajaxCallBuildBuilding( args );
                 }
+            }
+        },
+
+        chooseBuildingWithDiscount: function(){
+            if (!this.building_discount){
+                console.error("chooseBuildingWithDiscount called incorrectly");
+                return true;
+            }
+
+            if (this.buildingCost.length == 0){
+                return false;// use normal build.
+            }
+            if (this.buildingCost.length == 1){
+                let args = {building_key: building_key, goldAsCow:this.goldAsCow?1:0, goldAsCopper:this.goldAsCopper?1:0, steelReplace:(this.cost_replace.steel??0), lock: true};
+                if (this.transactionLog.length >0){ // makeTrades first.
+                    this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/trade.html", { 
+                        lock: true, 
+                        trade_action: this.transactionLog.join(',')
+                     }, this, function( result ) {
+                        this.clearTransactionLog();
+                        this.ajaxCallBuildBuilding( args );
+                     }, function( is_error) {});    
+                } else { // if no trades, just pay.
+                    this.ajaxCallBuildBuilding( args );
+                }
+            } else {
+                // setup for choose discount.
             }
         },
 
@@ -3759,7 +3802,7 @@ function (dojo, declare) {
         },
 
 
-        passEventBonus: function {
+        passEventBonus: function() {
             if (this.checkAction( 'eventBonus' )){
                 this.ajaxcall( "/" + this.game_name + "/" +  this.game_name + "/passEventBonus.html", {lock: true}, this, 
                     function( result ) { 

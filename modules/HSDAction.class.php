@@ -78,15 +78,15 @@ class HSDAction extends APP_GameClass
     public function playerPassBid(){
         $this->game->checkAction( "pass" );
         $this->game->Bid->passBid();
-        $next_state = $this->game->Event->passBid($this->game->getActivePlayerId());
-        $this->game->setGameStateValue('phase', PHASE_BID_PASS );
-        $this->game->gamestate->nextState( $next_state );
+        $this->game->Event->passBid($this->game->getActivePlayerId());
+        //$this->game->setGameStateValue('phase', PHASE_BID_PASS );
+        $this->game->gamestate->nextState( 'pass' );
     }
 
     public function playerBuildBuilding($b_key, $costReplaceArgs){
         $this->game->checkAction( "buildBuilding" );
         $this->game->Building->buildBuilding($this->game->getActivePlayerId(), $b_key, $costReplaceArgs);
-        $this->game->gamestate->nextState ('doneBuild');
+        $this->game->gamestate->nextState ('done');
     }
 
     public function playerBuildBuildingDiscount($b_key, $costReplaceArgs, $discount){
@@ -122,35 +122,23 @@ class HSDAction extends APP_GameClass
 
     public function playerHireWorker($p_id){
         $worker_cost = array('trade'=>1,'food'=>1);
-        if (!$this->Resource->canPlayerAfford($p_id, $worker_cost))
+        if (!$this->game->Resource->canPlayerAfford($p_id, $worker_cost))
             throw new BgaUserException( clienttranslate("You cannot afford to hire a worker"));
-        $this->Resource->updateAndNotifyPaymentGroup($p_id, $worker_cost, clienttranslate('Hire Worker'));
-        $this->Log->updateResource($p_id, "trade", -1);
-        $this->Log->updateResource($p_id, "food", -1);
-        $this->Resource->addWorker($p_id, 'hire');
+        $this->game->Resource->updateAndNotifyPaymentGroup($p_id, $worker_cost, clienttranslate('Hire Worker'));
+        $this->game->Log->updateResource($p_id, "trade", -1);
+        $this->game->Log->updateResource($p_id, "food", -1);
+        $this->game->Resource->addWorker($p_id, 'hire');
     }
 
     public function playerSelectRailBonus($selected_bonus) {
+        $this->game->checkAction( "chooseBonus" );
         $act_p_id = $this->game->getActivePlayerId();
         $options = $this->game->Resource->getRailAdvBonusOptions($act_p_id);
         if (!in_array ($selected_bonus, $options)){
             throw new BgaUserException( clienttranslate("invalid bonus option selected") );
         } 
-        $this->game->Resource->recieveRailBonus($act_p_id, $selected_bonus);
-        $phase = $this->game->getGameStateValue( 'phase' );
-        $next_state = "";
-        switch($phase){
-            case PHASE_BID_PASS:
-                $next_state = "nextBid";
-            break;
-            case PHASE_BLD_BONUS:
-                $next_state = "auctionBonus";
-            break;
-            case PHASE_AUC_BONUS:
-                $next_state = "endAuction";
-            break;
-        }
-        $this->game->gamestate->nextState( $next_state );
+        $this->game->Resource->receiveRailBonus($act_p_id, $selected_bonus);
+        $this->game->gamestate->nextState( 'done' );
     }
 
     public function playerCancelBidPass () {
@@ -245,7 +233,7 @@ class HSDAction extends APP_GameClass
         }
         
         $this->game->Resource->addWorker($act_p_id, clienttranslate('Event Bonus'));
-        $this->game->Event->postBuildBonusNav();
+        $this->game->Event->postEventBonusNav();
     }
 
     public function playerSilver2forTrackEvent ( ) 
@@ -258,7 +246,7 @@ class HSDAction extends APP_GameClass
             throw new BgaVisibleSystemException ( sprintf(clienttranslate("trade 2 Silver for track called, but event bonus is %s"),$this->game->Event->getEventAucB()));
         }
         $this->game->Resource->specialTrade($this->game->getActivePlayerId(), array('silver'=>2), array('track'=>1), clienttranslate('Event Reward'), 'event');
-        $this->game->Event->postBuildBonusNav();
+        $this->game->Event->postEventBonusNav();
     }
 
     public function playerPassEventBonus() {
@@ -267,8 +255,7 @@ class HSDAction extends APP_GameClass
         $this->game->notifyAllPlayers( "passBonus", clienttranslate( '${player_name} passes on Event Bonus' ), array(
             'player_id' => $act_p_id,
             'player_name' => $this->game->getActivePlayerName()));
-
-        $this->game->Event->postBuildBonusNav();
+        $this->game->Event->postEventBonusNav();
     }
 
     /*

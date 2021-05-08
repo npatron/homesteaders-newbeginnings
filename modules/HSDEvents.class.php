@@ -341,11 +341,11 @@ class HSDEvents extends APP_GameClass
                 $this->game->Resource->addTrack($this->game->getActivePlayerId(), _("event"));
                 return "rail";
             case EVT_PASS_DEPT_SILVER: //Players who pass may pay off debt for 3-{silver} apiece
-                return "trade";
+                return "event";
         }
     }
 
-    function postBuildBonusNav(){
+    function postEventBonusNav(){
         $next_state = 'done';
         if ($this->game->Auction->getCurrentAuctionBonus() != AUC_BONUS_NONE){
             $next_state = 'auction_bonus';

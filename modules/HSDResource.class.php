@@ -355,7 +355,7 @@ class HSDResource extends APP_GameClass
         return $options; 
     }
 
-    function recieveRailBonus($p_id, $selected_bonus){
+    function receiveRailBonus($p_id, $selected_bonus){
         $rail_bonus_arr = array('player_id'=>$p_id, 'token'=>'train');
         switch ($selected_bonus){
             case WORKER:

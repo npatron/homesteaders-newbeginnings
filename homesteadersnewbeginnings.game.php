@@ -19,14 +19,15 @@
 
 require_once( APP_GAMEMODULE_PATH.'module/table/table.game.php' );
 require_once('modules/constants.inc.php');
-require_once('modules/HSDLog.class.php');
+require_once('modules/HSDAction.class.php');
+require_once('modules/HSDAuction.class.php');
 require_once('modules/HSDBid.class.php');
 require_once('modules/HSDBuilding.class.php');
-require_once('modules/HSDAuction.class.php');
 require_once('modules/HSDEvents.class.php');
+require_once('modules/HSDLog.class.php');
 require_once('modules/HSDResource.class.php');
 require_once('modules/HSDScore.class.php');
-require_once('modules/HSDAction.class.php');
+
 
 class homesteadersnewbeginnings extends Table
 {
@@ -62,14 +63,15 @@ class homesteadersnewbeginnings extends Table
             "new_beginning_evt" => NEW_BEGINNING_EVT,
         ) );
         
-        $this->Log      = new HSDLog($this);
+        $this->Action   = new HSDAction($this);
+        $this->Auction  = new HSDAuction($this);
         $this->Bid      = new HSDBid($this);
         $this->Building = new HSDBuilding($this);
-        $this->Auction  = new HSDAuction($this);
+        $this->Log      = new HSDLog($this);
         $this->Event    = new HSDEvents($this);
         $this->Resource = new HSDResource($this);
         $this->Score    = new HSDScore($this);
-        $this->Action   = new HSDAction($this);
+        
 	}
 	
     protected function getGameName( )
@@ -343,7 +345,6 @@ class homesteadersnewbeginnings extends Table
         }
     }
 
-
     public function playerActionCancel() {
         $this->gamestate->checkPossibleAction('actionCancel');
         $p_id = $this->getCurrentPlayerId();
@@ -354,7 +355,7 @@ class homesteadersnewbeginnings extends Table
     }
 
     public function playerCancelBidPass () {
-        $this->checkAction('undo');
+        $this->checkAction('undoPass');
         $this->Bid->cancelPass();
         $this->Log->cancelPass();
         $this->gamestate->nextState('undoPass');
@@ -461,24 +462,24 @@ class homesteadersnewbeginnings extends Table
     }
 
     function argAllowedBuildings() {
-        $act_p_id = $this->getActivePlayerId();
-        $build_type_options = $this->Auction->getCurrentAuctionBuildTypeOptions();
-        
+        $build_type_options = $this->Auction->getCurrentAuctionBuildTypeOptions();        
         $buildings = $this->Building->getAllowedBuildings($build_type_options);
-        $ownsRiverPort = $this->Building->doesPlayerOwnBuilding($act_p_id, BLD_RIVER_PORT);
-        $ownsLumberMill = $this->Building->doesPlayerOwnBuilding($act_p_id, BLD_LUMBER_MILL);
         return(array("allowed_buildings"=> $buildings,
-                    "current_event" => $this->Event->getEvent(),
-                    "riverPort"=>$ownsRiverPort,
-                    "lumberMill"=>$ownsLumberMill));
+                    "current_event" => $this->Event->getEvent()));
     }
 
     function argTrainStationBuildings() {
         $build_type_options = array(TYPE_RESIDENTIAL, TYPE_COMMERCIAL, TYPE_INDUSTRIAL, TYPE_SPECIAL);// all
         $buildings = $this->Building->getAllowedBuildings($build_type_options);
         $ownsRiverPort = $this->Building->doesPlayerOwnBuilding($this->getActivePlayerId(), BLD_RIVER_PORT);    
-        return(array("allowed_buildings"=> $buildings,
-                    "riverPort"=>$ownsRiverPort,));
+        return(array("allowed_buildings"=> $buildings));
+    }
+
+    function argEventBuildings() {
+        $event_bonus = $this->Event->getEventAucB();
+        $buildings = $this->Event->getAllowedBuildings($event_bonus);
+        return (array("event_bonus"=> $event_bonus, 
+                      "allowed_buildings" =>$buildings));
     }
 
     function argBuildingBonus() {
@@ -488,21 +489,7 @@ class homesteadersnewbeginnings extends Table
 
     function argBonusOption() {
         $auction_bonus = $this->getGameStateValue( 'auction_bonus');
-        $ownsRiverPort = $this->Building->doesPlayerOwnBuilding($this->getActivePlayerId(), BLD_RIVER_PORT);    
-        return (array("auction_bonus"=> $auction_bonus, 
-                      "riverPort" => $ownsRiverPort));
-    }
-
-    function argEventBuildings() {
-        $event_bonus = $this->Event->getEventAucB();
-        $buildings = $this->Event->getAllowedBuildings($event_bonus);
-        $act_p_id = $this->getActivePlayerId();
-        $ownsRiverPort = $this->Building->doesPlayerOwnBuilding($act_p_id, BLD_RIVER_PORT);
-        $ownsLumberMill = $this->Building->doesPlayerOwnBuilding($act_p_id, BLD_LUMBER_MILL);
-        return (array("event_bonus"=> $event_bonus, 
-                      "allowed_buildings" =>$buildings,
-                      "riverPort"=>$ownsRiverPort,
-                      "lumberMill"=>$ownsLumberMill));
+        return (array("auction_bonus"=> $auction_bonus));
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -575,7 +562,8 @@ class homesteadersnewbeginnings extends Table
         }
     }
 
-    function argSetupAuction(){
+    function argSetupAuction()
+    {
 
     }
 
@@ -596,6 +584,14 @@ class homesteadersnewbeginnings extends Table
             $next_state = "skipPlayer";
         }
         $this->gamestate->nextState( $next_state );
+    }
+
+    function stPassEvent()
+    {
+        $pass_evt = $this->game->event_info[$this->Event->getEvent()]['pass']??0;
+        if ($pass_evt != EVT_PASS_DEPT_SILVER){// every other event should not be here.
+            $this->gamestate->nextState( "rail" );
+        }
     }
 
     /**
@@ -651,47 +647,42 @@ class homesteadersnewbeginnings extends Table
     function stResolveBuilding()
     { 
         $active_p_id = $this->getActivePlayerId();
+        $this->Score->updatePlayerScore($active_p_id);
         $bonus = $this->getGameStateValue('building_bonus');
         $b_key = $this->getGameStateValue('last_building');
         $b_name = $this->Building->getBuildingNameFromKey($b_key);
+        $next_state = $this->Building->getNextStatePostBuild();
         switch($bonus){
             case BUILD_BONUS_TRADE_TRADE:
                 $this->Resource->updateAndNotifyIncome($active_p_id, 'trade', 2, $b_name, 'building', $b_key);
                 $this->Log->updateResource($active_p_id, 'trade', 2);
-                $this->gamestate->nextState("auction_bonus");
             break;
             case BUILD_BONUS_PAY_LOAN:
                 $this->Resource->payLoanOrRecieveSilver($active_p_id, $b_name, 'building', $b_key);
-                $this->gamestate->nextState("auction_bonus");
             break;
             case BUILD_BONUS_TRADE:
                 $this->Resource->updateAndNotifyIncome($active_p_id, 'trade', 1, $b_name, 'building', $b_key);
                 $this->Log->updateResource($active_p_id, 'trade', 1);
-                $this->gamestate->nextState("auction_bonus");
             break;
             case BUILD_BONUS_SILVER_WORKERS: // silver per worker.
                 $amt = $this->Resource->getPlayerResourceAmount($active_p_id, 'workers');
                 $this->Resource->updateAndNotifyIncome($active_p_id, 'silver', $amt, $b_name, 'building', $b_key);
                 $this->Log->updateResource($active_p_id, 'silver', $amt);
-                $this->gamestate->nextState("auction_bonus");
             break;
             case BUILD_BONUS_RAIL_ADVANCE:
                 $this->Resource->getRailAdv($active_p_id, $b_name, 'building', $b_key);
                 $this->setGameStateValue('phase', PHASE_BLD_BONUS);
-                $this->gamestate->nextState('rail_bonus');
+                $next_state = 'rail_bonus';
             break;
             case BUILD_BONUS_TRACK_AND_BUILD:
                 $this->Resource->addTrack($active_p_id, $b_name, 'building', $b_key);
-                $this->gamestate->nextState('train_station_build');
+                $next_state = 'train_station_build';
             break;
             case BUILD_BONUS_WORKER:
-                //the other case (BUILD_BONUS_WORKER) waits for player_choice so we don't want to go to next state
+                $next_state = 'building_bonus';
             break;
         }
-    }
-
-    function stResolveBuilding(){
-        $this->Building->resolveBuilding();
+        $this->gamestate->nextState($next_state);
     }
 
     function stSetupBuildEventBonus(){

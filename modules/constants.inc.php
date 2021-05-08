@@ -23,13 +23,13 @@
   define("STATE_EVT_BONUS",          26);
   define("STATE_EVT_PAY",            27);
   define("STATE_EVT_POST_TRADE",     28);
-  define("STATE_EVT_DEBT_TRADE",     36);
   
   define("STATE_BEGIN_AUCTION",      30);
   define("STATE_2_PLAYER_DUMMY_BID", 31);
   define("STATE_PLAYER_BID",         32);
-  define("STATE_RAIL_BONUS",         33);
+  define("STATE_PASS_RAIL_BONUS",    33);
   define("STATE_NEXT_BID",           34);
+  define("STATE_EVT_PASS_BONUS",     36);
 
   define("STATE_NEXT_BUILDING",      40);
   define("STATE_PAY_AUCTION",        41);
