@@ -27,11 +27,15 @@
    font-weight: 400;
    src: url(https://fonts.googleapis.com/css2?family=Old+Standard+TT);
 }
-
-.font, .biggerFont {
+.biggerFont {
    font-family: 'Old Standard TT';
    font-style: normal;
    font-size: 20px;
+}
+.font {
+   font-family: 'Old Standard TT';
+   font-style: normal;
+   font-size: 16px;
 }
 .caps {
    font-variant: small-caps;
@@ -615,6 +619,11 @@ div#trade_board {
 .tt_container .selectable{
    pointer-events: auto;
 }
+div[id$=trade_market_wood_food]:not(.selectable), 
+div[id$=trade_market_food_steel]:not(.selectable),
+div#trade_bank_trade_silver:not(.selectable){
+   pointer-events: none;
+}
 
 .tt_container div[id$=trade_market_wood_food]{
    width: auto;
@@ -781,6 +790,12 @@ div#sell_board{
 #events_container{
    min-width: 700px;
    flex-grow: 1;
+}
+#eventsBar{
+   background-color: #6666;
+   width: 100%;
+   margin-top: -8px;
+   text-align: center;
 }
 .building_container, .event_container {
    min-width: 600px;

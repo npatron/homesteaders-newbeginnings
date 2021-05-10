@@ -71,6 +71,13 @@ class HSDEvents extends APP_GameClass
         if ($event == 0) return 0;
         return $this->game->event_info[$event]['auc_b']??0;
     }
+
+    // get id for event phase id 'all_b'
+    function getEventAllB($round_number = null){
+        $event = $this->getEvent($round_number);
+        if ($event == 0) return 0;
+        return $this->game->event_info[$event]['all_b']??0;
+    }
     
     ///// BEGIN event phase helper methods ////
     /**
@@ -133,9 +140,7 @@ class HSDEvents extends APP_GameClass
 
     ///// BEGIN pre auction Event Phase Handling methods ////
     function setupEventPreAuction(){
-        $current_event = $this->getEvent();
-        $this->game->setGameStateValue('current_event', $current_event);
-        $bonus_id = $this->game->event_info[$current_event]['all_b'];
+        $bonus_id = $this->getEventAllB();
         $next_state = 'done';
         switch($bonus_id){
             //// next_state='evt_trade' states ////
@@ -251,10 +256,20 @@ class HSDEvents extends APP_GameClass
         $this->game->gamestate->nextState( $next_state );
     }
 
+    function getNextStatePreTrade(){
+        $bonus_id = $this->getEventAllB();
+        switch($bonus_id){
+            case EVT_SELL_NO_TRADE:
+            case EVT_PAY_LOAN_FOOD:
+            case EVT_VP_4SILVER:
+            case EVT_COPPER_COW_GET_GOLD:
+            case EVT_VP_FOR_WOOD:
+        }
+    }
+
     // for after trade window of events that need to wait for players to trade before resolving.
     function resolveEventPostTrade(){
-        $current_event = $this->game->getGameStateValue('current_event');
-        $bonus_id = $this->game->event_info[$current_event]['all_b'];
+        $bonus_id = $this->getEventAllB();
         switch($bonus_id){
             case EVT_SELL_NO_TRADE:// no action required
             case EVT_PAY_LOAN_FOOD:// no action required

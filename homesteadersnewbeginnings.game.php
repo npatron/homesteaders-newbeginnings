@@ -199,13 +199,14 @@ class homesteadersnewbeginnings extends Table
             'number_auctions' => $this->getGameStateValue( 'number_auctions' ),
             'player_order' => $this->getNextPlayerTable(),
             'player_resources' => $this->getObjectFromDb( "SELECT `player_id` p_id, `silver`, `wood`, `food`, `steel`, `gold`, `copper`, `cow`, `loan`, `trade`, `vp` FROM `resources` WHERE player_id = '$cur_p_id'" ),
-            'rail_no_build' => $this->getGameStateValue( 'rail_no_build' ) === ENABLED,
+            'rail_no_build' => $this->getGameStateValue( 'rail_no_build' ) == ENABLED,
             'resources' => $this->Resource->getResources(),
             'resource_info' => $this->resource_info,
             'round_number' => $this->getGameStateValue( 'round_number' ),
             'show_player_info' => $this->getShowPlayerInfo(),
             'translation_strings' => $this->translation_strings,
             'tracks' => $this->getCollectionFromDb("SELECT `rail_key` r_key, `player_id` p_id FROM `tracks` "),
+            'use_events' => $this->getGameStateValue('new_beginning_evt') == ENABLED,
             'workers' => $this->getCollectionFromDb( "SELECT `worker_key` w_key, `player_id` p_id, `building_key` b_key, `building_slot` b_slot FROM `workers`" ),
         );
     }
@@ -264,7 +265,15 @@ class homesteadersnewbeginnings extends Table
     }
 
     public function playerTrade($tradeAction_csv, $notActive =false){
+        // allow out of turn trade, only when flag is passed during allocateWorkers State.
+        if (!($notActive && $this->game->gamestate->state()['name'] === "allocateWorkers"))
+            $this->game->checkAction( 'trade' );
         $this->Action->playerTrade($this->getCurrentPlayerId(), $tradeAction_csv, $notActive);
+    }
+
+    public function playerTradeHidden($tradeAction_csv, $notActive =false){
+        $this->checkAction('event');
+        $this->Action->playerTradeHidden($this->getCurrentPlayerId(), $tradeAction_csv, $notActive);
     }
 
     public function playerHireWorker(){
@@ -278,6 +287,11 @@ class homesteadersnewbeginnings extends Table
     
     public function playerDonePlacingWorkers($warehouse){
         $this->Action->playerDonePlacingWorkers($this->getCurrentPlayerId(), $warehouse);
+    }
+
+    public function playerDoneTradingEvent(){
+        $cur_p_id = $this->getCurrentPlayerId();
+        $this->gamestate->setPlayerNonMultiactive($cur_p_id, $next_state );
     }
     
     public function playerPay($gold) {
@@ -318,8 +332,9 @@ class homesteadersnewbeginnings extends Table
             $cost = max($workers - (5*$gold), 0);
             $this->Resource->pay($cur_p_id, $cost, $gold, "workers");
         }
+        $next_state = ($this->Event->eventPhase()?"event":"auction");
         if (!$early){
-            $this->gamestate->setPlayerNonMultiactive($cur_p_id, "auction" );
+            $this->gamestate->setPlayerNonMultiactive($cur_p_id, $next_state );
         } else {
             $this->notifyPlayer($cur_p_id, 'workerPaid', "", array());
             //allows updating ui.
@@ -480,6 +495,11 @@ class homesteadersnewbeginnings extends Table
         $buildings = $this->Event->getAllowedBuildings($event_bonus);
         return (array("event_bonus"=> $event_bonus, 
                       "allowed_buildings" =>$buildings));
+    }
+
+    function argsEventPreTrade() {
+        $bonus_id = $this->Event->getEventAllB();
+        return (array("bonus_id"=>$bonus_id));
     }
 
     function argBuildingBonus() {
@@ -651,6 +671,7 @@ class homesteadersnewbeginnings extends Table
         $bonus = $this->getGameStateValue('building_bonus');
         $b_key = $this->getGameStateValue('last_building');
         $b_name = $this->Building->getBuildingNameFromKey($b_key);
+        // set next_state if no building bonus.
         $next_state = $this->Building->getNextStatePostBuild();
         switch($bonus){
             case BUILD_BONUS_TRADE_TRADE:
@@ -675,7 +696,7 @@ class homesteadersnewbeginnings extends Table
                 $next_state = 'rail_bonus';
             break;
             case BUILD_BONUS_TRACK_AND_BUILD:
-                $this->Resource->addTrack($active_p_id, $b_name, 'building', $b_key);
+                $this->Resource->addTrackAndNotify($active_p_id, $b_name, 'building', $b_key);
                 $next_state = 'train_station_build';
             break;
             case BUILD_BONUS_WORKER:
@@ -685,7 +706,7 @@ class homesteadersnewbeginnings extends Table
         $this->gamestate->nextState($next_state);
     }
 
-    function stSetupBuildEventBonus(){
+    function stSetupBuildEvent(){
         $this->Event->setupBuildEventBonus();
     }
 

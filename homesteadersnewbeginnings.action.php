@@ -54,6 +54,14 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
 
+  public function tradeHidden(){
+    self::setAjaxMode( );
+    $trade_action = self::getArg( "trade_action", AT_numberlist, true );
+    
+    $this->game->playerTradeHidden($trade_action);
+    self::ajaxResponse( );
+  }
+
   public function undoTransactions(){
     self::setAjaxMode( );
     $this->game->playerCancelTransactions();
@@ -65,6 +73,12 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::setAjaxMode( );
     $gold = self::getArg( "gold", AT_posint, true);
     $this->game->playerPay($gold);
+    self::ajaxResponse( );
+  }
+
+  public function doneTradingEvent() {
+    self::setAjaxMode( );
+    $this->game->playerDoneTradingEvent();
     self::ajaxResponse( );
   }
 

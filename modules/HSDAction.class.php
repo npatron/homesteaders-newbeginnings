@@ -18,15 +18,21 @@ class HSDAction extends APP_GameClass
         $this->game->Resource->takeLoan($p_id);
     }
 
-    public function playerTrade( $p_id, $tradeAction_csv, $notActive )
+    public function playerTrade( $p_id, $tradeAction_csv )
     {
-        // allow out of turn trade, only when flag is passed during allocateWorkers State.
-        if (!($notActive && $this->game->gamestate->state()['name'] === "allocateWorkers"))
-            $this->game->checkAction( 'trade' );
         $tradeAction_arr = explode(',', $tradeAction_csv);
         foreach( $tradeAction_arr as $key=>$val ){
             $tradeAction = $this->game->trade_map[$val];
             $this->game->Resource->trade($p_id, $tradeAction);
+        }
+    }
+
+    public function playerTradeHidden($p_id, $tradeAction_csv)
+    {    
+        $tradeAction_arr = explode(',', $tradeAction_csv);
+        foreach( $tradeAction_arr as $key=>$val ){
+            $tradeAction = $this->game->trade_map[$val];
+            $this->game->Resource->tradeHidden($p_id, $tradeAction);
         }
     }
 
@@ -91,7 +97,9 @@ class HSDAction extends APP_GameClass
 
     public function playerBuildBuildingDiscount($b_key, $costReplaceArgs, $discount){
         $this->game->checkAction( "buildBuilding" );
-        //TODO this method.
+        $discount_type = $this->game->resource_map[$discount];
+        $this->game->Building->buildBuildingDiscount($this->game->getActivePlayerId(), $b_key, $costReplaceArgs, $discount_type);
+        $this->game->gamestate->nextState ('done');
     }
 
     public function playerDoNotBuild () {
@@ -101,7 +109,7 @@ class HSDAction extends APP_GameClass
             if ($currentState === 'event_chooseBuildingToBuild' && $this->game->Event->$this->getEventAucB() == EVT_AUC_STEEL_ANY){
                 //don't get free track.
             } else {
-                $this->game->Resource->addTrack($this->game->getActivePlayerId(), clienttranslate('In place of Build'), 'auction' , $this->game->getGameStateValue( 'current_auction' ));
+                $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), clienttranslate('In place of Build'), 'auction' , $this->game->getGameStateValue( 'current_auction' ));
                 $this->game->Score->updatePlayerScore($this->game->getActivePlayerId());
             }
         }
@@ -127,7 +135,7 @@ class HSDAction extends APP_GameClass
         $this->game->Resource->updateAndNotifyPaymentGroup($p_id, $worker_cost, clienttranslate('Hire Worker'));
         $this->game->Log->updateResource($p_id, "trade", -1);
         $this->game->Log->updateResource($p_id, "food", -1);
-        $this->game->Resource->addWorker($p_id, 'hire');
+        $this->game->Resource->addWorkerAndNotify($p_id, 'hire');
     }
 
     public function playerSelectRailBonus($selected_bonus) {
@@ -155,7 +163,7 @@ class HSDAction extends APP_GameClass
         $act_p_id = $this->game->getActivePlayerId();
         $b_key = $this->game->getGameStateValue('last_building');
         $b_name = $this->game->Building->getBuildingNameFromKey($b_key);
-        $this->game->Resource->addWorker($act_p_id, $b_name, 'building', $b_key);
+        $this->game->Resource->addWorkerAndNotify($act_p_id, $b_name, 'building', $b_key);
         $this->game->gamestate->nextState( 'auction_bonus' );
     }
 
@@ -172,10 +180,10 @@ class HSDAction extends APP_GameClass
         $act_p_id = $this->game->getActivePlayerId();
         $auction_bonus = $this->game->getGameStateValue( 'auction_bonus');
         if ($auction_bonus == AUC_BONUS_WORKER) {
-            $this->game->Resource->addWorker($act_p_id, clienttranslate('Auction Bonus'));
+            $this->game->Resource->addWorkerAndNotify($act_p_id, clienttranslate('Auction Bonus'));
             $this->game->gamestate->nextState( 'done' );
         } else if ($auction_bonus == AUC_BONUS_WORKER_RAIL_ADV){
-            $this->game->Resource->addWorker($act_p_id, clienttranslate('Auction Bonus'));
+            $this->game->Resource->addWorkerAndNotify($act_p_id, clienttranslate('Auction Bonus'));
             $this->game->setGameStateValue( 'phase', PHASE_AUC_BONUS);
             $auc_no = $this->game->getGameStateValue( 'current_auction');
             $this->game->Resource->getRailAdv( $act_p_id, sprintf(clienttranslate("Auction %s"),$auc_no), 'auction', $auc_no );
@@ -232,7 +240,7 @@ class HSDAction extends APP_GameClass
             throw new BgaVisibleSystemException ( sprintf(clienttranslate("Free Hire Worker called, but event bonus is %s"),$this->game->Event->getEventAucB()));
         }
         
-        $this->game->Resource->addWorker($act_p_id, clienttranslate('Event Bonus'));
+        $this->game->Resource->addWorkerAndNotify($act_p_id, clienttranslate('Event Bonus'));
         $this->game->Event->postEventBonusNav();
     }
 

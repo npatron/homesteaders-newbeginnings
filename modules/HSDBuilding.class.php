@@ -184,16 +184,33 @@ class HSDBuilding extends APP_GameClass
 
     function buildBuilding( $p_id, $b_key, $costReplaceArgs )
     {
+        $b_cost = $this->getBuildingCostFromKey ($b_key, $costReplaceArgs);
+        $this->buildBuildingHelper($p_id, $b_key, $b_cost);
+    }
+
+    function buildBuildingDiscount( $p_id, $b_key, $costReplaceArgs, $discount_type)
+    {
+        
+        $b_cost = $this->getBuildingCostFromKey ($b_key, $costReplaceArgs);
+        if (!array_key_exists($discount_type, $b_cost)){
+            throw new BgaUserException( clienttranslate("You cannot discount it any further ").$discount_type);
+        }
+        if (($b_cost[$discount_type]--)<=1){
+            unset($b_cost[$discount_type]);
+        }
+        $this->buildBuildingHelper($p_id, $b_key, $b_cost);
+    }
+
+    function buildBuildingHelper( $p_id, $b_key, $b_cost){
+        $afford = $this->game->Resource->canPlayerAfford($p_id, $b_cost);
+        $building = $this->getBuildingFromKey($b_key);
+        $b_id = $building['b_id'];
+        $b_name = $this->getBuildingNameFromId($b_id);
         $build_type_int = $this->game->getGameStateValue('build_type_int');
         $allowedBuildings = $this->getAllowedBuildings($this->buildTypeIntIntoArray($build_type_int));
         if (!array_key_exists($b_key, $allowedBuildings)){// check b_key is allowed.
             throw new BgaUserException( clienttranslate("You are not allowed to build this building at this time"));
         }
-        $b_cost = $this->getBuildingCostFromKey ($b_key, $costReplaceArgs);
-        $afford = $this->game->Resource->canPlayerAfford($p_id, $b_cost);
-        $building = $this->getBuildingFromKey($b_key);
-        $b_id = $building['b_id'];
-        $b_name = $this->getBuildingNameFromId($b_id);
         if (!$afford){
             throw new BgaUserException( sprintf(clienttranslate("You cannot afford to build %s"),$b_name));
         }
@@ -218,13 +235,11 @@ class HSDBuilding extends APP_GameClass
             $values['arrow'] = "arrow";
         }
         $this->game->DbQuery( $sql );
-
         $this->game->notifyAllPlayers( "buildBuilding", $message, $values);
         $this->game->Log->buyBuilding($p_id, $b_key, $b_cost, $this->game->Score->dbGetScore($p_id));
 
         if ($this->game->Building->doesPlayerOwnBuilding($p_id, BLD_FORGE) && $b_id != BLD_FORGE){
             $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', 1, array('type'=>TYPE_INDUSTRIAL, 'str'=>"Forge") );
-            $this->game->Log->updateResource($p_id, 'vp', 1);
         }
 
         $this->game->setGameStateValue('last_building', $b_key);
@@ -267,7 +282,11 @@ class HSDBuilding extends APP_GameClass
             $name = $income['name'];
             $b_key = $income['key'];
             $income = array_diff_key($income, array_flip(['name','key']));
-            $this->game->Resource->updateAndNotifyIncomeGroup($p_id, $income, $name, 'building', $b_key);
+            if ($b_id==BLD_BANK){
+                $this->game->Resource->payLoanOrRecieveSilver($p_id, $name, 'building', $b_key);
+            } else {
+                $this->game->Resource->updateAndNotifyIncomeGroup($p_id, $income, $name, 'building', $b_key);
+            }
         }
     }
     

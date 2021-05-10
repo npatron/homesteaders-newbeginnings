@@ -72,10 +72,12 @@ $machinestates = array(
 
     STATE_EVT_TRADE => array(
         "name" => "preEventTrade",
-        "description" => clienttranslate('Some players must choose to trade before event'),
-        "descriptionmyturn" => clienttranslate('${you} players must choose to trade before event'),
+        "description" => clienttranslate('Some players may choose to trade before event'),
+        "descriptionmyturn" => clienttranslate('${you} may choose to trade before event'),
         "type" => "multipleactiveplayer",
         "action" => "stSetupTrade",
+        "args" => "argsEventPreTrade",
+        "possibleactions" => array( "trade", "takeLoan", "event", "actionCancel" ),
         "transitions" => array( "post" => STATE_EVT_POST_TRADE,
                                 "done" => STATE_BEGIN_AUCTION,)
     ),
