@@ -823,6 +823,11 @@ function (dojo, declare) {
         //
         onEnteringState: function( stateName, args )
         {
+            if (args && args.args && args.args.hidden) {
+                this.gamedatas.gamestate.description = this.gamedatas.gamestate.descriptionhidden;
+                this.gamedatas.gamestate.descriptionmyturn = this.gamedatas.gamestate.descriptionmyturnhidden;
+                this.updatePageTitle();
+            }
             this.currentState = stateName;
             //console.log('onEnteringState', stateName);
             switch( stateName )
@@ -851,13 +856,18 @@ function (dojo, declare) {
                     dojo.style(TRADE_BOARD_ID, 'order', 4);
                     break;
                 case 'getRailBonus':
+                case 'getRailBonus_event':
+                case 'getRailBonus_auction':
+                case 'getRailBonus_build':
                     const active_train = this.train_token_divId[this.getActivePlayerId()];
                     dojo.addClass(active_train, 'animated');
                     break;
                 case 'payAuction':
                 case 'chooseBuildingToBuild':
-                case 'auctionBonus':
-                case 'bonusChoice':
+                case 'chooseBuildingToBuild_event':
+                case 'trainStationBuild':
+                case 'bonusChoice_build':
+                case 'bonusChoice_auction':
                     if (!this.isSpectator){
                         dojo.style(TRADE_BOARD_ID, 'order', 2);
                     }
@@ -954,7 +964,7 @@ function (dojo, declare) {
                 switch( stateName ) {
                     case 'allocateWorkers':
                         var methodName = "onUpdateActionButtons_" + stateName + "_notActive";
-                        console.log('Calling ' + methodName, args);
+                        //console.log('Calling ' + methodName, args);
                         this[methodName](args);
                     break;
                 }
@@ -1026,22 +1036,26 @@ function (dojo, declare) {
             this.addActionButton( 'btn_pass',    _('Pass'),    'passBidButton', null, false, 'red' );
         },
         onUpdateActionButtons_getRailBonus: function(args){
+            if (args.can_undo){
+                this.addActionButton( 'btn_undo_pass', _('undo'), 'onUndoBidPass', null, false, 'red');
+            }
             this.setupButtonsForRailBonus(args);
         },
         onUpdateActionButtons_getRailBonus_auction: function(args){
             this.setupButtonsForRailBonus(args);
+            this.addActionButton( 'btn_redo_build_phase', _('Cancel'),   'cancelTurn', null, false, 'red');
+            this.can_cancel = true;
         },
         onUpdateActionButtons_getRailBonus_build: function(args){
             this.setupButtonsForRailBonus(args);
+            this.addActionButton( 'btn_redo_build_phase', _('Cancel'),   'cancelTurn', null, false, 'red');
+            this.can_cancel = true;
         },
         onUpdateActionButtons_getRailBonus_event: function(args){
             this.setupButtonsForRailBonus(args);
         },
         // does buttons for these
         setupButtonsForRailBonus: function (args){
-            if (args.can_undo){
-                this.addActionButton( 'btn_undo_pass', _('undo'), 'onUndoBidPass', null, false, 'red');
-            }
             this.last_selected.bonus  ="";
             for(let i in args.rail_options){
                 let type = this.getKeyByValue(RESOURCES, args.rail_options[i]);
@@ -1053,7 +1067,7 @@ function (dojo, declare) {
                     this.addActionButton( `btn_bonus_${type}`, this.tkn_html[type], 'selectBonusButton', null, false, 'gray');
                 }
             }
-            this.addActionButton( 'btn_choose_bonus', _('Choose Bonus'), 'doneSelectingBonus');
+            this.addActionButton( 'btn_choose_bonus', _('Choose Bonus'), 'doneSelectingRailBonus');
             dojo.style('btn_choose_bonus', 'display', 'none');
         },
         onUpdateActionButtons_payAuction: function(args){
@@ -1082,7 +1096,7 @@ function (dojo, declare) {
         onUpdateActionButtons_bonusChoice_build: function (args) {
             if (args.building_bonus == BUILD_BONUS_WORKER){
                 this.addActionButton( 'btn_bonus_worker', dojo.string.substitute(_('(FREE) Hire ${worker}'), {worker:this.tkn_html.worker}), 'workerForFreeBuilding');
-                this.addActionButton( 'btn_pass_bonus',   _('Do Not Get Bonus'), 'passBuildingBonus', null, false, 'red');
+                this.addActionButton( 'btn_pass_bonus',   _('Do Not Get Bonus'), 'passBonusBuilding', null, false, 'red');
                 this.addActionButton( 'btn_redo_build_phase', _('Cancel'),  'cancelTurn', null, false, 'red');
                 this.can_cancel = true;
             } 
@@ -1120,9 +1134,8 @@ function (dojo, declare) {
                     break;
                 case AUC_BONUS_TRACK_RAIL_ADV: // should not come here
                     break;
-                
             }
-            this.addActionButton( 'btn_pass_bonus',       _('Do Not Get Bonus'), 'passBonus', null, false, 'red');
+            this.addActionButton( 'btn_pass_bonus',       _('Do Not Get Bonus'), 'passBonusAuction', null, false, 'red');
             this.addActionButton( 'btn_redo_build_phase', _('Cancel'),           'cancelTurn', null, false, 'red');
             this.addTradeActionButton();
         },
@@ -1171,7 +1184,7 @@ function (dojo, declare) {
                     this.addActionButton( 'btn_silver_track', `${this.tkn_html.silver}${this.tkn_html.silver} ${this.tkn_html.arrow} ${this.tkn_html.track}`, 'silver2ForTrack');
                 break;
                 case EVT_AUC_TRACK: // Auc 1 also gives track should be handled in backend...
-                    console.log('EVT_AUC_TRACK, INVALID!!!!!!!!!');
+                    //console.log('EVT_AUC_TRACK, INVALID!!!!!!!!!');
                 break;
             }
             this.addActionButton( 'btn_pass_bonus', _('Do Not Get Bonus'), 'passEventBonus', null, false, 'red');
@@ -1200,6 +1213,7 @@ function (dojo, declare) {
                     this.addTradeActionButton();
                     break;
                 case EVT_COPPER_COW_GET_GOLD:
+                    this
                     this.addActionButton( 'btn_done_trading', _('Done'), 'doneHiddenTradingEvent', null, false, 'blue');
                     this.addActionButton( 'btn_take_loan', _('Take Debt'), 'onMoreLoan', null, false, 'gray' );
                     this.addActionButton( TRADE_BUTTON_ID, _("Show Trade"),'tradeActionButton', null, false, 'gray' );
@@ -1432,7 +1446,7 @@ function (dojo, declare) {
 
         updateEventBanner: function(current_round){
             for(var i in this.events){
-                console.log(this.events[i]);
+                //console.log(this.events[i]);
                 if (Number(this.events[i].position) == current_round){
                     break;  
                 }
@@ -2281,7 +2295,7 @@ function (dojo, declare) {
         },
 
         confirmTradeButton: function ( ){
-            if((this.currentState=='allocateWorkers' && !this.isCurrentPlayerActive())){
+            if((this.currentState=='allocateWorkers')){
                 // confirm trade
                 this.confirmTrades( true );
                 this.updateConfirmTradeButton( TRADE_BUTTON_HIDE );
@@ -2632,10 +2646,10 @@ function (dojo, declare) {
          * @param {*} undo 
          */
         updateTrade: function( change , undo = false) {
-            console.log('updateTrade', change, undo);
+            //console.log('updateTrade', change, undo);
             for (let type in change){
                 let offset = change[type];
-                console.log(type, offset);
+                //console.log(type, offset);
                 if (offset > 0){
                     this.setOffsetPos(type, (undo?(-1 * offset):offset), true);
                 } else {
@@ -3072,7 +3086,7 @@ function (dojo, declare) {
         doneTradingEvent: function(){
             if (this.checkAction('event')){
                 if (this.transactionLog.length > 0){
-                    this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/trade.html", { 
+                    this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/doneTradingEvent.html", { 
                         lock: true, 
                         trade_action: this.transactionLog.join(',')
                      }, this, function( result ) {
@@ -3086,7 +3100,7 @@ function (dojo, declare) {
         },
 
         ajaxDoneTradingEvent: function(){
-            this.ajaxcall("/" + this.game_name + "/" + this.game_name + "/doneTrading.html", {lock: true}, this, 
+            this.ajaxcall("/" + this.game_name + "/" + this.game_name + "/doneTradingEvent.html", {lock: true}, this, 
             function( result ) { }, 
             function( is_error) { } );
         },
@@ -3150,7 +3164,7 @@ function (dojo, declare) {
             }
         },
 
-        doneSelectingBonus: function(){
+        doneSelectingRailBonus: function(){
             if (this.checkAction( 'chooseBonus' )){
                 if (this.last_selected['bonus'] == ""){ 
                     this.showMessage( _("You must select a bonus"), 'error' );
@@ -3158,7 +3172,7 @@ function (dojo, declare) {
                  }
                 const type = this.last_selected['bonus'].split('_')[3];
                 const typeNum = RESOURCES[type];
-                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/doneSelectingBonus.html", {bonus: typeNum, lock: true}, this, 
+                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/selectRailBonus.html", {bonus: typeNum, lock: true}, this, 
                     function( result ) { 
                         this.disableTradeIfPossible();
                         this.disableTradeBoardActions();
@@ -3513,7 +3527,7 @@ function (dojo, declare) {
                 return true;
             }
             let building_cost = this.getBuildingCost();
-            console.log('building_cost', building_cost);
+            //console.log('building_cost', building_cost);
             if (Object.keys(building_cost).length == 0){
                 return false;// use normal build.
             }
@@ -3856,9 +3870,9 @@ function (dojo, declare) {
             function( is_error) { } );}
         },
         
-        passBuildingBonus: function (){
+        passBonusBuilding: function (){
             if (this.checkAction( 'buildBonus' )){
-                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/passBuildingBonus.html", {lock: true}, this, 
+                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/passBonusBuilding.html", {lock: true}, this, 
                 function( result ) { }, 
                 function( is_error) { } );
             } 
@@ -3971,9 +3985,9 @@ function (dojo, declare) {
             this.bonusTypeForType(FOOD, VP);
         },
 
-        passBonus: function() {
+        passBonusAuction: function() {
             if (this.checkAction( 'auctionBonus' )){
-                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/passAuctionBonus.html", {lock: true}, this, 
+                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/passBonusAuction.html", {lock: true}, this, 
                     function( result ) { 
                         this.clearTransactionLog();
                         this.disableTradeIfPossible();
@@ -4009,9 +4023,9 @@ function (dojo, declare) {
         },
 
 
-        passEventBonus: function() {
+        passBonusEvent: function() {
             if (this.checkAction( 'eventBonus' )){
-                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/passEventBonus.html", {lock: true}, this, 
+                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/passBonusEvent.html", {lock: true}, this, 
                     function( result ) { 
                         this.clearTransactionLog();
                         this.disableTradeIfPossible();
@@ -4447,7 +4461,9 @@ function (dojo, declare) {
                     }
                 }   
             }
-            this.hideResources();
+            if (p_id == this.player_id){
+                this.hideResources();
+            }
             this.calculateAndUpdateScore(p_id);
         },
 

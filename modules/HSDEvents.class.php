@@ -264,6 +264,9 @@ class HSDEvents extends APP_GameClass
             case EVT_VP_4SILVER:
             case EVT_COPPER_COW_GET_GOLD:
             case EVT_VP_FOR_WOOD:
+                return 'post';
+            default: 
+                return 'done';
         }
     }
 
@@ -278,7 +281,7 @@ class HSDEvents extends APP_GameClass
                 // all players with vp token, get 4 silver
                 $players = $this->getPlayersWithAtLeastOneResource('vp');
                 foreach ($players as $p_id){
-                    $this->game->Resource->updateAndNotifyIncome($p_id, 'silver', 4, _('event'));
+                    $this->game->Resource->updateAndNotifyIncome($p_id, 'silver', 4, $this->game->event_info[4]['name'], 'event');
                 }
                 break;
             case EVT_COPPER_COW_GET_GOLD:
@@ -286,7 +289,7 @@ class HSDEvents extends APP_GameClass
                 $resources =  $this->game->getCollectionFromDB( "SELECT `player_id`, `copper`, `cow` FROM `resources` " );
                 $players = $this->getMost($resources, 'copper', 1, 'cow');
                 foreach($players as $p_id=>$p){
-                    $this->game->Resource->updateAndNotifyPayment($p_id, 'gold', 1, _('event'));
+                    $this->game->Resource->updateAndNotifyPayment($p_id, 'gold', 1, $this->game->event_info[16]['name'], 'event');
                 }
                 break;
             case EVT_VP_FOR_WOOD:
@@ -294,7 +297,7 @@ class HSDEvents extends APP_GameClass
                 $players_wood = $this->getPlayersWithAtLeastOneResource('wood');
                 foreach($players_wood as $p_id){
                     $wood_amt = $this->game->Resource->getPlayerResourceAmount($p_id,'wood');
-                    $this->game->Resource->updateAndNotifyPayment($p_id, 'vp', $wood_amt, _('event'));
+                    $this->game->Resource->updateAndNotifyPayment($p_id, 'vp', $wood_amt, $this->game->event_info[18]['name'], 'event');
                 }
                 break;
         }
@@ -334,11 +337,11 @@ class HSDEvents extends APP_GameClass
         switch($event){
             case EVT_AUC_SECOND_BUILD: // build again (same types)
                 $build_type_options = $this->game->Auction->getCurrentAuctionBuildTypeOptions();
-                return ($this->Building->getAllowedBuildings($build_type_options));
+                return ($this->game->Building->getAllowedBuildings($build_type_options));
             case EVT_AUC_BUILD_AGAIN: // can build again (any).
             case EVT_AUC_STEEL_ANY: // player may pay a steel to build any building
                 $build_type_options = array(TYPE_RESIDENTIAL, TYPE_COMMERCIAL, TYPE_INDUSTRIAL, TYPE_SPECIAL);
-                return ($this->Building->getAllowedBuildings($build_type_options));
+                return ($this->game->Building->getAllowedBuildings($build_type_options));
             default:
                 throw new BgaVisibleSystemException ( clienttranslate("State incorrectly entered.") );
         }

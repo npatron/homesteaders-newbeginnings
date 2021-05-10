@@ -38,13 +38,8 @@ class action_homesteadersnewbeginnings extends APP_GameAction
           self::trace( "Complete reinitialization of board game" );
     }
   } 
-  // common actions
-  public function takeLoan () {
-    self::setAjaxMode( );
-    $this->game->playerTakeLoan ();
-    self::ajaxResponse( );
-  }
 
+  // common actions
   public function trade(){
     self::setAjaxMode( );
     $trade_action = self::getArg( "trade_action", AT_numberlist, true );
@@ -199,7 +194,7 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
   
-  public function doneSelectingBonus (){
+  public function selectRailBonus (){
     self::setAjaxMode();
     $bonus = self::getArg( "bonus", AT_posint, true);
     $this->game->Action->playerSelectRailBonus( $bonus );
@@ -212,7 +207,7 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
 
-  public function passBuildingBonus() {
+  public function passBonusBuilding() {
     self::setAjaxMode( );
     $this->game->Action->playerPassBuildingBonus( );
     self::ajaxResponse( );
@@ -250,22 +245,15 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
 
-  public function passAuctionBonus (){
+  public function passBonusAuction (){
     self::setAjaxMode( );
-    $this->game->Action->playerPassAuctionBonus( );
+    $this->game->Action->playerPassBonusAuction( );
     self::ajaxResponse( );
   }
 
-  public function passEventBonus (){
+  public function passBonusEvent (){
     self::setAjaxMode( );
-    $this->game->Action->playerPassEventBonus( );
-    self::ajaxResponse( );
-  }
-
-  public function payLoan(){
-    self::setAjaxMode( );
-    $gold = self::getArg( 'gold', AT_bool, true);
-    $this->game->playerPayLoan( $gold);
+    $this->game->Action->playerPassBonusEvent( );
     self::ajaxResponse( );
   }
 

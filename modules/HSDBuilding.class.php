@@ -377,11 +377,8 @@ class HSDBuilding extends APP_GameClass
     }
 
     function getNextStatePostBuild() {
-        $building_bonus = $this->game->getGameStateValue('building_bonus');
         $next_state = 'end_build';
-        if ($building_bonus != BUILD_BONUS_NONE){
-            $next_state = 'building_bonus';     
-        } else if ($this->game->Event->isAuctionAffected()){
+        if ($this->game->Event->isAuctionAffected()){
             $next_state = 'event_bonus';
         } else if ($this->game->Auction->getCurrentAuctionBonus() != AUC_BONUS_NONE){      
             $next_state = 'auction_bonus'; 

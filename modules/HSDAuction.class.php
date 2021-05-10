@@ -116,13 +116,13 @@ class HSDAuction extends APP_GameClass
     }
 
     function setupCurrentAuctionBonus(){
-        $next_state = "bonusChoice"; // default state where player chooses stuff
         $bonus = $this->getCurrentAuctionBonus();
         $this->game->setGameStateValue( 'auction_bonus', $bonus);
+        $next_state = "bonusChoice"; // default state where player chooses stuff
         switch($bonus){
             case AUC_BONUS_NONE:
             case AUC_BONUS_NO_AUCTION:
-                $next_state = 'endBuild';
+                $next_state = 'done';
             break;
             case AUC_BONUS_TRACK_RAIL_ADV:
                 $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction' , 4);

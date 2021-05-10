@@ -123,7 +123,7 @@ class HSDLog extends APP_GameClass
         $stats[] = [$player_id, 'special'];
     } else if ($action === 'bid') {
       $stats[] = [$player_id, 'bids'];
-    } else if ($action === 'loan') {
+    } else if ($action === 'loan' || $action === 'hiddenLoan') {
       $stats[] = [$player_id, 'loans'];
     } else if ($action === 'outbid') {
       $stats[] = ['table', 'outbids_in_auctions'];
@@ -209,7 +209,8 @@ class HSDLog extends APP_GameClass
     $this->insert($p_id, 0, 'loan');
   }
 
-  public function makeBid($p_id){
+  public function makeBid($p_id)
+  {
     $this->insert($p_id, 0, 'bid');
   }
 
@@ -231,6 +232,24 @@ class HSDLog extends APP_GameClass
   public function tradeResource($p_id, $trade_away, $trade_for)
   {
     $this->insert($p_id, 0, 'trade', array('trade_away' => $trade_away, 'trade_for' => $trade_for));
+  }
+
+  // for logging trades that are not shown until everyone is done.
+  public function hiddenTrade($p_id, $tradeAction)
+  {
+    $this->insert($p_id, 0, 'hiddenTrade', array('tradeAction'=>$tradeAction));
+  }
+
+  public function triggerHiddenTransactions()
+  {
+    $players = $this->game->loadPlayersBasicInfos();
+    foreach ($players as $p_id => $player) {
+      $actions =  $this->getLastActions($p_id, ['hiddenTrade'], 'allowTrades');
+      foreach ($actions as $a_id=>$action) {
+        $args = json_decode($action['action_arg'], true);
+        $this->game->Resource->trade($p_id, $args['tradeAction']);
+      }
+    }
   }
   // END undo-able from cancelTransactions
 
@@ -278,7 +297,7 @@ class HSDLog extends APP_GameClass
   public function getLastTransactions($p_id = null)
   {
     $p_id = $p_id ?: $this->game->getActivePlayerId();
-    $actions =  $this->getLastActions($p_id, ['trade', 'loan', 'gainWorker', 'updateResource', 'loanPaid'], 'allowTrades');
+    $actions =  $this->getLastActions($p_id, ['trade', 'hiddenTrade', 'loan', 'gainWorker', 'updateResource', 'loanPaid'], 'allowTrades');
     return $actions;
   }
 
@@ -318,7 +337,7 @@ class HSDLog extends APP_GameClass
    */
   public function cancelWorkerIncomePhase($p_id)
   {
-    $logs = $this->getLastActions($p_id, ['updateResource','donePlacing'], 'donePlacing');
+    $logs = $this->getLastActions($p_id, ['updateResource' ,'loan' ,'donePlacing'], 'donePlacing');
     $transactions = $this->cancelLogs($p_id, $logs);
     $this->game->notifyAllPlayers('cancel', clienttranslate('${player_name} un-does income'), array(
       'player_name' => $this->game->getPlayerName($p_id),

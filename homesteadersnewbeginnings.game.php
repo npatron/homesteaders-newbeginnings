@@ -264,16 +264,27 @@ class homesteadersnewbeginnings extends Table
         $this->Action->playerTakeLoan($this->getCurrentPlayerId());
     }
 
-    public function playerTrade($tradeAction_csv, $notActive =false){
+    public function playerTrade($tradeAction_csv, $notActive){
         // allow out of turn trade, only when flag is passed during allocateWorkers State.
-        if (!($notActive && $this->game->gamestate->state()['name'] === "allocateWorkers"))
-            $this->game->checkAction( 'trade' );
-        $this->Action->playerTrade($this->getCurrentPlayerId(), $tradeAction_csv, $notActive);
+        if (!($this->gamestate->state()['name'] === "allocateWorkers")){
+            $this->checkAction( 'trade' );
+        }
+        $p_id = $this->getCurrentPlayerId();
+        $tradeAction_arr = explode(',', $tradeAction_csv);
+        foreach( $tradeAction_arr as $key=>$val ){
+            $tradeAction = $this->trade_map[$val];
+            $this->Resource->trade($p_id, $tradeAction);
+        }
     }
 
-    public function playerTradeHidden($tradeAction_csv, $notActive =false){
+    public function playerTradeHidden($tradeAction_csv){
         $this->checkAction('event');
-        $this->Action->playerTradeHidden($this->getCurrentPlayerId(), $tradeAction_csv, $notActive);
+        $p_id = $this->getCurrentPlayerId();
+        $tradeAction_arr = explode(',', $tradeAction_csv);
+        foreach( $tradeAction_arr as $key=>$val ){
+            $tradeAction = $this->trade_map[$val];
+            $this->Resource->hiddenTrade($p_id, $tradeAction);
+        }
     }
 
     public function playerHireWorker(){
@@ -290,7 +301,9 @@ class homesteadersnewbeginnings extends Table
     }
 
     public function playerDoneTradingEvent(){
+        $this->checkAction('event');
         $cur_p_id = $this->getCurrentPlayerId();
+        $next_state = $this->Event->getNextStatePreTrade();
         $this->gamestate->setPlayerNonMultiactive($cur_p_id, $next_state );
     }
     
@@ -499,7 +512,8 @@ class homesteadersnewbeginnings extends Table
 
     function argsEventPreTrade() {
         $bonus_id = $this->Event->getEventAllB();
-        return (array("bonus_id"=>$bonus_id));
+        $hidden = $bonus_id == EVT_COPPER_COW_GET_GOLD;
+        return (array("bonus_id"=>$bonus_id, 'hidden'=>$hidden));
     }
 
     function argBuildingBonus() {
