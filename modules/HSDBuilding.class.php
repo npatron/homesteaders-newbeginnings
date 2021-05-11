@@ -341,7 +341,12 @@ class HSDBuilding extends APP_GameClass
         return $income_b_id;
     }
 
-    // for storing buildTypeOptions in global
+    /**  for storing buildTypeOptions in global
+     * ex.
+     * 8+4+2+1 = 15 -> all
+     * 8+0+2+1 = 10 -> Commercial + Special
+     * 0+0+0+1 = 1  -> Residential
+     */   
     function buildTypeArrayIntoInt($b_type_options){
         $b_type_int = 0;
         foreach($b_type_options as $type){//using bitwise | (or)

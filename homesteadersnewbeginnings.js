@@ -1167,7 +1167,7 @@ function (dojo, declare) {
                     this.additionalBuildCost = [];
                 break;
                 case EVT_AUC_STEEL_ANY: // player may pay a steel to build any building
-                    this.additionalBuildCost = {'steel':1};    
+                    this.additionalBuildCost = {'steel':-1};    
                 break;
             }
             this.genericSetupBuildBuildings();
@@ -1981,14 +1981,13 @@ function (dojo, declare) {
 
         /***** BREADCRUMB METHODS *****/
         createTradeBreadcrumb: function(id, text, tradeAway, tradeFor, loan=false){
-            let forOffset = loan?'9px':'2px';
             dojo.place(this.format_block( 'jptpl_breadcrumb_trade', 
             {
                 id: id, 
                 text:text, 
                 away:this.getResourceArrayHtml(tradeAway, true, "position: relative; top: 9px;"),
-                off: forOffset,
-                for:this.getResourceArrayHtml(tradeFor, true, `position: relative; top: ${forOffset};`)}
+                off: '9px',
+                for:this.getResourceArrayHtml(tradeFor, true, `position: relative; top: 9px;`)}
                 ), `breadcrumb_transactions`, 'before');
         },
 
@@ -2373,6 +2372,10 @@ function (dojo, declare) {
                     value += this.transactionCost[i][type];
                 }
             }
+            if (type in this.additionalBuildCost){
+                value += this.additionalBuildCost[type];
+            }
+            
             return Math.abs(value);
         },
         
@@ -2383,7 +2386,7 @@ function (dojo, declare) {
                     value += this.transactionCost[i][type];
                 }
             }
-            return value;
+            return Math.abs(value);
         },
 
         getOffsetValue: function(type) {
@@ -3388,7 +3391,11 @@ function (dojo, declare) {
             if (this.building_info[b_id].cost == null) return 1;// no cost, can afford.
             if (this.building_info[b_id].cost.length == 0) return 1;// no cost, can afford.
             const p_id = this.player_id;
-            let cost = this.building_info[b_id].cost;
+            let cost = this.copyArray(this.building_info[b_id].cost);
+            let xcost = this.invertArray(this.additionalBuildCost);
+            for (type in xcost){
+                cost = this.addOrSetArrayKey(cost, type, xcost[type]); 
+            }
             let off_gold = this.getOffsetValue('gold');
             let gold = this.board_resourceCounters[p_id].gold.getValue() + off_gold + this.getIncomeOffset('gold') - this.goldAmount;
             //console.log('gold', gold, this.board_resourceCounters[p_id].gold.getValue(),  off_gold, this.getIncomeOffset('gold'), -this.goldAmount);

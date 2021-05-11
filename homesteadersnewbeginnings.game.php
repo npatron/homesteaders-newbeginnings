@@ -490,22 +490,25 @@ class homesteadersnewbeginnings extends Table
     }
 
     function argAllowedBuildings() {
-        $build_type_options = $this->Auction->getCurrentAuctionBuildTypeOptions();        
+        $build_type_int = $this->getGameStateValue('build_type_int');
+        $build_type_options = $this->Building->buildTypeIntIntoArray($build_type_int);      
         $buildings = $this->Building->getAllowedBuildings($build_type_options);
         return(array("allowed_buildings"=> $buildings,
                     "current_event" => $this->Event->getEvent()));
     }
 
     function argTrainStationBuildings() {
-        $build_type_options = array(TYPE_RESIDENTIAL, TYPE_COMMERCIAL, TYPE_INDUSTRIAL, TYPE_SPECIAL);// all
+        $build_type_int = $this->getGameStateValue('build_type_int');
+        $build_type_options = $this->Building->buildTypeIntIntoArray($build_type_int);      
         $buildings = $this->Building->getAllowedBuildings($build_type_options);
-        $ownsRiverPort = $this->Building->doesPlayerOwnBuilding($this->getActivePlayerId(), BLD_RIVER_PORT);    
         return(array("allowed_buildings"=> $buildings));
     }
 
     function argEventBuildings() {
         $event_bonus = $this->Event->getEventAucB();
-        $buildings = $this->Event->getAllowedBuildings($event_bonus);
+        $build_type_int = $this->getGameStateValue('build_type_int');
+        $build_type_options = $this->Building->buildTypeIntIntoArray($build_type_int);      
+        $buildings =  $this->Building->getAllowedBuildings($build_type_options);
         return (array("event_bonus"=> $event_bonus, 
                       "allowed_buildings" =>$buildings));
     }
@@ -622,7 +625,7 @@ class homesteadersnewbeginnings extends Table
 
     function stPassEvent()
     {
-        $pass_evt = $this->game->event_info[$this->Event->getEvent()]['pass']??0;
+        $pass_evt = $this->event_info[$this->Event->getEvent()]['pass']??0;
         if ($pass_evt != EVT_PASS_DEPT_SILVER){// every other event should not be here.
             $this->gamestate->nextState( "rail" );
         }

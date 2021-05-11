@@ -81,7 +81,7 @@ class HSDAction extends APP_GameClass
         $this->game->checkAction( "doNotBuild" );
         if ($this->game->getGameStateValue( 'rail_no_build') == ENABLED){
             $currentState = $this->gamestate->state();
-            if ($currentState === 'chooseBuildingToBuild_event' && $this->game->Event->$this->getEventAucB() == EVT_AUC_STEEL_ANY){
+            if ($currentState['name'] === 'chooseBuildingToBuild_event' && $this->game->Event->$this->getEventAucB() == EVT_AUC_STEEL_ANY){
                 //don't get free track, when have to pay steel to build again.
             } else {
                 $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), clienttranslate('In place of Build'), 'auction', $this->game->getGameStateValue( 'current_auction' ));
