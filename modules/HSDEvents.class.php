@@ -304,7 +304,7 @@ class HSDEvents extends APP_GameClass
         $this->game->gamestate->nextState( 'done' );
     }
 
-    function setupBuildEventBonus(){
+    function setupEventLotBonus(){
         $next_state = "done";
         if ($this->isAuctionAffected()) {
             $event = $this->getEventAucB();

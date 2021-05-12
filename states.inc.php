@@ -85,7 +85,7 @@ $machinestates = array(
     ),
 
     STATE_EVT_BONUS => array(
-        "name" => "EventChooseBonus",
+        "name" => "bonusChoice_event",
         "description" => clienttranslate('Some players must choose bonus'),
         "descriptionmyturn" => clienttranslate('${you} must choose bonus'),
         "type" => "multipleactiveplayer",
@@ -172,34 +172,6 @@ $machinestates = array(
                                 "zombiePass"=> STATE_NEXT_BID)
     ),
 
-    // choose bonus from rail advancement.
-
-    STATE_EVT_RAIL_BONUS => array(
-        "name" => "getRailBonus_event",
-        "description" => clienttranslate('${actplayer} must choose a railroad bonus'),
-        "descriptionmyturn" => clienttranslate('${you} must choose a railroad bonus'),
-        "type" => "activeplayer",
-        "args" => "argRailBonus",
-        "possibleactions" => array( "chooseBonus", "undoPass"),
-        "transitions" => array( "undoTurn"  => STATE_PAY_AUCTION,
-                                "done" => STATE_AUCTION_BONUS,
-                                "zombiePass"=> STATE_END_BUILD)
-    ),
-
-    STATE_BUILD_RAIL_BONUS => array(
-        "name" => "getRailBonus_build",
-        "description" => clienttranslate('${actplayer} must choose a railroad bonus'),
-        "descriptionmyturn" => clienttranslate('${you} must choose a railroad bonus'),
-        "type" => "activeplayer",
-        "args" => "argRailBonus",
-        "possibleactions" => array( "chooseBonus", "undo"),
-        "transitions" => array( "undoTurn"  => STATE_PAY_AUCTION,
-                                "done"=> STATE_EVT_SETUP_BONUS,
-                                "zombiePass"=> STATE_END_BUILD)
-                                
-    ),
-
-
     //game state that determines next bidder/end of auction, and assigns next player.
     STATE_NEXT_BID => array(
         "name" => "nextBid",
@@ -208,20 +180,20 @@ $machinestates = array(
         "action" => "stNextBid",
         "transitions" => array( "skipPlayer" => STATE_NEXT_BID, 
                                 "playerBid" => STATE_PLAYER_BID, 
-                                "endAuction" => STATE_NEXT_BUILDING )
+                                "endAuction" => STATE_NEXT_LOT )
     ),
 
-    STATE_NEXT_BUILDING => array(
+    STATE_NEXT_LOT => array(
         "name" => "buildingPhase",
         "description" => '',
         "type" => "game",
         "action" => "stBuildingPhase",
         "updateGameProgression" => true,
-        "transitions" => array( "auctionWon" => STATE_PAY_AUCTION, 
-                                "auctionPassed" => STATE_END_BUILD )
+        "transitions" => array( "auctionWon" => STATE_PAY_LOT, 
+                                "auctionPassed" => STATE_END_CURRENT_LOT )
     ),
 
-    STATE_PAY_AUCTION => array(
+    STATE_PAY_LOT => array(
         "name" => "payAuction",
         "description" => clienttranslate('${actplayer} must pay for ${auction}'),
         "descriptionmyturn" => clienttranslate('${you} must pay for ${auction}'),
@@ -229,8 +201,8 @@ $machinestates = array(
         "args" => "argAuctionCost",
         "possibleactions" => array( "trade", "takeLoan", "updateGold", "done" ),
         "transitions" => array( "build" => STATE_CHOOSE_BUILDING, 
-                                "auction_bonus" => STATE_AUCTION_BONUS,
-                                "zombiePass"=> STATE_END_BUILD)
+                                "auction_bonus" => STATE_AUC_SETUP_BONUS,
+                                "zombiePass"=> STATE_END_CURRENT_LOT)
     ),
 
     STATE_CHOOSE_BUILDING => array(
@@ -241,25 +213,23 @@ $machinestates = array(
         "args" => "argAllowedBuildings",
         "action" => "stSetupTrade",
         "possibleactions" => array( "trade", "buildBuilding", "takeLoan", "doNotBuild", "undo" ),
-        "transitions" => array( "undoTurn"  => STATE_PAY_AUCTION,
-                                "done"      => STATE_RESOLVE_BUILDING, 
-                                "zombiePass"=> STATE_END_BUILD )
+        "transitions" => array( "undoTurn"  => STATE_PAY_LOT,
+                                "done"      => STATE_RESOLVE_BUILD, 
+                                "zombiePass"=> STATE_END_CURRENT_LOT )
     ),
 
-    STATE_RESOLVE_BUILDING => array(
-        "name" => "resolve_build",
+    STATE_RESOLVE_BUILD => array(
+        "name" => "resolveBuild",
         "description" => '',
         "type" => "game",
         "action" => "stResolveBuilding",
-        "transitions" => array( "building_bonus" => STATE_BUILDING_BONUS, 
+        "transitions" => array( "building_bonus" => STATE_BUILD_BONUS, 
                                 "rail_bonus"    => STATE_BUILD_RAIL_BONUS,
                                 "train_station_build"=> STATE_TRAIN_STATION_BUILD,
-                                "event_bonus"   => STATE_EVT_SETUP_BONUS,
-                                "auction_bonus" => STATE_AUCTION_BONUS,
-                                "end_build"      => STATE_CONFIRM_AUCTION,)
+                                "done"   =>        STATE_EVT_SETUP_BONUS,)
     ),
 
-    STATE_BUILDING_BONUS =>  array(
+    STATE_BUILD_BONUS =>  array(
         "name" => "bonusChoice_build",
         "description" => clienttranslate('${actplayer} may receive a build bonus'),
         "descriptionmyturn" => clienttranslate('${you} may receive a build bonus'),
@@ -267,9 +237,22 @@ $machinestates = array(
         "args" => "argBuildingBonus",
         "action" => "stSetupTrade",
         "possibleactions" => array( "trade", "takeLoan", "buildBonus", "undo" ),
-        "transitions" => array( "undoTurn"  => STATE_PAY_AUCTION,
+        "transitions" => array( "undoTurn"  => STATE_PAY_LOT,
                                 "done"   => STATE_EVT_SETUP_BONUS,
-                                "zombiePass"    => STATE_END_BUILD)
+                                "zombiePass"    => STATE_END_CURRENT_LOT)
+    ),
+
+    STATE_BUILD_RAIL_BONUS => array(
+        "name" => "getRailBonus_build",
+        "description" => clienttranslate('${actplayer} must choose a railroad bonus'),
+        "descriptionmyturn" => clienttranslate('${you} must choose a railroad bonus'),
+        "type" => "activeplayer",
+        "args" => "argRailBonus",
+        "possibleactions" => array( "chooseBonus", "undo"),
+        "transitions" => array( "undoTurn"  => STATE_PAY_LOT,
+                                "done"=> STATE_EVT_SETUP_BONUS,
+                                "zombiePass"=> STATE_END_CURRENT_LOT)
+                                
     ),
 
     STATE_TRAIN_STATION_BUILD => array(
@@ -280,19 +263,19 @@ $machinestates = array(
         "args" => "argTrainStationBuildings",
         "action" => "stSetupTrade",
         "possibleactions" => array( "trade", "buildBuilding", "takeLoan", "doNotBuild", "undo" ),
-        "transitions" => array( "undoTurn"   => STATE_PAY_AUCTION,
-                                "done"       => STATE_RESOLVE_BUILDING, 
-                                "zombiePass" => STATE_END_BUILD )
+        "transitions" => array( "undoTurn"   => STATE_PAY_LOT,
+                                "done"       => STATE_RESOLVE_BUILD, 
+                                "zombiePass" => STATE_END_CURRENT_LOT )
     ),
 
     STATE_EVT_SETUP_BONUS  => array(
-        "name" => "setup_onBuild_event",
+        "name" => "setup_lot_event",
         "description" => '',
         "type" => "game",
-        "action" => "stSetupBuildEvent",
+        "action" => "stSetupEventLotBonus",
         "transitions" => array( "evt_build" => STATE_EVT_BUILD_AGAIN, 
                                 "bonus"     => STATE_EVT_BUILD_BONUS,
-                                "done"      => STATE_AUCTION_BONUS )
+                                "done"      => STATE_AUC_SETUP_BONUS )
     ),
 
     STATE_EVT_BUILD_AGAIN  => array(
@@ -303,38 +286,57 @@ $machinestates = array(
         "args" => "argEventBuildings",
         "action" => "stSetupTrade",
         "possibleactions" => array( "trade", "buildBuilding", "takeLoan", "doNotBuild", "undo" ),
-        "transitions" => array( "undoTurn"           => STATE_PAY_AUCTION,
-                                "done"               => STATE_RESOLVE_BUILDING, 
-                                "event_bonus"        => STATE_AUCTION_BONUS,
-                                "auction_bonus"      => STATE_AUCTION_BONUS,
-                                "end_build"          => STATE_CONFIRM_AUCTION,
-                                "zombiePass"         => STATE_END_BUILD )
+        "transitions" => array( "undoTurn"           => STATE_PAY_LOT,
+                                "done"               => STATE_EVT_RESOLVE_BUILD, 
+                                "zombiePass"         => STATE_END_CURRENT_LOT )
+    ),
+
+    STATE_EVT_RESOLVE_BUILD => array(
+        "name" => "resolveBuild_event",
+        "description" => '',
+        "type" => "game",
+        "action" => "stResolveBuilding",
+        "transitions" => array( "building_bonus" => STATE_EVT_BUILD_BONUS, 
+                                "rail_bonus"    =>  STATE_EVT_RAIL_BONUS,
+                                "done"=>            STATE_AUC_SETUP_BONUS,)
     ),
 
     STATE_EVT_BUILD_BONUS => array(
-        "name" => "BuildBonus_event",
+        "name" => "bonusChoice_eventBuild",
         "description" => clienttranslate('${actplayer} may receive a build bonus'),
         "descriptionmyturn" => clienttranslate('${you} may receive a build bonus'),
         "type" => "activeplayer",
         "args" => "argEventBuildBonus",
         "possibleactions" => array( "trade", "takeLoan", "eventBonus", "undo" ),
-        "transitions" => array( "undoTurn"      => STATE_PAY_AUCTION,
-                                "auction_bonus" => STATE_AUCTION_BONUS,
-                                "done"          => STATE_CONFIRM_AUCTION,
-                                "zombiePass"    => STATE_END_BUILD)
+        "transitions" => array( "undoTurn"      => STATE_PAY_LOT,
+                                "rail_bonus"    => STATE_EVT_RAIL_BONUS,
+                                "done" => STATE_AUC_SETUP_BONUS,
+                                "zombiePass"    => STATE_END_CURRENT_LOT)
     ),
 
-    STATE_AUCTION_BONUS => array(
+    STATE_EVT_RAIL_BONUS => array(
+        "name" => "getRailBonus_event",
+        "description" => clienttranslate('${actplayer} must choose a railroad bonus'),
+        "descriptionmyturn" => clienttranslate('${you} must choose a railroad bonus'),
+        "type" => "activeplayer",
+        "args" => "argRailBonus",
+        "possibleactions" => array( "chooseBonus", "undoPass"),
+        "transitions" => array( "undoTurn"  => STATE_PAY_LOT,
+                                "done" => STATE_AUC_SETUP_BONUS,
+                                "zombiePass"=> STATE_END_CURRENT_LOT)
+    ),
+
+    STATE_AUC_SETUP_BONUS => array(
         "name" => "setupAuctionBonus",
         "description" => '',
         "type" => "game",
         "action" => "stSetupAuctionBonus",
-        "transitions" => array( "bonusChoice" => STATE_CHOOSE_BONUS, 
-                                "rail_bonus"  => STATE_AUCTION_RAIL_BONUS,
-                                "done"    => STATE_CONFIRM_AUCTION,)
+        "transitions" => array( "bonusChoice" => STATE_AUC_SETUP_BONUS, 
+                                "rail_bonus"  => STATE_AUC_RAIL_BONUS,
+                                "done"    => STATE_CONFIRM_LOT,)
     ),
 
-    STATE_CHOOSE_BONUS => array(
+    STATE_AUC_SETUP_BONUS => array(
         "name" => "bonusChoice_auction",
         "description" => clienttranslate('${actplayer} may receive a Bonus '),
         "descriptionmyturn" => clienttranslate('${you} may receive a Bonus '),
@@ -342,44 +344,44 @@ $machinestates = array(
         "args" => "argBonusOption",
         "action" => "stSetupTrade",
         "possibleactions" => array( "auctionBonus", 'trade', 'takeLoan', "undo" ),
-        "transitions" => array( "undoTurn"  => STATE_PAY_AUCTION,
-                                "done"      => STATE_CONFIRM_AUCTION,
-                                "rail_bonus" => STATE_AUCTION_RAIL_BONUS,
-                                "zombiePass"=> STATE_END_BUILD )
+        "transitions" => array( "undoTurn"  => STATE_PAY_LOT,
+                                "done"      => STATE_CONFIRM_LOT,
+                                "rail_bonus" => STATE_AUC_RAIL_BONUS,
+                                "zombiePass"=> STATE_END_CURRENT_LOT )
     ),
 
-    STATE_AUCTION_RAIL_BONUS => array(
+    STATE_AUC_RAIL_BONUS => array(
         "name" => "getRailBonus_auction",
         "description" => clienttranslate('${actplayer} must choose a railroad bonus'),
         "descriptionmyturn" => clienttranslate('${you} must choose a railroad bonus'),
         "type" => "activeplayer",
         "args" => "argRailBonus",
         "possibleactions" => array( "chooseBonus", "undo"),
-        "transitions" => array( "undoTurn"  => STATE_PAY_AUCTION,
-                                "done"=>    STATE_CONFIRM_AUCTION,
-                                "zombiePass"=> STATE_END_BUILD)
+        "transitions" => array( "undoTurn"  => STATE_PAY_LOT,
+                                "done"=>    STATE_CONFIRM_LOT,
+                                "zombiePass"=> STATE_END_CURRENT_LOT)
     ),
 
-    STATE_CONFIRM_AUCTION => array(
+    STATE_CONFIRM_LOT => array(
         "name" => "confirmActions",
         "description" => clienttranslate('${actplayer} may confirm actions '),
         "descriptionmyturn" => clienttranslate('${you} may confirm actions '),
         "type" => "activeplayer",
         "action" => "stSetupTrade",
         "possibleactions" => array( "done", "undo" ),
-        "transitions" => array( "undoTurn"  => STATE_PAY_AUCTION,
-                                "done"      => STATE_END_BUILD,
-                                "zombiePass"=> STATE_END_BUILD)
+        "transitions" => array( "undoTurn"  => STATE_PAY_LOT,
+                                "done"      => STATE_END_CURRENT_LOT,
+                                "zombiePass"=> STATE_END_CURRENT_LOT)
     ), 
 
-    STATE_END_BUILD => array(
+    STATE_END_CURRENT_LOT => array(
         "name" => "endBuildRound",
         "description" => '',
         "type" => "game",
         "action" => "stEndBuildRound",
         "updateGameProgression" => true,
         "transitions" => array( "endRound"     => STATE_END_ROUND, 
-                                "nextBuilding" => STATE_NEXT_BUILDING )
+                                "nextBuilding" => STATE_NEXT_LOT )
     ),
     
     STATE_END_ROUND => array(

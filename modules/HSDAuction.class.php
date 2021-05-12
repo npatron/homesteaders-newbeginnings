@@ -81,7 +81,7 @@ class HSDAuction extends APP_GameClass
     function getCurrentAuctionId(){
         $round_number = $this->game->getGameStateValue('round_number');
         $current_auction = $this->game->getGameStateValue('current_auction');
-        return $this->game->getUniqueValueFromDB( "SELECT `auction_id` FROM `auctions` WHERE `location`='$current_auction'AND `position`='$round_number'");
+        return $this->game->getUniqueValueFromDB( "SELECT `auction_id` FROM `auctions` WHERE `location`='$current_auction' AND `position`='$round_number'");
     }
 
     function updateClientAuctions($round_number){

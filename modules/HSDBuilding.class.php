@@ -266,9 +266,24 @@ class HSDBuilding extends APP_GameClass
         return ($this->game->building_info[$b_id]['vp']??0);
     }
 
+    function setupWarehouse($b_key){
+        $state = 0;
+        //include all values
+        foreach ($this->game->warehouse_map as $type=>$val){
+            $state |= $val;
+        }
+        $this->game->DBQuery("UPDATE `buildings` SET `state`=$state WHERE `building_id`=".BLD_WAREHOUSE);
+        $this->game->notifyAllPlayers( "updateWarehouseState", clienttranslate( 'setup resources on ${b_name}' ), array(
+            'b_name' => $this->getBuildingNameFromId(BLD_WAREHOUSE),
+            'b_key' => $b_key, 
+            'state' => $state,
+        ));
+
+    }
+
     function canPlayerReceiveWarehouseIncome($p_id, $type){
         $sql = "SELECT `state` FROM `buildings` WHERE `player_id`=$p_id AND `building_id`=".BLD_WAREHOUSE;
-        $warehouseState = $this->game->getUniqueValuefromDB($sql);
+        $warehouseState = (int) $this->game->getUniqueValuefromDB($sql);
         if (is_null($warehouseState)) return false; // don't own warehouse
         // if the value in warehouseState includes
         // checking using bitwise and (see $this->game->warehouse_map for bit_locations)
@@ -303,7 +318,7 @@ class HSDBuilding extends APP_GameClass
                 if ($loans ==0){
                     $income_b_id[$b_id]['silver'] = 2;
                 } else {
-                    $income_b_id[$b_id]['loan'] = 1;
+                    $income_b_id[$b_id]['loan'] = -1;
                 }
             } else if ($b_id == BLD_RODEO){
                 $rodeoIncome = min(count($player_workers), 5);
@@ -379,16 +394,6 @@ class HSDBuilding extends APP_GameClass
             $b_type_options[]=TYPE_SPECIAL;
         }
         return $b_type_options;
-    }
-
-    function getNextStatePostBuild() {
-        $next_state = 'end_build';
-        if ($this->game->Event->isAuctionAffected()){
-            $next_state = 'event_bonus';
-        } else if ($this->game->Auction->getCurrentAuctionBonus() != AUC_BONUS_NONE){      
-            $next_state = 'auction_bonus'; 
-        }
-        return $next_state;
     }
 
 }

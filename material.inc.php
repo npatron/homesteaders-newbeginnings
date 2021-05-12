@@ -41,12 +41,12 @@ $this->special_resource_map = array(
 );
 
 $this->warehouse_map = array(
-  'wood' => 1,
-  'food' => 2,
-  'steel' => 4,
-  'gold' => 8,
-  'wood' => 16,
-  'food' => 32,
+  'wood'   => 1,
+  'food'   => 2,
+  'steel'  => 4,
+  'gold'   => 8,
+  'copper' => 16,
+  'cow'    => 32,
 );
 
 $this->costReplace = array(
@@ -710,21 +710,21 @@ $this->event_info = array(
   5 => array(
     'name'  => clienttranslate('Extra Lot'),
     'stage' => STAGE_SETTLEMENT,
-    'tt'    => clienttranslate('${a1} also gives build (${any} Type)'),
+    'tt'    => clienttranslate('${a1} also give: build (${any} Type)'),
     'auc'   => AUC_EVT_ONE,
     'auc_b' => EVT_AUC_BUILD_AGAIN,
   ),
   6 => array(
     'name'  => clienttranslate('Migrant Workers'),
     'stage' => STAGE_SETTLEMENT,
-    'tt'    => clienttranslate('${a1} also gives ${worker}'),
+    'tt'    => clienttranslate('${a1} also give: ${worker}'),
     'auc'   => AUC_EVT_ONE,
     'auc_b' => EVT_AUC_BONUS_WORKER,
   ),
   7 => array(
     'name'  => clienttranslate('Railroad Contracts'),
     'stage' => STAGE_SETTLEMENT,
-    'tt'    => clienttranslate('All auctions also give:${silver}${silver} ${arrow} Advance the Railroad Track'),
+    'tt'    => clienttranslate('All auctions also give: ${silver}${silver} ${arrow} Advance the Railroad Track'),
     'auc'   => AUC_EVT_ALL,
     'auc_b' => EVT_AUC_2SILVER_TRACK,
   ),
@@ -744,7 +744,7 @@ $this->event_info = array(
   10 => array(
     'name'  => clienttranslate('Union Pacific RR'),
     'stage' => STAGE_SETTLEMENT,
-    'tt'    => clienttranslate('${a1} also gives ${track}'),
+    'tt'    => clienttranslate('${a1} also give: ${track}'),
     'auc'   => AUC_EVT_ONE,
     'auc_b' => EVT_AUC_TRACK,
   ),
@@ -763,7 +763,7 @@ $this->event_info = array(
   13 => array(
     'name'  => clienttranslate('Industrialization'),
     'stage' => STAGE_TOWN,
-    'tt'    => clienttranslate('All auctions also give ${steel} ${arrow} ${any}'),
+    'tt'    => clienttranslate('All auctions also give: ${steel} ${arrow} ${any}'),
     'auc'   => AUC_EVT_ALL,
     'auc_b' => EVT_AUC_STEEL_ANY,
   ),

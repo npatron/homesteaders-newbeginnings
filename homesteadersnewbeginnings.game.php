@@ -689,7 +689,7 @@ class homesteadersnewbeginnings extends Table
         $b_key = $this->getGameStateValue('last_building');
         $b_name = $this->Building->getBuildingNameFromKey($b_key);
         // set next_state if no building bonus.
-        $next_state = $this->Building->getNextStatePostBuild();
+        $next_state = "done";
         switch($bonus){
             case BUILD_BONUS_TRADE_TRADE:
                 $this->Resource->updateAndNotifyIncome($active_p_id, 'trade', 2, $b_name, 'building', $b_key);
@@ -709,7 +709,6 @@ class homesteadersnewbeginnings extends Table
             break;
             case BUILD_BONUS_RAIL_ADVANCE:
                 $this->Resource->getRailAdv($active_p_id, $b_name, 'building', $b_key);
-                $this->setGameStateValue('phase', PHASE_BLD_BONUS);
                 $next_state = 'rail_bonus';
             break;
             case BUILD_BONUS_TRACK_AND_BUILD:
@@ -719,12 +718,15 @@ class homesteadersnewbeginnings extends Table
             case BUILD_BONUS_WORKER:
                 $next_state = 'building_bonus';
             break;
+            case BUILD_BONUS_PLACE_RESOURCES:
+                $this->Building->setupWarehouse($b_key);
+            break;
         }
         $this->gamestate->nextState($next_state);
     }
 
-    function stSetupBuildEvent(){
-        $this->Event->setupBuildEventBonus();
+    function stSetupEventLotBonus(){
+        $this->Event->setupEventLotBonus();
     }
 
     function stSetupAuctionBonus(){

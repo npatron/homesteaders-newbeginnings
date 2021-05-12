@@ -127,16 +127,16 @@
    color: purple;
 }
 .auc1{
-   text-decoration: underline overline lightseagreen 3px;
+   text-decoration: underline lightseagreen 3px;
 }
 .auc2{
-   text-decoration: underline overline orange 3px;
+   text-decoration: underline orange 3px;
 }
 .auc3{
-   text-decoration: underline overline hotpink 3px;
+   text-decoration: underline hotpink 3px;
 }
 .auc4{
-   text-decoration: underline overline purple 3px;
+   text-decoration: underline purple 3px;
 }
 .auction_column .auction_string{
    font-size: 30px;
@@ -1050,11 +1050,6 @@ div#sell_board{
    flex-wrap: wrap;
 }
 .player_resource_group{
-   /* display: flex;
-   flex-grow: 1;
-   min-width: 70px;
-   max-width: 90px;
-   min-height: 45px; */
    min-width: 70px;
    max-width: 90px;
    min-height: 45px;
@@ -1075,15 +1070,7 @@ div#sell_board{
    flex-wrap: wrap;
 } 
 .this_player_resource_group{
-   /* display: flex;
    flex-grow: 1;
-   min-width: 70px;
-   max-width: 90px;
-   min-height: 45px;
-   border-right-style: solid;
-   border-right-color: black;
-   border-right-width: 1px; */
-   flex-grow: 0 1;
    min-width: 70px;
    max-width: 90px;
    min-height: 45px;
@@ -1136,6 +1123,21 @@ div#sell_board{
 .vert{
    display: flex;
    flex-direction: column;
+}
+#warehouse_resources:not(:empty){
+   bottom: 52px;
+   height: 50px;
+   display: inline-flex;
+   background-color: linen;
+   align-items: center;
+   justify-content: center;
+   position: absolute;
+   width: 100%;
+   border-radius: 4px;
+   border-width: 4px;
+   border-color: black;
+   border-style: solid;
+   box-sizing: border-box;
 }
 /* .buy{
    background-image: url('img/drawn_tokens_2.png');
@@ -1458,24 +1460,6 @@ div#sell_board{
  .tt_container .token_inline:not(:last-child), #breadcrumb_bldCost .log_token:not(:last-child) {
    margin-left: -0px;
 }
-/* .log_gold{
-   background-size: 217.4px 65.2px;
-   background-position: -13px -2px;
-   width: 21px;
-   height: 20px;
-}
-.log_food{
-   background-size: 243.9px 73px;
-   background-position: -41.7px -3px;
-   width: 19px;
-   height: 20px;
-}
-.log_silver{
-   background-size: 202px 61px;
-   background-position: -53px -1px;
-   width: 21px;
-   height: 20px;
-} */
 .log_loan{
    display: inline-block;
    background-image: url('img/rail_debt_85x102.png');
@@ -1501,18 +1485,6 @@ div#sell_board{
 .log_container .log_worker:not(:last-child) {
    margin-left: -8px;
  }
-/* .log_cow{
-   background-size: 263px 79px;
-   background-position: -31px -32px;
-   width: 27px;
-   height: 20px;
-}
-.log_copper{
-   background-size: 275px 88px;
-   background-position: -66px -35px;
-   width: 30px;
-   height: 20px;
-} */
 .log_track, .log_big_track{
    background-position: -94.5% -37%;
 }
@@ -1526,14 +1498,6 @@ div#sell_board{
    width: 40px;
    height: 40px;
 }
-/* .log_steel{
-   background-size: 1200%;
-   background-position: 23.5% -38%;
-}
-.log_steel{
-   width: 20px;
-   height: 20px;
-} */
 .log_arrow{
    background-size: 689.7px 206.9px;
    background-position: -249.6px -83.45px;

@@ -121,6 +121,7 @@ function (dojo, declare) {
     const MARKET_FOOD_DIVID  = 'trade_market_wood_food';
     const MARKET_STEEL_DIVID = 'trade_market_food_steel';
     const BANK_DIVID         = 'trade_bank_trade_silver';
+    const WAREHOUSE_RES_DIVID = 'warehouse_resources';
     const BONUS_OPTIONS = { 7:'train_bonus_1_trade', 8:'train_bonus_2_track', 9:'train_bonus_3_worker',
         1:'train_bonus_4_wood', 5:'train_bonus_4_food', 2:'train_bonus_4_steel', 3:'train_bonus_4_gold',
         4:'train_bonus_4_copper', 6:'train_bonus_4_cow', 10:'train_bonus_5_vp'};
@@ -195,6 +196,7 @@ function (dojo, declare) {
     const ASSET_COLORS = {0:'res', 1:'com', 2:'ind', 3:'spe', 4:'any', 6:'any',
                           11:'a1',12:'a2',13:'a3', 14:'a4'};
     const VP_TOKENS = ['vp0', 'vp2', 'vp3', 'vp4','vp6','vp8', 'vp10'];
+    const WAREHOUSE_MAP = {1:'wood',2:'food',4:'steel',8:'gold',16:'copper',32:'cow',}
 
     // map of tpl id's  used to place the player_zones in turn order.
     const PLAYER_ORDER = ['currentPlayer','First', 'Second', 'Third', 'Fourth',];
@@ -251,6 +253,7 @@ function (dojo, declare) {
             this.bid_width = 46;
             this.worker_height = 35;
             this.worker_width = 33;
+            this.warehouse_state = 0;
             
             this.player_count = 0;
             this.goldAmount = 0;
@@ -543,6 +546,8 @@ function (dojo, declare) {
                 dojo.place(`<div id="${BANK_DIVID}" class="bank trade_option"></div>`, b_divId,'last');
             } else if (b_id == BLD_MARKET){
                 dojo.place(`<div id="${b_key}_${MARKET_FOOD_DIVID}" class="market_food trade_option"> </div><div id="${b_key}_${MARKET_STEEL_DIVID}" class="market_steel trade_option"> </div>`, b_divId,'last');
+            } else if (b_id == BLD_WAREHOUSE){
+                dojo.place(`<div id="${WAREHOUSE_RES_DIVID}"></div>`, b_divId, 'last');
             }
             if (!(this.building_info[b_id].hasOwnProperty('slot'))) return;
             let b_slot = this.building_info[b_id].slot;
@@ -859,14 +864,18 @@ function (dojo, declare) {
                 case 'getRailBonus_event':
                 case 'getRailBonus_auction':
                 case 'getRailBonus_build':
+                    //rail bonus.
                     const active_train = this.train_token_divId[this.getActivePlayerId()];
                     dojo.addClass(active_train, 'animated');
                     break;
                 case 'payAuction':
+                    //build building
                 case 'chooseBuildingToBuild':
                 case 'chooseBuildingToBuild_event':
                 case 'trainStationBuild':
+                    // choose bonus
                 case 'bonusChoice_build':
+                case 'bonusChoice_event':
                 case 'bonusChoice_auction':
                     if (!this.isSpectator){
                         dojo.style(TRADE_BOARD_ID, 'order', 2);
@@ -900,6 +909,7 @@ function (dojo, declare) {
                     break;
                 case 'trainStationBuild':
                 case 'chooseBuildingToBuild':
+                case 'chooseBuildingToBuild_event':
                     this.resetTradeValues();    
                     this.disableTradeIfPossible();
                     this.disableTradeBoardActions();
@@ -935,6 +945,9 @@ function (dojo, declare) {
                 case 'confirmActions':
                     this.can_cancel = false;
                 case 'getRailBonus':
+                case 'getRailBonus_event':
+                case 'getRailBonus_auction':
+                case 'getRailBonus_build':
                     this.clearSelectable('bonus', true);
                     const active_train = this.train_token_divId[this.getActivePlayerId()];
                     dojo.removeClass(active_train, 'animated');
@@ -1100,6 +1113,13 @@ function (dojo, declare) {
                 this.addActionButton( 'btn_redo_build_phase', _('Cancel'),  'cancelTurn', null, false, 'red');
                 this.can_cancel = true;
             } 
+        },
+        onUpdateActionButtons_bonusChoice_eventBuild: function (args){
+            this.onUpdateActionButtons_bonusChoice_build(args);
+        },
+        onUpdateActionButtons_bonusChoice_event: function (args){
+            let option = Number(args.auction_bonus);
+
         },
         onUpdateActionButtons_bonusChoice_auction: function (args) {
             let option = Number(args.auction_bonus);
@@ -1482,6 +1502,9 @@ function (dojo, declare) {
             } else { // create it as well;
                 this.createBuildingTile(b_id, b_key, this.player_building_zone_id[building.p_id]);
             }
+            if (b_id == BLD_WAREHOUSE && building.state != 0){
+                this.updateWarehouseState(building.state);
+            }
             // remove any afford-ability flags
             this.updateAffordability(`#${b_divId}`, 0);
             dojo.query(`#${b_divId}`).style(`order`,`${building.b_order}`);
@@ -1504,14 +1527,14 @@ function (dojo, declare) {
             dojo.addClass('btn_choose_building' ,'disabled');
             if (this.hasBuilding[this.player_id][BLD_RIVER_PORT]){
                 if (this.goldAsCow){
-                    this.addActionButton( 'btn_gold_cow', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<span id='cow_as'>", gold:this.tkn_html.gold, type:this.tkn_html.cow, end:"</span>"}), 'toggleGoldAsCow', null, false, 'blue');
+                    this.addActionButton( 'btn_gold_cow', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<div id='cow_as'>", gold:this.tkn_html.gold, type:this.tkn_html.cow, end:"</div>"}), 'toggleGoldAsCow', null, false, 'blue');
                 } else {
-                    this.addActionButton( 'btn_gold_cow', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<span id='cow_as' class='no'>", gold:this.tkn_html.gold, type:this.tkn_html.cow, end:"</span>"}), 'toggleGoldAsCow', null, false, 'red');
+                    this.addActionButton( 'btn_gold_cow', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<div id='cow_as' class='no'>", gold:this.tkn_html.gold, type:this.tkn_html.cow, end:"</div>"}), 'toggleGoldAsCow', null, false, 'red');
                 }
                 if (this.goldAsCopper){
-                    this.addActionButton( 'btn_gold_copper', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<span id='copper_as'>", gold:this.tkn_html.gold, type:this.tkn_html.copper, end:"</span>"}), 'toggleGoldAsCopper', null, false, 'blue');
+                    this.addActionButton( 'btn_gold_copper', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<div id='copper_as'>", gold:this.tkn_html.gold, type:this.tkn_html.copper, end:"</div>"}), 'toggleGoldAsCopper', null, false, 'blue');
                 } else {
-                    this.addActionButton( 'btn_gold_copper', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<span id='copper_as' class='no'>", gold:this.tkn_html.gold, type:this.tkn_html.copper, end:"</span>"}), 'toggleGoldAsCopper', null, false, 'red');
+                    this.addActionButton( 'btn_gold_copper', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<div id='copper_as' class='no'>", gold:this.tkn_html.gold, type:this.tkn_html.copper, end:"</div>"}), 'toggleGoldAsCopper', null, false, 'red');
                 }
             }
             if (this.hasBuilding[this.player_id][BLD_LUMBER_MILL]){
@@ -1607,6 +1630,7 @@ function (dojo, declare) {
                         break;
                     case 8: //BUILD_BONUS_PLACE_RESOURCES
                         var on_build_desc = this.replaceTooltipStrings(_('When built: place ${wood}${food}${steel}${gold}${copper}${cow} on Warehouse'));
+                        on_build_desc += `<div id="${WAREHOUSE_RES_DIVID}"></div>`;
                         break;
                     default:
                         var on_build_desc = "";
@@ -1773,6 +1797,41 @@ function (dojo, declare) {
             //remove from hasBuilding
             delete this.hasBuilding[building.p_id][building.b_id];
             this.b_connect_handler[building.b_key] = dojo.connect($(b_divId), 'onclick', this, 'onClickOnBuilding' );
+        },
+
+        updateWarehouseState: function(state, p_id=null){
+            let new_state = state;
+            let old_state = this.warehouse_state;
+            let stateDiff = new_state ^ old_state;
+            for(let bit = 1; bit <=stateDiff; bit <<= 1){
+                if (stateDiff & old_state & bit){
+                    this.updateWarehouseResource(WAREHOUSE_MAP[bit], false, p_id);
+                } else if (stateDiff & new_state & bit){
+                    this.updateWarehouseResource(WAREHOUSE_MAP[bit], true, p_id);
+                }
+            }
+            this.warehouse_state = state;
+        },
+
+        updateWarehouseResource: function(type, add, p_id){
+            let origin = 'limbo';
+            if (add){
+                let tkn_id = `warehouse_${type}`;
+                let resToken = dojo.create('span', {class: `log_${type} token_inline`, title:type, id:tkn_id});
+                dojo.style(resToken,'order', this.getKeyByValue(WAREHOUSE_MAP, type));
+                if (p_id){
+                    origin = this.token_divId[p_id];
+                    this.incResCounter(p_id, type, -1);
+                }
+                dojo.place(resToken, origin, 'first');
+                this.moveObject(tkn_id, WAREHOUSE_RES_DIVID);
+            } else {
+                if (p_id){
+                    origin = this.token_divId[p_id];
+                    this.incResCounter(p_id, type, 1);
+                }
+                this.slideToObjectAndDestroy(`warehouse_${type}`, origin, 500, 0 );
+            }
         },
         
         updateHasBuilding(p_id, b_id) {
@@ -4510,6 +4569,15 @@ function (dojo, declare) {
                 }   
             }
             this.calculateAndUpdateScore(p_id);
+        },
+
+        notif_updateWarehouseState: function (notif){
+            console.log('notif_updateWarehouseState', notif.args);
+            let origin = null;
+            if (notif.args.income = true){
+                origin = notif.args.p_id;
+            }
+            this.updateWarehouseState(notif.args.state, origin);
         },
 
         notif_playerPayment: function( notif ){         
