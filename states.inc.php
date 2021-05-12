@@ -331,12 +331,12 @@ $machinestates = array(
         "description" => '',
         "type" => "game",
         "action" => "stSetupAuctionBonus",
-        "transitions" => array( "bonusChoice" => STATE_AUC_SETUP_BONUS, 
+        "transitions" => array( "bonusChoice" => STATE_AUC_CHOOSE_BONUS, 
                                 "rail_bonus"  => STATE_AUC_RAIL_BONUS,
                                 "done"    => STATE_CONFIRM_LOT,)
     ),
 
-    STATE_AUC_SETUP_BONUS => array(
+    STATE_AUC_CHOOSE_BONUS => array(
         "name" => "bonusChoice_auction",
         "description" => clienttranslate('${actplayer} may receive a Bonus '),
         "descriptionmyturn" => clienttranslate('${you} may receive a Bonus '),
