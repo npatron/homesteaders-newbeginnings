@@ -65,7 +65,8 @@ $this->playerColorNames = array(
 $this->trade_map = array(
   0=>'buy_wood', 1=>'buy_food', 2=>'buy_steel', 3=>'buy_gold', 4=>'buy_copper', 5=>'buy_cow',
   6=>'sell_wood', 7=>'sell_food', 8=>'sell_steel', 9=>'sell_gold', 10=>'sell_copper',11=>'sell_cow', 
-  12=>'market_food', 13=>'market_steel', 14=>'bank', 15=>'loan', 16=>'payloan_silver', 17=>'payloan_gold');
+  12=>'market_food', 13=>'market_steel', 14=>'bank', 
+  15=>'loan', 16=>'payLoan_silver', 17=>'payLoan_gold',18=>'payLoan_3silver');
 
 $this->translation_strings = array(
   0=> clienttranslate('Residential'), 
@@ -681,161 +682,161 @@ $this->auction_info = array(
   // Town Events       #11-20
   // City Events       #21-25
 $this->event_info = array(
-  1 => array(
+  EVENT_ABANDONED_STOCKPILE => array(
     'name'  => clienttranslate('Abandoned Stockpile'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => clienttranslate('The winner of ${a1} builds for one resource less (their choice)'),
     'auc'   => AUC_EVT_ONE,
     'auc_b' => EVT_AUC_DISCOUNT_1_RES,
   ),
-  2 => array(
+  EVENT_BUREAUCRATIC_ERROR => array(
     'name'  => clienttranslate('Bureaucratic Error'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => clienttranslate('${a1} is unavailable this round'),
     'auc'   => AUC_EVT_ONE,
     'auc_b' => EVT_AUC_NO_AUCTION,
   ),
-  3 => array(
+  EVENT_CENTRAL_PACIFIC_RR => array(
     'name'  => clienttranslate('Central Pacific RR'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => clienttranslate('Players who pass, get a ${track}'),
     'pass'  => EVT_PASS_TRACK,
   ),
-  4 => array(
+  EVENT_EAGER_INVESTORS => array(
     'name'  => clienttranslate('Eager Investors'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => clienttranslate('All players who have a ${vp} get ${silver}${silver}${silver}${silver}'),
     'all_b' => EVT_VP_4SILVER,
   ),
-  5 => array(
+  EVENT_EXTRA_LOT => array(
     'name'  => clienttranslate('Extra Lot'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => clienttranslate('${a1} also give: build (${any} Type)'),
     'auc'   => AUC_EVT_ONE,
     'auc_b' => EVT_AUC_BUILD_AGAIN,
   ),
-  6 => array(
+  EVENT_MIGRANT_WORKERS => array(
     'name'  => clienttranslate('Migrant Workers'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => clienttranslate('${a1} also give: ${worker}'),
     'auc'   => AUC_EVT_ONE,
     'auc_b' => EVT_AUC_BONUS_WORKER,
   ),
-  7 => array(
+  EVENT_RAILROAD_CONTRACTS => array(
     'name'  => clienttranslate('Railroad Contracts'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => clienttranslate('All auctions also give: ${silver}${silver} ${arrow} Advance the Railroad Track'),
     'auc'   => AUC_EVT_ALL,
     'auc_b' => EVT_AUC_2SILVER_TRACK,
   ),
-  8 => array(
+  EVENT_RAPID_EXPANSION => array(
     'name'  => clienttranslate('Rapid Expansion'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => clienttranslate('All auctions with bulding opportunities also give a second building opportunity of the same type'),
     'auc'   => AUC_EVT_ALL,
     'auc_b' => EVT_AUC_SECOND_BUILD,
   ),
-  9 => array(
+  EVENT_TRAVELING_TRADERS => array(
     'name'  => clienttranslate('Traveling Traders'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => clienttranslate('All players get a ${trade}'),
     'all_b' => EVT_TRADE,
   ),
-  10 => array(
+  EVENT_UNION_PACIFIC_RR => array(
     'name'  => clienttranslate('Union Pacific RR'),
     'stage' => STAGE_SETTLEMENT,
     'tt'    => clienttranslate('${a1} also give: ${track}'),
     'auc'   => AUC_EVT_ONE,
     'auc_b' => EVT_AUC_TRACK,
   ),
-  11 => array(
+  EVENT_BANK_FAVORS => array(
     'name'  => clienttranslate('Bank Favors'),
     'stage' => STAGE_TOWN,
     'tt'    => clienttranslate('The player(s) with the least ${loan} gets ${adv_track}'),
     'all_b' => EVT_LOAN_TRACK,
   ),
-  12 => array(
+  EVENT_FORTUNE_SEEKER => array(
     'name'  => clienttranslate('Fortune Seeker'),
     'stage' => STAGE_TOWN,
     'tt'    => clienttranslate('The player(s) with the fewest ${worker} gets a ${worker}'),
     'all_b' => EVT_LEAST_WORKER,
   ),
-  13 => array(
+  EVENT_INDUSTRIALIZATION => array(
     'name'  => clienttranslate('Industrialization'),
     'stage' => STAGE_TOWN,
     'tt'    => clienttranslate('All auctions also give: ${steel} ${arrow} ${any}'),
     'auc'   => AUC_EVT_ALL,
     'auc_b' => EVT_AUC_STEEL_ANY,
   ),
-  14 => array(
+  EVENT_INTEREST => array(
     'name' => clienttranslate('Interest'),
     'stage' => STAGE_TOWN,
     'tt' => clienttranslate('Players must pay ${silver} per ${loan} (${loan} taken to pay the interest does not also need to be paid for)'),
     'all_b' => EVT_INTEREST,
   ),
-  15 => array(
+  EVENT_SHARECROPPING => array(
     'name'  => clienttranslate('Sharecropping'),
     'stage' => STAGE_TOWN,
     'tt'    => clienttranslate('players may pay off ${loan} for 1-${food} apiece'),
     'all_b' => EVT_PAY_LOAN_FOOD,
   ),
-  16 => array(
+  EVENT_STATE_FAIR => array(
     'name'  => clienttranslate('State Fair'),
     'stage' => STAGE_TOWN,
     'tt'    => clienttranslate('The player(s) with the most ${copper} plus ${cow} (at least one) gets a ${gold}'),
     'all_b' => EVT_COPPER_COW_GET_GOLD,
   ),
-  17 => array(
+  EVENT_TRANSCONTINENTAL_RR => array(
     'name'  => clienttranslate('Transcontinental Railroad'),
     'stage' => STAGE_TOWN,
     'tt'    => clienttranslate('The player(s) who is farthest advanced on the Railroad Development Track gets ${vp3}'),
     'all_b' => EVT_DEV_TRACK_VP3,
   ),
-  18 => array(
+  EVENT_TIMBER_CULTURE_ACT => array(
     'name'  => clienttranslate('Timber Culture Act'),
     'stage' => STAGE_TOWN,
     'tt'    => clienttranslate('Players get ${vp} for every ${wood} held'),
     'all_b' => EVT_VP_FOR_WOOD,
     'pre_trd'=> AUC_EVT_ONE,
   ),
-  19 => array(
+  EVENT_WARTIME_DEMAND => array(
     'name'  => clienttranslate('Wartime Demand'),
     'stage' => STAGE_TOWN,
-    'tt'    => clienttranslate('Players may sell any number of resources wthout spending ${trade}'),
+    'tt'    => clienttranslate('Players may sell any number of resources without spending ${trade}'),
     'all_b' => EVT_SELL_NO_TRADE,
   ),
-  20 => array(
+  EVENT_WESTERN_PACIFIC_RR => array(
     'name'  => clienttranslate('Western Pacific RR'),
     'stage' => STAGE_TOWN,
     'tt'    => clienttranslate('The player(s) with the fewest Buildings get a ${track}'),
     'all_b' => EVT_LEAST_BLD_TRACK,
   ),
-  21 => array(
+  EVENT_COMMERCIAL_DOMINANCE => array(
     'name'  => clienttranslate('${com} Dominance'),
     'stage' => STAGE_CITY,
     'tt'    => clienttranslate('The player(s) with the most ${com} buildings only pays half their Auction bid (round down)'),
     'auc' => AUC_EVT_ALL,
     'auc_b' => EVT_AUC_COM_DISCOUNT,
   ),
-  22 => array(
+  EVENT_INDUSTRIAL_DOMINANCE => array(
     'name'  => clienttranslate('${ind} Dominance'),
     'stage' => STAGE_CITY,
     'tt'    => clienttranslate('The player(s) with the most ${ind} buildings gets ${vp} for each resource they recieved in income (${wood}, ${food}, ${steel}, ${gold}, ${copper}, ${cow} produced by buildings and not from trade)'),
     'all_b' => EVT_IND_VP,
   ),
-  23 => array(
+  EVENT_NELSON_ACT => array(
     'name'  => clienttranslate('Nelson Act'),
     'stage' => STAGE_CITY,
-    'tt'    => clienttranslate('Players who pass may pay off debt for ${silver}${silver}${silver} apiece'),
+    'tt'    => clienttranslate('Players who pass may pay off ${loan} for ${silver}${silver}${silver} apiece'),
     'pass' => EVT_PASS_DEPT_SILVER,
   ),
-  24 => array(
+  EVENT_PROPERTY_TAXES => array(
     'name'  => clienttranslate('Property Taxes'),
     'stage' => STAGE_CITY,
     'tt'    => clienttranslate('Players must pay ${silver} per Building they have'),
     'all_b' => EVT_BLD_TAX_SILVER,
   ),
-  25 => array(
+  EVENT_RESIDENTIAL_DOMINANCE => array(
     'name'  => clienttranslate('${res} Dominance'),
     'stage' => STAGE_CITY,
     'tt'    => clienttranslate('The player(s) with the most ${res} buildings gets ${adv_track}'),

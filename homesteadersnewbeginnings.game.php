@@ -287,6 +287,36 @@ class homesteadersnewbeginnings extends Table
         }
     }
 
+    // can be mutli-active
+    public function playerSelectRailBonusEvent($selected_bonus) {
+        $this->game->checkAction( "chooseBonus" );
+        $cur_p_id = $this->game->getCurrentPlayerId();
+        $options = $this->game->Resource->getRailAdvBonusOptions($cur_p_id);
+        if (!in_array ($selected_bonus, $options)){
+            throw new BgaUserException( clienttranslate("invalid bonus option selected") );
+        } 
+        $this->game->Resource->receiveRailBonus($cur_p_id, $selected_bonus);
+        $this->game->gamestate->setPlayerNonMultiactive( $cur_p_id, "" );
+    }
+
+    public function playerFreeHireWorkerEvent(){
+        $this->game->checkAction( "eventBonus" );
+        $cur_p_id = $this->game->getCurrentPlayerId();
+        if ($this->game->Event->getEventAllB() != EVT_LEAST_WORKER) {
+            throw new BgaVisibleSystemException ( sprintf(clienttranslate("Free Hire Worker called, but event bonus is %s"),$this->game->Event->getEventAucB()));
+        }
+        $this->game->Resource->addWorkerAndNotify($cur_p_id, $this->event_info[$this->Event->getEvent()]['name']);
+        $this->game->gamestate->setPlayerNonMultiactive($cur_p_id, "");
+    }
+
+    public function playerPassBonusEvent(){
+        $this->game->checkAction( "eventBonus" );
+        $cur_p_id = $this->getCurrentPlayerId();
+        $this->game->notifyAllPlayers( "passBonus", clienttranslate( '${player_name} passes on Event Bonus' ), 
+            array('player_id' => $cur_p_id, 'player_name' => $this->getPlayerName($cur_p_id)));
+        $this->game->gamestate->setPlayerNonMultiactive($cur_p_id, "");
+    }
+
     public function playerHireWorker(){
         $this->checkAction( 'hireWorker' );
         $this->Action->playerHireWorker($this->getCurrentPlayerId());
@@ -313,7 +343,7 @@ class homesteadersnewbeginnings extends Table
             $this->payWorkers($gold);
         } else if ($state['name'] === 'allocateWorkers'){ 
             $this->payWorkers($gold, true);
-        } else if ($state['name'] === 'payAuction') {
+        } else if ($state['name'] === 'payLot') {
             $this->payAuction($gold);
         } else {
             throw new BgaVisibleSystemException ( clienttranslate("player pay called from wrong state") );
@@ -368,6 +398,8 @@ class homesteadersnewbeginnings extends Table
         if ($this->Auction->doesCurrentAuctionHaveBuildPhase()){
             $this->Auction->setCurrentAuctionBuildType();
             $this->gamestate->nextstate( 'build' );
+        } else if ($this->Event->isAuctionAffected()){
+            $this->gamestate->nextstate( 'event' );
         } else {
             $this->gamestate->nextstate( 'auction_bonus');
         }
@@ -441,20 +473,24 @@ class homesteadersnewbeginnings extends Table
     }
 
     function argEventBonus() {
-        $current_event = $this->getGameStateValue( 'current_event' );
-        $players = $this->loadPlayersBasicInfos();
+        $event_bonus = $this->Event->getEventAllB();
         $bonus_option = array();
-        foreach($players as $p_id=>$player){
-            $bonus_option[$p_id]= array();
-            $bonus_option[$p_id]['p_id'] = $p_id;
-            $bonus_option[$p_id]['event'] = $current_event;
-            $bonus_option[$p_id]['option'] = $this->Resource->getRailAdvBonusOptions($this->getActivePlayerId());        
+        $players = $this->loadPlayersBasicInfos();
+        if ($event_bonus == EVT_LEAST_WORKER){
+            return array('event_bonus'=>$event_bonus, 'alternate' =>true);
+        } else{
+            foreach($players as $p_id=>$player){
+                $bonus_option[$p_id]= array('rail_options'=> $this->Resource->getRailAdvBonusOptions($p_id));
+            }
+            return array('event_bonus'=>$event_bonus, 'args'=>$bonus_option);
         }
-        return array('event_bonus'=>$bonus_option);
     }
 
     function argEventBuildBonus() {
         $bonus_option = $this->Event->getEventAucB();
+        if ($bonus_option == EVT_AUC_STEEL_ANY){
+            return array('event_bonus'=>$bonus_option, 'alternate'=>true);
+        }
         return array('event_bonus'=>$bonus_option);
     }
 
@@ -464,7 +500,7 @@ class homesteadersnewbeginnings extends Table
     }
 
     function argEventTrade() {
-        return array('event'=>$this->Event->getEvent());
+        return array('event_pass'=>$this->Event->getEventPass());
     }
 
     function argValidBids() {
@@ -478,7 +514,7 @@ class homesteadersnewbeginnings extends Table
         return array("rail_options"=>$rail_options, "can_undo"=>$can_undo);
     }
 
-    function argAuctionCost() {
+    function argLotCost() {
         $act_p_id = $this->getActivePlayerId();
         $bid_cost = $this->Bid->getBidCost($act_p_id);
         if ($this->Event->getEvent() == EVT_AUC_COM_DISCOUNT){
@@ -486,7 +522,7 @@ class homesteadersnewbeginnings extends Table
                 $bid_cost = floor($bid_cost/2);
             }
         }
-        return array("auction_cost"=>$bid_cost);
+        return array("lot_cost"=>$bid_cost);
     }
 
     function argAllowedBuildings() {
@@ -625,7 +661,7 @@ class homesteadersnewbeginnings extends Table
 
     function stPassEvent()
     {
-        $pass_evt = $this->event_info[$this->Event->getEvent()]['pass']??0;
+        $pass_evt = $this->Event->getPassEvent();
         if ($pass_evt != EVT_PASS_DEPT_SILVER){// every other event should not be here.
             $this->gamestate->nextState( "rail" );
         }
@@ -707,6 +743,9 @@ class homesteadersnewbeginnings extends Table
                 $this->Resource->updateAndNotifyIncome($active_p_id, 'silver', $amt, $b_name, 'building', $b_key);
                 $this->Log->updateResource($active_p_id, 'silver', $amt);
             break;
+            case BUILD_BONUS_PLACE_RESOURCES:
+                $this->Building->setupWarehouse($b_key);
+            break;
             case BUILD_BONUS_RAIL_ADVANCE:
                 $this->Resource->getRailAdv($active_p_id, $b_name, 'building', $b_key);
                 $next_state = 'rail_bonus';
@@ -717,9 +756,6 @@ class homesteadersnewbeginnings extends Table
             break;
             case BUILD_BONUS_WORKER:
                 $next_state = 'building_bonus';
-            break;
-            case BUILD_BONUS_PLACE_RESOURCES:
-                $this->Building->setupWarehouse($b_key);
             break;
         }
         $this->gamestate->nextState($next_state);

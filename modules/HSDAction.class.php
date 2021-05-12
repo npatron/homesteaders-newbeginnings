@@ -93,14 +93,13 @@ class HSDAction extends APP_GameClass
         $this->game->gamestate->nextState('done');
     }
     
-    public function playerDoNotBuild_steelTrack () {
-        $this->game->checkAction( "doNotBuild" );
-        $this->game->Resource->specialTrade($this->game->getActivePlayerId(), array('steel'=>1), array('track'=>1), clienttranslate('In place of Build'), 'auction' , $this->game->getGameStateValue( 'current_auction' ));
-        $this->game->Score->updatePlayerScore($this->game->getActivePlayerId());
+    public function BuildSteel () {
+        $this->game->checkAction( "eventLotBonus" );
+        $p_id = $this->game->getActivePlayerId();
+        $this->game->Resource->updateAndNotifyPayment($p_id, "steel", 1, $this->game->Event->getEventName());
         
         //goto next state;
-        $this->game->setGameStateValue('building_bonus', BUILD_BONUS_NONE);
-        $this->game->gamestate->nextState('done');
+        $this->game->gamestate->nextState('evt_build');
     }
 
     public function playerHireWorker($p_id){
@@ -125,7 +124,7 @@ class HSDAction extends APP_GameClass
     }
 
     public function playerCancelBidPass () {
-        $this->game->checkAction('undo');
+        $this->game->checkAction('undoPass');
         $this->game->Bid->cancelPass();
         $this->game->Log->cancelPass();
         $this->game->gamestate->nextState('undoPass');
@@ -232,8 +231,8 @@ class HSDAction extends APP_GameClass
         $this->game->Event->postEventBonusNav();
     }
 
-    public function playerPassBonusEvent() {
-        $this->game->checkAction( "eventBonus" );
+    public function playerPassBonusLotEvent() {
+        $this->game->checkAction( "eventLotBonus" );
         $act_p_id = $this->game->getActivePlayerId();
         $this->game->notifyAllPlayers( "passBonus", clienttranslate( '${player_name} passes on Event Bonus' ), array(
             'player_id' => $act_p_id,
@@ -245,11 +244,11 @@ class HSDAction extends APP_GameClass
      * restartTurn: called when a player decide to go back at the beginning of the player build phase
      */
     public function playerCancelPhase () {
-        $this->game->checkAction('undo');
+        $this->game->checkAction('undoLot');
         // undo all actions since beginning of STATE_PAY_AUCTION
 
         $this->game->Log->cancelPhase();
-        $this->game->gamestate->nextState('undoTurn');
+        $this->game->gamestate->nextState('undoLot');
     }
 
     /** endBuildRound */

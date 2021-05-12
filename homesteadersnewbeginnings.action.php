@@ -144,13 +144,13 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::setAjaxMode( );
     $this->game->Action->playerDoNotBuild( );
     self::ajaxResponse( );
-   }
+  }
 
-   public function doNotBuild_steelTrack() {
+  public function steelBuildBuilding(){
     self::setAjaxMode( );
-    $this->game->Action->playerDoNotBuild_steelTrack( );
+    $this->game->Action->BuildSteel();
     self::ajaxResponse( );
-   }
+  }
 
   public function buildBuilding(){
     self::setAjaxMode( );
@@ -200,6 +200,13 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     $this->game->Action->playerSelectRailBonus( $bonus );
     self::ajaxResponse( );
   }
+
+  public function selectRailBonusEvent() {
+    self::setAjaxMode();
+    $bonus = self::getArg( "bonus", AT_posint, true);
+    $this->game->playerSelectRailBonusEvent( $bonus );
+    self::ajaxResponse( );
+  }
   
   public function cancelBidPass() {
     self::setAjaxMode();
@@ -227,7 +234,12 @@ class action_homesteadersnewbeginnings extends APP_GameAction
 
   public function freeHireWorkerEvent (){
     self::setAjaxMode( );
-    $this->game->Action->playerFreeHireWorkerEvent();
+    $lot = self::getArg( "lot", AT_bool, true);
+    if ($lot){//active player
+      $this->game->Action->playerFreeHireWorkerEvent();
+    } else {//current player
+      $this->game->playerFreeHireWorkerEvent();
+    }
     self::ajaxResponse( );
   }
 
@@ -253,7 +265,13 @@ class action_homesteadersnewbeginnings extends APP_GameAction
 
   public function passBonusEvent (){
     self::setAjaxMode( );
-    $this->game->Action->playerPassBonusEvent( );
+    $this->game->playerPassBonusEvent( );
+    self::ajaxResponse( );
+  }
+
+  public function passBonusLotEvent(){
+    self::setAjaxMode( );
+    $this->game->Action->playerPassBonusLotEvent( );
     self::ajaxResponse( );
   }
 

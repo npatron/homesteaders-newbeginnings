@@ -581,13 +581,22 @@ class HSDResource extends APP_GameClass
                                     'loan' => 'debt'),
                         'tradeFor'=>array('silver'=>2,'loan'=>1),
                         'tradeAway'=>array()));
-            case 'payloan':
-                if ($tradeAct_segs[1] === 'gold') {
-                    $type = 'gold';
-                    $amt = 1;
-                } else {
-                    $type = 'silver';
-                    $amt = 5;
+            case 'payLoan':
+                switch($tradeAct_segs[1]){
+                    case 'gold':
+                        $type = 'gold';
+                        $amt = 1;
+                        break;
+                    case 'silver':
+                        $type = 'silver';
+                        $amt = 5;
+                        break;
+                    case '3silver':
+                        $type = 'silver';
+                        $amt = 3;
+                        break;
+                    default:
+                        throw new BgaVisibleSystemException ( sprintf(clienttranslate('Invalid TradeAction: %s'),$tradeAction));
                 }
                 if (!$this->canPlayerAfford($p_id, array($type=>$amt))){
                     throw new BgaUserException( clienttranslate("You cannot afford to make this trade") );

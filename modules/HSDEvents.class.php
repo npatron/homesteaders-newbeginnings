@@ -60,23 +60,33 @@ class HSDEvents extends APP_GameClass
         return $this->game->getUniqueValueFromDB( $sql );
     }
 
+    function getEventName($round_number = null){
+        return $this->game->event_info[$this->getEvent($round_number)]['name'];
+    }
+
     function updateEvent($round_number){
         $value = $this->game->getGameStateValue('new_beginning_evt');
         if ($value == DISABLED) return;
         $this->game->setGameStateValue('current_event', $this->getEvent($round_number));
     }
 
-    function getEventAucB($round_number = null){
+    function getEventAttribute($attribute, $round_number= null){
         $event = $this->getEvent($round_number);
         if ($event == 0) return 0;
-        return $this->game->event_info[$event]['auc_b']??0;
+        return $this->game->event_info[$event][$attribute]??0;
+    }
+
+    function getEventAucB($round_number = null){
+        return $this->getEventAttribute('auc_b', $round_number);
     }
 
     // get id for event phase id 'all_b'
     function getEventAllB($round_number = null){
-        $event = $this->getEvent($round_number);
-        if ($event == 0) return 0;
-        return $this->game->event_info[$event]['all_b']??0;
+        return $this->getEventAttribute('all_b', $round_number);
+    }
+
+    function getEventPass($round_number = null){
+        return $this->getEventAttribute('pass', $round_number);
     }
     
     ///// BEGIN event phase helper methods ////
@@ -204,7 +214,7 @@ class HSDEvents extends APP_GameClass
 
             //// next_state='bonus' states //// (multi-active version of choose bonus)
             case EVT_LOAN_TRACK: 
-                //least loan gets track adv (no trade req)
+                //least loan gets  ${adv_track} (no trade req)
                 $players = $this->getPlayersWithLeastResource('loan');
                 foreach ($players as $p_id){
                     $this->game->Resource->getRailAdv($p_id, _('event'));
@@ -318,9 +328,13 @@ class HSDEvents extends APP_GameClass
                     $this->game->Auction->setCurrentAuctionBuildType();
                 break;
                 case EVT_AUC_BUILD_AGAIN:// can build again (any).
-                case EVT_AUC_STEEL_ANY:// player may pay a steel to build any building
                     $next_state = "evt_build";
                     $this->game->setGameStateValue('build_type_int', 15);//all
+                break;
+                case EVT_AUC_STEEL_ANY:// player may pay a steel to build any building
+                    $next_state = "bonus";
+                    $this->game->setGameStateValue('build_type_int', 15);//all
+
                 break;
                 case EVT_AUC_BONUS_WORKER:// can recieve worker
                 case EVT_AUC_2SILVER_TRACK:// pay 2 silver for track advancement

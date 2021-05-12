@@ -46,10 +46,11 @@
   // 2) event specific bonus or builds 
   //note: no additional builds from events in age with train station.
   define("STATE_EVT_SETUP_BONUS",   60);
-  define("STATE_EVT_BUILD_AGAIN",   61);
-  define("STATE_EVT_RESOLVE_BUILD", 62);
-  define("STATE_EVT_BUILD_BONUS",   63);
-  define("STATE_EVT_RAIL_BONUS",    64);
+  define("STATE_EVT_CHOICE",        61);
+  define("STATE_EVT_BUILD_AGAIN",   62);
+  define("STATE_EVT_RESOLVE_BUILD", 63);
+  define("STATE_EVT_BUILD_BONUS",   64);
+  define("STATE_EVT_RAIL_BONUS",    65);
   // 3) auction bonuses (not tied to build)
   define("STATE_AUC_SETUP_BONUS", 70);
   define("STATE_AUC_RAIL_BONUS",  71);
@@ -223,6 +224,35 @@
   // pass_b (bonus when passing)
   define("EVT_PASS_TRACK",        24);
   define("EVT_PASS_DEPT_SILVER",  25);
+
+  // Settlement Events #1-10
+  define("EVENT_ABANDONED_STOCKPILE",   1);
+  define("EVENT_BUREAUCRATIC_ERROR",    2);
+  define("EVENT_CENTRAL_PACIFIC_RR",    3);
+  define("EVENT_EAGER_INVESTORS",       4);
+  define("EVENT_EXTRA_LOT",             5);
+  define("EVENT_MIGRANT_WORKERS",       6);
+  define("EVENT_RAILROAD_CONTRACTS",    7);
+  define("EVENT_RAPID_EXPANSION",       8);
+  define("EVENT_TRAVELING_TRADERS",     9);
+  define("EVENT_UNION_PACIFIC_RR",     10);
+  // Town Events       #11-20
+  define("EVENT_BANK_FAVORS",          11);
+  define("EVENT_FORTUNE_SEEKER",       12);
+  define("EVENT_INDUSTRIALIZATION",    13);
+  define("EVENT_INTEREST",             14);
+  define("EVENT_SHARECROPPING",        15);
+  define("EVENT_STATE_FAIR",           16);
+  define("EVENT_TRANSCONTINENTAL_RR",  17);
+  define("EVENT_TIMBER_CULTURE_ACT",   18);
+  define("EVENT_WARTIME_DEMAND",       19);
+  define("EVENT_WESTERN_PACIFIC_RR",   20);
+  // City Events       #21-25
+  define("EVENT_COMMERCIAL_DOMINANCE", 21);
+  define("EVENT_INDUSTRIAL_DOMINANCE", 22);
+  define("EVENT_NELSON_ACT",           23);
+  define("EVENT_PROPERTY_TAXES",       24);
+  define("EVENT_RESIDENTIAL_DOMINANCE",25);
 
   // Bid location mapping
   define("NO_BID",     0);
