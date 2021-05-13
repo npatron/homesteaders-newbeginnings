@@ -731,7 +731,13 @@ function (dojo, declare) {
         onClickWarehouseResource: function( evt ){
             let target_id = evt.target.id;
             let target_type = target_id.split('_')[2];
+            dojo.removeClass(`btn_warehouse_${this.warehouse}`, 'bgabutton_blue');
+            dojo.addClass(`btn_warehouse_${this.warehouse}`, 'bgabutton_gray');
             this.warehouse = target_type;
+            dojo.addClass(`btn_warehouse_${target_type}`, 'bgabutton_blue');
+            dojo.removeClass(`btn_warehouse_${target_type}`, 'bgabutton_gray');
+            
+            this.resetTradeValues();
             this.setOffsetForIncome();
         },
 
@@ -1006,15 +1012,16 @@ function (dojo, declare) {
             // also make building_slots selectable.
             dojo.query( `#${TPL_BLD_ZONE}${this.player_color[this.player_id]} .worker_slot` ).addClass( 'selectable' );
 
-            // warehouse
-            if (this.hasBuilding[this.player_id][BLD_WAREHOUSE]){
-                this.setupWarehouseButtons();
-            }
             
             this.addActionButton( 'btn_done',_('Confirm'), 'donePlacingWorkers' );
             this.addActionButton( 'btn_hire_worker', _('Hire New Worker'), 'hireWorkerButton', null, false, 'gray' );
             this.addActionButton( 'btn_cancel_button', _('Cancel'), 'cancelUndoTransactions', null, false, 'red');
             this.tradeEnabled = false;
+            // warehouse
+            if (this.hasBuilding[this.player_id][BLD_WAREHOUSE]){
+                this.setupWarehouseButtons();
+            }
+            
             this.addTradeActionButton();
             this.setOffsetForIncome();
             this.destroyPaymentBreadcrumb();
@@ -3001,8 +3008,10 @@ function (dojo, declare) {
         },
 
         ajaxDonePlacingWorkers: function(){
+            let warehouse_num = RESOURCES[this.warehouse];
+            console.log(warehouse_num);
             this.ajaxcall("/" + this.game_name + "/" + this.game_name + "/donePlacingWorkers.html", 
-            {lock: true, warehouse:this.warehouse}, this, 
+            {lock: true, warehouse:warehouse_num}, this, 
             function( result ) { 
                 this.clearSelectable('worker', true); 
                 this.clearSelectable('worker_slot', false);
