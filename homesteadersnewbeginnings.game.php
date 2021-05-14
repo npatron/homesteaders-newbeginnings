@@ -327,7 +327,17 @@ class homesteadersnewbeginnings extends Table
     }
     
     public function playerDonePlacingWorkers($warehouse){
-        $this->Action->playerDonePlacingWorkers($this->getCurrentPlayerId(), $warehouse);
+        $cur_p_id = $this->getCurrentPlayerId();
+        if ($this->Building->doesPlayerOwnBuilding($cur_p_id, BLD_WAREHOUSE)){
+            if (is_null($warehouse)){
+                throw new BgaUserException( clienttranslate("You must select a warehouse income"));
+            }if (array_key_exists($warehouse, $this->warehouse_map)){
+                throw new BgaUserException( clienttranslate("You must select a warehouse income"));
+            }
+        }
+        $this->Log->donePlacing($cur_p_id);
+        $this->Resource->collectIncome($cur_p_id, $warehouse);
+        $this->gamestate->setPlayerNonMultiactive( $cur_p_id , 'auction' );
     }
 
     public function playerDoneTradingEvent(){

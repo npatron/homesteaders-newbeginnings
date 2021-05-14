@@ -229,6 +229,11 @@ class HSDLog extends APP_GameClass
     
   }
 
+  public function updateBuildingState($p_id, $b_key, $oldState, $newState)
+  {
+    $this->insert($p_id, $b_key, 'buildingState', array('old_state' => $oldState, 'new_state' => $newState));
+  }
+
   public function tradeResource($p_id, $trade_away, $trade_for)
   {
     $this->insert($p_id, 0, 'trade', array('trade_away' => $trade_away, 'trade_for' => $trade_for));
@@ -287,7 +292,7 @@ class HSDLog extends APP_GameClass
    *   for undo auctionBuild undo:   afterAction = 'winAuction' 
    *   for undo after worker income: afterAction = 'donePlacing'
    */
-  public function getLastActions($p_id, $actions = ['build', 'trade', 'loan', 'gainTrack', 'gainWorker', 'railAdv', 'updateResource'], $afterAction = 'winAuction')
+  public function getLastActions($p_id, $actions = ['build', 'trade', 'loan', 'gainTrack', 'gainWorker', 'railAdv', 'updateResource', 'buildingState'], $afterAction = 'winAuction')
   {
     $actionsNames = "'" . implode("','", $actions) . "'";
     $sql = "SELECT * FROM `log` WHERE `action` IN ($actionsNames) AND `player_id` = '$p_id' AND log_id >= (SELECT `log_id` FROM `log` WHERE `player_id` = '$p_id' AND `action` = '$afterAction' ORDER BY log_id DESC LIMIT 1) ORDER BY `log_id` DESC";
@@ -297,7 +302,7 @@ class HSDLog extends APP_GameClass
   public function getLastTransactions($p_id = null)
   {
     $p_id = $p_id ?: $this->game->getActivePlayerId();
-    $actions =  $this->getLastActions($p_id, ['trade', 'hiddenTrade', 'loan', 'gainWorker', 'updateResource', 'loanPaid'], 'allowTrades');
+    $actions =  $this->getLastActions($p_id, ['trade', 'hiddenTrade', 'loan', 'gainWorker', 'updateResource', 'loanPaid','buildingState'], 'allowTrades');
     return $actions;
   }
 
@@ -337,7 +342,7 @@ class HSDLog extends APP_GameClass
    */
   public function cancelWorkerIncomePhase($p_id)
   {
-    $logs = $this->getLastActions($p_id, ['updateResource' ,'loan' ,'donePlacing'], 'donePlacing');
+    $logs = $this->getLastActions($p_id, ['updateResource' ,'loan', 'buildingState' ,'donePlacing'], 'donePlacing');
     $transactions = $this->cancelLogs($p_id, $logs);
     $this->game->notifyAllPlayers('cancel', clienttranslate('${player_name} un-does income'), array(
       'player_name' => $this->game->getPlayerName($p_id),
@@ -349,7 +354,7 @@ class HSDLog extends APP_GameClass
   public function cancelPass()
   {
     $p_id = $this->game->getActivePlayerId();
-    $logs = $this->getLastActions($p_id, ['railAdv', 'gainTrack', 'updateResource', 'passBid'], 'passBid');
+    $logs = $this->getLastActions($p_id, ['railAdv', 'gainTrack', 'updateResource', 'buildingState', 'passBid'], 'passBid');
     $transactions = $this->cancelLogs($p_id, $logs);
     $this->game->notifyAllPlayers('cancel', '', array(
       'actions' => $transactions['action'],
@@ -402,38 +407,44 @@ class HSDLog extends APP_GameClass
             $js_update_arr[] = array('action'=>'loan', 'resource_arr'=> array('loan'=>'1', 'silver'=>2));
         break;
         case 'loanPaid':
-            $this->game->Resource->updateResource($p_id, 'loan', 1);
+          $this->game->Resource->updateResource($p_id, 'loan', 1);
 
-            if (count($args) != 0){
-              $type = array_keys($args)[0];
-              $this->game->Resource->updateResource($p_id, $type, $args[$type]);
-              $js_update_arr[] = array('action'=>'loanPaid','type'=>$type,'amt'=> $args[$type]);
-            } else {
-              $js_update_arr[] = array('action'=>'loanPaid');
-            }
+          if (count($args) != 0){
+            $type = array_keys($args)[0];
+            $this->game->Resource->updateResource($p_id, $type, $args[$type]);
+            $js_update_arr[] = array('action'=>'loanPaid','type'=>$type,'amt'=> $args[$type]);
+          } else {
+            $js_update_arr[] = array('action'=>'loanPaid');
+          }
         break;
         case 'railAdv':
-            $this->game->DbQuery("UPDATE `player` SET rail_adv=(rail_adv -1) WHERE `player_id`='$p_id'");
-            $js_update_arr[] = array('action'=>'railAdv');
+          $this->game->DbQuery("UPDATE `player` SET rail_adv=(rail_adv -1) WHERE `player_id`='$p_id'");
+          $js_update_arr[] = array('action'=>'railAdv');
         break;
         case 'trade':
-            foreach ($args['trade_for'] as $type => $amt)
-              $this->game->Resource->updateResource($p_id, $type, -$amt);
-            foreach ($args['trade_away'] as $type => $amt)
-              $this->game->Resource->updateResource($p_id, $type, $amt);
+          foreach ($args['trade_for'] as $type => $amt)
+            $this->game->Resource->updateResource($p_id, $type, -$amt);
+          foreach ($args['trade_away'] as $type => $amt)
+            $this->game->Resource->updateResource($p_id, $type, $amt);
 
-            $js_update_arr[] = array('action'=>'trade', 
-                              'tradeAway_arr'=> $args['trade_away'], 
-                              'tradeFor_arr' => $args['trade_for']);
+          $js_update_arr[] = array('action'=>'trade', 
+                            'tradeAway_arr'=> $args['trade_away'], 
+                            'tradeFor_arr' => $args['trade_for']);
         break;
         case 'updateResource':
-            $type = $args['type'];
-            $amt = $args['amt'];
-            $this->game->Resource->updateResource($p_id, $type, -$amt);
-            $js_update_arr[] = array('action'=>'updateResource', 'type'=>$type,'amt'=> -$amt);
+          $type = $args['type'];
+          $amt = $args['amt'];
+          $this->game->Resource->updateResource($p_id, $type, -$amt);
+          $js_update_arr[] = array('action'=>'updateResource', 'type'=>$type,'amt'=> -$amt);
         break; 
+        case 'buildingState':
+          $b_key = $log['piece_id'];
+          $oldState = $args['old_state'];
+          $this->game->DbQuery("UPDATE `buildings` SET `state`='$oldState' WHERE `building_key`=$b_key;");
+          $js_update_arr[] = array('action'=>$log['action'], 'state'=>$oldState, 'b_id'=>$this->game->Building->getBuildingIdFromKey($b_key));
+        break;
         case 'passBid':
-          $this->game->DbQuery("UPDATE `bids` SET `bid_loc` ='".$log['piece_id']."', `outbid`='1' WHERE `player_id` = '$p_id'");
+          $this->game->DbQuery("UPDATE `bids` SET `bid_loc` ='".$log['piece_id']."', `outbid`='1' WHERE `player_id` = '$p_id';");
           $js_update_arr[] = array('action'=>$log['action'], 'last_bid'=>$log['piece_id']);
       break;
       default:

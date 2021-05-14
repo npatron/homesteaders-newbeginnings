@@ -32,17 +32,6 @@ class HSDAction extends APP_GameClass
         $this->game->DbQuery( $sql );
     }
 
-    public function playerDonePlacingWorkers ($p_id, $warehouse = null){
-        if ($this->game->Building->doesPlayerOwnBuilding($p_id, BLD_WAREHOUSE)){
-            if (is_null($warehouse))
-                throw new BgaUserException( clienttranslate("You must select a warehouse income"));
-            if ($this->game->Building->canPlayerReceiveWarehouseIncome($p_id, $this->game->resource_map[$warehouse]))
-                throw new BgaUserException( clienttranslate("You cannot select that warehouse income"));
-        }
-        $this->game->Resource->collectIncome($p_id, $warehouse);
-        $this->game->gamestate->setPlayerNonMultiactive( $p_id , 'auction' );
-    }
-
     /*** Player Bid Phase ***/
     public function playerConfirmDummyBid($bid_location){
         $this->game->checkAction('dummy');
@@ -80,15 +69,12 @@ class HSDAction extends APP_GameClass
     public function playerDoNotBuild () {
         $this->game->checkAction( "doNotBuild" );
         if ($this->game->getGameStateValue( 'rail_no_build') == ENABLED){
-            $currentState = $this->gamestate->state();
-            if ($currentState['name'] === 'chooseBuildingToBuild_event' && $this->game->Event->$this->getEventAucB() == EVT_AUC_STEEL_ANY){
-                //don't get free track, when have to pay steel to build again.
-            } else {
-                $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), clienttranslate('In place of Build'), 'auction', $this->game->getGameStateValue( 'current_auction' ));
-                $this->game->Score->updatePlayerScore($this->game->getActivePlayerId());
-            }
+            $cur_auc = $this->game->getGameStateValue( 'current_auction' );
+            $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), clienttranslate("Auction $cur_auc (In place of Build)"), 'auction', $cur_auc);
+            $this->game->Score->updatePlayerScore($this->game->getActivePlayerId());
         }
         //goto next state;
+        $this->game->setGameStateValue('last_building', 0);
         $this->game->setGameStateValue('building_bonus', BUILD_BONUS_NONE);
         $this->game->gamestate->nextState('done');
     }
@@ -96,8 +82,10 @@ class HSDAction extends APP_GameClass
     public function BuildSteel () {
         $this->game->checkAction( "eventLotBonus" );
         $p_id = $this->game->getActivePlayerId();
+        if (!$this->game->Resource->canPlayerAfford($p_id, array('steel'=>1))){
+            throw new BgaUserException( sprintf(clienttranslate("You need a %s to take this action"),"<div class='log_steel token_inline'></div>"));
+        }
         $this->game->Resource->updateAndNotifyPayment($p_id, "steel", 1, $this->game->Event->getEventName());
-        
         //goto next state;
         $this->game->gamestate->nextState('evt_build');
     }
