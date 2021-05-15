@@ -77,7 +77,7 @@ $machinestates = array(
         "descriptionhidden" => clienttranslate('Some players may choose to trade before event (trades temporarily hidden)'),
         "descriptionmyturnhidden" => clienttranslate('${you} may choose to trade before event (trades temporarily hidden)'),
         "type" => "multipleactiveplayer",
-        "action" => "stSetupTrade",
+        "action" => "stEventSetupTrade",
         "args" => "argsEventPreTrade",
         "possibleactions" => array( "trade", "takeLoan", "event", "actionCancel" ),
         "transitions" => array( "post" => STATE_EVT_POST_TRADE,
@@ -91,19 +91,21 @@ $machinestates = array(
         "descriptionalternate" => clienttranslate('Some players may choose to receive bonus'),
         "descriptionmyturnalternate" => clienttranslate('${you} may choose to receive bonus'),
         "type" => "multipleactiveplayer",
+        "action" => "stEventSetupBonus",
         "args" => "argEventBonus",
         "possibleactions" => array( "eventBonus" ),
-        "transitions" => array( "" => STATE_BEGIN_AUCTION,)
+        "transitions" => array( "done" => STATE_BEGIN_AUCTION,)
     ),
 
     STATE_EVT_PAY => array(
         "name" => "EventPay",
         "description" => clienttranslate('some players must pay for event'),
         "descriptionmyturn" => clienttranslate('${you} must pay for event'),
+        "action" => "stEventSetupPay",
         "type" => "multipleactiveplayer",
         "args" => "argEventPay",
         "possibleactions" => array( "trade", "takeLoan", "updateGold", "done" ),
-        "transitions" => array( "" => STATE_BEGIN_AUCTION,)
+        "transitions" => array( "done" => STATE_BEGIN_AUCTION,)
     ),
     
     STATE_EVT_POST_TRADE => array(

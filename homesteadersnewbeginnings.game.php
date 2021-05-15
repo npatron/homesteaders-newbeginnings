@@ -771,6 +771,19 @@ class homesteadersnewbeginnings extends Table
         $this->gamestate->nextState($next_state);
     }
 
+    function stEventSetupTrade() {
+        $this->Log->allowTradesAllPlayers();
+        $this->gamestate->setAllPlayersMultiactive();
+    }
+
+    function stEventSetupBonus() {
+        $this->Event->setupEventBonus();
+    }
+
+    function stEventSetupPay() {
+        $this->Event->setupEventPay();
+    }
+
     function stSetupEventLotBonus(){
         $this->Event->setupEventLotBonus();
     }

@@ -321,11 +321,11 @@ var jstpl_player_board = '\<div class="cp_board">\
     <div class="score_group"><div class="score_flex">\
         <div id="silver_p${id}" class="score_flex_item score_top score_left"><div id="silvericon_p${id}" class="score_token score_silver score"></div><div id="silvercount_${id}" class="score_silver_text score_text">0</div></div>\
         <div id="trade_p${id}" class="score_flex_item score_top"><div id="tradeicon_p${id}" class="score_token score_trade score"></div><div id="tradecount_${id}" class="score_trade_text score_text">0</div></div>\
+        <div id="vp_p${id}" class="score_flex_item score_bot score_left"><div id="vpicon_p${id}" class="score_token score_vp score"></div><div id="vpcount_${id}" class="score_vp_text score_text">0</div></div>\
+        <div id="loan_p${id}" class="score_flex_item score_bot"><div id="loanicon_p${id}" class="score_loan score score"></div><div id="loancount_${id}" class="score_loan_text score_text">0</div></div>\
         <div id="wood_p${id}" class="score_flex_item score_top"><div id="woodicon_p${id}" class="score_token score_wood score"></div><div id="woodcount_${id}" class="score_wood_text score_text">0</div></div>\
         <div id="food_p${id}" class="score_flex_item score_top"><div id="foodicon_p${id}" class="score_token score_food score"></div><div id="foodcount_${id}" class="score_food_text score_text">0</div></div>\
         <div id="steel_p${id}" class="score_flex_item score_top score_right"><div id="steelicon_p${id}" class="score_token score_steel score"></div><div id="steelcount_${id}" class="score_steel_text score_text">0</div></div>\
-        <div id="vp_p${id}" class="score_flex_item score_bot score_left"><div id="vpicon_p${id}" class="score_token score_vp score"></div><div id="vpcount_${id}" class="score_vp_text score_text">0</div></div>\
-        <div id="loan_p${id}" class="score_flex_item score_bot"><div id="loanicon_p${id}" class="score_loan score score"></div><div id="loancount_${id}" class="score_loan_text score_text">0</div></div>\
         <div id="gold_p${id}" class="score_flex_item score_bot"><div id="goldicon_p${id}" class="score_token score_gold score"></div><div id="goldcount_${id}" class="score_gold_text score_text">0</div></div>\
         <div id="cow_p${id}" class="score_flex_item score_bot"><div id="cowicon_p${id}" class="score_token score_cow score"></div><div id="cowcount_${id}" class="score_cow_text score_text">0</div></div>\
         <div id="copper_p${id}" class="score_flex_item score_bot score_right"><div id="coppericon_p${id}" class="score_token score_copper score"></div><div id="coppercount_${id}" class="score_copper_text score_text">0</div></div>\

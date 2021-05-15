@@ -175,6 +175,17 @@ class HSDEvents extends APP_GameClass
                 $next_state = 'evt_trade';
                 $all = true;
                 break;
+            //// next_state='bonus' states //// (multi-active version of choose bonus)
+            case EVT_LOAN_TRACK: 
+            case EVT_RES_ADV_TRACK:
+            case EVT_LEAST_WORKER:
+                $next_state = 'bonus';
+                break;
+            //// next_state='evt_pay' states //// (multi-active pay cost state)
+            case EVT_INTEREST: //note: players can't pay off loans until end of game. (so no trade before pay)
+            case EVT_BLD_TAX_SILVER:
+                $next_state = 'evt_pay';
+                break;
             //// next_state='done' states ////
             case EVT_TRADE: //everyone gets a trade token. (no trade req)
                 $resources = $this->game->getCollectionFromDB( "SELECT `player_id` FROM `resources` " );
@@ -205,68 +216,80 @@ class HSDEvents extends APP_GameClass
                     $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', $res_amt, _('event'));
                 }
                 break;
-            //// next_state='bonus' states //// (multi-active version of choose bonus)
+        }
+        $this->game->gamestate->nextState($next_state);
+    }
+
+    function setupEventBonus(){
+        $bonus_id = $this->getEventAllB();
+        $pending_players = array();
+        switch($bonus_id){
             case EVT_LOAN_TRACK: 
                 //least loan gets  ${adv_track} (no trade req)
                 $players_tmp = $this->getPlayersWithLeastResource('loan');
                 foreach ($players_tmp as $p_id){
                     $this->game->Resource->getRailAdv($p_id, _('event'));
-                    $players[] = $p_id;
+                    $pending_players[] = $p_id;
+                    $this->game->Log->allowTrades($p_id);
                 }
-                $next_state = 'bonus';
-                break;
-            case EVT_RES_ADV_TRACK:
+            break;
+            case EVT_LEAST_WORKER:
+                // go to state to choose to get bonus (worker) or pass 
+                // go to new state (multi-active version of receive bonus worker state).
+                $players_tmp = $this->getPlayersWithLeastResource('worker');
+                foreach($players_tmp as $p_id){
+                    $pending_players[] = $p_id;
+                    $this->game->Log->allowTrades($p_id);
+                }
+            break;
+            case EVT_RES_ADV_TRACK:                
                 //The player(s) with the most ${res} buildings gets ${adv_track}
                 $players_tmp= $this->getPlayersWithMostBuildings(TYPE_RESIDENTIAL);
                 foreach ($players_tmp as $p_id){
                     $this->game->Resource->getRailAdv($p_id, _('event'));
-                    $players[] = $p_id;
+                    $this->game->Log->allowTrades($p_id);
+                    $pending_players[] = $p_id;
                 }
-                $next_state = 'bonus';
-                break;
-            case EVT_LEAST_WORKER:
-                $players_tmp = $this->getPlayersWithLeastResource('worker');
-                foreach($players_tmp as $p_id){
-                    $players[] = $p_id;
-                }
-                // go to state to choose to get bonus (worker) or pass 
-                $next_state = 'bonus';
-                // go to new state (multi-active version of receive bonus worker state).
-                break;
-            //// next_state='evt_pay' states //// (multi-active pay cost state)
+            break;
+        }
+        if (count($pending_players) == 0){
+            $this->game->gamestate->nextState("done");
+        } else {
+            $this->game->gamestate->setPlayersMultiactive($pending_players, 'done');
+        }
+    }
+
+    function setupEventPay() {
+        $bonus_id = $this->getEventAllB();
+        $all = false;
+        $pending_players = array();
+        switch($bonus_id){
             case EVT_INTEREST: //note: players can't pay off loans until end of game. (so no trade before pay)
                 $players_tmp = $this->getPlayersWithAtLeastOneResource('loan');
-                if (count($players_tmp) ==0){
-                    $next_state = 'done';
-                } else {
-                    // send to new multi-active pay state, with cost based upon amount of loans
-                    foreach($players_tmp as $p_id){
-                        $loan_amt = $this->game->Resource->getPlayerResourceAmount($p_id, 'loan');
-                        $this->game->Resource->setCost($p_id, $loan_amt);
-                        $players[] = $p_id;
-                    }
-                    $next_state = 'evt_pay';
+                // send to new multi-active pay state, with cost based upon amount of loans
+                foreach($players_tmp as $p_id){
+                    $loan_amt = $this->game->Resource->getPlayerResourceAmount($p_id, 'loan');
+                    $this->game->Resource->setCost($p_id, $loan_amt);
+                    $this->game->Log->allowTrades($p_id);
+                    $pending_players[] = $p_id;
                 }
-                break;
+            break;
             case EVT_BLD_TAX_SILVER:
                 $players_tmp= $this->getPlayersAmountOfBuildings();
                 foreach($players_tmp as $p_id => $player){
                     $this->game->Resource->setCost($p_id, $player['amt']);
-                    $players[] = $p_id;
                 }
                 // Players must pay ${silver} per Building they have
-                $next_state = 'evt_pay';
                 $all = true;
-                break;
+            break;
         }
-        // go to next state.
-        //var_dump($all, $players, $next_state);
         if ($all){
-            $this->game->gamestate->setAllPlayersMultiactive($next_state);
-        } else if (count($players)>0){
-            $this->game->gamestate->setPlayersMultiactive($players, $next_state);
+            $this->game->Log->allowTradesAllPlayers();
+            $this->game->gamestate->setAllPlayersMultiActive();
+        } else if (count($pending_players) == 0){
+            $this->game->gamestate->nextState("done");
         } else {
-            $this->game->gamestate->nextState($next_state);
+            $this->game->gamestate->setPlayersMultiactive($pending_players, 'done');
         }
     }
 
