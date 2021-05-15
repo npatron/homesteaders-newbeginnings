@@ -348,13 +348,15 @@ class homesteadersnewbeginnings extends Table
     }
     
     public function playerPay($gold) {
-        $state = $this->gamestate->state();
-        if ($state['name'] === 'payWorkers'){
+        $state_name = $this->gamestate->state()['name'];
+        if ($state_name === 'payWorkers'){
             $this->payWorkers($gold);
-        } else if ($state['name'] === 'allocateWorkers'){ 
+        } else if ($state_name === 'allocateWorkers'){ 
             $this->payWorkers($gold, true);
-        } else if ($state['name'] === 'payLot') {
+        } else if ($state_name === 'payLot') {
             $this->payAuction($gold);
+        } else if ($state_name === 'eventPay') {
+            $this->payEvent($gold);
         } else {
             throw new BgaVisibleSystemException ( clienttranslate("player pay called from wrong state") );
         }
@@ -413,6 +415,18 @@ class homesteadersnewbeginnings extends Table
         } else {
             $this->gamestate->nextstate( 'auction_bonus');
         }
+    }
+
+    public function payEvent($gold){
+        $this->checkAction('done');
+        $cur_p_id = $this->getCurrentPlayerId();
+        if ($this->Resource->getPaid($cur_p_id) == 0){ // to prevent charging twice.
+            $this->Resource->setPaid($cur_p_id);
+            $cost = $this->Resource->getCost($cur_p_id);
+            $cost = max($cost - (5*$gold), 0);
+            $this->Resource->pay($cur_p_id, $cost, $gold, 'event');
+        }
+        $this->gamestate->setPlayerNonMultiactive($cur_p_id, 'done' );
     }
 
     public function playerActionCancel() {
@@ -589,7 +603,7 @@ class homesteadersnewbeginnings extends Table
         $this->Resource->clearPaid();
         $this->Resource->clearIncomePaid();
         $this->Building->updateBuildingsForRound($round_number);
-        $this->gamestate->nextState( );
+        $this->gamestate->nextState( '' );
     }
 
     function stPlaceWorkers() {
@@ -795,6 +809,7 @@ class homesteadersnewbeginnings extends Table
     //
     function stEndBuildRound() {
         $this->Auction->discardAuctionTile();
+        $this->Event->discardEventTile();
         $auc_no = $this->incGameStateValue( 'current_auction', 1);
         $next_state = "nextBuilding";
         if ($auc_no > $this->getGameStateValue( 'number_auctions' )){

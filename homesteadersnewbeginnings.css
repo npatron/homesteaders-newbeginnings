@@ -1401,9 +1401,7 @@ div#sell_board{
  *=============*/
 .player_token_zone {
    position: relative;
-   display: grid;
-   grid-template-columns: repeat(auto-fill, 11.5px);
-   grid-template-rows: repeat(auto-fill, 51px);
+   display: inline-flex;
 }
 .bid_token_zone {
    position: absolute;

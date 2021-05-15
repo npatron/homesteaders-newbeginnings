@@ -60,17 +60,24 @@ class HSDResource extends APP_GameClass
         $this->game->DbQuery( "UPDATE `player` SET `recieve_inc`='0' ");
     }
 
+    ///// COST related Functions /////
+    /**
+     * basic getter function
+     */
     function getCost($p_id){
         return $this->game->getUniqueValueFromDB( "SELECT `cost` FROM `player` WHERE `player_id`='$p_id'" ); 
     }
     
     /**
+     * basic setter function.
      * Sets the cost for player with p_id to cost (in silver).
      */
     function setCost($p_id, $cost){
         $this->game->DbQuery( "UPDATE `player` SET `cost`='$cost' WHERE `player_id`='$p_id'");
     }
-    
+    /** 
+     * sets all costs to 0.
+     */
     function clearCost(){
         $this->game->DbQuery( "UPDATE `player` SET `cost`='0' ");
     }

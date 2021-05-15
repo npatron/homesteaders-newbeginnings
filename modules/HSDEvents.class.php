@@ -53,6 +53,12 @@ class HSDEvents extends APP_GameClass
     }
     ///// END event setup method ////
 
+    function discardEventTile(){
+        if ($this->game->getGameStateValue('new_beginning_evt') == DISABLED) return ;
+        $round_number = $this->game->getGameStateValue( 'round_number' );
+        $this->game->DBQuery("UPDATE `events` SET 'location'=0 WHERE `position`=$round_number");
+    }
+
     function getEvent($round_number = null){
         if ($this->game->getGameStateValue('new_beginning_evt') == DISABLED) return 0;
         $round_number = (is_null($round_number)?$this->game->getGameStateValue( 'round_number' ):$round_number);
@@ -260,18 +266,23 @@ class HSDEvents extends APP_GameClass
     }
 
     function setupEventPay() {
+        $this->game->Resource->clearPaid();
         $bonus_id = $this->getEventAllB();
-        $all = false;
-        $pending_players = array();
         switch($bonus_id){
             case EVT_INTEREST: //note: players can't pay off loans until end of game. (so no trade before pay)
+                //$pending_players = array();
                 $players_tmp = $this->getPlayersWithAtLeastOneResource('loan');
                 // send to new multi-active pay state, with cost based upon amount of loans
                 foreach($players_tmp as $p_id){
                     $loan_amt = $this->game->Resource->getPlayerResourceAmount($p_id, 'loan');
                     $this->game->Resource->setCost($p_id, $loan_amt);
                     $this->game->Log->allowTrades($p_id);
-                    $pending_players[] = $p_id;
+                    //$pending_players[] = $p_id;
+                }
+                if (count($players_tmp) == 0){
+                    $this->game->gamestate->nextState("done");
+                } else {
+                    $this->game->gamestate->setPlayersMultiactive($players_tmp, 'done');
                 }
             break;
             case EVT_BLD_TAX_SILVER:
@@ -280,17 +291,11 @@ class HSDEvents extends APP_GameClass
                     $this->game->Resource->setCost($p_id, $player['amt']);
                 }
                 // Players must pay ${silver} per Building they have
-                $all = true;
+                $this->game->Log->allowTradesAllPlayers();
+                $this->game->gamestate->setAllPlayersMultiActive();    
             break;
         }
-        if ($all){
-            $this->game->Log->allowTradesAllPlayers();
-            $this->game->gamestate->setAllPlayersMultiActive();
-        } else if (count($pending_players) == 0){
-            $this->game->gamestate->nextState("done");
-        } else {
-            $this->game->gamestate->setPlayersMultiactive($pending_players, 'done');
-        }
+         
     }
 
     function getNextStatePreTrade(){

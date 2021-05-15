@@ -98,7 +98,7 @@ $machinestates = array(
     ),
 
     STATE_EVT_PAY => array(
-        "name" => "EventPay",
+        "name" => "eventPay",
         "description" => clienttranslate('some players must pay for event'),
         "descriptionmyturn" => clienttranslate('${you} must pay for event'),
         "action" => "stEventSetupPay",

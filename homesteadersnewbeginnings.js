@@ -382,8 +382,8 @@ function (dojo, declare) {
             } else {
                 dojo.query(`#player_resources_${current_player_color} .player_resource_group`).addClass('noshow');
             }
-            this.token_divId[p_id]  = `player_resources_${current_player_color}`;
-            this.token_zone[p_id]   = 'worker_zone_'+ current_player_color;
+            this.token_divId[p_id]  = `token_zone_${current_player_color}`;
+            this.token_zone[p_id]   = `worker_zone_${current_player_color}`;
 
             this.player_building_zone_id[p_id] = TPL_BLD_ZONE + this.player_color[p_id];
         },
@@ -610,7 +610,7 @@ function (dojo, declare) {
             for (let w_key in workers){
                 const worker = workers[w_key];
                 dojo.place(this.format_block( 'jptpl_worker', {id: w_key.toString()}), 
-                        this.token_divId[worker.p_id] );
+                        this.token_zone[worker.p_id] );
                 const worker_divId = `token_worker_${w_key}`;
                 //console.log(worker.b_key, worker.b_slot, this.building_worker_ids);
                 if (worker.b_key != 0 ){ 
@@ -1269,7 +1269,7 @@ function (dojo, declare) {
                 break;
             }
         },
-        onUpdateActionButtons_EventPay: function (args){
+        onUpdateActionButtons_eventPay: function (args){
             this.silverCost= args.cost[this.player_id].cost;
             this.goldAmount = 0;
             this.addPaymentButtons(true);
@@ -3024,7 +3024,7 @@ function (dojo, declare) {
         
         donePlacingWorkers: function( ){
             if( this.checkAction( 'done')){
-                const tokenZone = this.token_divId[this.player_id];
+                const tokenZone = this.token_zone[this.player_id];
                 const playerBuildingZone = this.player_building_zone_id[this.player_id];
                 if (dojo.query(`#${tokenZone} .token_worker`).length > 0 && dojo.query(`#${playerBuildingZone} .worker_slot:empty`).length > 0){
                     this.confirmationDialog( _('You still have workers to assign, Continue?'), 

@@ -22,7 +22,6 @@
     <div class="break" style="order:3;"></div>
         <div id="player_resources_{COLOR}" class="this_player_resources">
             <span id="player_name_{COLOR}" class="boardheader biggerFont" style="color: {COLOR};">{NAME}</span>
-            <div id="worker_zone_{COLOR}" class="worker_zone" style='order:10;'></div> 
             <span id="silver_group" class="this_player_resource_group"><!-- horiz -->
                 <span id="silvericon_{COLOR}" class="score_token player_silver score"></span>
                 <span id="silver_num" class="player_numbers vert"><!-- vertical -->
@@ -133,10 +132,9 @@
                     <span id="copper_new" class="player_copper_new new_text noshow">0</span>
                 </span>
             </span>
-            <div id="worker_zone_{COLOR}" class="worker_zone" style='order:10;'></div> 
         </div>
         <div id="token_zone_{COLOR}" class="player_token_zone">
-            
+            <div id="worker_zone_{COLOR}" class="worker_zone" style='order:10;'></div> 
         </div>
         <div id="building_zone_{COLOR}" class="building_zone"> </div>
     </div>
@@ -242,7 +240,6 @@
     <div id="player_zone_{COLOR}" class="whiteblock border_{COLOR} player_zone" style="margin-top:4px;">
         <div id="player_resources_{COLOR}" class="player_resources">
             <div id="player_name_{COLOR}" class="boardheader biggerFont" style="color: {COLOR};">{NAME}</div>
-            <div id="worker_zone_{COLOR}" class="worker_zone"></div> 
             <span id="silver_group_{COLOR}" class="player_resource_group">
                 <span id="silvericon_{COLOR}" class="score_token player_silver score"></span>
                 <span id="silvercount_{COLOR}" class="player_silver_text player_text">0</span>
@@ -283,7 +280,9 @@
                 <span id="coppericon_{COLOR}" class="score_token player_copper score"></span>
                 <span id="coppercount_{COLOR}" class="player_copper_text player_text">0</span>
             </span>
-
+        </div>
+        <div id="token_zone_{COLOR}" class="player_token_zone">
+            <div id="worker_zone_{COLOR}" class="worker_zone" style='order:10;'></div> 
         </div>
         <div id="building_zone_{COLOR}" class="building_zone"> </div>
     </div>
