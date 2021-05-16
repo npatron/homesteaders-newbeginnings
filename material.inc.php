@@ -84,10 +84,12 @@ $this->translation_strings = array(
   16=> clienttranslate('Show Current Buildings'),
   17=> clienttranslate('Show Upcoming Auctions'), 
   18=> clienttranslate('Show Building Discard'),
+  19=> clienttranslate('Show Events'),
   20=> clienttranslate('Hide Upcoming Buildings'), 
   21=> clienttranslate('Hide Current Buildings'),
   22=> clienttranslate('Hide Upcoming Auctions'), 
   23=> clienttranslate('Hide Building Discard'),
+  14=> clienttranslate('Hide Events'),
 );
 
 $this->resource_info = array(
@@ -758,7 +760,7 @@ $this->event_info = array(
   EVENT_FORTUNE_SEEKER => array(
     'name'  => clienttranslate('Fortune Seeker'),
     'stage' => STAGE_TOWN,
-    'tt'    => clienttranslate('The player(s) with the fewest ${worker} gets a ${worker}'),
+    'tt'    => clienttranslate('The player(s) with the fewest ${worker} may hire a ${worker} (for free)'),
     'all_b' => EVT_LEAST_WORKER,
   ),
   EVENT_INDUSTRIALIZATION => array(

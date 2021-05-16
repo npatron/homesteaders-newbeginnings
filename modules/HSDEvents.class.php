@@ -248,7 +248,7 @@ class HSDEvents extends APP_GameClass
                 } 
             break;
             case EVT_LEAST_WORKER:
-                $pending_players = $this->getPlayersWithLeastResource('worker');
+                $pending_players = $this->getPlayersWithLeastResource('workers');
                 foreach($pending_players as $p_id=>$player){
                     $this->game->Log->allowTrades($p_id);
                 }
@@ -471,7 +471,7 @@ class HSDEvents extends APP_GameClass
                 $leastPlayers[] = $p_id;
             }
         }
-        return $leastPlayers();
+        return $leastPlayers;
     }
 
     private function getMost($values, $key, $minimum=0, $key2=null){

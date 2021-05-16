@@ -793,7 +793,7 @@ div#sell_board{
    min-width: 700px;
 }
 #events_container{
-   min-width: 700px;
+   min-width: 450px;
    flex-grow: 1;
 }
 
@@ -1803,6 +1803,10 @@ div#sell_board{
    left: 15%;
    bottom: 7%;
 } 
+.slot_39_1 {
+   left: 37px;
+   bottom: 14px;
+}
 
 /*=====================*
  * Auction Tile images *

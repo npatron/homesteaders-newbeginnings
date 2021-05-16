@@ -289,32 +289,32 @@ class homesteadersnewbeginnings extends Table
 
     // can be mutli-active
     public function playerSelectRailBonusEvent($selected_bonus) {
-        $this->game->checkAction( "chooseBonus" );
-        $cur_p_id = $this->game->getCurrentPlayerId();
-        $options = $this->game->Resource->getRailAdvBonusOptions($cur_p_id);
+        $this->checkAction( "chooseBonus" );
+        $cur_p_id = $this->getCurrentPlayerId();
+        $options = $this->Resource->getRailAdvBonusOptions($cur_p_id);
         if (!in_array ($selected_bonus, $options)){
             throw new BgaUserException( clienttranslate("invalid bonus option selected") );
         } 
-        $this->game->Resource->receiveRailBonus($cur_p_id, $selected_bonus);
-        $this->game->gamestate->setPlayerNonMultiactive( $cur_p_id, "" );
+        $this->Resource->receiveRailBonus($cur_p_id, $selected_bonus);
+        $this->gamestate->setPlayerNonMultiactive( $cur_p_id, "" );
     }
 
     public function playerFreeHireWorkerEvent(){
-        $this->game->checkAction( "eventBonus" );
-        $cur_p_id = $this->game->getCurrentPlayerId();
-        if ($this->game->Event->getEventAllB() != EVT_LEAST_WORKER) {
-            throw new BgaVisibleSystemException ( sprintf(clienttranslate("Free Hire Worker called, but event bonus is %s"),$this->game->Event->getEventAucB()));
+        $this->checkAction( "eventBonus" );
+        $cur_p_id = $this->getCurrentPlayerId();
+        if ($this->Event->getEventAllB() != EVT_LEAST_WORKER) {
+            throw new BgaVisibleSystemException ( sprintf(clienttranslate("Free Hire Worker called, but event bonus is %s"),$this->Event->getEventAucB()));
         }
-        $this->game->Resource->addWorkerAndNotify($cur_p_id, $this->event_info[$this->Event->getEvent()]['name']);
-        $this->game->gamestate->setPlayerNonMultiactive($cur_p_id, "");
+        $this->Resource->addWorkerAndNotify($cur_p_id, $this->event_info[$this->Event->getEvent()]['name']);
+        $this->gamestate->setPlayerNonMultiactive($cur_p_id, "");
     }
 
     public function playerPassBonusEvent(){
-        $this->game->checkAction( "eventBonus" );
+        $this->checkAction( "eventBonus" );
         $cur_p_id = $this->getCurrentPlayerId();
-        $this->game->notifyAllPlayers( "passBonus", clienttranslate( '${player_name} passes on Event Bonus' ), 
+        $this->notifyAllPlayers( "passBonus", clienttranslate( '${player_name} passes on Event Bonus' ), 
             array('player_id' => $cur_p_id, 'player_name' => $this->getPlayerName($cur_p_id)));
-        $this->game->gamestate->setPlayerNonMultiactive($cur_p_id, "");
+        $this->gamestate->setPlayerNonMultiactive($cur_p_id, "");
     }
 
     public function playerHireWorker(){

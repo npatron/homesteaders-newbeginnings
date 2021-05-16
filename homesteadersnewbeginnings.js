@@ -75,6 +75,7 @@ function (dojo, declare) {
     const BLD_LOC_PLAYER  = 2;
     const BLD_LOC_DISCARD = 3;
     const AUC_LOC_FUTURE  = 2;
+    const EVT_LOC_MAIN    = 4;
 
     const TRADE_BUTTON_SHOW    = 0;
     const TRADE_BUTTON_HIDE    = 1;
@@ -106,12 +107,12 @@ function (dojo, declare) {
 
 
     // arrays for the map between toggle buttons and show/hide zones 
-    const TOGGLE_BTN_ID     = ['tgl_future_bld', 'tgl_main_bld', 'tgl_future_auc', 'tgl_past_bld'];
-    const TOGGLE_BTN_STR_ID = ['bld_future', 'bld_main', 'auc_future', 'bld_discard'];
-    const TOGGLE_SHOW_STRING= ['Show Upcoming Buildings', 'Show Current Buildings', 'Show Upcoming Auctions', 'Show Building Discard'];
-    const TOGGLE_HIDE_STRING= ['Hide Upcoming Buildings', 'Hide Current Buildings', 'Hide Upcoming Auctions', 'Hide Building Discard'];
-    const TILE_CONTAINER_ID = ['future_building_container', 'main_building_container', 'future_auction_container', 'past_building_container'];
-    const TILE_ZONE_DIVID   = ['future_building_zone', 'main_building_zone', 'future_auction_1', 'past_building_zone'];
+    const TOGGLE_BTN_ID     = ['tgl_future_bld', 'tgl_main_bld', 'tgl_future_auc', 'tgl_past_bld', 'tgl_events'];
+    const TOGGLE_BTN_STR_ID = ['bld_future', 'bld_main', 'auc_future', 'bld_discard', 'evt_main'];
+//    const TOGGLE_SHOW_STRING= ['Show Upcoming Buildings', 'Show Current Buildings', 'Show Upcoming Auctions', 'Show Building Discard', 'Show Events'];
+//    const TOGGLE_HIDE_STRING= ['Hide Upcoming Buildings', 'Hide Current Buildings', 'Hide Upcoming Auctions', 'Hide Building Discard', 'Hide Events'];
+    const TILE_CONTAINER_ID = ['future_building_container', 'main_building_container', 'future_auction_container', 'past_building_container', 'events_container'];
+    const TILE_ZONE_DIVID   = ['future_building_zone', 'main_building_zone', 'future_auction_1', 'past_building_zone', 'events_zone'];
     const EVT_ZONE = "events_zone";
     
     const TRADE_MAP = {'buy_wood':0,  'buy_food':1,  'buy_steel':2, 'buy_gold':3, 'buy_copper':4, 'buy_cow':5,
@@ -810,6 +811,7 @@ function (dojo, declare) {
             dojo.connect($(TOGGLE_BTN_ID[BLD_LOC_OFFER]), 'onclick', this, 'toggleShowBldMain');
             dojo.connect($(TOGGLE_BTN_ID[BLD_LOC_DISCARD]),  'onclick', this, 'toggleShowBldDiscard');
             dojo.connect($(TOGGLE_BTN_ID[BLD_LOC_FUTURE]),  'onclick', this, 'toggleShowBldFuture');
+            dojo.connect($(TOGGLE_BTN_ID[EVT_LOC_MAIN]),  'onclick', this, 'toggleShowEvents');
             this.showHideButtons();
         },
 
@@ -1488,7 +1490,10 @@ function (dojo, declare) {
             for (let i in this.events){
                 let event = this.event_info[this.events[i].e_id];
                 //do a thing for each event...
-                dojo.place(this.format_block('jptpl_evt_tt', {'pos': this.events[i].position, TITLE: _("Round ") + this.events[i].position + ":<br>" + this.replaceTooltipStrings(event.name), DESC: this.replaceTooltipStrings(event.tt)}), EVT_ZONE,'last');
+                dojo.place(this.format_block('jptpl_evt_tt', 
+                    {'pos': this.events[i].position, 
+                    TITLE: _("Round ") + this.events[i].position + ":<br>" + this.replaceTooltipStrings(event.name), 
+                    DESC: this.replaceTooltipStrings(event.tt)}), TILE_ZONE_DIVID[EVT_LOC_MAIN],'last');
             }
         },
 
@@ -3005,6 +3010,7 @@ function (dojo, declare) {
         toggleShowButton: function (index){
             if(dojo.hasClass(TILE_CONTAINER_ID[index], 'noshow')){
                 this.showTileZone(index);
+                document.getElementById(TILE_CONTAINER_ID[index]).scrollIntoView({behavior:'smooth'});
             } else {
                 this.hideTileZone(index);
             }
@@ -3035,23 +3041,25 @@ function (dojo, declare) {
             dojo.stopEvent( evt );
             this.toggleShowButton(AUC_LOC_FUTURE);
         },
-
         toggleShowBldMain: function (evt ){
             evt.preventDefault();
             dojo.stopEvent( evt );
             this.toggleShowButton(BLD_LOC_OFFER);
         },
-
         toggleShowBldDiscard: function( evt ){
             evt.preventDefault();
             dojo.stopEvent( evt );
             this.toggleShowButton(BLD_LOC_DISCARD);
         },
-
         toggleShowBldFuture: function( evt ){
             evt.preventDefault();
             dojo.stopEvent( evt );
             this.toggleShowButton(BLD_LOC_FUTURE);
+        },
+        toggleShowEvents: function( evt ){
+            evt.preventDefault();
+            dojo.stopEvent( evt );
+            this.toggleShowButton(EVT_LOC_MAIN);
         },
 
         /***** PLACE WORKERS PHASE *****/

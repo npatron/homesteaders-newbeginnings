@@ -145,19 +145,22 @@
         </span>
         <a href="#" id="undo_last_trade_btn" class="bgabutton bgabutton_red noshow"><span id='undoLastTrade' class="font">{UNDO_LAST_TRADE}</span></a>
         <a href="#" id="undo_trades_btn" class="bgabutton bgabutton_red noshow"><span id='undoTrade' class="font">{UNDO_TRADE}</span></a>
-        <a href="#" id="tgl_future_auc" class="bgabutton bgabutton_gray">
-            <span id='auc_future' class="font">{FUTURE_AUCTION}</span>
-        </a>
         <a href="#" id="tgl_main_bld" class="bgabutton bgabutton_gray">
             <span id="bld_main" class="font">{BUILDING_STOCK}</span>
         </a>
-        <a href="#" id="tgl_past_bld" class="bgabutton bgabutton_gray">
-            <span id="bld_discard" class="font">{BUILDING_DISCARD}</span>
+        <a href="#" id="tgl_events" class="bgabutton bgabutton_gray">
+            <span id="evt_main" class="font">{EVENT_STOCK}</span>
+        </a>
+        <a href="#" id="tgl_future_auc" class="bgabutton bgabutton_gray">
+            <span id='auc_future' class="font">{FUTURE_AUCTION}</span>
         </a>
         <a href="#" id="tgl_future_bld" class="bgabutton bgabutton_gray">
             <span id="bld_future" class="font">{FUTURE_BUILDING}</span>
         </a>
-        <a href="#" id="confirm_trade_btn" class="bgabutton bgabutton_blue noshow"><span id='confirmTrade' class="font">{CONFIRM_TRADE}</span></a>
+        <a href="#" id="tgl_past_bld" class="bgabutton bgabutton_gray">
+            <span id="bld_discard" class="font">{BUILDING_DISCARD}</span>
+        </a>
+        
     </div>
 
     <div id="main_board_area" class="full_size">
