@@ -1300,7 +1300,8 @@ div#sell_board{
    height: 20px;
    transform: scale(1.25);
 }
-.breadcrumbs_element .log_cow, .breadcrumbs_element .log_copper{
+.breadcrumbs_element .log_cow, .breadcrumbs_element .log_copper,
+.bgabutton .log_cow, .bgabutton .log_copper{
    transform: scale(1);
 }
 /***   ***/
@@ -1434,6 +1435,7 @@ div#sell_board{
 .log_container {
    display: inline-flex;
    flex-direction: row-reverse;
+   pointer-events: none;
 }
 .token_inline{
    background-image: url('img/drawn_tokens_2.png');

@@ -203,6 +203,11 @@ class HSDResource extends APP_GameClass
      */
     function addWorkerAndNotify($p_id, $reason_string, $origin="", $key=0){
         $w_key = $this->addWorker($p_id);
+        if($this->game->Building->doesPlayerOwnBuilding($p_id, BLD_HOTEL)){
+            $this->updateAndNotifyIncome($p_id, 'silver', 1, 
+                        $this->game->Building->getBuildingNameFromId(BLD_HOTEL), 'building', 
+                        $this->game->Building->getKeyOfPlayersBuilding($p_id, BLD_HOTEL));
+        }
         if ($reason_string == 'hire'){
             $this->game->notifyAllPlayers( "gainWorker", clienttranslate( '${player_name} hires a ${type}' ), array(
                 'player_id' => $p_id,
@@ -528,11 +533,17 @@ class HSDResource extends APP_GameClass
     }
 
     function trade($p_id, $tradeAction) {
+        //var_dump('trade', $p_id, $tradeAction);
         $tradeValues = $this->getTradeValues($p_id, $tradeAction);
+        //var_dump($tradeValues);
         if ($tradeValues['transaction']==='loanTaken'){
+            $this->updateResource($p_id, 'silver', 2);
+            $this->updateResource($p_id, 'loan', 1);
             $this->game->Log->takeLoan($p_id);
         } else if ($tradeValues['transaction']==='loanPaid'){
             $type = array_key_first($tradeValues['tradeAway']);
+            $this->updateResource($p_id, $type, -($tradeValues['tradeAway'][$type]));
+            $this->updateResource($p_id, 'loan', -1);
             $this->game->Log->payOffLoan($p_id, $type, $tradeValues['tradeAway'][$type]); 
         } else {
             $this->game->Log->tradeResource($p_id, $tradeValues['tradeAway'], $tradeValues['tradeFor']);
@@ -581,13 +592,13 @@ class HSDResource extends APP_GameClass
             break;
             case 'loan':
                 return (array(
-                        'transaction'=>"loanTaken", 
-                        'message'=> clienttranslate( '${player_name} takes a ${loan}' ),
-                        'args'=>array('player_id' => $p_id,
-                                    'player_name' => $this->game->getPlayerName($p_id),
-                                    'loan' => 'debt'),
-                        'tradeFor'=>array('silver'=>2,'loan'=>1),
-                        'tradeAway'=>array()));
+                    'transaction'=>"loanTaken", 
+                    'message'=> clienttranslate( '${player_name} takes a ${loan}' ),
+                    'args'=>array('player_id' => $p_id,
+                                'player_name' => $this->game->getPlayerName($p_id),
+                                'loan' => 'debt'),
+                    'tradeFor'=>array('silver'=>2,'loan'=>1),
+                    'tradeAway'=>array()));
             case 'payLoan':
                 switch($tradeAct_segs[1]){
                     case 'gold':

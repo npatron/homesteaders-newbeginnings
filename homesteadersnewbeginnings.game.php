@@ -424,7 +424,7 @@ class homesteadersnewbeginnings extends Table
             $this->Resource->setPaid($cur_p_id);
             $cost = $this->Resource->getCost($cur_p_id);
             $cost = max($cost - (5*$gold), 0);
-            $this->Resource->pay($cur_p_id, $cost, $gold, 'event');
+            $this->Resource->pay($cur_p_id, $cost, $gold, $this->Event->getEventName());
         }
         $this->gamestate->setPlayerNonMultiactive($cur_p_id, 'done' );
     }
@@ -519,7 +519,7 @@ class homesteadersnewbeginnings extends Table
     }
 
     function argEventPay(){
-        $cost = $this->getCollectionFromDB("SELECT `player_id`, `cost` FROM `player`");
+        $cost = $this->Event->getEventPayCost();
         return array('cost'=>$cost);
     }
 
@@ -809,7 +809,6 @@ class homesteadersnewbeginnings extends Table
     //
     function stEndBuildRound() {
         $this->Auction->discardAuctionTile();
-        $this->Event->discardEventTile();
         $auc_no = $this->incGameStateValue( 'current_auction', 1);
         $next_state = "nextBuilding";
         if ($auc_no > $this->getGameStateValue( 'number_auctions' )){
@@ -819,6 +818,7 @@ class homesteadersnewbeginnings extends Table
     }
 
     function stEndRound(){
+        $this->Event->discardEventTile();
         //clean up for new round.
         $this->incGameStateValue( 'round_number', 1 );
         $this->setGameStateValue( 'current_auction', 1);

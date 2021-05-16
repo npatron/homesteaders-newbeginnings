@@ -118,6 +118,11 @@ class HSDBuilding extends APP_GameClass
         return false;
     }
 
+    function getKeyOfPlayersBuilding($p_id, $b_id){
+        $sql = "SELECT building_key FROM `buildings` WHERE `player_id`='".$p_id."' AND `building_id`='$b_id'";
+        return $this->game->getUniqueValueFromDB($sql);
+    }
+
     function updateBuildingsForRound($round_number){
         //rd 1 setup buildings
         if($round_number == 1){
@@ -255,19 +260,23 @@ class HSDBuilding extends APP_GameClass
     }
 
     function getOnBuildBonusForBuildingId($b_id){ 
-        return ($this->game->building_info[$b_id]['on_b']??BUILD_BONUS_NONE);
+        return (int)($this->game->building_info[$b_id]['on_b']??BUILD_BONUS_NONE);
     }
 
     function getBuildingScoreFromKey($b_key){
-        return ($this->getBuildingScoreFromId($this->getBuildingIdFromKey($b_key)));
+        return (int)($this->getBuildingScoreFromId($this->getBuildingIdFromKey($b_key)));
     }
 
     function getBuildingScoreFromId($b_id) {
-        return ($this->game->building_info[$b_id]['vp']??0);
+        return (int)($this->game->building_info[$b_id]['vp']??0);
     }
 
     function getBuildingState($b_key){
-        return $this->game->getUniqueValueFromDB("SELECT `state` FROM `buildings` WHERE `building_key`=$b_key");
+        return (int) $this->game->getUniqueValueFromDB("SELECT `state` FROM `buildings` WHERE `building_key`=$b_key");
+    }
+
+    function setBuildingState($b_key, $state){
+        $this->game->DBQuery("UPDATE `buildings` SET `state`=$state WHERE `building_key`=$b_key");
     }
 
     function setupWarehouse($p_id, $b_key, $state=0){
@@ -277,8 +286,8 @@ class HSDBuilding extends APP_GameClass
                 $state |= $val;
             }
         }
-        $oldState = $this->game->getUniqueValueFromDB("SELECT `state` FROM `buildings` WHERE `building_key`=$b_key");
-        $this->game->DBQuery("UPDATE `buildings` SET `state`=$state WHERE `building_key`=$b_key");
+        $oldState = $this->getBuildingState($b_key);
+        $this->setBuildingState($b_key, $state);
         $this->game->notifyAllPlayers( "notif_updateWarehouseState", clienttranslate( 'update resources on ${b_name}' ), array(
             'b_name' => $this->getBuildingNameFromId(BLD_WAREHOUSE),
             'b_key' => $b_key, 
@@ -288,9 +297,10 @@ class HSDBuilding extends APP_GameClass
     }
 
     function canPlayerReceiveWarehouseIncome($p_id, $b_key, $type){
-        $sql = "SELECT `state` FROM `buildings` WHERE `player_id`=$p_id AND `building_key`=$b_key";
-        $warehouseState = (int) $this->game->getUniqueValuefromDB($sql);
-        if (is_null($warehouseState)) return false; // don't own warehouse
+        if (!$this->doesPlayerOwnBuilding($p_id, BLD_WAREHOUSE)) return false; // don't own warehouse
+        if ($this->getBuildingIdFromKey($b_key) != BLD_WAREHOUSE) 
+            throw new BgaUserException( clienttranslate("This building isn't ")); // bad usage.
+        $warehouseState = $this->getBuildingState($b_key);
         // if the value in warehouseState includes
         // checking using bitwise and (see $this->game->warehouse_map for bit_locations)
         return ($warehouseState & $this->game->warehouse_map[$type] >0);

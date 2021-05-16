@@ -717,9 +717,9 @@ function (dojo, declare) {
         setupWarehouseButtons: function(){
             let warehouseResources = this.getWarehouseResources();
 
-            let buttonDiv = dojo.create('div', {id:"choose_warehouse_buttons"});
+            let buttonDiv = dojo.create('div', {id:"choose_warehouse_buttons", style:'display: flex;justify-content: center;'});
             dojo.place(buttonDiv, 'generalactions', 'last');
-            dojo.style('choose_warehouse_buttons', 'display', 'inline-flex');
+            dojo.style('choose_warehouse_buttons', 'display', 'flex');
             let warehouseText = dojo.create('span', {class:"font caps com", id:'warehouse_text'});
             dojo.place(warehouseText, "choose_warehouse_buttons", 'first');
             warehouseText.innerText = _(this.building_info[BLD_WAREHOUSE].name+": ");
@@ -1270,7 +1270,7 @@ function (dojo, declare) {
             }
         },
         onUpdateActionButtons_eventPay: function (args){
-            this.silverCost= args.cost[this.player_id].cost;
+            this.silverCost= args.cost[this.player_id];
             this.goldAmount = 0;
             this.addPaymentButtons(true);
         },
@@ -1552,9 +1552,13 @@ function (dojo, declare) {
             this.createBuildingBreadcrumb();
             this.makeBuildingsSelectable(this.allowed_buildings);
             this.addActionButton( 'btn_choose_building', dojo.string.substitute(_('Build ${building_name}'), {building_name:'<span id="bld_name"></span>'}), 'chooseBuilding');
+            this.addActionButton( 'btn_do_not_build', _('Do Not Build'), 'doNotBuild', null, false, 'red');
+            this.addActionButton( 'btn_redo_build_phase', _('Cancel'),   'cancelTurn', null, false, 'red');
+            this.can_cancel = true;
+            this.addTradeActionButton();
             dojo.addClass('btn_choose_building' ,'disabled');
-            replacers = dojo.create('div', {id:'replacers'});
-            dojo.place(replacers, '')
+            replacers = dojo.create('div', {id:'replacers', style:'display:inline-block;'});
+            dojo.place(replacers, 'generalactions', 'last');
             if (this.hasBuilding[this.player_id][BLD_RIVER_PORT]){
                 if (this.goldAsCow){
                     this.addActionButton( 'btn_gold_cow', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<div id='cow_as'>", gold:this.tkn_html.gold, type:this.tkn_html.cow, end:"</div>"}), 'toggleGoldAsCow', null, false, 'blue');
@@ -1566,20 +1570,22 @@ function (dojo, declare) {
                 } else {
                     this.addActionButton( 'btn_gold_copper', dojo.string.substitute(_("${begin}${gold} As ${type}${end}"), {begin:"<div id='copper_as' class='no'>", gold:this.tkn_html.gold, type:this.tkn_html.copper, end:"</div>"}), 'toggleGoldAsCopper', null, false, 'red');
                 }
+                dojo.place('btn_gold_cow', 'replacers', 'last');
                 dojo.style('btn_gold_cow', 'display', 'none');
+                dojo.place('btn_gold_copper', 'replacers', 'last');
                 dojo.style('btn_gold_copper', 'display', 'none');
             }
             if (this.hasBuilding[this.player_id][BLD_LUMBER_MILL]){
                 this.lumberMill_WoodVP_Steel=0;
                 this.addActionButton( 'btn_more_steel', dojo.string.substitute(_('More ${wood}${vp} As ${steel}'), {gold: this.tkn_html.gold}), 'raiseWoodSteel', null, false, 'gray');
                 this.addActionButton( 'btn_less_steel', dojo.string.substitute(_('Less ${wood}${vp} As ${steel}'), {gold: this.tkn_html.gold}), 'lowerWoodSteel', null, false, 'gray');
+                dojo.place('btn_more_steel', 'replacers', 'last');
                 dojo.style( $('btn_more_steel'), 'display', 'none');
+                dojo.place('btn_less_steel', 'replacers', 'last');
                 dojo.style( $('btn_less_steel'), 'display', 'none');
+                
             }
-            this.addActionButton( 'btn_do_not_build', _('Do Not Build'), 'doNotBuild', null, false, 'red');
-            this.addActionButton( 'btn_redo_build_phase', _('Cancel'),   'cancelTurn', null, false, 'red');
-            this.can_cancel = true;
-            this.addTradeActionButton();
+            
         },
 
         formatTooltipBuilding:function (b_id, b_key, msg_id = null){
@@ -1962,8 +1968,8 @@ function (dojo, declare) {
         //// Player's action
 
         /***** COMMON ACTIONS (multiple states) *****/
-        addPaymentButtons: function( ){
-            if (!this.showPay) return;
+        addPaymentButtons: function( bypass= false ){
+            if (!bypass && !this.showPay) return;
             this.addActionButton( 'btn_pay_done', dojo.string.substitute(_("Pay: ${amt}"), {amt:this.format_block("jstpl_pay_button", {})}), 'donePay');
             this.silverCounter.create('pay_silver');
             this.silverCounter.setValue(this.silverCost);
@@ -2368,25 +2374,46 @@ function (dojo, declare) {
             }
         },
         
-        /** Enable Trade
-         * 
+        /** 
+         * Enable Trade
          */
         enableTradeIfPossible: function() {
             if (!this.tradeEnabled){
-                let b_zone = `building_zone_${this.player_color[this.player_id]}`;
-                dojo.place(BUY_BOARD_ID, b_zone, 'first');
-                dojo.place(SELL_BOARD_ID, b_zone, 'first');
+                let buy_zone = dojo.create('div', {id:'buy_zone', style:'display:flex;justify-content:center;'});
+                dojo.place(buy_zone, 'generalactions', 'last');
+                let buyText = dojo.create('span', {class:"biggerfont", id:'buy_text'});
+                dojo.place(buyText, "buy_zone", 'first');
+                buyText.innerText = _("buy:");
+            
+                let sell_zone = dojo.create('div', {id:'sell_zone', style:'display:flex;justify-content:center;'});
+                dojo.place(sell_zone, 'generalactions', 'last');
+                let sellText = dojo.create('span', {class:"biggerfont", id:'sell_text'});
+                dojo.place(sellText, "sell_zone", 'first');
+                sellText.innerText =_("sell:");
+                    
+                let types = ['wood','food','steel','gold','cow','copper'];
+                for(let i =0; i <6;i++){
+                    let type = types[i];
+                    //buy
+                    let tradeAwayTkns = this.getResourceArrayHtml(this.getBuyAway(type));
+                    let tradeForTkns = this.getResourceArrayHtml(this.getBuyFor(type));
+                    this.addActionButton( `btn_buy_${type}`, `${tradeAwayTkns} ${this.tkn_html.arrow} ${tradeForTkns}`, 'onBuyResource', null, false, 'blue');
+                    dojo.place(`btn_buy_${type}`, 'buy_zone', 'last');
+                    //sell
+                    tradeAwayTkns = this.getResourceArrayHtml(this.getSellAway(type));
+                    tradeForTkns = this.getResourceArrayHtml(this.getSellFor(type));
+                    this.addActionButton( `btn_sell_${type}`, `${tradeAwayTkns} ${this.tkn_html.arrow} ${tradeForTkns}`, 'onSellResource', null, false, 'blue');
+                    dojo.place(`btn_sell_${type}`, 'sell_zone', 'last');
+                }
                 this.tradeEnabled = true;
-                dojo.query('#trade_top').style('display','none');
             }
         },
 
         disableTradeIfPossible: function() {
             if (this.tradeEnabled){
                 this.tradeEnabled = false;
-                dojo.place(BUY_BOARD_ID, `trade_top`, 'first');
-                dojo.place(SELL_BOARD_ID, `trade_top`, 'first');
-                dojo.query('#trade_top').style('display','grid');
+                this.fadeOutAndDestroy('buy_zone');
+                this.fadeOutAndDestroy('sell_zone');
             }
         },
 
@@ -2523,18 +2550,17 @@ function (dojo, declare) {
             dojo.stopEvent( evt );
             if ( !this.allowTrade && !this.checkAction( 'trade' ) ) { return; }
             if (type == ""){
-                type = evt.target.id.split('_')[0];
+                if (evt.target.classList.contains('bgabutton')){
+                    type = evt.target.id.split('_')[2];
+                }
             }
-            //console.log(type);
             // when buying, trade costs trade_val, so make it negative.
             let tradeChange = this.getBuyChange(type) 
             if(this.canAddTrade(tradeChange)){
                 this.updateTrade(tradeChange);
                 // add breadcrumb
-                let tradeAway = this.invertArray(this.resource_info[type].trade_val);
-                tradeAway.trade = -1;
-                let tradeFor = [];
-                tradeFor[type] = 1;
+                let tradeAway = this.getBuyAway(type);
+                let tradeFor = this.getBuyFor(type)
                 this.createTradeBreadcrumb(this.transactionLog.length, _("Buy"), tradeAway, tradeFor);
 
                 this.transactionCost.push(tradeChange);
@@ -2548,12 +2574,22 @@ function (dojo, declare) {
             }
         },
 
+        getBuyAway: function(type){
+            let buyAway = this.invertArray(this.resource_info[type].trade_val);
+            buyAway.trade = -1;
+            return buyAway;
+        },
+
+        getBuyFor: function(type){
+            let buyFor = [];
+            buyFor[type] = 1;
+            return buyFor;
+        },
+
         getBuyChange: function ( type ) {
-            let tradeChange = [];
-            tradeChange = this.invertArray(this.resource_info[type].trade_val);
-            tradeChange[type] = 1;
-            tradeChange.trade = -1;
-            return tradeChange;
+            let buyChange = this.getBuyAway(type);
+            buyChange[type] = 1;
+            return buyChange;
         },
 
         onSellResource: function ( evt , type = "" ){
@@ -2561,20 +2597,15 @@ function (dojo, declare) {
             dojo.stopEvent( evt );
             if ( !this.allowTrade && !this.checkAction( 'trade' ) ) { return; }
             if (type == ""){
-                type = evt.target.id.split('_')[0];
+                type = evt.target.id.split('_')[2];
             }
             //console.log(type);
             let tradeChange = this.getSellChange (type);
             if(this.canAddTrade(tradeChange)){
                 this.updateTrade(tradeChange);
                 // add breadcrumb
-                let tradeAway = {trade:-1};
-                tradeAway[type] = -1;
-                let tradeFor = this.copyArray(this.resource_info[type].trade_val);
-                tradeFor.vp = 1;
-                if (this.hasBuilding[this.player_id][BLD_GENERAL_STORE]){
-                    tradeFor = this.addOrSetArrayKey(tradeFor, 'silver', 1);
-                }
+                let tradeAway = this.getSellAway(type);
+                let tradeFor = this.getSellFor(type);
                 this.createTradeBreadcrumb(this.transactionLog.length, _("Sell"), tradeAway, tradeFor);
 
                 this.transactionCost.push(tradeChange);
@@ -2588,14 +2619,23 @@ function (dojo, declare) {
             }
         },
 
-        getSellChange: function ( type ) {
-            let tradeChange = this.copyArray(this.resource_info[type].trade_val); 
-            tradeChange[type] = -1;
-            tradeChange.trade = -1;
-            tradeChange.vp = 1;
+        getSellAway: function(type){
+            let tradeAway = {trade:-1};
+            tradeAway[type] = -1;
+            return tradeAway;
+        },
+        getSellFor: function(type){
+            let tradeFor = this.copyArray(this.resource_info[type].trade_val);
+            tradeFor.vp = 1;
             if (this.hasBuilding[this.player_id][BLD_GENERAL_STORE]){
-                tradeChange = this.addOrSetArrayKey(tradeChange, 'silver', 1);
+                tradeFor = this.addOrSetArrayKey(tradeFor, 'silver', 1);
             }
+            return tradeFor;
+        },
+        getSellChange: function ( type ) {
+            let tradeChange = this.getSellFor(type);
+            tradeChange.trade = -1;
+            tradeChange[type] = -1;
             return tradeChange;
         },
 
@@ -3640,7 +3680,7 @@ function (dojo, declare) {
         },
 
         chooseBuilding: function () {
-            //console.log('chooseBuilding');
+            console.log('chooseBuilding');
             if (this.checkAction( 'buildBuilding')){
                 const building_divId = this.last_selected['building'];
                 if (building_divId == "") {
@@ -3653,7 +3693,9 @@ function (dojo, declare) {
                 } else {
                     const building_key = Number(building_divId.split("_")[2]);
                     let args = {building_key: building_key, goldAsCow:this.goldAsCow?1:0, goldAsCopper:this.goldAsCopper?1:0, steelReplace:(this.cost_replace.steel??0), lock: true};
+                    console.log(args);
                     if (this.transactionLog.length >0){ // makeTrades first.
+                        console.log('trades', this.transactionLog.join(','));
                         this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/trade.html", { 
                             lock: true, 
                             trade_action: this.transactionLog.join(',')
