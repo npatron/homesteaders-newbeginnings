@@ -718,9 +718,9 @@ function (dojo, declare) {
         setupWarehouseButtons: function(){
             let warehouseResources = this.getWarehouseResources();
 
-            let buttonDiv = dojo.create('div', {id:"choose_warehouse_buttons", style:'display: flex;justify-content: center;'});
+            dojo.place(dojo.create('br',{}), 'generalactions', 'last');
+            let buttonDiv = dojo.create('div', {id:"choose_warehouse_buttons", style:'display: inline-flex;justify-content: center;'});
             dojo.place(buttonDiv, 'generalactions', 'last');
-            dojo.style('choose_warehouse_buttons', 'display', 'flex');
             let warehouseText = dojo.create('span', {class:"font caps com", id:'warehouse_text'});
             dojo.place(warehouseText, "choose_warehouse_buttons", 'first');
             warehouseText.innerText = _(this.building_info[BLD_WAREHOUSE].name+": ");
@@ -730,7 +730,6 @@ function (dojo, declare) {
                 dojo.place(`btn_warehouse_${type}`,'choose_warehouse_buttons', 'last');
                 this.warehouse = type;
             }
-            
             dojo.addClass(`btn_warehouse_${this.warehouse}`, 'bgabutton_blue' );
             dojo.removeClass(`btn_warehouse_${this.warehouse}`, 'bgabutton_gray');
         },
@@ -1022,7 +1021,6 @@ function (dojo, declare) {
             dojo.query( `#player_zone_${this.player_color[this.player_id]} .token_worker` ).addClass('selectable');
             // also make building_slots selectable.
             dojo.query( `#${TPL_BLD_ZONE}${this.player_color[this.player_id]} .worker_slot` ).addClass( 'selectable' );
-
             
             this.addActionButton( 'btn_done',_('Confirm'), 'donePlacingWorkers' );
             this.addActionButton( 'btn_hire_worker', _('Hire New Worker'), 'hireWorkerButton', null, false, 'gray' );
@@ -1092,14 +1090,15 @@ function (dojo, declare) {
             this.setupButtonsForRailBonus(args);
         },
         onUpdateActionButtons_getRailBonus_auction: function(args){
-            this.setupButtonsForRailBonus(args);
             this.addActionButton( 'btn_redo_build_phase', _('Cancel'),   'cancelTurn', null, false, 'red');
             this.can_cancel = true;
+            this.setupButtonsForRailBonus(args);
         },
         onUpdateActionButtons_getRailBonus_build: function(args){
-            this.setupButtonsForRailBonus(args);
             this.addActionButton( 'btn_redo_build_phase', _('Cancel'),   'cancelTurn', null, false, 'red');
             this.can_cancel = true;
+            this.setupButtonsForRailBonus(args);
+            
         },
         onUpdateActionButtons_getRailBonus_event: function(args){
             this.setupButtonsForRailBonus(args);
@@ -1118,7 +1117,7 @@ function (dojo, declare) {
                 }
             }
             this.addActionButton( 'btn_choose_bonus', _('Choose Bonus'), 'doneSelectingRailBonus');
-            dojo.style('btn_choose_bonus', 'display', 'none');
+            dojo.addClass('btn_choose_bonus', 'disabled');
         },
         onUpdateActionButtons_payLot: function(args){
             this.silverCost = Number(args.lot_cost);
@@ -1265,6 +1264,8 @@ function (dojo, declare) {
                     this.setupButtonsForRailBonus(args.args[this.player_id]);
                     dojo.destroy('btn_choose_bonus');
                     this.addActionButton( 'btn_choose_bonus', _('Choose Bonus'), 'doneSelectingRailBonusEvent');
+                    dojo.addClass('btn_choose_bonus', 'disabled');
+                break;
                 case EVT_LEAST_WORKER: //least workers can hire worker (free).
                     this.addActionButton( 'btn_bonus_worker', dojo.string.substitute(_('(FREE) Hire ${worker}'), {worker:this.tkn_html.worker}), 'workerForFreeEvent');
                     this.addActionButton( 'btn_pass_bonus', _('Do Not Get Bonus'), 'passBonusEvent', null, false, 'red');
@@ -2341,7 +2342,7 @@ function (dojo, declare) {
             this.resetTradeValues();
             if (this.board_resourceCounters[this.player_id].trade.getValue() ==0) {
                 this.tradeEnabled = false;
-                dojo.query(`#${TRADE_BUTTON_ID}`).addClass('noshow');
+                dojo.query(`#${TRADE_BUTTON_ID}`).addClass('disabled');
             } else {
                 this.enableTradeBoardActions();
             }
@@ -2384,13 +2385,14 @@ function (dojo, declare) {
          */
         enableTradeIfPossible: function() {
             if (!this.tradeEnabled){
-                let buy_zone = dojo.create('div', {id:'buy_zone', style:'display:flex;justify-content:center;'});
+                dojo.place(dojo.create('br'),'generalactions','last');
+                let buy_zone = dojo.create('div', {id:'buy_zone', style:'display: inline-flex;justify-content:center;'});
                 dojo.place(buy_zone, 'generalactions', 'last');
                 let buyText = dojo.create('span', {class:"biggerfont", id:'buy_text'});
                 dojo.place(buyText, "buy_zone", 'first');
                 buyText.innerText = _("buy:");
-            
-                let sell_zone = dojo.create('div', {id:'sell_zone', style:'display:flex;justify-content:center;'});
+                dojo.place(dojo.create('br'),'generalactions','last');
+                let sell_zone = dojo.create('div', {id:'sell_zone', style:'display: inline-flex;justify-content:center;'});
                 dojo.place(sell_zone, 'generalactions', 'last');
                 let sellText = dojo.create('span', {class:"biggerfont", id:'sell_text'});
                 dojo.place(sellText, "sell_zone", 'first');
@@ -2417,8 +2419,10 @@ function (dojo, declare) {
         disableTradeIfPossible: function() {
             if (this.tradeEnabled){
                 this.tradeEnabled = false;
-                this.fadeOutAndDestroy('buy_zone');
-                this.fadeOutAndDestroy('sell_zone');
+                dojo.query('#buy_zone').forEach(dojo.destroy);
+                dojo.query('#generalactions br:nth-last-of-type(2)').forEach(dojo.destroy);
+                dojo.query('#sell_zone').forEach(dojo.destroy);
+                dojo.query('#generalactions br:nth-last-of-type(1)').forEach(dojo.destroy);
             }
         },
 
@@ -2845,7 +2849,8 @@ function (dojo, declare) {
 
         newPosNeg: function(type, new_value, inc= false){   
             if (inc){
-                new_value = this.new_resourceCounter[type].incValue(new_value);
+                old_value = this.new_resourceCounter[type].getValue();
+                new_value = this.new_resourceCounter[type].setValue(old_value+ new_value);
             } else {
                 this.new_resourceCounter[type].setValue(new_value);
             }         
@@ -2915,7 +2920,8 @@ function (dojo, declare) {
                 counter = this.pos_offset_resourceCounter[type];
             } 
             if (inc) {
-                offset_value = counter.incValue(offset_value);
+                old_value = counter.getValue();
+                offset_value = counter.setValue(old_value + offset_value);
             } else {
                 counter.setValue(offset_value);
             } 
@@ -3088,7 +3094,7 @@ function (dojo, declare) {
 
         ajaxDonePlacingWorkers: function(){
             let warehouse_num = RESOURCES[this.warehouse];
-            console.log(warehouse_num);
+            //console.log(warehouse_num);
             this.ajaxcall("/" + this.game_name + "/" + this.game_name + "/donePlacingWorkers.html", 
             {lock: true, warehouse:warehouse_num}, this, 
             function( result ) { 
@@ -3391,31 +3397,25 @@ function (dojo, declare) {
 
         selectBonusButton: function( evt ) {
             //console.log('selectBonusButton', evt);
-            if (this.checkAction( 'chooseBonus' )){
-                let target_id = (evt.target.id?evt.target.id:evt.target.parentNode.id);
-                let type = target_id.split("_")[2];
-                this.updateSelectedBonus(type);
-            }
+            let target_id = (evt.target.id?evt.target.id:evt.target.parentNode.id);
+            let type = target_id.split("_")[2];
+            this.updateSelectedBonus(type);
         },
          
         updateSelectedBonus: function(type){
             //console.log(type);
             let btn_id = `btn_bonus_${type}`;
             let option_id = BONUS_OPTIONS[RESOURCES[type]];
-            if (this.last_selected.bonus ==''){
-                dojo.addClass(btn_id, 'bgabutton_blue');
-                dojo.removeClass(btn_id, 'bgabutton_gray');
-                dojo.style('btn_choose_bonus', 'display', 'inline-block');
-            } else if (this.last_selected.bonus == option_id) { //this was selected
-                dojo.removeClass(btn_id, 'bgabutton_blue');
-                dojo.addClass(btn_id, 'bgabutton_gray');
-                dojo.style('btn_choose_bonus', 'display','none');
+            if (this.last_selected.bonus =='' || this.last_selected.bonus == option_id){
+                dojo.toggleClass(btn_id, 'bgabutton_blue');
+                dojo.toggleClass(btn_id, 'bgabutton_gray');
+                dojo.toggleClass('btn_choose_bonus', 'disabled');
             } else { //other thing was selected.
                 let lastSelected_id =  `btn_bonus_${this.last_selected.bonus.split('_')[3]}`;
-                dojo.removeClass(lastSelected_id, 'bgabutton_blue');
-                dojo.addClass(lastSelected_id, 'bgabutton_gray');
-                dojo.addClass(btn_id, 'bgabutton_blue');
-                dojo.removeClass(btn_id, 'bgabutton_gray');
+                dojo.toggleClass(lastSelected_id, 'bgabutton_blue');
+                dojo.toggleClass(lastSelected_id, 'bgabutton_gray');
+                dojo.toggleClass(btn_id, 'bgabutton_blue');
+                dojo.toggleClass(btn_id, 'bgabutton_gray');
             }
             this.updateSelected('bonus', option_id);
         },
@@ -3538,7 +3538,7 @@ function (dojo, declare) {
         },
 
         updateBuildingAffordability: function(showIncomeCost = false){
-            console.log('updateBuildingAffordability');
+            //console.log('updateBuildingAffordability');
             if (this.isSpectator) return;
             let buildings = dojo.query(`#${TILE_CONTAINER_ID[0]} .${TPL_BLD_TILE}, #${TILE_CONTAINER_ID[1]} .${TPL_BLD_TILE}`);
             for (let i in buildings){
@@ -3592,28 +3592,29 @@ function (dojo, declare) {
          *          1 if can currently afford (no trades required)
          */
         isBuildingAffordable: function(b_id){
-            //console.log("isBuildingAffordable", b_id);
+            //console.log("isBuildingAffordable", this.building_info[b_id].name);
             if (this.building_info[b_id].cost == null) return 1;// no cost, can afford.
             if (this.building_info[b_id].cost.length == 0) return 1;// no cost, can afford.
             const p_id = this.player_id;
             let cost = this.building_info[b_id].cost;
-            let off_gold = this.getOffsetValue('gold');
-            let gold = this.board_resourceCounters[p_id].gold.getValue() + off_gold + this.getIncomeOffset('gold') - this.goldAmount;
+            let off_gold = Number(this.getOffsetValue('gold'));
+            let gold = Number(this.board_resourceCounters[p_id].gold.getValue()) + off_gold + Number(this.getIncomeOffset('gold')) - Number(this.goldAmount);
             //console.log('gold', gold, this.board_resourceCounters[p_id].gold.getValue(),  off_gold, this.getIncomeOffset('gold'), -this.goldAmount);
             let adv_cost = 0;
             let trade_cost = 0;
             for(let type in cost){
-                let res_amt = this.board_resourceCounters[p_id][type].getValue() + this.getOffsetValue(type) + this.getIncomeOffset(type);
+                let res_amt = Number(this.board_resourceCounters[p_id][type].getValue()) + Number(this.getOffsetValue(type)) + Number(this.getIncomeOffset(type));
+                //console.log(type,'cost',cost[type] , 'amt',  res_amt);
                 switch(type){
                     case 'wood':
                     case 'food':
                     case 'steel':
-                        if (cost[type] > res_amt){
+                        if (Number(cost[type]) > res_amt){
                             trade_cost += (cost[type] - res_amt);
                         }
                     break;
                     case 'gold':
-                        if (cost.gold > gold){
+                        if (Number(cost.gold) > gold){
                             trade_cost += (cost.gold - gold);
                             gold = 0;
                         } else {
@@ -3622,13 +3623,13 @@ function (dojo, declare) {
                     break;
                     case 'copper':
                     case 'cow':
-                        if (cost[type] > res_amt){
+                        if (Number(cost[type]) > res_amt){
                             adv_cost += (cost[type] - res_amt);
                         }
                     break;
                 }
             }
-            trade_cost += (adv_cost - gold);
+            trade_cost += (adv_cost - Math.min(gold, adv_cost));
             if (!(this.hasBuilding[p_id][BLD_RIVER_PORT])){
                 trade_cost += adv_cost;
                 if (adv_cost > gold && this.building_discount){ // can save 2.
@@ -3637,6 +3638,8 @@ function (dojo, declare) {
             }
             let trade_avail = this.board_resourceCounters[p_id].trade.getValue() + this.getOffsetValue('trade') + this.getIncomeOffset('trade');
             trade_cost -=  (this.building_discount?1:0);
+            //console.log('adv_cost', adv_cost);
+            //console.log('trade_cost', trade_cost, 'trade_avail', trade_avail, trade_cost<= 0?'YES':trade_avail >= trade_cost?'REQ':'NO')
             if (trade_cost <= 0){// no trades required.
                 return 1;
             } if (trade_avail >= trade_cost){
@@ -3688,7 +3691,7 @@ function (dojo, declare) {
         },
 
         chooseBuilding: function () {
-            console.log('chooseBuilding');
+            //console.log('chooseBuilding');
             if (this.checkAction( 'buildBuilding')){
                 const building_divId = this.last_selected['building'];
                 if (building_divId == "") {
@@ -3701,9 +3704,9 @@ function (dojo, declare) {
                 } else {
                     const building_key = Number(building_divId.split("_")[2]);
                     let args = {building_key: building_key, goldAsCow:this.goldAsCow?1:0, goldAsCopper:this.goldAsCopper?1:0, steelReplace:(this.cost_replace.steel??0), lock: true};
-                    console.log(args);
+                    //console.log(args);
                     if (this.transactionLog.length >0){ // makeTrades first.
-                        console.log('trades', this.transactionLog.join(','));
+                        //console.log('trades', this.transactionLog.join(','));
                         this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/trade.html", { 
                             lock: true, 
                             trade_action: this.transactionLog.join(',')
@@ -4683,7 +4686,7 @@ function (dojo, declare) {
         },
 
         notif_updateWarehouseState: function (notif){
-            console.log('notif_updateWarehouseState', notif.args);
+            //console.log('notif_updateWarehouseState', notif.args);
             let origin = null;
             if (notif.args.income = true){
                 origin = notif.args.p_id;
@@ -4835,7 +4838,7 @@ function (dojo, declare) {
         },
 
         notif_cancel: function( notif ){
-            console.log('notif_cancel', notif);
+            //console.log('notif_cancel', notif);
             const p_id = notif.args.player_id;
             const updateResource = (p_id == this.player_id) || this.show_player_info;
             const player_zone = this.player_score_zone_id[p_id];
@@ -4930,17 +4933,17 @@ function (dojo, declare) {
                     break;
                     case 'buildingState':
                         let oldState = this.getWarehouseResources();
-                        console.log('oldState', oldState);
+                        //console.log('oldState', oldState);
                         if (log.b_id == BLD_WAREHOUSE){ //currently only building using state
                             this.updateWarehouseState(log.state);
                         }
                         if (dojo.query('#choose_warehouse_buttons').length >0){    
                             let newState = this.getWarehouseResources();
-                            console.log('newState', newState);
+                            //console.log('newState', newState);
                             for(let type in newState){
-                                console.log('checking', type);
+                                //console.log('checking', type);
                                 if (!(type in oldState)){
-                                    console.log('found missing', type);
+                                    //console.log('found missing', type);
                                     this.addActionButton( `btn_warehouse_${type}`, this.tkn_html[type], `onClickWarehouseResource`, null, false, 'gray');
                                     dojo.place(`btn_warehouse_${type}`,'choose_warehouse_buttons', 'last');
                                     this.onClickWarehouseResource( {target:{id:`btn_warehouse_${type}`}});

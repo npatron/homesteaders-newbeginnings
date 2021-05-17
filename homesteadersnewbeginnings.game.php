@@ -289,12 +289,16 @@ class homesteadersnewbeginnings extends Table
 
     // can be mutli-active
     public function playerSelectRailBonusEvent($selected_bonus) {
-        $this->checkAction( "chooseBonus" );
+        $this->checkAction( "eventBonus" );
+        if (!in_array($this->Event->getEventAllB(), array(EVT_LOAN_TRACK, EVT_RES_ADV_TRACK))){
+            throw new BgaUserException( clienttranslate("invalid Bonus for this Event") );
+        }
         $cur_p_id = $this->getCurrentPlayerId();
         $options = $this->Resource->getRailAdvBonusOptions($cur_p_id);
         if (!in_array ($selected_bonus, $options)){
             throw new BgaUserException( clienttranslate("invalid bonus option selected") );
-        } 
+        }
+        
         $this->Resource->receiveRailBonus($cur_p_id, $selected_bonus);
         $this->gamestate->setPlayerNonMultiactive( $cur_p_id, "" );
     }
