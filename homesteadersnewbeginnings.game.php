@@ -174,7 +174,7 @@ class homesteadersnewbeginnings extends Table
     /*
         getAllDatas: 
         
-        Gather all informations about current game situation (visible by the current player).
+        Gather all information about current game situation (visible by the current player).
         
         The method is called each time the game interface is displayed to a player, ie:
         _ when the game starts
@@ -215,7 +215,7 @@ class homesteadersnewbeginnings extends Table
         getGameProgression:
         
         Compute and return the current game progression.
-        The number returned must be an integer beween 0 (=the game just started) and
+        The number returned must be an integer between 0 (=the game just started) and
         100 (= the game is finished or almost finished).
     
         This method is called each time we are in a game state with the "updateGameProgression" property set to true 
