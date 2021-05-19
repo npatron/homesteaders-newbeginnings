@@ -183,6 +183,7 @@ const WAREHOUSE_MAP = {1:'wood',2:'food',4:'steel',8:'gold',16:'copper',32:'cow'
 // map of tpl id's  used to place the player_zones in turn order.
 const PLAYER_ORDER = ['currentPlayer','First', 'Second', 'Third', 'Fourth',];
 
+const TOKEN_HTML = [];
 // global arrays
 const GLOBAL = [];
 // zone control
