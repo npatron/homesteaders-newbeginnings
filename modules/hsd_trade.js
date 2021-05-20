@@ -23,6 +23,18 @@ class Trade {
                 transactions = {name:_("Take Dept"), map:TRADE_MAP.loan,
                         away:this.getLoanAway(), for:this.getLoanFor(), change:this.getLoanChange()};
             break;
+            case PAY_LOAN_GOLD:
+                transactions = {name:_("Pay Dept"), map:TRADE_MAP.payLoan_gold,
+                        away:{'gold':-1}, for:{'loan':-1}, change:{'gold':-1,'loan':-1}};
+            break;
+            case PAY_LOAN_SILVER:
+                transactions = {name:_("Pay Dept"), map:TRADE_MAP.payLoan_silver,
+                        away:{'silver':-5}, for:{'loan':-1}, change:{'silver':-5,'loan':-1}};
+            break;
+            case PAY_LOAN_SILVER_3:
+                transactions = {name:_("Pay Dept"), map:TRADE_MAP.payLoan_3silver,
+                        away:{'silver':-3}, for:{'loan':-1}, change:{'silver':-3,'loan':-1}};
+            break;
         }
         if(this.canAddTrade(transactions.change)){
             GLOBAL.this.updateTrade(transactions.change);

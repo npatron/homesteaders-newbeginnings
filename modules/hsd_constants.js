@@ -74,14 +74,28 @@ const FIRST_PLAYER_ID       = 'first_player_tile';
 const CONFIRM_TRADE_BTN_ID  = 'confirm_trade_btn';
 const UNDO_TRADE_BTN_ID     = 'undo_trades_btn';
 const UNDO_LAST_TRADE_BTN_ID= 'undo_last_trade_btn';
+
 const TRADE_BUTTON_ID       = 'btn_trade';
+const GOLD_COW_BUTTON_ID    = 'btn_gold_cow';
+const GOLD_COPPER_BUTTON_ID = 'btn_gold_copper';
+const TAKE_LOAN_BUTTON_ID   = 'btn_take_loan';
+const MORE_GOLD_BUTTON_ID   = 'btn_more_gold';
+const LESS_GOLD_BUTTON_ID   = 'btn_less_gold';
+const PAY_GOLD_TEXT         = 'pay_gold';
+const PAY_GOLD_TOKEN        = 'pay_gold_tkn';
+const PAY_SILVER_TEXT       = 'pay_silver';
+const PAY_SILVER_TOKEN      = 'pay_silver_tkn';
+const MORE_STEEL_BUTTON     = 'btn_more_steel';
+const LESS_STEEL_BUTTON     = 'btn_less_steel';
 
 const BUY       =1;
 const SELL      =2;
 const MARKET    =3;
 const BANK      =4;
 const TAKE_LOAN =5;
-
+const PAY_LOAN_GOLD     = 6;
+const PAY_LOAN_SILVER   = 7;
+const PAY_LOAN_SILVER_3 = 8;
 
 // arrays for the map between toggle buttons and show/hide zones 
 const TOGGLE_BTN_ID     = ['tgl_future_bld', 'tgl_main_bld', 'tgl_future_auc', 'tgl_past_bld', 'tgl_events'];

@@ -22,6 +22,154 @@ class Tooltips {
         }
     }
 
+    showScoreTooltips( players ) {
+        for(let p_id in players){
+            this.calculateAndUpdateScore(p_id);
+        }
+    }
+
+    calculateAndUpdateScore(p_id) {
+        var bld_arr = this.calculateBuildingScore(p_id);
+        let bld_score = bld_arr.static + bld_arr.bonus
+        let left_score = bld_score;
+        var right_score = null;
+        let row_Vp = this.replaceTooltipStrings(_("${vp} tokens:"));
+        let row_BldSt = this.replaceTooltipStrings(_("${vp} from buildings (static)"));
+        let row_BldBo = this.replaceTooltipStrings(_("${vp} from buildings (bonus)"));
+        let row_GlCwCp = this.replaceTooltipStrings(_("${vp} from ${gold}${cow}${copper}")); 
+        let row_loan = this.replaceTooltipStrings(_("${vp} from ${loan}"));
+        let row_total = this.replaceTooltipStrings(_("${vp} Total"));
+        let row_subTotal = this.replaceTooltipStrings(_("${vp} Subtotal"));
+
+        if (GLOBAL.show_player_info || p_id == this.player_id){
+            let vp_pts     = BOARD_RESOURCE_COUNTERS[p_id]['vp'].getValue();
+            let gold_pts   = BOARD_RESOURCE_COUNTERS[p_id]['gold'].getValue() * 2;
+            let cow_pts    = BOARD_RESOURCE_COUNTERS[p_id]['cow'].getValue()  * 2;
+            let copper_pts = BOARD_RESOURCE_COUNTERS[p_id]['copper'].getValue() * 2;
+            let glCwCp_pts = gold_pts + cow_pts + copper_pts;
+            let loan_count = BOARD_RESOURCE_COUNTERS[p_id]['loan'].getValue();
+           
+            let loan_pts = 0;
+            for (let i =1; i <= loan_count; i++){
+                loan_pts -= (i);
+            }
+            let score_noLoan = bld_score + vp_pts + gold_pts + cow_pts + copper_pts;
+            let total_score = score_noLoan + loan_pts;
+            if (GLOBAL.show_player_info){
+                var tt_right = dojo.string.substitute('<div class="tt_table"> <table><tr><td>${row_1}</td><td>${val_1}</td></tr>'+
+                '<tr><td>${row_2}</td><td>${val_2}</td></tr><tr><td>${row_3}</td><td>${val_3}</td></tr>'+
+                '<tr><td>${row_4}</td><td>${val_4}</td></tr><tr><td>${row_5}</td><td>${val_5}</td></tr>'+
+                '<tr><th>${row_6}</th><th>${val_6}</th></tr></table></div>',{   
+                    row_1:row_Vp,     val_1:vp_pts,
+                    row_2:row_BldSt,  val_2:bld_arr.static,
+                    row_3:row_BldBo,  val_3:bld_arr.bonus,
+                    row_4:row_GlCwCp, val_4:glCwCp_pts,
+                    row_5:row_loan,   val_5:loan_pts,
+                    row_6:row_total,  val_6:total_score,
+                });
+                var tt_left = dojo.string.substitute('<div class="tt_table"> <table><tr><td>${row_1}</td><td>${val_1}</td></tr>'+
+                '<tr><td>${row_2}</td><td>${val_2}</td></tr><tr><td>${row_3}</td><td>${val_3}</td></tr>'+
+                '<tr><td>${row_4}</td><td>${val_4}</td></tr><tr><th>${row_5}</th><th>${val_5}</th></tr>'+
+                '<tr><td>${row_6}</td><td>${val_6}</td></tr><tr><th>${row_7}</th><th>${val_7}</th></tr></table></div>',{
+                    row_1:row_Vp,       val_1:vp_pts,
+                    row_2:row_BldSt,    val_2:bld_arr.static,
+                    row_3:row_BldBo,    val_3:bld_arr.bonus,
+                    row_4:row_GlCwCp,   val_4:glCwCp_pts,
+                    row_5:row_subTotal, val_5:score_noLoan,
+                    row_6:row_loan,     val_6:loan_pts,
+                    row_7:row_total,    val_7:total_score,
+                });
+                left_score = score_noLoan;
+                right_score = total_score;
+            } else { //this player in don't show resources game.
+                var tt_left = dojo.string.substitute('<div class="tt_table"> <table><tr><td>${row_1}</td><td>${val_1}</td></tr>'+
+                '<tr><td>${row_2}</td><td>${val_2}</td></tr><tr><th>${row_3}</th><th>${val_3}</th></tr>'+
+                '<tr><td>${row_4}</td><td>${val_4}</td></tr><tr><td>${row_5}</td><td>${val_5}</td></tr>'+
+                '<tr><th>${row_6}</th><th>${val_6}</th></tr></table></div>',{   
+                    row_1:row_BldSt,    val_1:bld_arr.static,
+                    row_2:row_BldBo,    val_2:bld_arr.bonus,
+                    row_3:row_subTotal, val_3:bld_score,
+                    row_4:row_Vp,       val_4:vp_pts,
+                    row_4:row_GlCwCp,   val_4:glCwCp_pts,
+                    row_5:row_loan,     val_5:loan_pts,
+                    row_6:row_total,    val_6:total_score,
+                });
+                var tt_right = dojo.string.substitute('<div class="tt_table"> <table><tr><td>${row_1}</td><td>${val_1}</td></tr>'+
+                '<tr><td>${row_2}</td><td>${val_2}</td></tr><tr><td>${row_3}</td><td>${val_3}</td></tr>'+
+                '<tr><td>${row_4}</td><td>${val_4}</td></tr><tr><td>${row_5}</td><td>${val_5}</td></tr>'+
+                '<tr><th>${row_6}</th><th>${val_6}</th></tr></table></div>',{
+                    row_1:row_BldSt,    val_1:bld_arr.static,
+                    row_2:row_BldBo,    val_2:bld_arr.bonus,
+                    row_3:row_Vp,       val_3:vp_pts,
+                    row_4:row_GlCwCp,   val_4:glCwCp_pts,
+                    row_5:row_loan,     val_5:loan_pts,
+                    row_6:row_total,    val_6:total_score,
+                });
+                left_score = bld_score;
+                right_score = total_score;
+            }
+            GLOBAL.this.addTooltipHtml(`p_score_${p_id}`, tt_left);
+            GLOBAL.this.addTooltipHtml(`player_total_score_${p_id}`, tt_right); 
+        } else {
+            let tt = dojo.string.substitute('<div class="tt_table"> <table><tr><td>${row_1}</td><td>${val_1}</td></tr>'+
+            '<tr><td>${row_2}</td><td>${val_2}</td></tr><tr><th>${row_3}</th><th>${val_3}</th></tr>'+
+            '<tr><td>${row_4}</td><td>${val_4}</td></tr><tr><td>${row_5}</td><td>${val_5}</td></tr>'+ 
+            '<tr><td>${row_6}</td><td>${val_6}</td></tr></table></div>',{
+                row_1:row_BldSt,    val_1:bld_arr.static,
+                row_2:row_BldBo,    val_2:bld_arr.bonus,
+                row_3:row_subTotal, val_3:bld_score,
+                row_4:row_Vp,       val_4:_("???"),
+                row_5:row_GlCwCp,   val_5:_("???"),
+                row_6:row_loan,     val_6:_("???"),});
+            GLOBAL.this.addTooltipHtml(`player_score_${p_id}`, tt);
+        }
+        this.updateScore(p_id, left_score, right_score);
+    }
+
+    updateScore (p_id, score_left, score_right = null) {
+        if (p_id in SCORE_LEFT_COUNTER){    // when we have their resources.
+            SCORE_LEFT_COUNTER[p_id].setValue(score_left);
+        } else if (this.scoreCtrl[p_id] != undefined){ // non-active player in `dont-show resources`
+            GLOBAL.this.scoreCtrl[p_id].setValue(score_left);
+        }
+        if (score_right == null){   // hide this for end game or not included etc.
+            dojo.query(`player_total_score_${p_id}`).addClass('noshow');
+        } else if (score_right!=null){ //otherwise update it.
+            dojo.query(`player_total_score_${p_id}`).removeClass('noshow');
+            SCORE_RIGHT_COUNTER[p_id].setValue(score_right);
+        }
+        
+    }
+
+    calculateBuildingScore (p_id) {
+        let bld_static = 0;
+        let bld_type = [0,0,0,0,0,0,0];// count of bld of types: [res,com,ind,spe]
+        let vp_b =     [0,0,0,0,0,0,0];//vp_b [Res, Com, Ind, Spe, Wrk, Trk, Bld]
+        for(let b_id in HAS_BUILDING[p_id]){
+            if ('vp' in BUILDING_INFO[b_id]){
+                bld_static += BUILDING_INFO[b_id].vp;
+            }
+            if ('vp_b' in BUILDING_INFO[b_id]){
+                if (BUILDING_INFO[b_id].vp_b == VP_B_WRK_TRK){
+                    vp_b[VP_B_WORKER] ++;
+                    vp_b[VP_B_TRACK] ++;
+                } else {
+                    vp_b[BUILDING_INFO[b_id].vp_b]++;
+                }
+            }
+            bld_type[BUILDING_INFO[b_id].type] ++;
+            bld_type[VP_B_BUILDING]++;
+        }
+        
+        bld_type[VP_B_WORKER] = GLOBAL.this.getPlayerWorkerCount(p_id);
+        bld_type[VP_B_TRACK] = GLOBAL.this.getPlayerTrackCount(p_id);
+        let bonus = 0;
+        for (let i in vp_b){
+            bonus += (bld_type[i] * vp_b[i]);
+        }
+        return {static:bld_static, bonus:bonus};
+    }
+
     // auction
     formatTooltipAuction(a_info, a_id){
         var tt = '<div style="text-align: center;" class="font">';
@@ -219,11 +367,11 @@ class Tooltips {
         let b_info = BUILDING_INFO[b_id];
         var income_values = '';
         if (!('inc' in b_info) && !('slot' in b_info)){
-            income_values = GLOBAL.format_block('jstpl_color_log', {string:_("none"), color:''});
+            income_values = GLOBAL.this.format_block('jstpl_color_log', {string:_("none"), color:''});
         }
         if ('inc' in b_info){
             if (b_info.inc.silver =='x'){
-                income_values = this.tooltip.replaceTooltipStrings(_('${silver} per ${worker} (max 5)'));
+                income_values = this.replaceTooltipStrings(_('${silver} per ${worker} (max 5)'));
             } else if (b_info.inc.loan == '-1') {
                 income_values = dojo.string.substitute(_('Pay off ${loan}'), {loan:TOKEN_HTML.loan}) + '<br>';
             } else {
