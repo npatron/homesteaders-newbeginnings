@@ -88,11 +88,11 @@ const PAY_SILVER_TOKEN      = 'pay_silver_tkn';
 const MORE_STEEL_BUTTON     = 'btn_more_steel';
 const LESS_STEEL_BUTTON     = 'btn_less_steel';
 
-const BUY       =1;
-const SELL      =2;
-const MARKET    =3;
-const BANK      =4;
-const TAKE_LOAN =5;
+const BUY               = 1;
+const SELL              = 2;
+const MARKET            = 3;
+const BANK              = 4;
+const TAKE_LOAN         = 5;
 const PAY_LOAN_GOLD     = 6;
 const PAY_LOAN_SILVER   = 7;
 const PAY_LOAN_SILVER_3 = 8;
@@ -119,7 +119,6 @@ const BONUS_OPTIONS = { 7:'train_bonus_1_trade', 8:'train_bonus_2_track', 9:'tra
     1:'train_bonus_4_wood', 5:'train_bonus_4_food', 2:'train_bonus_4_steel', 3:'train_bonus_4_gold',
     4:'train_bonus_4_copper', 6:'train_bonus_4_cow', 10:'train_bonus_5_vp'};
 
-
 const COST_REPLACE_TYPE = {'steel':{'wood':1,'vp':1}, 'cow':{'gold':1}, 'copper':{'gold':1}, 'gold':{'silver':5}};
 
 const TRADE_BOARD_ID = 'trade_top';
@@ -127,6 +126,11 @@ const BUY_ZONE_ID    = 'buy_zone';
 const BUY_TEXT_ID    = 'buy_text';
 const SELL_ZONE_ID   = 'sell_zone';
 const SELL_TEXT_ID   = 'sell_text';
+const MARKET_ZONE_ID = 'market_zone';
+const MARKET_TEXT_ID = 'market_text';
+const BANK_ZONE_ID   = 'bank_zone';
+const BANK_TEXT_ID   = 'bank_text';
+
 const SPECIAL_ZONE   = 'special_zone';
 const TRADE_BOARD_ACTION_SELECTOR = `#${TRADE_BOARD_ID} .trade_option`;
 const TYPE_SELECTOR = {'bid':'.bid_slot', 'bonus':'.train_bonus', 'worker_slot':'.worker_slot',

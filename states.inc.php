@@ -109,7 +109,7 @@ $machinestates = array(
     ),
     
     STATE_EVT_POST_TRADE => array(
-        "name" => "eventPhaseAuction",
+        "name" => "eventPhasePostTrade",
         "description" => '',
         "type" => "game",
         "action" => "stEvtPostTrade",

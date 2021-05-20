@@ -542,9 +542,10 @@ class HSDResource extends APP_GameClass
             $this->game->Log->takeLoan($p_id);
         } else if ($tradeValues['transaction']==='loanPaid'){
             $type = array_key_first($tradeValues['tradeAway']);
-            $this->updateResource($p_id, $type, -($tradeValues['tradeAway'][$type]));
+            $amt = $tradeValues['tradeAway'][$type];
+            $this->updateResource($p_id, $type, -($amt));
             $this->updateResource($p_id, 'loan', -1);
-            $this->game->Log->payOffLoan($p_id, $type, $tradeValues['tradeAway'][$type]); 
+            $this->game->Log->payOffLoan($p_id, $type, $amt); 
         } else {
             $this->game->Log->tradeResource($p_id, $tradeValues['tradeAway'], $tradeValues['tradeFor']);
             foreach($tradeValues['tradeAway'] as $type=>$amt){
@@ -630,7 +631,7 @@ class HSDResource extends APP_GameClass
                                     'loan' => 'debt', 
                                     'arrow' => 'arrow',
                                     'type' => array('type'=>$type, 'amount'=>$amt),),
-                        'tradeFor'=>array('loan'=>1), 'tradeAway'=>array($type=>$amt)));
+                        'tradeFor'=>array('loan'=>-1), 'tradeAway'=>array($type=>$amt)));
             default: 
             throw new BgaVisibleSystemException ( sprintf(clienttranslate('Invalid TradeAction: %s'),$tradeAction));
         }

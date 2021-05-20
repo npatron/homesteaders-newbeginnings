@@ -17,11 +17,11 @@ class Trade {
             break;
             case BANK:
                 transactions = {name:_('Bank'), map:TRADE_MAP.bank,
-                        away:this.getBankAway(), for:this.getBankFor(), change:this.getBankChange()};
+                        away:{'trade':-1}, for:{'silver':1}, change:{'trade':-1,'silver':1}};
             break;
             case TAKE_LOAN:
                 transactions = {name:_("Take Dept"), map:TRADE_MAP.loan,
-                        away:this.getLoanAway(), for:this.getLoanFor(), change:this.getLoanChange()};
+                        away:{'loan':1}, for:{'silver':2}, change:{'silver':2,'loan':1}};
             break;
             case PAY_LOAN_GOLD:
                 transactions = {name:_("Pay Dept"), map:TRADE_MAP.payLoan_gold,
@@ -70,50 +70,74 @@ class Trade {
             let type =  GLOBAL.this.getKeyByValue(TRADE_MAP, trade_id).split('_')[1];
             // buy
             let node_loc = `#trade_buy_${type}`;
-            //let node2_loc= `#trbuy_buy_${type}`;
+            let btn_id   = `#btn_buy_${type}`;
             if (this.canAddTrade(this.getBuyChange(type))){
                 GLOBAL.this.updateAffordability(node_loc, AFFORDABLE);
-                // this.updateAffordability(node2_loc, AFFORDABLE);
+                this.updateButtonAffordability(btn_id,    AFFORDABLE);
             } else {// can not afford
                 GLOBAL.this.updateAffordability(node_loc, UNAFFORDABLE);
-                // this.updateAffordability(node2_loc, UNAFFORDABLE);
+                this.updateButtonAffordability(btn_id,    UNAFFORDABLE);
             }
             // sell
             node_loc = `#trade_sell_${type}`;
-            // node2_loc= `#trsel_sell_${type}`;
+            btn_id   = `#btn_sell_${type}`;
             if (this.canAddTrade(this.getSellChange(type))){
                 GLOBAL.this.updateAffordability(node_loc, AFFORDABLE);
-                // this.updateAffordability(node2_loc, AFFORDABLE);
+                this.updateButtonAffordability(btn_id,    AFFORDABLE);
             } else {// can not afford
                 GLOBAL.this.updateAffordability(node_loc, UNAFFORDABLE);
-                // this.updateAffordability(node2_loc, UNAFFORDABLE);
+                this.updateButtonAffordability(btn_id,    UNAFFORDABLE);
             }
         }
         // market
         if (HAS_BUILDING[GLOBAL.player_id][BLD_MARKET]){
             // food
             let node_loc = `#${PLAYER_BUILDING_ZONE_ID[GLOBAL.player_id]} .market_food`;
+            let btn_id = `#btn_buy_food`;
             if (this.canAddTrade(this.getMarketChange('food'))){
                 GLOBAL.this.updateAffordability(node_loc, AFFORDABLE);
+                this.updateButtonAffordability(btn_id,    AFFORDABLE);
             } else {// can not afford
                 GLOBAL.this.updateAffordability(node_loc, UNAFFORDABLE);
+                this.updateButtonAffordability(btn_id,    UNAFFORDABLE);
             }
             // steel
             node_loc = `#${this.player_building_zone_id[this.player_id]} .market_steel`;
+            btn_id = `#btn_buy_steel`;
             if (this.canAddTrade(this.getMarketChange('steel'))){
                 GLOBAL.this.updateAffordability(node_loc, AFFORDABLE);
+                this.updateButtonAffordability(btn_id,    AFFORDABLE);
             } else {// can not afford
                 GLOBAL.this.updateAffordability(node_loc, UNAFFORDABLE);
+                this.updateButtonAffordability(btn_id,    UNAFFORDABLE);
             }   
         }
         // bank 
         if (HAS_BUILDING[GLOBAL.player_id][BLD_BANK]){
             let node_loc =  `#${BANK_DIVID}`;
+            let btn_id   = `#btn_trade_bank`;
             if (this.canAddTrade(this.getBankChange)){ // can afford
                 GLOBAL.this.updateAffordability(node_loc, AFFORDABLE);
+                this.updateButtonAffordability(btn_id,    AFFORDABLE);
             } else {// can not afford
                 GLOBAL.this.updateAffordability(node_loc, UNAFFORDABLE);
+                this.updateButtonAffordability(btn_id,    UNAFFORDABLE);
             }
+        }
+    }
+
+    updateButtonAffordability(button_id, afford_val){
+        switch(afford_val){
+            case AFFORDABLE:
+                dojo.query(button_id)
+                       .addClass('bgabutton_blue')
+                    .removeClass('bgabutton_gray');
+                break;
+            case UNAFFORDABLE:
+                dojo.query(button_id)
+                    .removeClass('bgabutton_blue')
+                      .addClass('bgabutton_gray');
+                break;
         }
     }
 
@@ -125,32 +149,56 @@ class Trade {
             dojo.place(dojo.create('br'),'generalactions','last');
             let buy_zone = dojo.create('div', {id:BUY_ZONE_ID, style:'display: inline-flex;justify-content:center;'});
             dojo.place(buy_zone, 'generalactions', 'last');
-            let buyText = dojo.create('span', {class:"biggerfont", id:'buy_text'});
-            dojo.place(buyText, BUY_ZONE_ID, 'first');
-            buyText.innerText = _("buy:");
+            let buy_text = dojo.create('span', {class:"biggerfont", id:BUY_TEXT_ID});
+            dojo.place(buy_text, BUY_ZONE_ID, 'first');
+            buy_text.innerText = _("Buy:");
             dojo.place(dojo.create('br'),'generalactions','last');
             let sell_zone = dojo.create('div', {id:SELL_ZONE_ID, style:'display: inline-flex;justify-content:center;'});
             dojo.place(sell_zone, 'generalactions', 'last');
-            let sellText = dojo.create('span', {class:"biggerfont", id:'sell_text'});
-            dojo.place(sellText, SELL_ZONE_ID, 'first');
-            sellText.innerText =_("sell:");
+            let sell_text = dojo.create('span', {class:"biggerfont", id:SELL_TEXT_ID});
+            dojo.place(sell_text, SELL_ZONE_ID, 'first');
+            sell_text.innerText =_("Sell:");
                 
             let types = ['wood','food','steel','gold','cow','copper'];
-            for(let i =0; i <6;i++){
-                let type = types[i];
-                //buy
+            types.forEach(type=> {
                 let tradeAwayTokens = GLOBAL.this.getResourceArrayHtml(this.getBuyAway(type));
                 let tradeForTokens = GLOBAL.this.getResourceArrayHtml(this.getBuyFor(type));
-                GLOBAL.this.addActionButton( `btn_buy_${type}`, `${tradeAwayTokens} ${this.tkn_html.arrow} ${tradeForTokens}`, 'onBuyResource', null, false, 'blue');
+                GLOBAL.this.addActionButton( `btn_buy_${type}`, `${tradeAwayTokens} ${TOKEN_HTML.arrow} ${tradeForTokens}`, 'onBuyResource', null, false, 'blue');
                 dojo.place(`btn_buy_${type}`, BUY_ZONE_ID, 'last');
-                //sell
                 tradeAwayTokens = GLOBAL.this.getResourceArrayHtml(this.getSellAway(type));
                 tradeForTokens = GLOBAL.this.getResourceArrayHtml(this.getSellFor(type));
-                GLOBAL.this.addActionButton( `btn_sell_${type}`, `${tradeAwayTokens} ${this.tkn_html.arrow} ${tradeForTokens}`, 'onSellResource', null, false, 'blue');
+                GLOBAL.this.addActionButton( `btn_sell_${type}`, `${tradeAwayTokens} ${TOKEN_HTML.arrow} ${tradeForTokens}`, 'onSellResource', null, false, 'blue');
                 dojo.place(`btn_sell_${type}`, SELL_ZONE_ID, 'last');
-            }
+            });
             GLOBAL.tradeEnabled = true;
+            if (HAS_BUILDING[GLOBAL.player_id][BLD_MARKET]){
+                let mkt_zone = dojo.create('div', {id:MARKET_ZONE_ID, style:'display: inline-flex;justify-content:center;'});
+                dojo.place(mkt_zone, MARKET_ZONE_ID, 'after');
+                let mkt_text = dojo.create('span', {class:"biggerfont", id:MARKET_TEXT_ID});
+                dojo.place(mkt_text, MARKET_ZONE_ID, 'first');
+                mkt_text.innerText = _("Market:");
+                let types = ['food','steel'];
+                types.forEach((type) => {
+                    tradeAwayTokens = GLOBAL.this.getResourceArrayHtml(this.getMarketAway(type));
+                    tradeForTokens = GLOBAL.this.getResourceArrayHtml(this.getMarketFor(type));
+                    GLOBAL.this.addActionButton( `btn_market_${type}`, `${tradeAwayTokens} ${TOKEN_HTML.arrow} ${tradeForTokens}`, `onMarketTrade_${type}`, null, false, 'blue');
+                    dojo.place(`btn_market_${type}`, MARKET_ZONE_ID, 'last');
+                } );
+                
+            }
+            if (HAS_BUILDING[GLOBAL.player_id][BLD_BANK]){
+                let bank_zone = dojo.create('div', {id:BANK_ZONE_ID, style:'display: inline-flex;justify-content:center;'});
+                dojo.place(bank_zone, SELL_ZONE_ID, 'after');
+                let bank_text = dojo.create('span', {class:"biggerfont", id:BANK_TEXT_ID});
+                dojo.place(bank_text, BANK_ZONE_ID, 'first');
+                bank_text.innerText = _("Bank:");
+                tradeAwayTokens = GLOBAL.this.getResourceArrayHtml({'trade':-1});
+                tradeForTokens = GLOBAL.this.getResourceArrayHtml({'silver':1});
+                GLOBAL.this.addActionButton( `btn_trade_bank`, `${tradeAwayTokens} ${TOKEN_HTML.arrow} ${tradeForTokens}`, `onClickOnBankTrade`, null, false, 'blue');
+                dojo.place(`btn_trade_bank`, MARKET_ZONE_ID, 'last');
+            }
         }
+        this.updateTradeAffordability();
     }
 
     disableTradeIfPossible() {
@@ -205,19 +253,6 @@ class Trade {
         return tradeChange;
     }
 
-    /** get function tradeAway for Loan transactions */
-    getLoanAway(){
-        return {};
-    }
-    /** get function tradeFor for Loan transactions */
-    getLoanFor(){
-        return {'loan':1, 'silver':2};
-    }
-    /** get function tradeChange for Loan transactions */
-    getLoanChange() {
-        return {'loan':1, 'silver':2};
-    }
-
     /** get function tradeAway for Market transactions */
     getMarketAway (type){
         let tradeAway = GLOBAL.this.invertArray(RESOURCE_INFO[type].market);
@@ -237,30 +272,4 @@ class Trade {
         return tradeChange;
     }
     
-    /** get function tradeAway for Sell transactions */
-    getBankAway(){
-        return {'trade':1};
-    }
-    /** get function tradeFor for Sell transactions */
-    getBankFor(){
-        return {'silver':1};
-    }
-    /** get function tradeChange for Sell transactions */
-    getBankChange() {
-        return {'trade':-1, 'silver':1};
-    }
-
-    /** get function tradeAway for Sell transactions */
-    getLoanAway (){
-        return {};
-    }
-    /** get function tradeFor for Sell transactions */
-    getLoanFor (){
-        return {'loan':1, 'silver':2};
-    }
-    /** get function tradeChange for Sell transactions */
-    getLoanChange () {
-        return {'loan':1, 'silver':2};
-    }
- 
 }

@@ -207,7 +207,7 @@
 }
 #top {
    display: flex;
-   order: -1;
+   order: -6;
    align-items: stretch;
    flex-direction: row;
    column-gap: 1px;

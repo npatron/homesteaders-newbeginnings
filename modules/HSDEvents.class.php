@@ -387,15 +387,16 @@ class HSDEvents extends APP_GameClass
      */
     function passBid(){
         if(!$this->passPhase()){ return "rail"; }
-        $pass_evt = $this->game->event_info[$this->getEvent()]['pass'];
+        $pass_evt = $this->getEventPass();
         switch($pass_evt){
             case EVT_PASS_TRACK: //Players who pass, get a ${track}
-                $this->game->Resource->addTrack($this->game->getActivePlayerId(), _("event"));
+                $this->game->Resource->addTrack($this->game->getActivePlayerId(), $this->getEventName());
                 return "rail";
             case EVT_PASS_DEPT_SILVER: //Players who pass may pay off debt for 3-{silver} apiece
                 return "event";
         }
     }
+
 
     function postEventBonusNav(){
         $next_state = 'done';
@@ -404,7 +405,6 @@ class HSDEvents extends APP_GameClass
         }
         $this->game->gamestate->nextState($next_state);
     }
-
     //// END setup Auction ////
 
 

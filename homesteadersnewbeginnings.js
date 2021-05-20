@@ -677,7 +677,8 @@ function (dojo, declare) {
                     const active_train = TRAIN_TOKEN_ID[this.getActivePlayerId()];
                     dojo.addClass(active_train, 'animated');
                     break;
-                case 'payAuction':
+                case 'pass_event':
+                case 'payLot':
                     dojo.style('main_board_area', 'order', 4);
                     //build building
                 case 'trainStationBuild':
@@ -2079,9 +2080,8 @@ function (dojo, declare) {
          * will add takeLoan transaction to transactionLog (and update offset/breadcrumbs)
          */
         onMoreLoan: function ( evt ){
-            let tradeable = this.checkActionTrade(evt);
-            if (!tradeable.valid){return;}
-            this.trade.addTransaction(LOAN);
+            if ( !GLOBAL.allowTrade && !this.checkAction( 'trade' ) ) { return; }
+            this.trade.addTransaction(TAKE_LOAN);
         },
         /** OnClick Handler Market Trade Actions 
          * will add takeLoan transaction to transactionLog (and update offset/breadcrumbs)
@@ -3392,6 +3392,13 @@ function (dojo, declare) {
         passBonusEvent: function() {
             if (this.checkAction( 'eventBonus' )){
                 this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/passBonusEvent.html", {lock: true}, this, 
+                function( result) {this.changeStateCleanup();}, function( is_error) { } );
+            }
+        },
+
+        donePassEvent: function(){
+            if (this.checkAction( 'payLoanEvent' )){
+                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/donePassEvent.html", {lock: true}, this, 
                 function( result) {this.changeStateCleanup();}, function( is_error) { } );
             }
         },
