@@ -194,7 +194,7 @@ const BUILD_BONUS_WORKER = 3;
 
 const BID_VAL_ARR = [3,4,5,6,7,9,12,16,21];//note: starts at 0.
 const ASSET_COLORS = {0:'res', 1:'com', 2:'ind', 3:'spe', 4:'any', 6:'any',
-                        11:'a1',12:'a2',13:'a3', 14:'a4'};
+                      10:'a0',11:'a1',12:'a2',13:'a3', 14:'a4'};
 const VP_TOKENS = ['vp0', 'vp2', 'vp3', 'vp4','vp6','vp8', 'vp10'];
 const WAREHOUSE_MAP = {1:'wood',2:'food',4:'steel',8:'gold',16:'copper',32:'cow',}
 

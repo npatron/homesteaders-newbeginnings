@@ -277,7 +277,7 @@ class homesteadersnewbeginnings extends Table
 
     public function playerDonePassEvent(){
         $this->checkAction( "payLoanEvent" );
-        $this->game->Resource->addTrack($this->game->getActivePlayerId(), $this->Event->getEventName());
+        $this->Resource->addTrack($this->getActivePlayerId(), $this->Event->getEventName());
         $this->gamestate->nextState( "rail" );
     }
 

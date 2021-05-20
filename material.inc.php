@@ -89,7 +89,7 @@ $this->translation_strings = array(
   21=> clienttranslate('Hide Current Buildings'),
   22=> clienttranslate('Hide Upcoming Auctions'), 
   23=> clienttranslate('Hide Building Discard'),
-  14=> clienttranslate('Hide Events'),
+  24=> clienttranslate('Hide Events'),
 );
 
 $this->resource_info = array(

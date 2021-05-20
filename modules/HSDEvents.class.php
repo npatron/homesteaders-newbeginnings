@@ -149,7 +149,9 @@ class HSDEvents extends APP_GameClass
     function eventHaskey($key){
         $value = $this->game->getGameStateValue('new_beginning_evt');
         if ($value == DISABLED) return false;
+        
         $event_id = $this->getEvent();
+        if ($event_id == 0) return false;
         return array_key_exists($key, $this->game->event_info[$event_id]);
     }
     ///// END event phase helper methods ////

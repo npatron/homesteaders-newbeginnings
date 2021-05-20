@@ -541,7 +541,7 @@ class HSDResource extends APP_GameClass
             $this->updateResource($p_id, 'loan', 1);
             $this->game->Log->takeLoan($p_id);
         } else if ($tradeValues['transaction']==='loanPaid'){
-            $type = array_key_first($tradeValues['tradeAway']);
+            $type = array_keys($tradeValues['tradeAway'])[0];
             $amt = $tradeValues['tradeAway'][$type];
             $this->updateResource($p_id, $type, -($amt));
             $this->updateResource($p_id, 'loan', -1);

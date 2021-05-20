@@ -38,6 +38,7 @@ class HSDLog extends APP_GameClass
       $this->game->initStat('player', 'bonus_vp_4', 0, $player_id);
       $this->game->initStat('player', 'bonus_vp_5', 0, $player_id);
       $this->game->initStat('player', 'bonus_vp_6', 0, $player_id);
+      $this->game->initStat('player', 'bonus_vp_7', 0, $player_id);
       
       $this->game->initStat('player', 'buildings',   1, $player_id);
       $this->game->initStat('player', 'residential', 1, $player_id);
@@ -50,11 +51,13 @@ class HSDLog extends APP_GameClass
       $this->game->initStat('player', 'win_auction_1',    0, $player_id);
       $this->game->initStat('player', 'win_auction_2',    0, $player_id);
       $this->game->initStat('player', 'win_auction_3',    0, $player_id);
+      $this->game->initStat('player', 'win_auction_4',    0, $player_id);
       $this->game->initStat('player', 'spent_on_auctions', 0, $player_id);
       $this->game->initStat('player', 'times_outbid',     0, $player_id);
       $this->game->initStat('player', 'outbids',          0, $player_id);
       
       $this->game->initStat('player', 'loans', 0, $player_id);
+      $this->game->initStat('player', 'loans_paid_end', 0, $player_id);
     }
   }
 

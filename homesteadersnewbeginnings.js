@@ -945,13 +945,13 @@ function (dojo, declare) {
                 break;
                 case AUC_BONUS_COPPER_FOR_VP:
                     this.addActionButton( 'btn_copper_vp', `${TOKEN_HTML.copper} ${TOKEN_HTML.arrow} ${TOKEN_HTML.vp4}`, 'copperFor4VP');
-                    if (args.riverPort){
+                    if (HAS_BUILDING[this.player_id][BLD_RIVER_PORT]){
                         this.addActionButton( GOLD_COPPER_BUTTON_ID, `${TOKEN_HTML.gold} ${TOKEN_HTML.arrow} ${TOKEN_HTML.vp4}`, 'goldFor4VP');
                     }
                     break;
                 case AUC_BONUS_COW_FOR_VP:
                     this.addActionButton( 'btn_cow_vp', `${TOKEN_HTML.cow} ${TOKEN_HTML.arrow} ${TOKEN_HTML.vp4}`, 'cowFor4VP');
-                    if (args.riverPort){
+                    if (HAS_BUILDING[this.player_id][BLD_RIVER_PORT]){
                         this.addActionButton( GOLD_COW_BUTTON_ID, `${TOKEN_HTML.gold} ${TOKEN_HTML.arrow} ${TOKEN_HTML.vp4}`, 'goldFor4VP');
                     }
                     break;
@@ -3398,8 +3398,19 @@ function (dojo, declare) {
 
         donePassEvent: function(){
             if (this.checkAction( 'payLoanEvent' )){
+                if (TRANSACTION_LOG.length >0){
+                    this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/trade.html", { 
+                        lock: true, 
+                        trade_action: TRANSACTION_LOG.join(',')
+                     }, this, function( result ) {
+                        this.clearTransactionLog();
+                        this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/donePassEvent.html", {lock: true}, this, 
+                            function( result) {this.changeStateCleanup();}, function( is_error) { } );
+                     }, function( is_error) {});   
+                } else {
                 this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/donePassEvent.html", {lock: true}, this, 
-                function( result) {this.changeStateCleanup();}, function( is_error) { } );
+                    function( result) {this.changeStateCleanup();}, function( is_error) { } );
+                }
             }
         },
 
@@ -3458,7 +3469,7 @@ function (dojo, declare) {
 
         ajaxDoneEndgame: function ( ){
             this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/doneEndgameActions.html", {lock: true}, this, 
-                this.changeStateCleanup(), function( is_error) { } );
+                this, function( result ) {this.changeStateCleanup()}, function( is_error) { } );
         },
 
         ///////////////////////////////////////////////////
@@ -3914,18 +3925,11 @@ function (dojo, declare) {
                 this.incResCounter(p_id, 'loan', -1);
             }
             if (notif.args.type ){
-                if (notif.args.typeStr == 'gold'){
-                    this.slideTemporaryObject( notif.args.type , 'limbo', PLAYER_SCORE_ZONE_ID[p_id], 'board', 500, 100);
-                    if (p_id == this.player_id || GLOBAL.show_player_info){
-                        this.incResCounter(p_id, 'gold', -1);
-                    }
-                } else {
-                    for (let i = 0; i < 5; i++){
-                        this.slideTemporaryObject( notif.args.type, 'limbo', PLAYER_SCORE_ZONE_ID[p_id], 'board', 500, 100 +(i*100)); 
-                    }
-                    if (p_id == this.player_id || GLOBAL.show_player_info){
-                        this.incResCounter(p_id, 'silver', -5);
-                    }
+                for (let i = 0; i < notif.args.amount; i++){
+                    this.slideTemporaryObject( notif.args.type , 'limbo', PLAYER_SCORE_ZONE_ID[p_id], 'board', 500, 100 +(i*100));
+                }
+                if (p_id == this.player_id || GLOBAL.show_player_info){
+                    this.incResCounter(p_id, notif.args.typeStr, -1*(notif.args.amount));
                 }
             }
             if (p_id == this.player_id){
@@ -3948,27 +3952,7 @@ function (dojo, declare) {
         },
 
         notif_score: function( notif ){
-            //console.log('notif_score');
-            //const p_id = notif.args.player_id;
-            // this.scoreCtrl[p_id].setValue(0);
-            // for(let b_key in notif.args.building){
-            //     const building = notif.args.building[b_key];
-            //     var bld_score = 0;
-            //     if (building.static && Number(building.static) >0){
-            //         bld_score += Number(building.static);
-            //     } 
-            //     if (building.bonus && Number(building.bonus) >0){
-            //         bld_score += Number(building.bonus);
-            //     }
-            //     this.displayScoring( `${TPL_BLD_TILE}_${b_key}`, PLAYER_COLOR[notif.args.player_id], bld_score, 2000 );
-            //     this.scoreCtrl[p_id].incValue(bld_score);
-            // } 
-            // dojo.place(`<div id="score_grid_${p_id}" class="score_grid"></div>`, PLAYER_SCORE_ZONE_ID[p_id]);
-            // for(let type in notif.args.resource){
-            //     const amt = notif.args.resource[type];
-            //     this.scoreCtrl[p_id].incValue(amt);
-            // }
-            //this.tooltip.updateScore(p_id, score);
+            
         },
 
         notif_showResources: function( notif ){
