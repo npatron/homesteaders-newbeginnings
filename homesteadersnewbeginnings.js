@@ -283,6 +283,7 @@ function (dojo, declare) {
             dojo.query(`#${old_score_id}`).addClass('noshow');
 
             let new_score_id = `p_score_${resource.p_id}`;
+            dojo.create('span', {id:new_score_id,class:'player_score_value'});
             dojo.place(`<span id="${new_score_id}" class="player_score_value">0</span>`, old_score_id, 'after');
             SCORE_LEFT_COUNTER[resource.p_id] = new ebg.counter();
             SCORE_LEFT_COUNTER[resource.p_id].create(new_score_id);
@@ -661,15 +662,15 @@ function (dojo, declare) {
                 case 'dummyPlayerBid':
                     const dummy_bid_id = BID_TOKEN_ID[DUMMY_BID];
                     dojo.addClass(dummy_bid_id, 'animated');
-                    dojo.style('main_board_area', 'order', -2);
+                    //dojo.style('main_board_area', 'order', -2);
                 break;
                 case 'playerBid':
                     const active_bid_id = BID_TOKEN_ID[this.getActivePlayerId()];
                     dojo.addClass(active_bid_id, 'animated');
-                    dojo.style('main_board_area', 'order', -2);
+                    //dojo.style('main_board_area', 'order', -2);
                     break;
                 case 'getRailBonus':
-                    dojo.style('main_board_area', 'order', -2);
+                    //dojo.style('main_board_area', 'order', -2);
                 case 'getRailBonus_event':
                 case 'getRailBonus_auction':
                 case 'getRailBonus_build':
@@ -679,7 +680,7 @@ function (dojo, declare) {
                     break;
                 case 'pass_event':
                 case 'payLot':
-                    dojo.style('main_board_area', 'order', 4);
+                    //dojo.style('main_board_area', 'order', 4);
                     //build building
                 case 'trainStationBuild':
                 case 'chooseBuildingToBuild':
@@ -1164,7 +1165,6 @@ function (dojo, declare) {
                 this.moveObject(`${TPL_AUC_TILE}_${auction.a_id}`, `${TPL_AUC_ZONE}${auction.location}`)
                 if (GLOBAL.current_auction == 0) 
                     GLOBAL.current_auction = auction.location;
-
             }
         },
 
@@ -1215,8 +1215,14 @@ function (dojo, declare) {
             }
             
             if (this.events[i] != null){
+                console.log(this.events[i]);
                 let text = this.tooltip.replaceTooltipStrings(_(EVENT_INFO[this.events[i].e_id].tt))
                 dojo.place(`<div id="eventsBar" class="font">${text}</div>`, 'eventsBar', 'replace');
+                if (this.events[i].e_id == 2){
+                    let tile = dojo.query(`#${TPL_AUC_ZONE}1 .auction_tile`)[0];
+                    console.log(tile);
+                    tile.addClass('unavailable');
+                }
             } else {
                 dojo.style(`eventsBar`,'display', 'none');
             }

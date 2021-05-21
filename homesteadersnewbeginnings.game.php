@@ -45,17 +45,14 @@ class homesteadersnewbeginnings extends Table
         self::initGameStateLabels( array(
             "round_number"      => 10,
             "first_player"      => 11,
-            //"phase"             => 12,
-            "number_auctions"   => 13,
-            "current_auction"   => 14,
-            "last_bidder"       => 15,
-            "players_passed"    => 16,
-            "auction_bonus"     => 17, // can probably remove this
-            "building_bonus"    => 18,
-            "last_building"     => 19,
-            "b_order"           => 20,
-            "current_event"     => 21, // can probably remove this also
-            "build_type_int"    => 22,
+            "number_auctions"   => 12,
+            "current_auction"   => 13,
+            "last_bidder"       => 14,
+            "players_passed"    => 15,
+            "building_bonus"    => 16,
+            "last_building"     => 17,
+            "b_order"           => 18,
+            "build_type_int"    => 19,
             "show_player_info"  => SHOW_PLAYER_INFO,
             "rail_no_build"     => RAIL_NO_BUILD,
             "new_beginning_bld" => NEW_BEGINNING_BLD,
@@ -123,16 +120,14 @@ class homesteadersnewbeginnings extends Table
         // Init global values with their initial values
         $this->setGameStateInitialValue( 'round_number', 1 );
         $this->setGameStateInitialValue( 'first_player', 0 );
-        $this->setGameStateInitialValue( 'phase',        0 );
         $this->setGameStateInitialValue( 'number_auctions', $number_auctions );
         $this->setGameStateInitialValue( 'current_auction', 1 );
         $this->setGameStateInitialValue( 'last_bidder',    0 );
         $this->setGameStateInitialValue( 'players_passed', 0 );
-        $this->setGameStateInitialValue( 'auction_bonus',  0 );
         $this->setGameStateInitialValue( 'building_bonus', 0 );
         $this->setGameStateInitialValue( 'last_building',  0 );
         $this->setGameStateInitialValue( 'b_order' ,       0 );
-        $this->setGameStateInitialValue( 'current_event',  0 );
+        
         
         $values = array();
         // set colors
@@ -362,7 +357,7 @@ class homesteadersnewbeginnings extends Table
     {
         $this->checkAction( "auctionBonus" );
         $act_p_id = $this->getActivePlayerId();
-        $auction_bonus = $this->getGameStateValue( 'auction_bonus');
+        $auction_bonus = $this->Auction->getCurrentAuctionBonus();
         if ($auction_bonus == AUC_BONUS_WORKER) {
             $this->Resource->addWorkerAndNotify($act_p_id, clienttranslate('Auction Bonus'));
             $this->gamestate->nextState( 'done' );
@@ -401,7 +396,7 @@ class homesteadersnewbeginnings extends Table
             'player_id' => $act_p_id,
             'player_name' => $this->getActivePlayerName()));
         $next_state = 'done';
-        $auction_bonus = $this->getGameStateValue('auction_bonus');
+        $auction_bonus = $this->Auction->getCurrentAuctionBonus();
         if ($auction_bonus == AUC_BONUS_WORKER_RAIL_ADV) {
             $auc_no = $this->getGameStateValue('current_auction');
             $this->Resource->getRailAdv( $act_p_id, sprintf(clienttranslate("Auction %s"),$auc_no), 'auction', $auc_no );
@@ -807,7 +802,7 @@ class homesteadersnewbeginnings extends Table
     }
 
     function argBonusOption() {
-        $auction_bonus = $this->getGameStateValue( 'auction_bonus');
+        $auction_bonus = $this->Auction->getCurrentAuctionBonus();
         return (array("auction_bonus"=> $auction_bonus));
     }
 

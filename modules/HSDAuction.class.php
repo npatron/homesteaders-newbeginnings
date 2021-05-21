@@ -117,7 +117,6 @@ class HSDAuction extends APP_GameClass
 
     function setupCurrentAuctionBonus(){
         $bonus = $this->getCurrentAuctionBonus();
-        $this->game->setGameStateValue( 'auction_bonus', $bonus);
         $next_state = "bonusChoice"; // default state where player chooses stuff
         switch($bonus){
             case AUC_BONUS_NONE:

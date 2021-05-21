@@ -865,7 +865,8 @@ div#sell_board{
    box-sizing: border-box;
    cursor:pointer;
 }
-.building_container .building_tile.unaffordable:after{
+.building_container .building_tile.unaffordable:after, 
+.auction_tile.unavailable:after{
   content: " ";
   position: absolute;
   width: 100%;
