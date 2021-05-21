@@ -287,7 +287,7 @@
   define("BID_A3_B12", 27);
   define("BID_A3_B16", 28);
   define("BID_A3_B21", 29);
-  // A3 bids are 21-29 (4players only)
+  // A3 bids are 21-29 (4+ players)
   define("BID_A4_B3",  31);
   define("BID_A4_B4",  32);
   define("BID_A4_B5",  33);
@@ -297,9 +297,4 @@
   define("BID_A4_B12", 37);
   define("BID_A4_B16", 38);
   define("BID_A4_B21", 39);
-  // A4 bids are 31-39 (5players only)
-
-  // phases that caused rail bonus.
-  define ("PHASE_BID_PASS" ,  1);
-  define ("PHASE_BLD_BONUS" , 2);
-  define ("PHASE_AUC_BONUS" , 3);
+  // A4 bids are 31-39 (5 players only)

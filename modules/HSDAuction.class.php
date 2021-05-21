@@ -127,7 +127,6 @@ class HSDAuction extends APP_GameClass
             case AUC_BONUS_TRACK_RAIL_ADV:
                 $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction' , 4);
                 $this->game->Resource->getRailAdv($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', 4);
-                $this->game->setGameStateValue('phase', PHASE_AUC_BONUS);
                 $next_state = "rail_bonus";
             break;
             case AUC_BONUS_3VP_SELL_FREE:

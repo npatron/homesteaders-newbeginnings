@@ -375,7 +375,7 @@ $machinestates = array(
         "description" => clienttranslate('${actplayer} must choose a railroad advance bonus'),
         "descriptionmyturn" => clienttranslate('${you} must choose a railroad advance bonus'),
         "type" => "activeplayer",
-        "args" => "argRailBonus",
+        "args" => "argPassRailBonus",
         "possibleactions" => array( "chooseBonus", "undoLot"),
         "transitions" => array( "undoLot"  => STATE_PAY_LOT,
                                 "done"=>    STATE_CONFIRM_LOT,

@@ -103,8 +103,6 @@ class HSDBid extends APP_GameClass
         if ($this->game->getPlayersNumber() == 2)
             $this->updateDummyBidWeight(true);
         $this->game->incGameStateValue('players_passed', 1);
-        //phase is used for rail adv, so it knows where to go next.
-        $this->game->setGameStateValue('phase', 2);
         $this->game->Resource->getRailAdv($p_id, $token_arr);
     }
 

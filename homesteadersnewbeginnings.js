@@ -862,7 +862,7 @@ function (dojo, declare) {
         },
         onUpdateActionButtons_pass_event: function (args) {
             // state for pass bid event triggers.
-            this.addActionButton( 'btn_undo_pass', _('Undo'), 'onUndoBidPass', null, false, 'red');
+            this.addActionButton( 'btn_undo_pass', _('Undo Pass Bid'), 'onUndoBidPass', null, false, 'red');
             if (args.event_pass == EVT_PASS_DEPT_SILVER){
                 this.addActionButton( 'btn_loan_silver', this.tooltip.replaceTooltipStrings(_('pay off ${loan} for ${silver}${silver}${silver}')), 'payLoan3Silver', null, false, 'blue');
             }
@@ -871,7 +871,7 @@ function (dojo, declare) {
         },
         onUpdateActionButtons_getRailBonus: function(args){
             if (args.can_undo){
-                this.addActionButton( 'btn_undo_pass', _('Undo'), 'onUndoBidPass', null, false, 'red');
+                this.addActionButton( 'btn_undo_pass', _('Undo Pass Bid'), 'onUndoBidPass', null, false, 'red');
             }
             this.setupButtonsForRailBonus(args);
         },

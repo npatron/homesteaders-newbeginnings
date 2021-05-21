@@ -70,12 +70,6 @@ class HSDEvents extends APP_GameClass
         return $this->game->event_info[$this->getEvent($round_number)]['name'];
     }
 
-    function updateEvent($round_number){
-        $value = $this->game->getGameStateValue('new_beginning_evt');
-        if ($value == DISABLED) return;
-        $this->game->setGameStateValue('current_event', $this->getEvent($round_number));
-    }
-
     function getEventAttribute($attribute, $round_number= null){
         $event = $this->getEvent($round_number);
         if ($event == 0) return 0;

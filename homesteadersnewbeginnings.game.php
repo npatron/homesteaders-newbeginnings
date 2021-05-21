@@ -45,16 +45,16 @@ class homesteadersnewbeginnings extends Table
         self::initGameStateLabels( array(
             "round_number"      => 10,
             "first_player"      => 11,
-            "phase"             => 12,
+            //"phase"             => 12,
             "number_auctions"   => 13,
             "current_auction"   => 14,
             "last_bidder"       => 15,
             "players_passed"    => 16,
-            "auction_bonus"     => 17,
+            "auction_bonus"     => 17, // can probably remove this
             "building_bonus"    => 18,
             "last_building"     => 19,
             "b_order"           => 20,
-            "current_event"     => 21,
+            "current_event"     => 21, // can probably remove this also
             "build_type_int"    => 22,
             "show_player_info"  => SHOW_PLAYER_INFO,
             "rail_no_build"     => RAIL_NO_BUILD,
@@ -369,7 +369,6 @@ class homesteadersnewbeginnings extends Table
         } else if ($auction_bonus == AUC_BONUS_WORKER_RAIL_ADV){
             $auc_no = $this->getGameStateValue( 'current_auction');
             $this->Resource->addWorkerAndNotify($act_p_id, clienttranslate('Auction Bonus'), 'auction', $auc_no );
-            //$this->setGameStateValue( 'phase', PHASE_AUC_BONUS);
             $this->Resource->getRailAdv( $act_p_id, sprintf(clienttranslate("Auction %s"),$auc_no), 'auction', $auc_no );
             $this->gamestate->nextState( 'rail_bonus' );
         } else {
@@ -404,7 +403,6 @@ class homesteadersnewbeginnings extends Table
         $next_state = 'done';
         $auction_bonus = $this->getGameStateValue('auction_bonus');
         if ($auction_bonus == AUC_BONUS_WORKER_RAIL_ADV) {
-            $this->setGameStateValue( 'phase', PHASE_AUC_BONUS);
             $auc_no = $this->getGameStateValue('current_auction');
             $this->Resource->getRailAdv( $act_p_id, sprintf(clienttranslate("Auction %s"),$auc_no), 'auction', $auc_no );
             $next_state = 'rail_bonus';
@@ -752,10 +750,14 @@ class homesteadersnewbeginnings extends Table
         return array("valid_bids"=>$valid_bids );
     }
 
+    function argPassRailBonus() {
+        $rail_options= $this->Resource->getRailAdvBonusOptions($this->getActivePlayerId());
+        return array("rail_options"=>$rail_options, "can_undo"=>false);
+    }
+
     function argRailBonus() {
         $rail_options= $this->Resource->getRailAdvBonusOptions($this->getActivePlayerId());
-        $can_undo = ($this->getGameStateValue('phase') == PHASE_BID_PASS);
-        return array("rail_options"=>$rail_options, "can_undo"=>$can_undo);
+        return array("rail_options"=>$rail_options, "can_undo"=>false);
     }
 
     function argLotCost() {
