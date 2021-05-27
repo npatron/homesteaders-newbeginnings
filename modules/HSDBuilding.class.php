@@ -233,7 +233,9 @@ class HSDBuilding extends APP_GameClass
                         'player_name' => $this->game->getPlayerName($p_id),
                         'building' => $building,
                         'i18n' => array( 'building_name' ), 
-                        'building_name' => array('str'=>$b_name, 'type'=>$this->getBuildingTypeFromKey($b_key)));
+                        'type' => $this->getBuildingTypeFromKey($b_key),
+                        'building_name' => $b_name,
+                        'preserve' => [ 2 => 'type']);
         if (count($b_cost)>0) {
             $message .= ' ${arrow} ${resources}';
             $values['resources'] = $b_cost;
@@ -244,7 +246,7 @@ class HSDBuilding extends APP_GameClass
         $this->game->Log->buyBuilding($p_id, $b_key, $b_cost, $this->game->Score->dbGetScore($p_id));
 
         if ($this->game->Building->doesPlayerOwnBuilding($p_id, BLD_FORGE) && $b_id != BLD_FORGE){
-            $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', 1, array('type'=>TYPE_INDUSTRIAL, 'str'=>"Forge") );
+            $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', 1, $this->game->building_info[BLD_FORGE]['name'], 'building', $this->getKeyOfPlayersBuilding($p_id, BLD_FORGE));
         }
 
         $this->game->setGameStateValue('last_building', $b_key);

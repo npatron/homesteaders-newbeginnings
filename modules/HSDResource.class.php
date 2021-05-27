@@ -277,11 +277,14 @@ class HSDResource extends APP_GameClass
         if ($origin === 'building'){
             $values['origin'] = $origin;
             $values['key'] = $key;
-            $values['reason_string'] = array('type'=>$this->game->Building->getBuildingTypeFromKey($key), 'str'=>$values['reason_string']);
+            $values['type'] = $this->game->Building->getBuildingTypeFromKey($key);
+            $values['preserve'] = [ 2 => 'origin', 3 => 'type', 4 => 'key' ];
+            $values['reason_string'] = $values['reason_string'];
         } else if ($origin === 'auction'){
             $values['origin'] = $origin;
             $values['key'] = $key;
-            $values['reason_string'] = array('type'=>(10+$key),'str'=>$values['reason_string'] );
+            $values['type'] = (10+$key);
+            $values['preserve'] = [ 2 => 'origin', 3 => 'type', 4 => 'key' ];
         }
         return $values;
     }

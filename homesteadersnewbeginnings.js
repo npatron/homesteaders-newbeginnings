@@ -1158,14 +1158,22 @@ function (dojo, declare) {
          * @param {Array} auctions 
          * @param {Number} current_round 
          */
-        showCurrentAuctions: function (auctions){
+        showCurrentAuctions: function (auctions, round_number= null){
             GLOBAL.current_auction = 0;
+            if (round_number && round_number ==11){// not null.
+                if (round_number == 11){
+                    GLOBAL.current_auction = 1;
+                    return;
+                }
+            }
+            let first_avail_auction = 4;
             for (let i in auctions){
                 const auction = auctions[i];
                 this.moveObject(`${TPL_AUC_TILE}_${auction.a_id}`, `${TPL_AUC_ZONE}${auction.location}`)
-                if (GLOBAL.current_auction == 0) 
-                    GLOBAL.current_auction = auction.location;
+                if (first_avail_auction > auction.location) 
+                    first_avail_auction = auction.location;
             }
+            GLOBAL.current_auction = first_avail_auction;
         },
 
         /**
@@ -1219,7 +1227,7 @@ function (dojo, declare) {
                 let text = this.tooltip.replaceTooltipStrings(_(EVENT_INFO[this.events[i].e_id].tt))
                 dojo.place(`<div id="eventsBar" class="font">${text}</div>`, 'eventsBar', 'replace');
                 if (this.events[i].e_id == 2){
-                    let tile = dojo.query(`#${TPL_AUC_ZONE}1 .auction_tile`)[0];
+                    let tile = dojo.query(`#${TPL_AUC_ZONE}1 .auction_tile`);
                     console.log(tile);
                     tile.addClass('unavailable');
                 }

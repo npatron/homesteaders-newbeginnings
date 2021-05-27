@@ -44,7 +44,8 @@ class HSDBid extends APP_GameClass
             'player_id' => $p_id,
             'player_name' => $this->game->loadPlayersBasicInfos()[$p_id]['player_name'],
             'bid_location'=> $bid_loc,
-            'token' => array('token'=> 'bid', 'player_id'=>$p_id),) );
+            'token' => 'bid',
+            'preserve' => [ 2 => 'player_id' ],) );
     }
 
     function clearBids(){
@@ -98,7 +99,8 @@ class HSDBid extends APP_GameClass
                 'player_id' => $p_id,
                 'player_name' => $this->game->loadPlayersBasicInfos()[$p_id]['player_name'],
                 'bid_location'=> BID_PASS,
-                'token' => $token_arr,));
+                'token' => 'bid',
+                'preserve' => [ 2 => 'player_id' ]));
         $this->game->DbQuery("UPDATE `bids` SET `bid_loc` ='".BID_PASS."', `outbid`='0' WHERE `player_id` = '$p_id'");
         if ($this->game->getPlayersNumber() == 2)
             $this->updateDummyBidWeight(true);
@@ -167,7 +169,9 @@ class HSDBid extends APP_GameClass
                 'player_id' => $p_id,
                 'player_name' => $this->game->loadPlayersBasicInfos()[$p_id]['player_name'],
                 'amount' => $amt,
-                'auction' => array('str'=>'auction '.$auc, 'key'=> $auc),
+                'auction' => clienttranslate('auction '.$auc),
+                'key'=> $auc,
+                'preserve' => [ 2 => 'key' ],
                 'bid_location'=> $bid_loc) );
         $this->game->DbQuery( "UPDATE `bids` SET `bid_loc`='$bid_loc', `outbid`='0' WHERE `player_id`='$p_id'");
         $this->game->Log->makeBid($p_id);
@@ -226,12 +230,13 @@ class HSDBid extends APP_GameClass
     }
 
     function zombiePass($p_id){
-        $token_arr = array('token'=> 'bid', 'player_id'=>$p_id);
 		$this->game->notifyAllPlayers("moveBid", clienttranslate( '${player_name} passes ${token}'), array (
                 'player_id' => $p_id,
                 'player_name' => $this->game->loadPlayersBasicInfos()[$p_id]['player_name'],
                 'bid_location'=> BID_PASS,
-                'token' => $token_arr,));
+                'token' => 'bid',
+                'preserve' => [ 2 => 'player_id' ],
+            ));
         $this->game->DbQuery("UPDATE `bids` SET `bid_loc` ='".BID_PASS."', `outbid`='0' WHERE `player_id` = '$p_id'");
         if ($this->game->getPlayersNumber() == 2)
             $this->updateDummyBidWeight(true);
@@ -255,9 +260,11 @@ class HSDBid extends APP_GameClass
 		$this->game->notifyAllPlayers("moveBid", clienttranslate( 'Dummy ${token} Bids ${amount} for ${auction}'), array (
                 'i18n' => array('auction'),    
                 'player_id' => DUMMY_BID,
-                'token' => array('token'=> 'bid', 'player_id'=>DUMMY_BID),
+                'token' => 'bid',
                 'amount' => $amt,
-                'auction' => array('str'=>'AUCTION '.$auc, 'key'=> $auc),
+                'auction' => clienttranslate('auction '.$auc),
+                'key'=> $auc,
+                'preserve' => [ 2 => 'player_id', 3=>'key' ],
                 'bid_location'=> $bid_loc) );
         $this->game->DbQuery( "UPDATE `bids` SET `bid_loc`='$bid_loc', `outbid`='0' WHERE `player_id`='".DUMMY_BID."'");
     }
@@ -270,20 +277,21 @@ class HSDBid extends APP_GameClass
             $new_val = min(26, $val +1); // 26 or +1; (26-> 9-silver)
         }
         $cost = $this->bid_cost_array[$new_val%10];
-        $token_arr = array('token'=> 'bid', 'player_id'=>DUMMY_OPT);
         if ($new_val == $val){
             $this->game->notifyAllPlayers("moveBid", clienttranslate( '${token} cannot be updated past ${cost}'), array (
                 'player_id' => DUMMY_OPT,
-                'token' => $token_arr,
+                'token' => 'bid',
                 'bid_location'=> $val,
+                'preserve' => [ 2 => 'player_id'],
                 'cost' =>$cost ));    
         } else {
             $this->game->DBQuery("UPDATE `bids` SET `bid_loc`=$new_val WHERE `player_id`=".DUMMY_OPT);
             $this->game->notifyAllPlayers("moveBid", '${token} ${arrow} ${cost}', array (
             'player_id' => DUMMY_OPT,
-            'token' => $token_arr,
+            'token' => 'bid',
             'arrow' => 'arrow',
             'bid_location'=> $new_val,
+            'preserve' => [ 2 => 'player_id'],
             'cost' =>$cost ));
         }
     }
