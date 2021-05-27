@@ -500,16 +500,34 @@ div#bid_slot_3_21{
  }
 div[id^=bid_slot_4_]{
    width: 18%;
-   left: 16%;
+   left: 15.7%;
+}
+div#bid_slot_4_4{
+   top: 45.25%;
+}
+div#bid_slot_4_5{
+   top: 35.75%;
+}
+div#bid_slot_4_6{
+   top: 26.25%;
+}
+div#bid_slot_4_7{
+   top: 17%;
+}
+div#bid_slot_4_9{
+   top: 7.5%;
 }
 div#bid_slot_4_12{
-   left: 34%;
+   top: 7.5%;
+   left: 33%;
  }
 div#bid_slot_4_16{
-   left: 52%;
+   top: 7.5%;
+   left: 51%;
  }
 div#bid_slot_4_21{
-   left: 70%;
+   top: 7.5%;
+   left: 68%;
  }
 
 /*===============*
@@ -1382,6 +1400,9 @@ div#sell_board{
 }
 .tt_container .font:not(.bold):not(:last-child){
    margin-bottom: 0px;
+}
+.tt_container .font.any {
+   font-size: 20px;
 }
 .tt_break, .tt_dot {
    width: 100%; 
