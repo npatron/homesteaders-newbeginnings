@@ -27,11 +27,15 @@
    font-weight: 400;
    src: url(https://fonts.googleapis.com/css2?family=Old+Standard+TT);
 }
-
-.font, .biggerFont {
+.biggerFont {
    font-family: 'Old Standard TT';
    font-style: normal;
    font-size: 20px;
+}
+.font {
+   font-family: 'Old Standard TT';
+   font-style: normal;
+   font-size: 16px;
 }
 .caps {
    font-variant: small-caps;
@@ -123,16 +127,16 @@
    color: purple;
 }
 .auc1{
-   text-decoration: underline overline lightseagreen 3px;
+   text-decoration: underline lightseagreen 3px;
 }
 .auc2{
-   text-decoration: underline overline orange 3px;
+   text-decoration: underline orange 3px;
 }
 .auc3{
-   text-decoration: underline overline hotpink 3px;
+   text-decoration: underline hotpink 3px;
 }
 .auc4{
-   text-decoration: underline overline purple 3px;
+   text-decoration: underline purple 3px;
 }
 .auction_column .auction_string{
    font-size: 30px;
@@ -169,7 +173,6 @@
    order: 4;
    flex-direction: row;
    display: flex;
-   flex-grow: 1;
    flex-wrap: wrap;
 }
 #board_area{
@@ -184,7 +187,7 @@
 #board {
    background-image: url('img/auctionBoard.jpg');
    position: relative;
-   width: 100%;
+   width: 740px;
    height: 545px;
    background-size: 740px 545px;
    margin: auto;
@@ -195,7 +198,7 @@
 #board_2 {
    background-image: url('img/auc4-board.png');
    position: relative;
-   width: 100%;
+   width: 296px;
    height: 545px;
    background-size: 296px auto;
    background-repeat: no-repeat;
@@ -204,7 +207,7 @@
 }
 #top {
    display: flex;
-   order: -1;
+   order: -6;
    align-items: stretch;
    flex-direction: row;
    column-gap: 1px;
@@ -334,12 +337,38 @@ button:disabled {
 	text-align: center;
 	line-height: 40px;
 	box-shadow: 0 3px 8px rgba(0, 0, 0, .3);
-	margin-bottom: 10px;
+	/* margin-bottom: 10px; */
    overflow: hidden; 
 	background: #b5552b;
    /* background: #b5552b url('img/drawn_homesteaders.jpg'); */
 }
 
+#eventsBar{
+   background-color: #6666;
+   width: 100%;
+   text-align: center;
+}
+#close_eventsBar{
+   width: 20px;
+   padding: 0;
+   border: 0;
+   height: 20px;
+   border-radius: 6px;
+   position: absolute;
+   background-color: #E0E0E0;
+   right: 4px;
+   top: 2px;
+}
+.toggleOff{
+   display: none;
+}
+.toggleOff:after{
+ content:"▼";
+ text-align: center;
+ position: absolute;
+ left:50%;
+ top: 0%;
+}
 .breadcrumbs_element {
 	display: inline-block;
 	height: 40px;
@@ -471,16 +500,34 @@ div#bid_slot_3_21{
  }
 div[id^=bid_slot_4_]{
    width: 18%;
-   left: 16%;
+   left: 15.7%;
+}
+div#bid_slot_4_4{
+   top: 45.25%;
+}
+div#bid_slot_4_5{
+   top: 35.75%;
+}
+div#bid_slot_4_6{
+   top: 26.25%;
+}
+div#bid_slot_4_7{
+   top: 17%;
+}
+div#bid_slot_4_9{
+   top: 7.5%;
 }
 div#bid_slot_4_12{
-   left: 34%;
+   top: 7.5%;
+   left: 33%;
  }
 div#bid_slot_4_16{
-   left: 52%;
+   top: 7.5%;
+   left: 51%;
  }
 div#bid_slot_4_21{
-   left: 70%;
+   top: 7.5%;
+   left: 68%;
  }
 
 /*===============*
@@ -615,6 +662,11 @@ div#trade_board {
 }
 .tt_container .selectable{
    pointer-events: auto;
+}
+div[id$=trade_market_wood_food]:not(.selectable), 
+div[id$=trade_market_food_steel]:not(.selectable),
+div#trade_bank_trade_silver:not(.selectable){
+   pointer-events: none;
 }
 
 .tt_container div[id$=trade_market_wood_food]{
@@ -780,9 +832,10 @@ div#sell_board{
    min-width: 700px;
 }
 #events_container{
-   min-width: 700px;
+   min-width: 450px;
    flex-grow: 1;
 }
+
 .building_container, .event_container {
    min-width: 600px;
    flex-grow: 10;
@@ -830,7 +883,8 @@ div#sell_board{
    box-sizing: border-box;
    cursor:pointer;
 }
-.building_container .building_tile.unaffordable:after{
+.building_container .building_tile.unaffordable:after, 
+.auction_tile.unavailable:after{
   content: " ";
   position: absolute;
   width: 100%;
@@ -998,19 +1052,16 @@ div#sell_board{
 }
 .score_flex_item {
    flex: 1 0 17%;
-   display: flex;
-   flex-direction: column;
-   border-style: groove;
-   border-width: 0px;
-}
-.score_flex_item.score_top {
-   border-bottom-width: 2px;
-}
-.score_flex_item.score_bot {
-   border-bottom-width: 0px;
-}
-.score_flex_item:not(.score_right) {
-   border-right-width: 2px;
+   display: inline-flex;
+   flex-direction: row-reverse;
+   /* border-style: groove; */
+   /* border-width: 0px; */
+   background-color: rgba(153, 153, 153, .25);
+   border-radius: 42px;
+   align-items: center;
+   justify-content: center;
+   margin: 3px;
+   padding: 2px;
 }
 .scorenumber {
    position: relative;
@@ -1039,11 +1090,17 @@ div#sell_board{
    flex-wrap: wrap;
 }
 .player_resource_group{
-   display: flex;
-   flex-grow: 1;
    min-width: 70px;
    max-width: 90px;
    min-height: 45px;
+   display: inline-flex;
+   flex-direction: row-reverse;
+   background-color: rgba(153, 153, 153, .25);
+   border-radius: 42px;
+   align-items: center;
+   justify-content: center;
+   margin: 3px;
+   padding: 2px;
 }
 .player_numbers{
    margin: auto;
@@ -1053,14 +1110,18 @@ div#sell_board{
    flex-wrap: wrap;
 } 
 .this_player_resource_group{
-   display: flex;
    flex-grow: 1;
    min-width: 70px;
    max-width: 90px;
    min-height: 45px;
-   border-right-style: solid;
-   border-right-color: black;
-   border-right-width: 1px;
+   display: inline-flex;
+   flex-direction: row-reverse;
+   background-color: rgba(153, 153, 153, .25);
+   border-radius: 42px;
+   align-items: center;
+   justify-content: center;
+   margin: 3px;
+   padding: 2px;
 }
 .this_player_resource_group:last-child{
    border-right: none;
@@ -1102,6 +1163,21 @@ div#sell_board{
 .vert{
    display: flex;
    flex-direction: column;
+}
+#warehouse_resources:not(:empty){
+   bottom: 52px;
+   height: 50px;
+   display: inline-flex;
+   background-color: linen;
+   align-items: center;
+   justify-content: center;
+   position: absolute;
+   width: 100%;
+   border-radius: 4px;
+   border-width: 4px;
+   border-color: black;
+   border-style: solid;
+   box-sizing: border-box;
 }
 /* .buy{
    background-image: url('img/drawn_tokens_2.png');
@@ -1235,7 +1311,7 @@ div#sell_board{
 .score_wood {
    width: 12px;
    height: 25px;
-   transform: scale(1.25) rotate(45deg);
+   transform: scale(1.25);
 }
 .log_wood{
    width: 9.5px;
@@ -1263,6 +1339,10 @@ div#sell_board{
    width: 30px;
    height: 20px;
    transform: scale(1.25);
+}
+.breadcrumbs_element .log_cow, .breadcrumbs_element .log_copper,
+.bgabutton .log_cow, .bgabutton .log_copper{
+   transform: scale(1);
 }
 /***   ***/
 .tt_loan{
@@ -1321,6 +1401,9 @@ div#sell_board{
 .tt_container .font:not(.bold):not(:last-child){
    margin-bottom: 0px;
 }
+.tt_container .font.any {
+   font-size: 20px;
+}
 .tt_break, .tt_dot {
    width: 100%; 
    text-align: center; 
@@ -1362,9 +1445,7 @@ div#sell_board{
  *=============*/
 .player_token_zone {
    position: relative;
-   display: grid;
-   grid-template-columns: repeat(auto-fill, 11.5px);
-   grid-template-rows: repeat(auto-fill, 51px);
+   display: inline-flex;
 }
 .bid_token_zone {
    position: absolute;
@@ -1397,6 +1478,7 @@ div#sell_board{
 .log_container {
    display: inline-flex;
    flex-direction: row-reverse;
+   pointer-events: none;
 }
 .token_inline{
    background-image: url('img/drawn_tokens_2.png');
@@ -1421,24 +1503,6 @@ div#sell_board{
  .tt_container .token_inline:not(:last-child), #breadcrumb_bldCost .log_token:not(:last-child) {
    margin-left: -0px;
 }
-/* .log_gold{
-   background-size: 217.4px 65.2px;
-   background-position: -13px -2px;
-   width: 21px;
-   height: 20px;
-}
-.log_food{
-   background-size: 243.9px 73px;
-   background-position: -41.7px -3px;
-   width: 19px;
-   height: 20px;
-}
-.log_silver{
-   background-size: 202px 61px;
-   background-position: -53px -1px;
-   width: 21px;
-   height: 20px;
-} */
 .log_loan{
    display: inline-block;
    background-image: url('img/rail_debt_85x102.png');
@@ -1464,18 +1528,6 @@ div#sell_board{
 .log_container .log_worker:not(:last-child) {
    margin-left: -8px;
  }
-/* .log_cow{
-   background-size: 263px 79px;
-   background-position: -31px -32px;
-   width: 27px;
-   height: 20px;
-}
-.log_copper{
-   background-size: 275px 88px;
-   background-position: -66px -35px;
-   width: 30px;
-   height: 20px;
-} */
 .log_track, .log_big_track{
    background-position: -94.5% -37%;
 }
@@ -1489,14 +1541,6 @@ div#sell_board{
    width: 40px;
    height: 40px;
 }
-/* .log_steel{
-   background-size: 1200%;
-   background-position: 23.5% -38%;
-}
-.log_steel{
-   width: 20px;
-   height: 20px;
-} */
 .log_arrow{
    background-size: 689.7px 206.9px;
    background-position: -249.6px -83.45px;
@@ -1753,7 +1797,7 @@ div#sell_board{
 }
 .slot_17_3 {
    bottom: 13px;
-   left: 28px;
+   left: 31px;
    width: 70px;
    display: grid;
    grid-template-columns: 20px 20px;
@@ -1802,6 +1846,10 @@ div#sell_board{
    left: 15%;
    bottom: 7%;
 } 
+.slot_39_1 {
+   left: 37px;
+   bottom: 14px;
+}
 
 /*=====================*
  * Auction Tile images *

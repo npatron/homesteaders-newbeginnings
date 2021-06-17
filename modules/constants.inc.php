@@ -14,41 +14,55 @@
 
   // states
   define("STATE_START_ROUND",        10);
+  // income phase
   define("STATE_PLACE_WORKERS",      20);
   define("STATE_INCOME",             22);
   define("STATE_PAY_WORKERS",        23);
 
-  define("STATE_EVT_PRE_AUCTION",    24);
-  define("STATE_EVT_TRADE",          25);
-  define("STATE_EVT_BONUS",          26);
-  define("STATE_EVT_PAY",            27);
-  define("STATE_EVT_POST_TRADE",     28);
-  define("STATE_EVT_DEBT_TRADE",     36);
+  // event phase
+  define("STATE_EVT_PRE_AUCTION",    30);
+  define("STATE_EVT_TRADE",          31);
+  define("STATE_EVT_BONUS",          32);
+  define("STATE_EVT_PAY",            33);
+  define("STATE_EVT_POST_TRADE",     34);
   
-  define("STATE_BEGIN_AUCTION",      30);
-  define("STATE_2_PLAYER_DUMMY_BID", 31);
-  define("STATE_PLAYER_BID",         32);
-  define("STATE_RAIL_BONUS",         33);
-  define("STATE_NEXT_BID",           34);
+  // Bidding phase
+  define("STATE_BEGIN_AUCTION",      40);
+  define("STATE_2_PLAYER_DUMMY_BID", 41);
+  define("STATE_PLAYER_BID",         42);
+  define("STATE_PASS_RAIL_BONUS",    43);
+  define("STATE_NEXT_BID",           44);
+  define("STATE_EVT_PASS_BONUS",     45);
 
-  define("STATE_NEXT_BUILDING",      40);
-  define("STATE_PAY_AUCTION",        41);
-  define("STATE_CHOOSE_BUILDING",    42);
-  define("STATE_RESOLVE_BUILDING",   43);
-  define("STATE_TRAIN_STATION_BUILD",44);
+  // resolve Auction Lots
+  define("STATE_NEXT_LOT", 50);
+  define("STATE_PAY_LOT",  51);/* <- undoTurn goes here*/
+  define("STATE_CHOOSE_BUILDING",    52);
+  // 1) resolve build bonuses
+  define("STATE_RESOLVE_BUILD",      53);
+  define("STATE_BUILD_BONUS",        54);
+  define("STATE_BUILD_RAIL_BONUS",   55);
+  define("STATE_TRAIN_STATION_BUILD",56);
+  // 2) event specific bonus or builds 
+  //note: no additional builds from events in age with train station.
+  define("STATE_EVT_SETUP_BONUS",   60);
+  define("STATE_EVT_CHOICE",        61);
+  define("STATE_EVT_BUILD_AGAIN",   62);
+  define("STATE_EVT_RESOLVE_BUILD", 63);
+  define("STATE_EVT_BUILD_BONUS",   64);
+  define("STATE_EVT_RAIL_BONUS",    65);
+  // 3) auction bonuses (not tied to build)
+  define("STATE_AUC_SETUP_BONUS", 70);
+  define("STATE_AUC_RAIL_BONUS",  71);
+  define("STATE_AUC_CHOOSE_BONUS",72);
 
-  define("STATE_EVT_BLD_BONUS",      46);
-  define("STATE_EVT_BUILD_AGAIN",    47);
-  define("STATE_EVT_BUILD_BONUS",    48);
+  define("STATE_CONFIRM_LOT",     78);
+  define("STATE_END_CURRENT_LOT", 79);
 
-  define("STATE_AUCTION_BONUS",      50);
-  define("STATE_CHOOSE_BONUS",       51);
-  define("STATE_CONFIRM_AUCTION",    52);
-  define("STATE_END_BUILD",          53);
-  define("STATE_END_ROUND",          59);
-  
-  define("STATE_ENDGAME_ACTIONS",    60);
-  define("STATE_UPDATE_SCORES",      61);
+  define("STATE_END_ROUND",          89);
+  define("STATE_ENDGAME_ACTIONS",    90);
+  define("STATE_UPDATE_SCORES",      91);
+
   define("STATE_END_GAME",           99);
 
   define('DUMMY_BID', 0);
@@ -211,6 +225,35 @@
   define("EVT_PASS_TRACK",        24);
   define("EVT_PASS_DEPT_SILVER",  25);
 
+  // Settlement Events #1-10
+  define("EVENT_ABANDONED_STOCKPILE",   1);
+  define("EVENT_BUREAUCRATIC_ERROR",    2);
+  define("EVENT_CENTRAL_PACIFIC_RR",    3);
+  define("EVENT_EAGER_INVESTORS",       4);
+  define("EVENT_EXTRA_LOT",             5);
+  define("EVENT_MIGRANT_WORKERS",       6);
+  define("EVENT_RAILROAD_CONTRACTS",    7);
+  define("EVENT_RAPID_EXPANSION",       8);
+  define("EVENT_TRAVELING_TRADERS",     9);
+  define("EVENT_UNION_PACIFIC_RR",     10);
+  // Town Events       #11-20
+  define("EVENT_BANK_FAVORS",          11);
+  define("EVENT_FORTUNE_SEEKER",       12);
+  define("EVENT_INDUSTRIALIZATION",    13);
+  define("EVENT_INTEREST",             14);
+  define("EVENT_SHARECROPPING",        15);
+  define("EVENT_STATE_FAIR",           16);
+  define("EVENT_TRANSCONTINENTAL_RR",  17);
+  define("EVENT_TIMBER_CULTURE_ACT",   18);
+  define("EVENT_WARTIME_DEMAND",       19);
+  define("EVENT_WESTERN_PACIFIC_RR",   20);
+  // City Events       #21-25
+  define("EVENT_COMMERCIAL_DOMINANCE", 21);
+  define("EVENT_INDUSTRIAL_DOMINANCE", 22);
+  define("EVENT_NELSON_ACT",           23);
+  define("EVENT_PROPERTY_TAXES",       24);
+  define("EVENT_RESIDENTIAL_DOMINANCE",25);
+
   // Bid location mapping
   define("NO_BID",     0);
   define("BID_A1_B3",  1);
@@ -244,7 +287,7 @@
   define("BID_A3_B12", 27);
   define("BID_A3_B16", 28);
   define("BID_A3_B21", 29);
-  // A3 bids are 21-29 (4players only)
+  // A3 bids are 21-29 (4+ players)
   define("BID_A4_B3",  31);
   define("BID_A4_B4",  32);
   define("BID_A4_B5",  33);
@@ -254,9 +297,4 @@
   define("BID_A4_B12", 37);
   define("BID_A4_B16", 38);
   define("BID_A4_B21", 39);
-  // A4 bids are 31-39 (5players only)
-
-  // phases that caused rail bonus.
-  define ("PHASE_BID_PASS" ,  1);
-  define ("PHASE_BLD_BONUS" , 2);
-  define ("PHASE_AUC_BONUS" , 3);
+  // A4 bids are 31-39 (5 players only)

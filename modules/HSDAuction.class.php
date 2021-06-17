@@ -81,7 +81,7 @@ class HSDAuction extends APP_GameClass
     function getCurrentAuctionId(){
         $round_number = $this->game->getGameStateValue('round_number');
         $current_auction = $this->game->getGameStateValue('current_auction');
-        return $this->game->getUniqueValueFromDB( "SELECT `auction_id` FROM `auctions` WHERE `location`='$current_auction'AND `position`='$round_number'");
+        return $this->game->getUniqueValueFromDB( "SELECT `auction_id` FROM `auctions` WHERE `location`='$current_auction' AND `position`='$round_number'");
     }
 
     function updateClientAuctions($round_number){
@@ -112,22 +112,20 @@ class HSDAuction extends APP_GameClass
     function getCurrentAuctionBonus(){
         $a_id = $this->getCurrentAuctionId();
         // if exists, otherwise return AUC_BONUS_NONE;
-        return (array_key_exists('bonus', $this->game->auction_info[$a_id])?$this->game->auction_info[$a_id]['bonus']:AUC_BONUS_NONE);
+        return ($this->game->auction_info[$a_id]['bonus']??AUC_BONUS_NONE);
     }
 
     function setupCurrentAuctionBonus(){
-        $next_state = "bonusChoice"; // default state where player chooses stuff
         $bonus = $this->getCurrentAuctionBonus();
-        $this->game->setGameStateValue( 'auction_bonus', $bonus);
+        $next_state = "bonusChoice"; // default state where player chooses stuff
         switch($bonus){
             case AUC_BONUS_NONE:
             case AUC_BONUS_NO_AUCTION:
-                $next_state = 'endBuild';
+                $next_state = 'done';
             break;
             case AUC_BONUS_TRACK_RAIL_ADV:
-                $this->game->Resource->addTrack($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction' , 4);
+                $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction' , 4);
                 $this->game->Resource->getRailAdv($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', 4);
-                $this->game->setGameStateValue('phase', PHASE_AUC_BONUS);
                 $next_state = "rail_bonus";
             break;
             case AUC_BONUS_3VP_SELL_FREE:
@@ -151,6 +149,12 @@ class HSDAuction extends APP_GameClass
     function getCurrentAuctionBuildTypeOptions(){
         $a_id = $this->getCurrentAuctionId(); 
         // if exists, otherwise return array();
-        return (array_key_exists('build', $this->game->auction_info[$a_id])?$this->game->auction_info[$a_id]['build']:array());
+        return ($this->game->auction_info[$a_id]['build']??array());
+    }
+
+    function setCurrentAuctionBuildType(){
+        $b_type_options = $this->getCurrentAuctionBuildTypeOptions();
+        $b_type_int = $this->game->Building->buildTypeArrayIntoInt($b_type_options);
+        $this->game->setGameStateValue('build_type_int', $b_type_int);
     }
 }
