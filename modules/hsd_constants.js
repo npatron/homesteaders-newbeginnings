@@ -62,6 +62,7 @@ const BLD_LUMBER_MILL = 36;
 const BLD_WAREHOUSE = 40;
 const BLD_POST_OFFICE = 41;
 
+
 // string templates for dynamic assets
 const TPL_BLD_TILE  = "building_tile";
 const TPL_BLD_STACK = "building_stack_";
@@ -73,14 +74,75 @@ const TPL_AUC_ZONE  = "auction_tile_zone_";
 const FIRST_PLAYER_ID       = 'first_player_tile';
 const CONFIRM_TRADE_BTN_ID  = 'confirm_trade_btn';
 const UNDO_TRADE_BTN_ID     = 'undo_trades_btn';
-const UNDO_LAST_TRADE_BTN_ID= 'undo_last_trade_btn';
+const UNDO_LAST_TRADE_BTN_ID= 'undo_last_trade_btn';// remove this
 
-const TRADE_BUTTON_ID       = 'btn_trade';
-const GOLD_COW_BUTTON_ID    = 'btn_gold_cow';
-const GOLD_COPPER_BUTTON_ID = 'btn_gold_copper';
-const TAKE_LOAN_BUTTON_ID   = 'btn_take_loan';
-const MORE_GOLD_BUTTON_ID   = 'btn_more_gold';
-const LESS_GOLD_BUTTON_ID   = 'btn_less_gold';
+const BTN_ID_DONE           = 'btn_done'; // endgame
+const ENDGAME_DONE_METHOD   = 'doneEndgameActions';
+    
+const BTN_ID_CONFIRM_WORKERS = 'btn_confirm_workers'; // allocate workers
+const DONE_WORKERS_METHOD    = 'donePlacingWorkers';
+
+const BTN_ID_CONFIRM_BID = 'btn_confirm_bid';
+const BTN_ID_CONFIRM_DUMMY_BID = 'btn_confirm_dummy_bid';
+const BTN_ID_CONFIRM_ACTIONS = 'btn_confirm';
+
+/*** can be trade + transition ***/
+const BTN_ID_CONFIRM_BID = 'btn_confirm_bid';
+const BTN_ID_CONFIRM_DUMMY_BID = 'btn_confirm_dummy_bid';
+const BTN_ID_CONFIRM_ACTIONS = 'btn_confirm';
+
+const BTN_ID_BUILD = 'btn_choose_building';
+const BUILD_BUILDING_METHOD = 'chooseBuilding';
+const BUILDING_NAME_ID = 'bld_name';
+
+const BTN_ID_FOOD_VP = 'btn_food_vp';
+const FOOD_VP_ARR    = {resource1:'${food}', resource2:'${vp2}', arrow:'${arrow}'};
+const FOOD_VP_METHOD = 'foodFor2VP';
+
+const BTN_ID_COW_VP  = 'btn_cow_vp';
+const COW_VP_ARR     = {resource1:'${cow}', resource2:'${vp4}', arrow:'${arrow}'};
+const COW_VP_METHOD  = 'cowFor4VP';
+
+const BTN_ID_COPPER_VP = 'btn_copper_vp';
+const COPPER_VP_ARR    = {resource1:'${copper}', resource2:'${vp4}', arrow:'${arrow}'};
+const COPPER_VP_METHOD = 'copperFor4VP';
+
+const BTN_ID_GOLD_VP = 'btn_gold_vp';
+const GOLD_VP_ARR    = {resource1:'${gold}', resource2:'${vp4}', arrow:'${arrow}'};
+const GOLD_VP_METHOD = 'goldFor4VP'; 
+
+const BTN_ID_WOOD_TRACK = 'btn_wood_track';
+const WOOD_TRACK_ARR    = {resource1:'${wood}', resource2:'${track}', arrow:'${arrow}'};
+const WOOD_TRACK_METHOD = 'woodForTrack';
+
+const BTN_ID_BONUS_WORKER = 'btn_bonus_worker'; // free worker bonus
+const BTN_ID_PASS_BID     = 'btn_pass';  // pass bid
+const BTN_ID_DO_NOT_BUILD = 'btn_do_not_build'; // pass build
+const BTN_ID_PASS_BONUS   = 'btn_pass_bonus';   // pass on bonus
+const BTN_ID_CHOOSE_BONUS = 'btn_choose_bonus'; //rail bonus
+
+/*** transition back ***/
+const BTN_ID_UNDO_PASS    = 'btn_undo_pass';
+const BTN_ID_CANCEL       = 'btn_cancel_button';
+const BTN_ID_REDO_AUCTION = 'btn_redo_build_phase';
+/*** non-transition actions ***/
+const BTN_ID_HIRE_WORKER = 'btn_hire_worker';
+const BTN_ID_TAKE_LOAN   = 'btn_take_loan';
+const BTN_ID_MORE_GOLD   = 'btn_more_gold';
+const BTN_ID_LESS_GOLD   = 'btn_less_gold';
+const BTN_ID_PAY_DONE    = 'btn_pay_done';
+const DONE_PAY_METHOD    = 'donePay';
+
+const BTN_ID_PAY_LOAN_SILVER   = 'btn_pay_loan_silver';
+const BTN_ID_PAY_LOAN_GOLD     = 'btn_pay_loan_gold';
+const BTN_ID_PAY_LOAN_3_SILVER = 'btn_loan_3_silver';
+
+const BTN_ID_TRADE       = 'btn_trade';
+const BTN_ID_TRADE_BANK  = 'btn_trade_bank';
+const REPLACER_ZONE_ID   = 'replacers';
+const BTN_ID_GOLD_COW    = 'btn_gold_cow';
+const BTN_ID_GOLD_COPPER = 'btn_gold_copper';
+
 const PAY_GOLD_TEXT         = 'pay_gold';
 const PAY_GOLD_TOKEN        = 'pay_gold_tkn';
 const PAY_SILVER_TEXT       = 'pay_silver';
@@ -88,6 +150,7 @@ const PAY_SILVER_TOKEN      = 'pay_silver_tkn';
 const MORE_STEEL_BUTTON     = 'btn_more_steel';
 const LESS_STEEL_BUTTON     = 'btn_less_steel';
 
+// transaction constants
 const BUY               = 1;
 const SELL              = 2;
 const MARKET            = 3;
@@ -100,8 +163,6 @@ const PAY_LOAN_SILVER_3 = 8;
 // arrays for the map between toggle buttons and show/hide zones 
 const TOGGLE_BTN_ID     = ['tgl_future_bld', 'tgl_main_bld', 'tgl_future_auc', 'tgl_past_bld', 'tgl_events'];
 const TOGGLE_BTN_STR_ID = ['bld_future', 'bld_main', 'auc_future', 'bld_discard', 'evt_main'];
-//    const TOGGLE_SHOW_STRING= ['Show Upcoming Buildings', 'Show Current Buildings', 'Show Upcoming Auctions', 'Show Building Discard', 'Show Events'];
-//    const TOGGLE_HIDE_STRING= ['Hide Upcoming Buildings', 'Hide Current Buildings', 'Hide Upcoming Auctions', 'Hide Building Discard', 'Hide Events'];
 const TILE_CONTAINER_ID = ['future_building_container', 'main_building_container', 'future_auction_container', 'past_building_container', 'events_container'];
 const TILE_ZONE_DIVID   = ['future_building_zone', 'main_building_zone', 'future_auction_1', 'past_building_zone', 'events_zone'];
 const EVT_ZONE = "events_zone";
