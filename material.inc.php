@@ -150,9 +150,7 @@ $this->resource_info = array(
   'loan' => array(
     'name'   => clienttranslate("Debt"),
     'db_int' => LOAN,
-    'tt'     => sprintf(clienttranslate('%s<br>Debt:<br>Costs 5 ${silver} (or 1 ${gold}) to pay off<br>End: Penalty for unpaid %s:<br>'.
-    '%s lose ${vp}<br>%s lose ${vp3}<br>%s lose ${vp6}<br>%s lose ${vp10}<br> (etc...)'), 
-      '${big_loan}', '${loan}', '${loan} ${arrow}', '${loan}${loan} ${arrow}', '${loan}${loan}${loan} ${arrow}', '${loan}${loan}${loan}${loan} ${arrow}'),
+    'tt'     => clienttranslate('${big_loan}<br>Debt:<br>Costs 5 ${silver} (or 1 ${gold}) to pay off<br>End: Penalty for unpaid ${loan}:<br>${loan} ${arrow} lose ${vp}<br>${loan}${loan} ${arrow} lose ${vp3}<br>${loan}${loan}${loan} ${arrow} lose ${vp6}<br>${loan}${loan}${loan}${loan} ${arrow} lose ${vp10}<br> (etc...)'),
   ),
   'trade' => array(
     'name'   => clienttranslate("Trade Token"),

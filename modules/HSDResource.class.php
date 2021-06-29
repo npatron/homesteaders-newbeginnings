@@ -298,7 +298,17 @@ class HSDResource extends APP_GameClass
             $values['preserve'][3] = 'origin';
             $values['preserve'][4] = 'key';
         } else if ($origin === 'train'){
-
+            $values['origin'] = $origin;
+            if (!array_key_exists('preserve', $values)){
+                $values['preserve'] = [];
+            }
+            $values['preserve'][3] = 'player_id';
+        } else if ($origin === 'bid'){
+            $values['origin'] = $origin;
+            if (!array_key_exists('preserve', $values)){
+                $values['preserve'] = [];
+            }
+            $values['preserve'][3] = 'player_id';
         }
         return $values;
     }
@@ -491,7 +501,7 @@ class HSDResource extends APP_GameClass
         if ($key != 0){
             $this->updateAndNotifyPaymentGroup($p_id, $cost, $reason_string, 'auction', $key);
         } else {
-            $this->updateAndNotifyPaymentGroup($p_id, $cost, array('worker'=>$reason_string));
+            $this->updateAndNotifyPaymentGroup($p_id, $cost, 'worker');
         }
         $this->game->Score->updatePlayerScore($p_id);
     }

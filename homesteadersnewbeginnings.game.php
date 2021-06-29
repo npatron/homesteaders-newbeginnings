@@ -598,7 +598,7 @@ class homesteadersnewbeginnings extends Table
             $this->Resource->setPaid($cur_p_id);
             $workers = $this->Resource->getPlayerResourceAmount($cur_p_id,'workers');
             $cost = max($workers - (5*$gold), 0);
-            $this->Resource->pay($cur_p_id, $cost, $gold, "workers");
+            $this->Resource->pay($cur_p_id, $cost, $gold, "worker");
         }
         $next_state = ($this->Event->eventPhase()?"event":"auction");
         if (!$early){
