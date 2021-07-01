@@ -82,10 +82,6 @@ const ENDGAME_DONE_METHOD   = 'doneEndgameActions';
 const BTN_ID_CONFIRM_WORKERS = 'btn_confirm_workers'; // allocate workers
 const DONE_WORKERS_METHOD    = 'donePlacingWorkers';
 
-const BTN_ID_CONFIRM_BID = 'btn_confirm_bid';
-const BTN_ID_CONFIRM_DUMMY_BID = 'btn_confirm_dummy_bid';
-const BTN_ID_CONFIRM_ACTIONS = 'btn_confirm';
-
 /*** can be trade + transition ***/
 const BTN_ID_CONFIRM_BID = 'btn_confirm_bid';
 const BTN_ID_CONFIRM_DUMMY_BID = 'btn_confirm_dummy_bid';
@@ -187,19 +183,17 @@ const BUY_ZONE_ID    = 'buy_zone';
 const BUY_TEXT_ID    = 'buy_text';
 const SELL_ZONE_ID   = 'sell_zone';
 const SELL_TEXT_ID   = 'sell_text';
-const MARKET_ZONE_ID = 'market_zone';
+const SPECIAL_ZONE_ID= 'special_zone'; // market + bank
 const MARKET_TEXT_ID = 'market_text';
-const BANK_ZONE_ID   = 'bank_zone';
 const BANK_TEXT_ID   = 'bank_text';
 
-const SPECIAL_ZONE   = 'special_zone';
 const TRADE_BOARD_ACTION_SELECTOR = `#${TRADE_BOARD_ID} .trade_option`;
 const TYPE_SELECTOR = {'bid':'.bid_slot', 'bonus':'.train_bonus', 'worker_slot':'.worker_slot',
 'building':'.building_tile', 'worker':'.token_worker', 'trade':'.trade_option',
 'track':'.token_track'};
 
 // other Auction Locations are the auction number (1-3).
-const AUCLOC_DISCARD = 0;
+const AUC_LOC_DISCARD = 0;
 
 const AUC_BONUS_NONE            = 0;
 const AUC_BONUS_WORKER          = 1;

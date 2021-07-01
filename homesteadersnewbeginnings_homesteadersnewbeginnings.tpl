@@ -44,17 +44,6 @@
                     <span id="trade_new" class="player_trade_new new_text noshow">0</span>
                 </span>
             </span>
-            <span id="loan_group" class="this_player_resource_group">
-                <span id="loanicon_{COLOR}"   class="player_loan score"></span>
-                <span id="loan_num" class="player_numbers vert"><!-- vertical -->
-                    <span id="loancount_{COLOR}" class="player_loan_text player_text">0</span>
-                    <span id="loan_offsets" class="vert"><!-- vertical -->
-                        <span class="signed loan pos horiz">+<span id="loan_pos">0</span></span>
-                        <span class="signed loan neg horiz">-<span id="loan_neg">0</span></span>
-                    </span>
-                    <span id="loan_new" class="player_loan_new new_text noshow">0</span>
-                </span>
-            </span>
             <span id="vp_group" class="this_player_resource_group">
                 <span id="vpicon_{COLOR}"   class="score_token player_vp score"></span>
                 <span id="vp_num" class="player_numbers vert"><!-- vertical -->
@@ -64,6 +53,17 @@
                         <span class="signed vp neg horiz">-<span id="vp_neg">0</span></span>
                     </span>
                     <span id="vp_new" class="player_vp_new new_text noshow">0</span>
+                </span>
+            </span>
+            <span id="loan_group" class="this_player_resource_group">
+                <span id="loanicon_{COLOR}"   class="player_loan score"></span>
+                <span id="loan_num" class="player_numbers vert"><!-- vertical -->
+                    <span id="loancount_{COLOR}" class="player_loan_text player_text">0</span>
+                    <span id="loan_offsets" class="vert"><!-- vertical -->
+                        <span class="signed loan pos horiz">+<span id="loan_pos">0</span></span>
+                        <span class="signed loan neg horiz">-<span id="loan_neg">0</span></span>
+                    </span>
+                    <span id="loan_new" class="player_loan_new new_text noshow">0</span>
                 </span>
             </span>
             <span id="wood_group" class="this_player_resource_group">
@@ -247,21 +247,21 @@
                 <span id="silvericon_{COLOR}" class="score_token player_silver score"></span>
                 <span id="silvercount_{COLOR}" class="player_silver_text player_text">0</span>
             </span>
-                <span id="trade_group_{COLOR}" class="player_resource_group">
+            <span id="trade_group_{COLOR}" class="player_resource_group">
                 <span id="tradeicon_{COLOR}"  class="score_token player_trade score"></span>
-            <span id="tradecount_{COLOR}" class="player_trade_text player_text">0</span>
+                <span id="tradecount_{COLOR}" class="player_trade_text player_text">0</span>
             </span>
-                <span id="loan_group_{COLOR}" class="player_resource_group">
-                <span id="loanicon_{COLOR}"   class="player_loan score"></span>
-            <span id="loancount_{COLOR}" class="player_loan_text player_text">0</span>
-            </span>
-                <span id="vp_group_{COLOR}" class="player_resource_group">
+            <span id="vp_group_{COLOR}" class="player_resource_group">
                 <span id="vpicon_{COLOR}"   class="score_token player_vp score"></span>
-            <span id="vpcount_{COLOR}"  class="player_vp_text player_text">0</span>
+                <span id="vpcount_{COLOR}"  class="player_vp_text player_text">0</span>
             </span>
-                <span id="wood_group_{COLOR}" class="player_resource_group">
+            <span id="loan_group_{COLOR}" class="player_resource_group">
+                <span id="loanicon_{COLOR}"   class="player_loan score"></span>
+                <span id="loancount_{COLOR}" class="player_loan_text player_text">0</span>
+            </span>
+            <span id="wood_group_{COLOR}" class="player_resource_group">
                 <span id="woodicon_{COLOR}"   class="score_token player_wood score"></span>
-            <span id="woodcount_{COLOR}" class="player_wood_text player_text">0</span>
+                <span id="woodcount_{COLOR}" class="player_wood_text player_text">0</span>
             </span>
             <span id="food_group_{COLOR}" class="player_resource_group">
                 <span id="foodicon_{COLOR}"   class="score_token player_food score"></span>
@@ -322,15 +322,15 @@ var jptpl_track='<div id="token_track_${id}" class="token_track border_${color}"
 var jstpl_player_board = '\<div class="cp_board">\
     <div class="score_group"><div class="score_flex">\
         <div id="silver_p${id}" class="score_flex_item score_top score_left"><div id="silvericon_p${id}" class="score_token score_silver score"></div><div id="silvercount_${id}" class="score_silver_text score_text">0</div></div>\
-        <div id="trade_p${id}" class="score_flex_item score_top"><div id="tradeicon_p${id}" class="score_token score_trade score"></div><div id="tradecount_${id}" class="score_trade_text score_text">0</div></div>\
-        <div id="vp_p${id}" class="score_flex_item score_bot score_left"><div id="vpicon_p${id}" class="score_token score_vp score"></div><div id="vpcount_${id}" class="score_vp_text score_text">0</div></div>\
-        <div id="loan_p${id}" class="score_flex_item score_bot"><div id="loanicon_p${id}" class="score_loan score score"></div><div id="loancount_${id}" class="score_loan_text score_text">0</div></div>\
         <div id="wood_p${id}" class="score_flex_item score_top"><div id="woodicon_p${id}" class="score_token score_wood score"></div><div id="woodcount_${id}" class="score_wood_text score_text">0</div></div>\
         <div id="food_p${id}" class="score_flex_item score_top"><div id="foodicon_p${id}" class="score_token score_food score"></div><div id="foodcount_${id}" class="score_food_text score_text">0</div></div>\
         <div id="steel_p${id}" class="score_flex_item score_top score_right"><div id="steelicon_p${id}" class="score_token score_steel score"></div><div id="steelcount_${id}" class="score_steel_text score_text">0</div></div>\
+        <div id="trade_p${id}" class="score_flex_item score_top"><div id="tradeicon_p${id}" class="score_token score_trade score"></div><div id="tradecount_${id}" class="score_trade_text score_text">0</div></div>\
         <div id="gold_p${id}" class="score_flex_item score_bot"><div id="goldicon_p${id}" class="score_token score_gold score"></div><div id="goldcount_${id}" class="score_gold_text score_text">0</div></div>\
         <div id="cow_p${id}" class="score_flex_item score_bot"><div id="cowicon_p${id}" class="score_token score_cow score"></div><div id="cowcount_${id}" class="score_cow_text score_text">0</div></div>\
         <div id="copper_p${id}" class="score_flex_item score_bot score_right"><div id="coppericon_p${id}" class="score_token score_copper score"></div><div id="coppercount_${id}" class="score_copper_text score_text">0</div></div>\
+        <div id="vp_p${id}" class="score_flex_item score_bot score_left"><div id="vpicon_p${id}" class="score_token score_vp score"></div><div id="vpcount_${id}" class="score_vp_text score_text">0</div></div>\
+        <div id="loan_p${id}" class="score_flex_item score_bot"><div id="loanicon_p${id}" class="score_loan score score"></div><div id="loancount_${id}" class="score_loan_text score_text">0</div></div>\
     </div></div>\
 </div>';
 
@@ -347,7 +347,7 @@ var jptpl_track_log = '<span title="${type}" class="log_inline_${type}"></span>'
 var jptpl_x_loan= '<span title="pay dept" class="crossout log_inline_loan"></span>';
 var jptpl_buy_sell_board='<div id="buy_board" class="buy_board"></div><div id="sell_board" class="sell_board"></div>';
 
-var jptpl_breadcrumb_trade = '<span id="breadcrumb_${id}" class="breadcrumbs_element font">${text}</span><span id="breadcrumb_${id}_1" class="breadcrumbs_element">${away}<span title ="for" class="log_arrow token_inline" style="position: relative; top: ${off};"></span>${for}</span>'
+var jptpl_breadcrumb_trade = '<span id="breadcrumb_${id}" class="breadcrumbs_element font">${text}</span><span id="breadcrumb_${id}_1" class="breadcrumbs_element"><button id="x_${id}" class="trade_x"></button>${away}<span title ="for" class="log_arrow token_inline" style="position: relative; top: 9px;"></span>${for}</span>'
 var jptpl_breadcrumb_payment = '<span id="breadcrumb_payment" class="breadcrumbs_element font">${text}</span><span id="breadcrumb_payment_tokens" class="breadcrumbs_element">${cost}</span>'
 var jptpl_breadcrumb_income = '<span id="breadcrumb_income_${id}" class="breadcrumbs_element font" style="${style}">${text}</span><span id="breadcrumb_income_tokens_${id}" class="breadcrumbs_element" style="${style}">${income}</span>'
 var jptpl_breadcrumb_building = '<span id="breadcrumb_building" class="breadcrumbs_element font">${text}</span><span id="breadcrumb_bldCost" class="breadcrumbs_element">${cost}</span>'

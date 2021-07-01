@@ -1134,7 +1134,7 @@ function (dojo, declare) {
         setupAuctionTiles: function (auctions, info){
             for (let a_id in auctions){
                 const auction = auctions[a_id];
-                if (auction.location != AUCLOC_DISCARD) {
+                if (auction.location != AUC_LOC_DISCARD) {
                     this.createAuctionTile(a_id, auction.location, info);
                 }
             }
@@ -1633,7 +1633,6 @@ function (dojo, declare) {
                 id: id, 
                 text:text, 
                 away:this.getResourceArrayHtml(tradeAway, true, "position: relative; top: 9px;"),
-                off: '9px',
                 for:this.getResourceArrayHtml(tradeFor, true, `position: relative; top: 9px;`)}
                 ), `breadcrumb_transactions`, 'before');
                 dojo.connect($(`x_${id}`), 'onclick', this, 'undoTransaction' );
