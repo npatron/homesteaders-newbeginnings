@@ -65,9 +65,11 @@ class Trade {
     }
 
     updateTradeAffordability(){
+
         if (GLOBAL.isSpectator) return;
         for (let trade_id = 0; trade_id < 6; trade_id++){
             let type =  GLOBAL.this.getKeyByValue(TRADE_MAP, trade_id).split('_')[1];
+            
             // buy
             let node_loc = `#trade_buy_${type}`;
             let btn_id   = `#btn_buy_${type}`;
@@ -93,7 +95,7 @@ class Trade {
         if (HAS_BUILDING[GLOBAL.player_id][BLD_MARKET]){
             // food
             let node_loc = `#${PLAYER_BUILDING_ZONE_ID[GLOBAL.player_id]} .market_food`;
-            let btn_id = `#btn_buy_food`;
+            let btn_id = `#btn_market_food`;
             if (this.canAddTrade(this.getMarketChange('food'))){
                 GLOBAL.this.updateAffordability(node_loc, AFFORDABLE);
                 this.updateButtonAffordability(btn_id,    AFFORDABLE);
@@ -103,7 +105,7 @@ class Trade {
             }
             // steel
             node_loc = `#${this.player_building_zone_id[this.player_id]} .market_steel`;
-            btn_id = `#btn_buy_steel`;
+            btn_id = `#btn_market_steel`;
             if (this.canAddTrade(this.getMarketChange('steel'))){
                 GLOBAL.this.updateAffordability(node_loc, AFFORDABLE);
                 this.updateButtonAffordability(btn_id,    AFFORDABLE);
@@ -149,6 +151,8 @@ class Trade {
             GLOBAL.tradeEnabled = true;
 
             dojo.place(dojo.create('br'),'generalactions','last');
+            let trade_zone = dojo.create('div', {id:TRADE_ZONE_ID, style:'display: inline-flex;justify-content:center;'});
+            dojo.place(trade_zone, 'generalactions', 'last');
             let zone_style = 'display: flex; justify-content: center; flex-wrap: wrap;';
             let buy_zone = dojo.create('div', {id:BUY_ZONE_ID, style:zone_style});
             dojo.place(buy_zone, TRADE_ZONE_ID, 'first');
@@ -209,9 +213,7 @@ class Trade {
     disableTradeIfPossible() {
         if (GLOBAL.tradeEnabled){
             GLOBAL.tradeEnabled = false;
-            dojo.query(`#${BUY_ZONE_ID}`).forEach(dojo.destroy);
-            dojo.query('#generalactions br:nth-last-of-type(2)').forEach(dojo.destroy);
-            dojo.query(`#${SELL_ZONE_ID}`).forEach(dojo.destroy);
+            dojo.query(`#${TRADE_ZONE_ID}`).forEach(dojo.destroy);
             dojo.query('#generalactions br:nth-last-of-type(1)').forEach(dojo.destroy);
         }
     }

@@ -294,13 +294,13 @@ class Tooltips {
                     var on_build_desc = _('When built: Advance the Railroad track');
                     break;
                 case 5: //BUILD_BONUS_TRACK_AND_BUILD
-                    var on_build_desc = this.replaceTooltipStrings(_('When built: Recieve ${track}<br>You may also build another building of ${any} type'));
+                    var on_build_desc = this.replaceTooltipStrings(_('When built: Receive ${track}<br>You may also build another building of ${any} type'));
                     break;
                 case 6: //BUILD_BONUS_TRADE_TRADE
                     var on_build_desc = this.replaceTooltipStrings(_("When built: ${trade}${trade}"));
                     break;
                 case 7: //BUILD_BONUS_SILVER_WORKERS
-                    var on_build_desc = this.replaceTooltipStrings(_('When built: Recieve ${silver} per ${worker}<br>When you gain a ${worker} gain a ${silver}'));
+                    var on_build_desc = this.replaceTooltipStrings(_('When built: Receive ${silver} per ${worker}<br>When you gain a ${worker} gain a ${silver}'));
                     break;
                 case 8: //BUILD_BONUS_PLACE_RESOURCES
                     var on_build_desc = this.replaceTooltipStrings(_('When built: place ${wood}${food}${steel}${gold}${copper}${cow} on Warehouse'));
@@ -312,25 +312,25 @@ class Tooltips {
             full_desc = on_build_desc +'<br>'+ full_desc;
         }
         if ('vp_b' in b_info){
-            const END = _("End: ${vp} per ${type}");
+            const END = _("${end}: ${vp} per ${type}");
             switch(b_info.vp_b){
                 case 0: //VP_B_RESIDENTIAL
                 case 1: //VP_B_COMMERCIAL
                 case 2: //VP_B_INDUSTRIAL
                 case 3: //VP_B_SPECIAL
                 case 6: //VP_B_BUILDING
-                    var vp_b = dojo.string.substitute(END, {vp:TOKEN_HTML.vp, type:GLOBAL.this.format_block('jstpl_color_log', {string: ASSET_STRINGS[b_info.vp_b], color:ASSET_COLORS[b_info.vp_b]} )} );
+                    var vp_b = dojo.string.substitute(END, {end:TOKEN_HTML.end, vp:TOKEN_HTML.vp, type:GLOBAL.this.format_block('jstpl_color_log', {string: ASSET_STRINGS[b_info.vp_b], color:ASSET_COLORS[b_info.vp_b]} )} );
                     break;
                 case 4: //VP_B_WORKER
-                    var vp_b = dojo.string.substitute(END, {vp:TOKEN_HTML.vp, type:TOKEN_HTML.worker} );
+                    var vp_b = dojo.string.substitute(END, {end:TOKEN_HTML.end, vp:TOKEN_HTML.vp, type:TOKEN_HTML.worker} );
                     break;
                 case 5: //VP_B_TRACK
-                    var vp_b = dojo.string.substitute(END, {vp:TOKEN_HTML.vp, type:GLOBAL.this.getOneResourceHtml('track', 1, true)} );
+                    var vp_b = dojo.string.substitute(END, {end:TOKEN_HTML.end, vp:TOKEN_HTML.vp, type:GLOBAL.this.getOneResourceHtml('track', 1, true)} );
                     break;
                 case 7: //VP_B_WRK_TRK
-                    var vp_b = dojo.string.substitute(END, {vp:TOKEN_HTML.vp, type:TOKEN_HTML.worker} ) + '<br>' 
-                             + dojo.string.substitute(END, {vp:TOKEN_HTML.vp, type:GLOBAL.this.getOneResourceHtml('track', 1, true)} );
-                             break;
+                    var vp_b = dojo.string.substitute(END, {end:TOKEN_HTML.end, vp:TOKEN_HTML.vp, type:TOKEN_HTML.worker} ) + '<br>' 
+                             + dojo.string.substitute(END, {end:TOKEN_HTML.end, vp:TOKEN_HTML.vp, type:GLOBAL.this.getOneResourceHtml('track', 1, true)} );
+                    break;
                 case 8: //VP_B_PAID_LOAN (expansion)
                     var vp_b = dojo.string.substitute(_("End: ${vp} per ${loan} paid off (during endgame actions, loans paid during game are ignored)"), {vp:TOKEN_HTML.vp, loan:TOKEN_HTML.loan} );
                     break;
@@ -340,7 +340,8 @@ class Tooltips {
         if ('trade' in b_info){
             switch(b_info.trade){
                 case 1: //MARKET
-                    full_desc += _("Allows trades:") + dojo.string.substitute("${start}${trade}${wood} ${arrow}${food}${mid}${trade}${food} ${arrow} ${steel}${end}", 
+                    let translationString = _("Allows trades: ${start}${trade}${wood} ${arrow}${food}${mid}${trade}${food} ${arrow} ${steel}${end}");
+                    full_desc += dojo.string.substitute(translationString, 
                     {start: `<div id="${b_key}_${MARKET_FOOD_ID}" class="market_food trade_option">`,
                      mid:   `</div><div id="${b_key}_${MARKET_STEEL_ID}" class="market_steel trade_option">`,
                      end:   "</div>",
@@ -351,7 +352,8 @@ class Tooltips {
                      steel: TOKEN_HTML.steel,});
                 break;
                 case 2: //BANK
-                    full_desc += _("Allows trades:") + dojo.string.substitute("${start}${trade} ${arrow} ${silver}${end}", 
+                    let translationString = _("Allows trades: ${start}${trade} ${arrow} ${silver}${end}");
+                    full_desc += dojo.string.substitute(translationString, 
                     {start:  `<div id="${BANK_ID}" class="trade_option">`,
                      end:    "</div>",
                      trade:  TOKEN_HTML.trade,
