@@ -248,6 +248,75 @@ class homesteadersnewbeginnings extends Table
 //////////// Player actions
 //////////// 
 
+    /*
+        Each time a player is doing some game action, one of the methods below is called.
+        (note: each method below must match an input method in homesteaders.action.php)
+    */
+
+    /*****  Common Methods (loan, trade) *****/
+    public function playerTakeLoan()
+    {
+        $this->checkAction( "takeLoan" );
+        $this->Resource->takeLoan($this->getCurrentPlayerId());
+    }
+
+    public function playerTrade($tradeAction_csv, $notActive= false)
+    {
+        // allow out of turn trade, only when flag is passed during allocateWorkers State.
+        if (!($this->gamestate->state()['name'] === "allocateWorkers")){
+            $this->checkAction( 'trade' );
+        }
+        $p_id = $this->getCurrentPlayerId();
+        $tradeAction_arr = explode(',', $tradeAction_csv);
+        foreach( $tradeAction_arr as $key=>$val ){
+            $tradeAction = $this->trade_map[$val];
+            $this->Resource->trade($p_id, $tradeAction);
+        }
+    }
+
+    /***  place workers phase ***/
+    public function playerHireWorker(){
+        $this->checkAction( 'hireWorker' );
+        $cur_p_id = $this->getCurrentPlayerId();
+        $worker_cost = array('trade'=>1,'food'=>1);
+        if (!$this->Resource->canPlayerAfford($cur_p_id, $worker_cost))
+            throw new BgaUserException( clienttranslate("You cannot afford to hire a worker"));
+        $this->Resource->updateAndNotifyPaymentGroup($cur_p_id, $worker_cost, clienttranslate('Hire Worker'));
+        $this->Log->updateResource($cur_p_id, "trade", -1);
+        $this->Log->updateResource($cur_p_id, "food", -1);
+        $this->Resource->addWorkerAndNotify($cur_p_id, 'hire');
+    }
+
+    public function playerSelectWorkerDestination( $w_key, $b_key, $building_slot)
+    {
+        $this->checkAction( "placeWorker" );
+        $cur_p_id = $this->getCurrentPlayerId();
+        $w_owner = $this->getUniqueValueFromDB("SELECT `player_id` FROM `workers` WHERE `worker_key`='$w_key'");
+        if ($w_owner != $cur_p_id){ throw new BgaUserException(clienttranslate("The selected worker is not your worker"));}
+        $this->notifyAllPlayers( "workerMoved", "", array(
+            'i18n' => array( 'building_name' ),
+            'player_id' => $cur_p_id,
+            'worker_key' => $w_key,
+            'building_key' => $b_key,
+            'building_slot' => $building_slot, 
+        ) );
+        $sql = "UPDATE `workers` SET `building_key`= '".$b_key."', `building_slot`='".$building_slot."' WHERE `worker_key`='".$w_key."'";
+        $this->DbQuery( $sql );
+    }
+    
+    public function playerDonePlacingWorkers ($warehouse){
+        $cur_p_id = $this->getCurrentPlayerId();
+        if ($this->Building->doesPlayerOwnBuilding($cur_p_id, BLD_WAREHOUSE)){
+            if (is_null($warehouse)){
+                throw new BgaUserException( clienttranslate("You must select a warehouse income"));
+            }if (array_key_exists($warehouse, $this->warehouse_map)){
+                throw new BgaUserException( clienttranslate("You must select a warehouse income"));
+            }
+        }
+        $this->Log->donePlacing($cur_p_id);
+        $this->Resource->collectIncome($cur_p_id, $warehouse);
+        $this->gamestate->setPlayerNonMultiactive( $cur_p_id , 'auction' );
+    }
 
     /*** Player Bid Phase ***/
     public function playerConfirmDummyBid($bid_location){
@@ -312,17 +381,7 @@ class homesteadersnewbeginnings extends Table
         $this->gamestate->nextState('evt_build');
     }
 
-    public function playerHireWorker(){
-        $this->checkAction( 'hireWorker' );
-        $cur_p_id = $this->getCurrentPlayerId();
-        $worker_cost = array('trade'=>1,'food'=>1);
-        if (!$this->Resource->canPlayerAfford($cur_p_id, $worker_cost))
-            throw new BgaUserException( clienttranslate("You cannot afford to hire a worker"));
-        $this->Resource->updateAndNotifyPaymentGroup($cur_p_id, $worker_cost, clienttranslate('Hire Worker'));
-        $this->Log->updateResource($cur_p_id, "trade", -1);
-        $this->Log->updateResource($cur_p_id, "food", -1);
-        $this->Resource->addWorkerAndNotify($cur_p_id, 'hire');
-    }
+    
 
     public function playerSelectRailBonus($selected_bonus) {
         $this->checkAction( "chooseBonus" );
@@ -470,24 +529,9 @@ class homesteadersnewbeginnings extends Table
         $this->gamestate->nextState( 'done' );
     }
 
-    public function playerTakeLoan(){
-        $this->Action->playerTakeLoan($this->getCurrentPlayerId());
-    }
+    
 
-    public function playerTrade($tradeAction_csv, $notActive){
-        // allow out of turn trade, only when flag is passed during allocateWorkers State.
-        if (!($this->gamestate->state()['name'] === "allocateWorkers")){
-            $this->checkAction( 'trade' );
-        }
-        $p_id = $this->getCurrentPlayerId();
-        $tradeAction_arr = explode(',', $tradeAction_csv);
-        foreach( $tradeAction_arr as $key=>$val ){
-            $tradeAction = $this->trade_map[$val];
-            $this->Resource->trade($p_id, $tradeAction);
-        }
-    }
-
-    public function playerTradeHidden($tradeAction_csv){
+        public function playerTradeHidden($tradeAction_csv){
         $this->checkAction('event');
         $p_id = $this->getCurrentPlayerId();
         $tradeAction_arr = explode(',', $tradeAction_csv);
@@ -520,39 +564,6 @@ class homesteadersnewbeginnings extends Table
         $this->gamestate->setPlayerNonMultiactive($cur_p_id, "done");
     }
     
-    public function playerSelectWorkerDestination( $w_key, $b_key, $building_slot){
-        $this->checkAction( "placeWorker" );
-        $cur_p_id = $this->getCurrentPlayerId();
-        $w_owner = $this->getUniqueValueFromDB("SELECT `player_id` FROM `workers` WHERE `worker_key`='$w_key'");
-        if ($w_owner != $cur_p_id){ throw new BgaUserException(clienttranslate("The selected worker is not your worker"));}
-        $this->notifyAllPlayers( "workerMoved", "", array(
-            'i18n' => array( 'building_name' ),
-            'player_id' => $cur_p_id,
-            'worker_key' => $w_key,
-            'building_key' => $b_key,
-            'building_name' => array('type'=> $this->Building->getBuildingTypeFromKey($b_key) ,'str'=>$this->Building->getBuildingNameFromKey($b_key)),
-            'building_slot' => $building_slot, 
-            'worker' => 'worker',
-            'player_name' => $this->getPlayerName($cur_p_id),
-        ) );
-        $sql = "UPDATE `workers` SET `building_key`= '".$b_key."', `building_slot`='".$building_slot."' WHERE `worker_key`='".$w_key."'";
-        $this->DbQuery( $sql );
-    }
-    
-    public function playerDonePlacingWorkers($warehouse){
-        $cur_p_id = $this->getCurrentPlayerId();
-        if ($this->Building->doesPlayerOwnBuilding($cur_p_id, BLD_WAREHOUSE)){
-            if (is_null($warehouse)){
-                throw new BgaUserException( clienttranslate("You must select a warehouse income"));
-            }if (array_key_exists($warehouse, $this->warehouse_map)){
-                throw new BgaUserException( clienttranslate("You must select a warehouse income"));
-            }
-        }
-        $this->Log->donePlacing($cur_p_id);
-        $this->Resource->collectIncome($cur_p_id, $warehouse);
-        $this->gamestate->setPlayerNonMultiactive( $cur_p_id , 'auction' );
-    }
-
     public function playerDoneTradingEvent(){
         $this->checkAction('event');
         $cur_p_id = $this->getCurrentPlayerId();

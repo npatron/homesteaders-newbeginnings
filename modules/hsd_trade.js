@@ -149,8 +149,6 @@ class Trade {
             GLOBAL.tradeEnabled = true;
 
             dojo.place(dojo.create('br'),'generalactions','last');
-            let buy_zone = dojo.create('div', {id:BUY_ZONE_ID, style:'display: inline-flex;justify-content:center;'});
-            dojo.place(buy_zone, 'generalactions', 'last');
             let zone_style = 'display: flex; justify-content: center; flex-wrap: wrap;';
             let buy_zone = dojo.create('div', {id:BUY_ZONE_ID, style:zone_style});
             dojo.place(buy_zone, TRADE_ZONE_ID, 'first');

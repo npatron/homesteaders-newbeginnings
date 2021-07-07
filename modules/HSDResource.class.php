@@ -97,7 +97,7 @@ class HSDResource extends APP_GameClass
             'amount'=>$amt,
             'player_name' => $this->game->getPlayerName($p_id),
             'reason_string' => $reason_string,
-            'preserve' => array( 2 =>'amount' ),);
+            'preserve' => [ 2 =>'amount' ],);
         $values = $this->updateArrForNotify($values, $origin, $key);
         $this->game->notifyAllPlayers( "playerIncome", clienttranslate( '${reason_string} earned ${player_name} ${type}' ), $values );
         if (in_array($type, $this->game->resource_map)){
@@ -124,9 +124,11 @@ class HSDResource extends APP_GameClass
     function updateAndNotifyIncomeGroup($p_id, $income_arr, $reason_string="", $origin="", $key =0){
         if(count($income_arr) >1){
             $values = array('player_id' => $p_id,
-                'resources' => $income_arr,
+                'resource_arr' => $income_arr,
+                'resources' =>clienttranslate('resources'),
                 'player_name' => $this->game->getPlayerName($p_id),
-                'reason_string' => $reason_string);
+                'reason_string' => $reason_string,
+                'preserve' => [ 2 =>'resource_arr' ],);
             $values = $this->updateArrForNotify($values, $origin, $key);
             $this->game->notifyAllPlayers( 'playerIncomeGroup', clienttranslate( '${reason_string} earned ${player_name} ${resources}' ), $values);
             foreach( $income_arr as $type => $amt ){
@@ -179,9 +181,11 @@ class HSDResource extends APP_GameClass
     function updateAndNotifyPaymentGroup($p_id, $payment_arr, $reason_string = "", $origin="", $key = 0){
         if(count($payment_arr) >1){
             $values = array('player_id' => $p_id,
-                        'resources' => $payment_arr,
+                        'resource_arr' => $payment_arr,
+                        'resources' => clienttranslate('resources'),
                         'player_name' => $this->game->getPlayerName($p_id),
-                        'reason_string' => $reason_string);
+                        'reason_string' => $reason_string,
+                        'preserve' => [ 2 =>'resource_arr' ]);
             $values = $this->updateArrForNotify($values, $origin, $key);
             $this->game->notifyAllPlayers( 'playerPaymentGroup', clienttranslate( '${reason_string} cost ${player_name} ${resources}' ), $values);
             foreach( $payment_arr as $type => $amt ){
@@ -285,9 +289,9 @@ class HSDResource extends APP_GameClass
             if (!array_key_exists('preserve', $values)){
                 $values['preserve'] = [];
             }
-            $values['preserve'][3] = 'origin'; 
-            $values['preserve'][4] = 'b_type';
-            $values['preserve'][5] = 'key';
+            $values['preserve'][4] = 'origin'; 
+            $values['preserve'][5] = 'b_type';
+            $values['preserve'][6] = 'key';
             $values['reason_string'] = $values['reason_string'];
         } else if ($origin === 'auction'){
             $values['origin'] = $origin;
@@ -295,8 +299,8 @@ class HSDResource extends APP_GameClass
             if (!array_key_exists('preserve', $values)){
                 $values['preserve'] = [];
             }
-            $values['preserve'][3] = 'origin';
-            $values['preserve'][4] = 'key';
+            $values['preserve'][4] = 'origin';
+            $values['preserve'][5] = 'key';
         } else if ($origin === 'train'){
             $values['origin'] = $origin;
             if (!array_key_exists('preserve', $values)){
@@ -387,7 +391,7 @@ class HSDResource extends APP_GameClass
         $this->game->notifyAllPlayers( "loanPaid", clienttranslate( '${reason_string} pays off ${player_name}\'s ${loan}' ), $values);
 
         $this->updateResource ($p_id, 'loan', -1);
-        $this->game->Log->updateResource($p_id, 'loan', -1);
+        $this->game->Log->payOffLoan($p_id);
         $this->game->Score->updatePlayerScore($p_id);
     }
 
@@ -501,7 +505,7 @@ class HSDResource extends APP_GameClass
         if ($key != 0){
             $this->updateAndNotifyPaymentGroup($p_id, $cost, $reason_string, 'auction', $key);
         } else {
-            $this->updateAndNotifyPaymentGroup($p_id, $cost, 'worker');
+            $this->updateAndNotifyPaymentGroup($p_id, $cost, $reason_string);
         }
         $this->game->Score->updatePlayerScore($p_id);
     }
@@ -517,8 +521,10 @@ class HSDResource extends APP_GameClass
                     'track' => 'track',
                     'reason_string' => $reason_string,
                     'track_key'=> $track_key, 
-                    'tradeAway' => $cost_arr,
-                    'arrow' => '->',);
+                    'tradeAway' => clienttranslate('resources'),
+                    'tradeAway_arr' =>$cost_arr,
+                    'arrow' => '->',
+                    'preserve' => [2 => 'tradeAway_arr']);
             $values = $this->updateArrForNotify($values, $origin, $key); 
             $this->game->notifyAllPlayers( "gainTrack", 
                     clienttranslate('${player_name} trades ${tradeAway} ${arrow} ${track} from ${reason_string}'), $values);
@@ -530,8 +536,10 @@ class HSDResource extends APP_GameClass
             }
         } else {
             $values = array('player_id' => $p_id,   'player_name' => $p_name,
-                        'tradeAway' => $cost_arr,   'tradeFor' => $income_arr,
-                        'arrow' => 'arrow',         'reason_string' => $reason_string,);
+                        'tradeAway' => clienttranslate('resources'), 'tradeAway_arr' => $cost_arr,   
+                        'tradeFor' => clienttranslate('resources'), 'tradeFor_arr'  =>$income_arr,
+                        'arrow' => '->',         'reason_string' => $reason_string,
+                        'preserve' => [2=>'tradeAway_arr', 3=> 'tradeFor_arr']);
             $values = $this->updateArrForNotify($values, $origin, $key);
             $this->game->notifyAllPlayers( "trade", clienttranslate('${player_name} trades ${tradeAway} ${arrow} ${tradeFor} from ${reason_string}'), $values);
             foreach($cost_arr as $type=>$amt){
@@ -596,7 +604,7 @@ class HSDResource extends APP_GameClass
         $tradeAway = array('trade'=>1);
         $tradeFor = array ();
         $sell = false;
-        $building_name = "";
+        $b_id = 0;
         $tradeAct_segs = explode('_',$tradeAction);
         switch($tradeAct_segs[0]){
             case 'buy':
@@ -604,23 +612,27 @@ class HSDResource extends APP_GameClass
                 $tradeAway = array_merge($tradeAway, 
                     $this->game->resource_info[$type]['trade_val']);
                 $tradeFor[$type] = 1;
+                $tradeType= $type;
             break;
             case 'sell':
                 $type = $tradeAct_segs[1];
                 $tradeAway[$type] = 1;
                 $tradeFor = $this->game->resource_info[$type]['trade_val'];
                 $tradeFor['vp'] = 1;
+                $tradeType= $type;
                 $sell = true;
             break;
             case 'market':
                 $type = $tradeAct_segs[1];//food or steel
-                $building_name = array('str'=>'Market', 'type'=>TYPE_COMMERCIAL);
+                $b_id = BLD_MARKET;
                 $tradeAway = array_merge($tradeAway, $this->game->resource_info[$type]['market']);
                 $tradeFor[$type] = 1;
+                $tradeType= $type;
             break;
             case 'bank':
-                $building_name = array('str'=>'Bank', 'type'=>TYPE_COMMERCIAL);
+                $b_id = BLD_BANK;
                 $tradeFor['silver'] = 1;
+                $tradeType= 'silver';
             break;
             case 'loan':
                 return (array(
@@ -677,16 +689,20 @@ class HSDResource extends APP_GameClass
             $tradeFor = $this->updateKeyOrCreate($tradeFor, 'silver', 1);
         }
         $buy_sell = ($sell? clienttranslate('sell'): clienttranslate("buy"));
-        if ($building_name === ""){
-            $message = clienttranslate('${player_name} ${buy_sell} ${tradeAway} ${arrow} ${tradeFor}');
-            $args = array(  'player_id' => $p_id,               'player_name' => $p_name,
-                            'tradeAway' => $tradeAway,          'tradeFor' => $tradeFor,
-                            'buy_sell'  => $buy_sell,           'arrow' => '->', );
+        if ($b_id === 0){
+            $message = clienttranslate('${player_name} ${buy_sell} ${resources}');
+            $args = array(  'player_id' => $p_id,           'player_name' => $p_name,
+                            'tradeAway_arr' => $tradeAway,  'tradeFor_arr' => $tradeFor,
+                            'buy_sell'  => $buy_sell,       'resources' => $this->game->resource_info[$tradeType]['name'],
+                            'preserve'=> [2=>'tradeAway_arr', 3=>'tradeFor_arr'], );
         } else {
-            $message = clienttranslate('${player_name} trades with ${building_name} ${tradeAway} ${arrow} ${tradeFor}');
-            $args = array(  'player_id' => $p_id,             'player_name' => $p_name,
-                            'tradeAway' => $tradeAway,        'tradeFor' => $tradeFor,
-                            'building_name'=> $building_name, 'arrow' => '->', );
+            $message = clienttranslate('${player_name} trades with ${building_name} ${resources}');
+            $args = array(  'player_id' => $p_id,            'player_name' => $p_name,
+                            'tradeAway_arr' => $tradeAway,   'tradeFor_arr' => $tradeFor,
+                            'building_name'=> $this->game->Building->getBuildingNameFromId($b_id),
+                            'resources' => $this->game->resource_info[$tradeType]['name'],
+                            'b_type'=> $this->game->Building->getBuildingTypeFromId($b_id),
+                            'preserve'=> [2=>'b_type', 3=>'tradeAway_arr', 4=>'tradeFor_arr']);
         }
         return array('transaction'=> 'trade', 
                     'message'=> $message, 

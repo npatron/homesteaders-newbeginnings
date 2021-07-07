@@ -380,6 +380,7 @@ button:disabled {
 	color: antiquewhite;
 }
 
+
 .breadcrumbs_element:after {
 	content: " ";
 	width: 0;
@@ -418,6 +419,14 @@ button:disabled {
 .breadcrumbs_element.font:after {
    border-left-color: #b5552b;
 }
+ 
+ #x {
+     position: absolute;
+     background: red;
+     color: white;
+     top: -10px;
+     right: -10px;
+ }
 
 .trade_x {
    background-image: url('img/drawn_tokens.png');
