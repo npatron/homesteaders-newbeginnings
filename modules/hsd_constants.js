@@ -274,9 +274,6 @@ const BOARD_RESOURCE_COUNTERS = [];
 const POSITIVE_RESOURCE_COUNTERS = [];
 const NEGATIVE_RESOURCE_COUNTERS = [];
 const NEW_RESOURCE_COUNTERS = [];
-const GOLD_COUNTER   = new ebg.counter();
-const SILVER_COUNTER = new ebg.counter();
-const ROUND_COUNTER  = new ebg.counter();
 const INCOME_ARRAY = []; // current round income (for updating breadcrumbs/offset).
 
 const SCORE_RESOURCE_COUNTERS = [];

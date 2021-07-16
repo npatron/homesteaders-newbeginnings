@@ -60,6 +60,10 @@ function (dojo, declare) {
             GLOBAL.goldAsCopper = false;
             GLOBAL.goldAsCow = false;
             GLOBAL.undoPay = false;
+
+            GLOBAL.GOLD_COUNTER = new ebg.counter();
+            GLOBAL.SILVER_COUNTER = new ebg.counter();
+            GLOBAL.ROUND_COUNTER  = new ebg.counter();
             
             //new vars from expansion,
             GLOBAL.cost_replace = [];
@@ -164,8 +168,8 @@ function (dojo, declare) {
                 dojo.destroy('#round_number');
                 $("round_text").innerHTML=_('Final Income and Scoring Round');
             } else {
-                ROUND_COUNTER.create('round_number');
-                ROUND_COUNTER.setValue(gamedatas.round_number);
+                GLOBAL.ROUND_COUNTER.create('round_number');
+                GLOBAL.ROUND_COUNTER.setValue(gamedatas.round_number);
             }
             this.tooltip.showScoreTooltips(gamedatas.players);
             
@@ -275,7 +279,7 @@ function (dojo, declare) {
             for (const [key, value] of Object.entries(resource)) {
                 //console.log(resource, key, value);
                 if (key == "p_id" || key == "workers" || key == "track") continue;
-                let translatedString = _(RESOURCE_INFO[key]['tt']);
+                var translatedString = _(RESOURCE_INFO[key]['tt']);
                 let tooltip_html = this.format_block('jptpl_res_tt', {value:this.tooltip.replaceTooltipStrings(translatedString)});
                 
                 let resourceId = `${key}count_${resource.p_id}`;
@@ -340,7 +344,7 @@ function (dojo, declare) {
                 const track = tracks[i];
                 dojo.place(this.format_block( 'jptpl_track', {id: track.r_key, color: PLAYER_COLOR[track.p_id]}), TRACK_TOKEN_ZONE[track.p_id], 'last');
             }
-            let translatedString = _(RESOURCE_INFO['track']['tt']);
+            var translatedString = _(RESOURCE_INFO['track']['tt']);
             this.addTooltipHtmlToClass("token_track", `<div style="text-align:center;">${this.tooltip.replaceTooltipStrings(translatedString)}</div>`);
         },
 
@@ -1126,7 +1130,7 @@ function (dojo, declare) {
                 $("round_text").innerHTML=_('Final Income and Scoring Round');
                 dojo.query(`#${TILE_CONTAINER_ID[BLD_LOC_OFFER]}`).addClass('noshow');
             } else {
-                ROUND_COUNTER.setValue(round_number);
+                GLOBAL.ROUND_COUNTER.setValue(round_number);
             }
             this.showCurrentAuctions(auction_tiles, round_number);
             if (this.use_events){
@@ -1534,10 +1538,10 @@ function (dojo, declare) {
             if (!bypass && !GLOBAL.showPay) return;
             this.addActionButton( BTN_ID_PAY_DONE, dojo.string.substitute(_("Pay: ${amt}"), {amt:this.format_block("jstpl_pay_button", {})}), DONE_PAY_METHOD);
 
-            SILVER_COUNTER.create(PAY_SILVER_TEXT);
-            SILVER_COUNTER.setValue(GLOBAL.silverCost);
-            GOLD_COUNTER.create(PAY_GOLD_TEXT);
-            GOLD_COUNTER.setValue(GLOBAL.goldCost);
+            GLOBAL.SILVER_COUNTER.create(PAY_SILVER_TEXT);
+            GLOBAL.SILVER_COUNTER.setValue(GLOBAL.silverCost);
+            GLOBAL.GOLD_COUNTER.create(PAY_GOLD_TEXT);
+            GLOBAL.GOLD_COUNTER.setValue(GLOBAL.goldCost);
             this.addActionButton( BTN_ID_MORE_GOLD, this.tooltip.replaceTooltipStrings( _("Use More ${gold}")), 'raiseGold', null, false, 'gray');
             this.addActionButton( BTN_ID_LESS_GOLD, this.tooltip.replaceTooltipStrings( _("Use Less ${gold}")), 'lowerGold', null, false, 'gray');
             dojo.style( $( BTN_ID_LESS_GOLD ), 'display', 'none');
@@ -1546,13 +1550,13 @@ function (dojo, declare) {
         lowerGold: function(){
             if (GLOBAL.goldCost <1){return;}
             GLOBAL.goldCost --;
-            GOLD_COUNTER.setValue(GLOBAL.goldCost);
+            GLOBAL.GOLD_COUNTER.setValue(GLOBAL.goldCost);
             GLOBAL.silverCost +=5;
             if (GLOBAL.silverCost >0){
                 dojo.style( $(PAY_SILVER_TEXT), 'display', 'inline-block');
                 dojo.style( $(PAY_SILVER_TOKEN), 'display', 'inline-block');
                 dojo.style( $(BTN_ID_MORE_GOLD), 'display', 'inline-block');
-                SILVER_COUNTER.setValue(GLOBAL.silverCost);
+                GLOBAL.SILVER_COUNTER.setValue(GLOBAL.silverCost);
             }
             if(GLOBAL.goldCost == 0){
                 dojo.style( $(PAY_GOLD_TEXT), 'display', 'none');
@@ -1569,9 +1573,9 @@ function (dojo, declare) {
             dojo.style( $(BTN_ID_LESS_GOLD), 'display', 'inline-block');
 
             GLOBAL.goldCost++;
-            GOLD_COUNTER.setValue(GLOBAL.goldCost);
+            GLOBAL.GOLD_COUNTER.setValue(GLOBAL.goldCost);
             GLOBAL.silverCost -= 5;
-            SILVER_COUNTER.setValue(Math.max(0 , GLOBAL.silverCost));
+            GLOBAL.SILVER_COUNTER.setValue(Math.max(0 , GLOBAL.silverCost));
             if (GLOBAL.silverCost <= 0){
                 dojo.style( $(PAY_SILVER_TEXT), 'display', 'none');
                 dojo.style( $(PAY_SILVER_TOKEN), 'display', 'none');
@@ -1896,15 +1900,15 @@ function (dojo, declare) {
                             dojo.query(`#${button_id}`).forEach(dojo.destroy);
                             this.addActionButton( button_id, button_text, button_method);
                             dojo.place(button_id, 'generalactions', 'first');
-                            SILVER_COUNTER.create(PAY_SILVER_TEXT);
-                            SILVER_COUNTER.setValue(Math.max(0 , this.silverCost));
+                            GLOBAL.SILVER_COUNTER.create(PAY_SILVER_TEXT);
+                            GLOBAL.SILVER_COUNTER.setValue(Math.max(0 , this.silverCost));
                             if (this.silverCost <= 0){
                                 dojo.style( $(PAY_SILVER_TEXT), 'display', 'none');
                                 dojo.style( $(PAY_SILVER_TOKEN), 'display', 'none');
                                 dojo.style( $(BTN_ID_MORE_GOLD), 'display', 'none');
                             }
-                            GOLD_COUNTER.create(PAY_GOLD_TEXT);
-                            GOLD_COUNTER.setValue(this.goldCost);
+                            GLOBAL.GOLD_COUNTER.create(PAY_GOLD_TEXT);
+                            GLOBAL.GOLD_COUNTER.setValue(this.goldCost);
                             if(this.goldCost > 0){
                                 dojo.style( $(PAY_GOLD_TEXT), 'display', 'inline-block');
                                 dojo.style( $(PAY_GOLD_TOKEN), 'display', 'inline-block');

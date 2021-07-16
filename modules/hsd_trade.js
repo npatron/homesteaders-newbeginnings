@@ -104,7 +104,7 @@ class Trade {
                 this.updateButtonAffordability(btn_id,    UNAFFORDABLE);
             }
             // steel
-            node_loc = `#${this.player_building_zone_id[this.player_id]} .market_steel`;
+            node_loc = `#${PLAYER_BUILDING_ZONE_ID[this.player_id]} .market_steel`;
             btn_id = `#btn_market_steel`;
             if (this.canAddTrade(this.getMarketChange('steel'))){
                 GLOBAL.this.updateAffordability(node_loc, AFFORDABLE);

@@ -340,8 +340,8 @@ class Tooltips {
         if ('trade' in b_info){
             switch(b_info.trade){
                 case 1: //MARKET
-                    let translationString = _("Allows trades: ${start}${trade}${wood} ${arrow}${food}${mid}${trade}${food} ${arrow} ${steel}${end}");
-                    full_desc += dojo.string.substitute(translationString, 
+                    var translatedString = _("Allows trades: ${start}${trade}${wood} ${arrow}${food}${mid}${trade}${food} ${arrow} ${steel}${end}");
+                    full_desc += dojo.string.substitute(translatedString, 
                     {start: `<div id="${b_key}_${MARKET_FOOD_ID}" class="market_food trade_option">`,
                      mid:   `</div><div id="${b_key}_${MARKET_STEEL_ID}" class="market_steel trade_option">`,
                      end:   "</div>",
@@ -352,8 +352,8 @@ class Tooltips {
                      steel: TOKEN_HTML.steel,});
                 break;
                 case 2: //BANK
-                    let translationString = _("Allows trades: ${start}${trade} ${arrow} ${silver}${end}");
-                    full_desc += dojo.string.substitute(translationString, 
+                    var translatedString = _("Allows trades: ${start}${trade} ${arrow} ${silver}${end}");
+                    full_desc += dojo.string.substitute(translatedString, 
                     {start:  `<div id="${BANK_ID}" class="trade_option">`,
                      end:    "</div>",
                      trade:  TOKEN_HTML.trade,
