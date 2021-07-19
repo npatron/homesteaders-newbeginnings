@@ -3844,8 +3844,8 @@ function (dojo, declare) {
                         let color = ASSET_COLORS[Number(args.key)+10]??'';
                         args.auction = this.format_block('jstpl_color_number_log', {string:_("AUCTION "), color:color, number:args.key});
                     } else {
-                        let color = ASSET_COLORS[Number(this.current_auction)+10]??'';
-                        args.auction = this.format_block('jstpl_color_number_log', {color:color, string:_("AUCTION "), number:this.current_auction});
+                        let color = ASSET_COLORS[Number(GLOBAL.current_auction)+10]??'';
+                        args.auction = this.format_block('jstpl_color_number_log', {color:color, string:_("AUCTION "), number:GLOBAL.current_auction});
                     }
                     // end -> add font only args  
 
