@@ -112,9 +112,15 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
 
-  public function actionCancel() {
+  public function actionCancelAllocateWorkers() {
     self::setAjaxMode();
-    $this->game->playerActionCancel();
+    $this->game->playerActionCancelAllocateWorkers();
+    self::ajaxResponse();
+  }
+
+  public function actionCancelEndgame() {
+    self::setAjaxMode();
+    $this->game->playerActionCancelEndgame();
     self::ajaxResponse();
   }
 
@@ -154,7 +160,7 @@ class action_homesteadersnewbeginnings extends APP_GameAction
 
   public function steelBuildBuilding(){
     self::setAjaxMode( );
-    $this->game->BuildSteel();
+    $this->game->playerBuildSteel();
     self::ajaxResponse( );
   }
 
@@ -200,7 +206,7 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
   
-  public function selectRailBonus (){
+  public function doneSelectingBonus (){
     self::setAjaxMode();
     $bonus = self::getArg( "bonus", AT_posint, true);
     $this->game->playerSelectRailBonus( $bonus );
@@ -285,6 +291,13 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::setAjaxMode( );
     $this->game->playerDoneEndgame();
     self::ajaxResponse( );
+  }
+
+  public function loadBugSQL() {
+    self::setAjaxMode();
+    $reportId = (int) self::getArg('report_id', AT_int, true);
+    $this->game->loadBugSQL($reportId);
+    self::ajaxResponse();
   }
 
 }

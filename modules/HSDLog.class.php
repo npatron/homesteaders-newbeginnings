@@ -295,7 +295,7 @@ class HSDLog extends APP_GameClass
    *   for undo auctionBuild undo:   afterAction = 'winAuction' 
    *   for undo after worker income: afterAction = 'donePlacing'
    */
-  public function getLastActions($p_id, $actions = ['build', 'trade', 'loan', 'gainTrack', 'gainWorker', 'railAdv', 'updateResource', 'buildingState'], $afterAction = 'winAuction')
+  public function getLastActions($p_id, $actions = ['build', 'trade', 'loan', 'gainTrack', 'gainWorker', 'railAdv', 'updateResource', 'loanPaid', 'buildingState'], $afterAction = 'winAuction')
   {
     $actionsNames = "'" . implode("','", $actions) . "'";
     $sql = "SELECT * FROM `log` WHERE `action` IN ($actionsNames) AND `player_id` = '$p_id' AND log_id >= (SELECT `log_id` FROM `log` WHERE `player_id` = '$p_id' AND `action` = '$afterAction' ORDER BY log_id DESC LIMIT 1) ORDER BY `log_id` DESC";
@@ -305,7 +305,7 @@ class HSDLog extends APP_GameClass
   public function getLastTransactions($p_id = null)
   {
     $p_id = $p_id ?: $this->game->getActivePlayerId();
-    $actions =  $this->getLastActions($p_id, ['trade', 'hiddenTrade', 'loan', 'gainWorker', 'updateResource', 'loanPaid','buildingState'], 'allowTrades');
+    $actions =  $this->getLastActions($p_id, ['trade', 'hiddenTrade', 'loan', 'gainWorker', 'updateResource', 'loanPaid', 'buildingState'], 'allowTrades');
     return $actions;
   }
 
@@ -345,7 +345,7 @@ class HSDLog extends APP_GameClass
    */
   public function cancelWorkerIncomePhase($p_id)
   {
-    $logs = $this->getLastActions($p_id, ['updateResource' ,'loan', 'buildingState' ,'donePlacing'], 'donePlacing');
+    $logs = $this->getLastActions($p_id, ['updateResource', 'loan', 'buildingState', 'donePlacing'], 'donePlacing');
     $transactions = $this->cancelLogs($p_id, $logs);
     $this->game->notifyAllPlayers('cancel', clienttranslate('${player_name} un-does income'), array(
       'player_name' => $this->game->getPlayerName($p_id),
@@ -357,7 +357,7 @@ class HSDLog extends APP_GameClass
   public function cancelPass()
   {
     $p_id = $this->game->getActivePlayerId();
-    $logs = $this->getLastActions($p_id, ['railAdv', 'gainTrack', 'updateResource', 'buildingState', 'passBid'], 'passBid');
+    $logs = $this->getLastActions($p_id, ['railAdv', 'gainTrack', 'updateResource', 'loanPaid', 'buildingState', 'passBid'], 'passBid');
     $transactions = $this->cancelLogs($p_id, $logs);
     $this->game->notifyAllPlayers('cancel', '', array(
       'actions' => $transactions['action'],

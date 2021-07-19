@@ -425,7 +425,6 @@ function (dojo, declare) {
                 dojo.place(this.format_block( 'jptpl_worker', {id: w_key.toString()}), 
                         WORKER_TOKEN_ZONE[worker.p_id] );
                 const worker_divId = `token_worker_${w_key}`;
-                //console.log(worker.b_key, worker.b_slot, BUILDING_WORKER_IDS);
                 if (worker.b_key != 0 ){ 
                     dojo.place(worker_divId, BUILDING_WORKER_IDS[worker.b_key][worker.b_slot]);
                 } else {
@@ -444,6 +443,7 @@ function (dojo, declare) {
             BID_ZONE_ID[ZONE_PENDING] = ZONE_PENDING_ID;
             BID_ZONE_ID[ZONE_PASSED] = ZONE_PASSED_ID;
             let auc_end = (GLOBAL.player_count==5?4:3);
+
             for (let auc = 1; auc <= auc_end; auc++){
                 BID_ZONE_ID[auc] = [];
                 for (let bid =0; bid < BID_VAL_ARR.length; bid ++){
@@ -490,7 +490,6 @@ function (dojo, declare) {
             }
         },
 
-        
 
         /**
          * connects click actions to buttons for selecting Trade actions, 
@@ -557,14 +556,15 @@ function (dojo, declare) {
          * 
          * @param {*} resource_info 
          */
-        setupRailAdvanceButtons: function(resource_info){
+        setupRailAdvanceButtons: function(){
             const bonus_options = dojo.query('.train_bonus');
             for(let i in bonus_options){
                 if (bonus_options[i].id){
                     dojo.connect($(bonus_options[i].id),'onclick', this, 'onSelectBonusOption');
                     let type = bonus_options[i].id.split('_')[3];
-                    if (type in resource_info)
-                        this.addTooltipHtml(_(resource_info[type].tt));
+                    if (type in RESOURCE_INFO){
+                        this.addTooltipHtml(_(RESOURCE_INFO[type].tt));
+                    }
                 } 
             }
         },
@@ -585,8 +585,7 @@ function (dojo, declare) {
             TOKEN_HTML.bld_vp = this.format_block('jstpl_resource_log', {"type" : "vp bld_vp"});
             TOKEN_HTML.track = this.getOneResourceHtml('track', 1, true);
             TOKEN_HTML.loan = this.format_block( 'jptpl_track_log', {type:'loan'}, );
-            TOKEN_HTML.end = this.format_block('jstpl_color_log', {'string':_(_("End")), 'color':ASSET_COLORS[6]}); 
-            
+            TOKEN_HTML.end = this.format_block('jstpl_color_log', {'string':_("End"), 'color':ASSET_COLORS[6]}); 
             types = {'and':_("AND"), 'or':_("OR"), 'dot':"•"};
             for(let i in types){
                 TOKEN_HTML[i] = this.format_block('jptpl_tt_break', {text:types[i], type:'dot'==i?'dot':'break'});
@@ -758,8 +757,8 @@ function (dojo, declare) {
                     this.destroyIncomeBreadcrumb();
                     INCOME_ARRAY.length=0;
                     this.trade.disableTradeIfPossible();
-                    if (dojo.query('#button_unpass').length ==1){
-                        this.fadeOutAndDestroy('button_unpass');
+                    if (dojo.query(`#${BTN_ID_UNDO_PASS}`).length ==1){
+                        this.fadeOutAndDestroy(BTN_ID_UNDO_PASS);
                     }
                 case 'payAuction':
                 case 'bonusChoice':
@@ -832,7 +831,7 @@ function (dojo, declare) {
             this.addActionButton( BTN_ID_CANCEL, _("Cancel"), 'cancelUndoTransactions', null, false, 'red');
             dojo.place(dojo.create('br'),'generalactions','last');
             this.tradeEnabled = false;
-            this.addActionButton( BTN_ID_HIRE_WORKER, _("Hire New Worker"), 'hireWorkerButton', null, false, 'gray' );
+            this.addActionButton( BTN_ID_HIRE_WORKER, this.replaceTooltipStrings(_("Hire New ${worker}")), HIRE_WORKER_METHOD, null, false, 'gray' );
             GLOBAL.tradeEnabled = false;
             this.addTradeActionButton();
             if (HAS_BUILDING[this.player_id][BLD_WAREHOUSE]){
@@ -896,20 +895,19 @@ function (dojo, declare) {
         },
         onUpdateActionButtons_getRailBonus: function(args){
             if (args.can_undo){
-                this.addActionButton( BTN_ID_UNDO_PASS, _("Undo Pass Bid"), 'onUndoBidPass', null, false, 'red');
+                this.addActionButton( BTN_ID_UNDO_PASS, _("Undo"), 'onUndoBidPass', null, false, 'red');
             }
             this.setupButtonsForRailBonus(args);
         },
         onUpdateActionButtons_getRailBonus_auction: function(args){
-            this.addActionButton( BTN_ID_REDO_AUCTION, _('Cancel'),   'cancelTurn', null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _('Cancel'), 'cancelTurn', null, false, 'red');
             GLOBAL.can_cancel = true;
             this.setupButtonsForRailBonus(args);
         },
         onUpdateActionButtons_getRailBonus_build: function(args){
-            this.addActionButton( BTN_ID_REDO_AUCTION, _('Cancel'),   'cancelTurn', null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _('Cancel'), 'cancelTurn', null, false, 'red');
             GLOBAL.can_cancel = true;
-            this.setupButtonsForRailBonus(args);
-            
+            this.setupButtonsForRailBonus(args);            
         },
         onUpdateActionButtons_getRailBonus_event: function(args){
             this.setupButtonsForRailBonus(args);
@@ -927,8 +925,8 @@ function (dojo, declare) {
                     this.addActionButton( `btn_bonus_${type}`, TOKEN_HTML[type], 'selectBonusButton', null, false, 'gray');
                 }
             }
-            this.addActionButton( 'btn_choose_bonus', _('Choose Bonus'), 'doneSelectingRailBonus');
-            dojo.addClass('btn_choose_bonus', 'disabled');
+            this.addActionButton( BTN_ID_CHOOSE_BONUS, _("Choose Bonus"), 'doneSelectingRailBonus');
+            dojo.addClass( BTN_ID_CHOOSE_BONUS, 'disabled');
         },
         onUpdateActionButtons_payLot: function(args){
             GLOBAL.silverCost = Number(args.lot_cost);
@@ -952,37 +950,37 @@ function (dojo, declare) {
         // currently only bonus involving a choice is hire worker.
         onUpdateActionButtons_bonusChoice_build: function (args) {
             if (args.building_bonus == BUILD_BONUS_WORKER){
-                this.addActionButton( 'btn_bonus_worker', dojo.string.substitute(_('(FREE) Hire ${worker}'), {worker:TOKEN_HTML.worker}), 'workerForFreeBuilding');
+                this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_("(FREE) Hire ${worker}")), 'workerForFreeBuilding');
             } 
-            this.addActionButton( 'btn_pass_bonus',   _('Do Not Get Bonus'), 'passBonusBuilding', null, false, 'red');
-            this.addActionButton( 'btn_redo_build_phase', _('Cancel'),  'cancelTurn', null, false, 'red');
+            this.addActionButton( BTN_ID_PASS_BONUS,   _("Do Not Get Bonus"), 'passBonusBuilding', null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _("Cancel"),  'cancelTurn', null, false, 'red');
             GLOBAL.can_cancel = true;
         },
         onUpdateActionButtons_bonusChoice_auction: function (args) {
-            let option = Number(args.auction_bonus);
+            const option = Number(args.auction_bonus);
             switch (option){
                 case AUC_BONUS_WORKER:
                 case AUC_BONUS_WORKER_RAIL_ADV:
-                    this.addActionButton( 'btn_bonus_worker', dojo.string.substitute(_('(FREE) Hire ${worker}'), {worker:TOKEN_HTML.worker}) , 'workerForFreeAuction');
+                    this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_("(FREE) Hire ${worker}")) , 'workerForFreeAuction');
                 break;
                 case AUC_BONUS_WOOD_FOR_TRACK:
-                    this.addActionButton( 'btn_wood_track', `${TOKEN_HTML.wood} ${TOKEN_HTML.arrow} ${TOKEN_HTML.track}`, 'woodForTrack');
+                    this.addActionButton( BTN_ID_WOOD_TRACK, this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), WOOD_TRACK_ARR)), WOOD_TRACK_METHOD);
                 break;
                 case AUC_BONUS_COPPER_FOR_VP:
-                    this.addActionButton( 'btn_copper_vp', `${TOKEN_HTML.copper} ${TOKEN_HTML.arrow} ${TOKEN_HTML.vp4}`, 'copperFor4VP');
+                    this.addActionButton( BTN_ID_COPPER_VP, this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), COPPER_VP_ARR)), COPPER_VP_METHOD);
                     if (HAS_BUILDING[this.player_id][BLD_RIVER_PORT]){
-                        this.addActionButton( BTN_ID_GOLD_COPPER, `${TOKEN_HTML.gold} ${TOKEN_HTML.arrow} ${TOKEN_HTML.vp4}`, 'goldFor4VP');
+                        this.addActionButton( BTN_ID_GOLD_VP, this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), GOLD_VP_ARR)), GOLD_VP_METHOD);
                     }
                     break;
                 case AUC_BONUS_COW_FOR_VP:
-                    this.addActionButton( 'btn_cow_vp', `${TOKEN_HTML.cow} ${TOKEN_HTML.arrow} ${TOKEN_HTML.vp4}`, 'cowFor4VP');
+                    this.addActionButton( BTN_ID_COW_VP, this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), COW_VP_ARR)), COW_VP_METHOD);
                     if (HAS_BUILDING[this.player_id][BLD_RIVER_PORT]){
-                        this.addActionButton( BTN_ID_GOLD_COW, `${TOKEN_HTML.gold} ${TOKEN_HTML.arrow} ${TOKEN_HTML.vp4}`, 'goldFor4VP');
+                        this.addActionButton( BTN_ID_GOLD_VP, this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), GOLD_VP_ARR)), GOLD_VP_METHOD);
                     }
                     break;
                 case AUC_BONUS_6VP_AND_FOOD_VP:
                 case AUC_BONUS_FOOD_FOR_VP:
-                    this.addActionButton( 'btn_food_vp', `${TOKEN_HTML.food} ${TOKEN_HTML.arrow} ${TOKEN_HTML.vp2}`, 'foodFor2VP');
+                    this.addActionButton( BTN_ID_FOOD_VP, this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), FOOD_VP_ARR)), FOOD_VP_METHOD);
                     break;
                 case AUC_BONUS_4DEPT_FREE:
                     break;
@@ -999,16 +997,17 @@ function (dojo, declare) {
         },
         onUpdateActionButtons_confirmActions: function () {
             this.updateBuildingAffordability();
-            this.addActionButton( BTN_ID_CONFIRM_ACTIONS, _("Confirm"),  'confirmBuildPhase');
-            this.addActionButton( BTN_ID_REDO_AUCTION,    _("Cancel"),   'cancelTurn', null, false, 'red');
+            this.addActionButton( BTN_ID_CONFIRM_ACTIONS, _("Confirm"), 'confirmBuildPhase');
+            this.addActionButton( BTN_ID_REDO_AUCTION,    _("Cancel"), 'cancelTurn', null, false, 'red');
             GLOBAL.can_cancel = true;
         },
         onUpdateActionButtons_endGameActions: function () {
-            this.addActionButton( 'btn_done',          _('Done'),                    'doneEndgameActions');    
-            this.addActionButton( 'btn_pay_loan_silver', dojo.string.substitute(_('Pay Loan ${type}'), {type:TOKEN_HTML.silver}), 'payLoanSilver', null, false, 'gray');
-            this.addActionButton( 'btn_pay_loan_gold',   dojo.string.substitute(_('Pay Loan ${type}'), {type:TOKEN_HTML.gold}),'payLoanGold',   null, false, 'gray');
-            this.addActionButton( 'btn_hire_worker', _('Hire New Worker'), 'hireWorkerButton', null, false, 'gray' );
-            this.addActionButton( 'btn_cancel_button', _('Cancel'), 'cancelUndoTransactions', null, false, 'red');
+            this.addActionButton( BTN_ID_DONE,   _("Pass"), ENDGAME_DONE_METHOD);    
+            this.addActionButton( BTN_ID_CANCEL, _("Cancel"), 'cancelUndoTransactions', null, false, 'red');
+            dojo.place(dojo.create('br'),'generalactions','last');
+            this.addActionButton( BTN_ID_PAY_LOAN_SILVER, dojo.string.substitute(_("Pay Loan ${type}"), {type:TOKEN_HTML.silver}), 'payLoanSilver', null, false, 'gray');
+            this.addActionButton( BTN_ID_PAY_LOAN_GOLD,   dojo.string.substitute(_("Pay Loan ${type}"), {type:TOKEN_HTML.gold}),   'payLoanGold',   null, false, 'gray');
+            this.addActionButton( BTN_ID_HIRE_WORKER, this.replaceTooltipStrings(_("Hire New ${worker}")), HIRE_WORKER_METHOD, null, false, 'gray' );
             this.addTradeActionButton();
         },
         ////////////////////
@@ -3707,97 +3706,151 @@ function (dojo, declare) {
                 if (log && args && !args.processed) {
                     args.processed = true;
                     
-                    if (!GLOBAL.isSpectator)
+                    if (!GLOBAL.isSpectator){
                         args.You = this.divYou(); // will replace ${You} with colored version
+                    }
                     
+                    if (args.token){
+                        let color = '';
+                        let type = '';
+                        if ( typeof(args.token) != "string"){
+                            if (args.token.color) {
+                                color = args.token.color;
+                            } else {
+                                color = PLAYER_COLOR[args.token.player_id];
+                            }
+                            if (args.token.type) {
+                                type = args.token.type;
+                            }
+                        }
+                        if (args.color) {
+                            color = args.color;
+                        } else {
+                            type = args.token.token;
+                            color = PLAYER_COLOR[args.player_id];
+                        }
+                        args.token = this.format_block('jstpl_player_token_log', {"color" : color, "type" : type});
+                    }
+                    if (args.building_name && typeof (args.building_name) != "string"){
+                        args.b_type = args.building_name.type;
+                        args.building_name = args.building_name.str;
+                    }
+                    if (args.auction && typeof (args.auction) != 'string'){
+                        args.key = Number(args.auction.key);
+                        args.auction = args.auction.str;
+                    }
+                    if (args.tradeFor && typeof (args.tradeFor) != 'string'){
+                        args.tradeFor_arr = args.tradeFor;
+                    }
+                    if (args.tradeAway && typeof (args.tradeAway) != 'string'){
+                        args.tradeAway_arr = args.tradeAway;
+                    }
+                    if (args.type && typeof (args.type) != 'string'){
+                        if (args.type.amount == null){
+                            args.amount = 1;
+                        } else {
+                            args.amount = args.type.amount;
+                        }
+                        args.type = args.type.type;
+                    }
+
+                    if (args.reason_string){
+                        if (args.origin == "building" ){
+                            let color = ASSET_COLORS[Number(args.b_type??0)];
+                            args.reason_string = this.format_block('jstpl_color_log', {string:args.reason_string, color:color});
+                        } else if (args.origin == "auction"){
+                            let color = ASSET_COLORS[Number(args.key??0)+10];
+                            args.reason_string = this.format_block('jstpl_color_number_log', {string:_('AUCTION '), color:color, number:args.key});
+                        } else if (args.reason_string == 'train' || args.reason_string == 'bid') { // player_tokens (bid/train)
+                            let color = PLAYER_COLOR[args.player_id];
+                            args.reason_string = this.format_block('jstpl_player_token_log', {"color" : color, "type" : args.reason_string});
+                        } else if (args.reason_string == 'worker') { // worker token
+                            args.reason_string = TOKEN_HTML.worker;
+                        } else if (args.reason_string == 'track') { // track 
+                            args.reason_string = TOKEN_HTML.track;
+                        }   
+                    }
+
                     // begin -> resource args
                     // only one type of resource.
                     if (args.type){
-                        if (typeof (args.type) == "string"){ // not an array just type as string
-                            args.typeStr = args.type;
+                        if (args.amount == null){
                             args.amount = 1;
-                            args.type = this.getOneResourceHtml(args.type, 1, false);
-                        } else { // array with {type,amount} values
-                            args.typeStr = args.type.type;
-                            args.amount = args.type.amount;
-                            args.type = this.getOneResourceHtml(args.typeStr, args.amount, false);
                         }
+                        args.typeStr = args.type;
+                        args.type = this.getOneResourceHtml(args.type, args.amount, false);
                     }
+
+                    // trade
                     // multiple types of resources
-                    if (args.tradeAway){
-                        args.tradeAway_arr = args.tradeAway;
+                    if (args.tradeAway && args.tradeAway_arr){
                         args.tradeAway = this.getResourceArrayHtml(args.tradeAway_arr);
                     }
-                    if (args.tradeFor){
-                        args.tradeFor_arr = args.tradeFor;
+                    if (args.tradeFor && args.tradeFor_arr){
                         args.tradeFor = this.getResourceArrayHtml(args.tradeFor_arr);
                     }
-                    if (args.resources){
-                        args.resource_arr = args.resources;
-                        args.resources = this.getResourceArrayHtml(args.resources);
+                    if (args.resource && args.tradeFor_arr && args.tradeAway_arr){ // Buy/Sell/Market/Bank
+                        let tradeAway = this.getResourceArrayHtml(args.tradeAway_arr);
+                        let tradeFor  = this.getResourceArrayHtml(args.tradeFor_arr);
+                        args.resource = dojo.string.substitute(_("${tradeAway} ${arrow} ${tradeFor}"),{tradeAway:tradeAway, arrow:TOKEN_HTML.arrow, tradeFor:tradeFor});
+                    }
+                    if (args.resources){//income or payment group
+                        if (!args.resource_arr){ // for show player resources (last round)
+                            args.resource_arr = args.resources;
+                        }
+                        args.resources = this.getResourceArrayHtml(args.resource_arr);
                     }
                     // end -> resource args
 
                     // begin -> specific token args 
                     if (args.arrow){
-                        args.arrow = this.format_block('jstpl_resource_inline', {type: 'arrow'});
+                        args.arrow = TOKEN_HTML.arrow;
                     }
-                    if (args.track && typeof args.track == 'string'){
+                    if (args.track){
                         args.track = TOKEN_HTML.track;
                     }
-                    if (args.loan && typeof args.loan == 'string'){
+                    if (args.loan){
                         args.loan = TOKEN_HTML.loan;
                     }
-                    if (args.worker && typeof args.worker == 'string'){
-                        args.worker = this.getOneResourceHtml('worker', 1, false);
+                    if (args.worker){
+                        args.worker = TOKEN_HTML.worker;
                     }
-                    // handles player_tokens
-                    if (args.token && typeof (args.null != "string")){
-                        if (args.token.color) {
-                            var color = args.token.color;
-                        } else {
-                            var color = PLAYER_COLOR[args.token.player_id];
-                        }
-                        if (args.token.type) {
-                            var type = args.token.type;
-                        } else {
-                            var type = args.token.token;
-                        }
-                        args.token = this.format_block('jstpl_player_token_log', {"color" : color, "type" : type});
+                    if (args.train){
+                        args.train = this.format_block('jstpl_player_token_log', {"color" : PLAYER_COLOR[args.player_id], "type" :'train'});
                     }
+                    if (args.bid){
+                        let color = PLAYER_COLOR[args.player_id];
+                        args.bid = this.format_block('jstpl_player_token_log', {"color" : color, "type" : 'bid'});
+                    }
+
                     // end -> specific token args
 
-                    // begin -> add font only args
-                    // format onOff with font (no color)
-                    if (args.onOff && typeof args.onOff == 'string'){
-                        args.onOff_val = (args.onOff == 'on'?true:false);
-                        args.onOff = this.format_block('jstpl_color_log', {color:'', string:args.onOff});
+                    /* formats args.building_name to have the building Color by type, 
+                     * and add resources if cost included.
+                     */
+                    if (args.building_name && args.b_type){
+                        let color = ASSET_COLORS[Number(args.b_type??0)];
+                        args.building_name = this.format_block('jstpl_color_log', {string:args.building_name, color:color});
+                        if (args.resource_arr){
+                            args.building_name += TOKEN_HTML.arrow + " " + this.getResourceArrayHtml(args.resource_arr);
+                        }
                     }
-                    // format text with font (no color) this changes the chat log, so disabling it...
-                    /*if (args.text && typeof args.text == 'string'){
-                        args.text = this.format_block('jstpl_color_log', {color:'', string:args.text});
-                    }*/
-                    // formats args.building_name to have the building Color by type
-                    if (args.building_name && typeof (args.building_name) != "string"){
-                        let color = ASSET_COLORS[Number(args.building_name.type)];
-                        args.building_name = this.format_block('jstpl_color_log', {string:args.building_name.str, color:color});
-                    }
-                    if (args.bidVal && typeof(args.bidVal) == 'string'){
-                        let color = ASSET_COLORS[Number(args.auction.key)+10];
-                        args.bidVal = this.format_block('jstpl_color_log', {string:args.bidVal, color:color});
+                    if (args.bidVal){
+                        let color = ASSET_COLORS[Number(args.key??0)+10]??'';
+                        args.bidVal = this.format_block('jstpl_color_log', {string:"$"+args.bidVal, color:color + ' biggerFont'});
                     }
                     // this will always set `args.auction` (allowing it to be used in the Title)
-                    if (args.auction && typeof (args.auction) != 'string'){
-                        let color = ASSET_COLORS[Number(args.auction.key)+10];
-                        args.auction = this.format_block('jstpl_color_log', {string:args.auction.str, color:color});
+                    if (args.auction){
+                        let color = ASSET_COLORS[Number(args.key)+10]??'';
+                        args.auction = this.format_block('jstpl_color_number_log', {string:_("AUCTION "), color:color, number:args.key});
                     } else {
-                        let color = ASSET_COLORS[Number(GLOBAL.current_auction)+10];
-                        args.auction = this.format_block('jstpl_color_number_log', {color:color, string:_("AUCTION "), number:GLOBAL.current_auction});
+                        let color = ASSET_COLORS[Number(this.current_auction)+10]??'';
+                        args.auction = this.format_block('jstpl_color_number_log', {color:color, string:_("AUCTION "), number:this.current_auction});
                     }
-                    // end -> add font only args
+                    // end -> add font only args  
 
                     // handles Building & Auctions, player_tokens, worker, or track
-                    if (args.reason_string && typeof (args.reason_string) != "string"){
+                    /*if (args.reason_string && typeof (args.reason_string) != "string"){
                         if (args.reason_string.type){ //Building & Auctions
                             let color = ASSET_COLORS[Number(args.reason_string.type)];
                             args.reason_string = this.format_block('jstpl_color_log', {string:args.reason_string.str, color:color});
@@ -3809,7 +3862,7 @@ function (dojo, declare) {
                         } else if (args.reason_string.track) { // track 
                             args.reason_string = TOKEN_HTML.track;
                         }
-                    }                     
+                    } */
                 }
             } catch (e) {
                 console.error(log,args,"Exception thrown", e.stack);
@@ -3839,10 +3892,12 @@ function (dojo, declare) {
             return resString + `</${html_type}>`;
         },
 
-        getResourceArrayHtmlBigVp: function (array, asSpan=false) {
+        getResourceArrayHtmlBigVp: function (array ={}, asSpan=false) {
             let html_type = asSpan ? 'span': 'div';
             var aggregateString = `<${html_type} class="log_container">`;
-            for (let type in array){
+            for (let i in RESOURCE_ORDER){
+                let type = RESOURCE_ORDER[i];
+                if (!(type in array)) continue;
                 let amt = array[type];
                 if (amt != 0){ 
                     let type_no = type;
@@ -3862,10 +3917,12 @@ function (dojo, declare) {
             return aggregateString + `</${html_type}>`;
         },
 
-        getResourceArrayHtml: function( array, asSpan=false, style=""){
+        getResourceArrayHtml: function( array ={}, asSpan=false, style=""){
             let html_type = asSpan ? 'span': 'div';
             var aggregateString = `<${html_type} class="log_container" style="${style}">`;
-            for (let type in array){
+            for (let i in RESOURCE_ORDER){
+                let type = RESOURCE_ORDER[i];
+                if (!(type in array)) continue;
                 let amt = array[type];
                 if (amt != 0){ 
                     let type_no = type;
@@ -4161,11 +4218,11 @@ function (dojo, declare) {
             //console.log('notif_showResources', notif);
             if (GLOBAL.show_player_info) return;// already showing player resources.
             GLOBAL.show_player_info = true;
-            for(let p_id in notif.args.resources){
+            for(let p_id in notif.args.resource_arr){
                 if (GLOBAL.isSpectator || (this.player_id != p_id)){
                     dojo.place( this.format_block('jstpl_player_board', {id: p_id} ), PLAYER_SCORE_ZONE_ID[p_id] );
                     dojo.query(`#player_resources_${PLAYER_COLOR[p_id]} .player_resource_group`).removeClass('noshow');
-                    this.setupOnePlayerResources(notif.args.resources[p_id]);
+                    this.setupOnePlayerResources(notif.args.resource_arr[p_id]);
                 }
                 this.tooltip.calculateAndUpdateScore(p_id);
             }

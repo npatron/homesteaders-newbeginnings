@@ -25,6 +25,8 @@ const SILVER   = 11;
 const LOAN     = 12;
 const RESOURCES = {'wood':1, 'steel':2, 'gold':3, 'copper':4, 'food':5, 'cow':6,
     'trade':7, 'track':8, 'worker':9, 'vp':10, 'silver':11, 'loan':12};
+const RESOURCE_ORDER = ['vp0', 'vp', 'vp2', 'vp3', 'vp4', 'vp6', 'vp8','vp10', 
+                        'loan','cow','copper','gold','steel','food','wood','silver','trade'];
 
 const ZONE_PENDING = -1;
 const ZONE_PASSED = -2;

@@ -55,8 +55,8 @@ class HSDScore extends APP_GameClass
         foreach($players as $p_id=>$player){
             $p_score = $this->calculateEndgameScore($p_id);
             $row1[] = array( 'str' => '${player_name}',
-                                 'args' => array( 'player_name' => $player['player_name'] ),
-                                 'type' => 'header');  
+                             'args' => array( 'player_name' => $player['player_name'] ),
+                             'type' => 'header');
             $row2[] = $p_score['vp'];
             $row3[] = $p_score['bld'];
             $row4[] = $p_score['bonus'];
