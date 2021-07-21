@@ -2640,11 +2640,12 @@ function (dojo, declare) {
             types.forEach(type=> {
                 var tradeAwayTokens = this.getResourceArrayHtml(this.getBuyAway(type));
                 var tradeForTokens = this.getResourceArrayHtml(this.getBuyFor(type));
-                this.addActionButton( `btn_buy_${type}`, `${tradeAwayTokens} ${TOKEN_HTML.arrow} ${tradeForTokens}`, 'onBuyResource', null, false, 'blue');
+                var arrow = TOKEN_HTML.arrow;
+                this.addActionButton( `btn_buy_${type}`, `${tradeAwayTokens} ${arrow} ${tradeForTokens}`, 'onBuyResource', null, false, 'blue');
                 dojo.place(`btn_buy_${type}`, BUY_ZONE_ID, 'last');
                 tradeAwayTokens = this.getResourceArrayHtml(this.getSellAway(type));
                 tradeForTokens = this.getResourceArrayHtml(this.getSellFor(type));
-                this.addActionButton( `btn_sell_${type}`, `${tradeAwayTokens} ${TOKEN_HTML.arrow} ${tradeForTokens}`, 'onSellResource', null, false, 'blue');
+                this.addActionButton( `btn_sell_${type}`, `${tradeAwayTokens} ${arrow} ${tradeForTokens}`, 'onSellResource', null, false, 'blue');
                 dojo.place(`btn_sell_${type}`, SELL_ZONE_ID, 'last');
             });
             if (HAS_BUILDING[this.player_id][BLD_MARKET] || HAS_BUILDING[this.player_id][BLD_BANK]){
@@ -2657,13 +2658,14 @@ function (dojo, declare) {
                 var translatedString = _("Market:");
                 mkt_text.innerText = translatedString;
                 let types = ['food','steel'];
-                types.forEach((type) => {
+                types.forEach(type => {
                     var tradeAwayTokens = this.getResourceArrayHtml(this.getMarketAway(type));
                     var tradeForTokens = this.getResourceArrayHtml(this.getMarketFor(type));
+                    var arrow = TOKEN_HTML.arrow;
                     let mkt_btn_id = `btn_market_${type}`;
-                    this.addActionButton( mkt_btn_id, `${tradeAwayTokens} ${TOKEN_HTML.big_arrow} ${tradeForTokens}`, `onMarketTrade_${type}`, null, false, 'blue');
+                    this.addActionButton( mkt_btn_id, `${tradeAwayTokens} ${arrow} ${tradeForTokens}`, `onMarketTrade_${type}`, null, false, 'blue');
                     dojo.place(mkt_btn_id, SPECIAL_ZONE_ID, 'last');
-                } );
+                });
             }
             if (HAS_BUILDING[this.player_id][BLD_BANK]){
                 let bank_text = dojo.create('span', {class:"biggerfont", id:BANK_TEXT_ID, style:"width: 100px;"});
@@ -2672,11 +2674,19 @@ function (dojo, declare) {
                 bank_text.innerText = translatedString;
                 var tradeAwayTokens = this.getResourceArrayHtml({'trade':-1});
                 var tradeForTokens = this.getResourceArrayHtml({'silver':1});
-                this.addActionButton( BTN_ID_TRADE_BANK, `${tradeAwayTokens} ${TOKEN_HTML.big_arrow} ${tradeForTokens}`, `onClickOnBankTrade`, null, false, 'blue');
+                this.addActionButton( BTN_ID_TRADE_BANK, `${tradeAwayTokens} ${TOKEN_HTML.arrow} ${tradeForTokens}`, `onClickOnBankTrade`, null, false, 'blue');
                 dojo.place(BTN_ID_TRADE_BANK, SPECIAL_ZONE_ID, 'last');
             }
         }
         this.updateTradeAffordability();
+    },
+
+    disableTradeIfPossible: function() {
+        if (this.tradeEnabled){
+            this.tradeEnabled = false;
+            dojo.query(`#${TRADE_ZONE_ID}`).forEach(dojo.destroy);
+            dojo.query('#generalactions br:nth-last-of-type(1)').forEach(dojo.destroy);
+        }
     },
         
     confirmTradeButton: function ( ){
@@ -2957,6 +2967,13 @@ function (dojo, declare) {
             dojo.stopEvent( evt );
             if ( !this.allowTrade && !this.checkAction( 'trade' ) ) { return; }
             this.addTransaction(TAKE_LOAN);
+        },
+
+        onMarketTrade_food: function (evt){
+            return this.onClickOnMarketTrade(evt, 'food');
+        },
+        onMarketTrade_steel: function (evt){
+            return this.onClickOnMarketTrade(evt, 'steel');
         },
         /** OnClick Handler Market Trade Actions 
          * will add takeLoan transaction to transactionLog (and update offset/breadcrumbs)
