@@ -206,7 +206,7 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
   
-  public function doneSelectingBonus (){
+  public function selectRailBonus (){
     self::setAjaxMode();
     $bonus = self::getArg( "bonus", AT_posint, true);
     $this->game->playerSelectRailBonus( $bonus );

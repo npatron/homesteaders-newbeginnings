@@ -125,6 +125,7 @@ const BTN_ID_CANCEL       = 'btn_cancel_button';
 const BTN_ID_REDO_AUCTION = 'btn_redo_build_phase';
 /*** non-transition actions ***/
 const BTN_ID_HIRE_WORKER = 'btn_hire_worker';
+const HIRE_WORKER_METHOD = 'hireWorkerButton';
 const BTN_ID_TAKE_LOAN   = 'btn_take_loan';
 const BTN_ID_MORE_GOLD   = 'btn_more_gold';
 const BTN_ID_LESS_GOLD   = 'btn_less_gold';
@@ -178,14 +179,14 @@ const BONUS_OPTIONS = { 7:'train_bonus_1_trade', 8:'train_bonus_2_track', 9:'tra
     1:'train_bonus_4_wood', 5:'train_bonus_4_food', 2:'train_bonus_4_steel', 3:'train_bonus_4_gold',
     4:'train_bonus_4_copper', 6:'train_bonus_4_cow', 10:'train_bonus_5_vp'};
 
-const COST_REPLACE_TYPE = {'steel':{'wood':1,'vp':1}, 'cow':{'gold':1}, 'copper':{'gold':1}, 'gold':{'silver':5}};
-
+    // trade id's (for "show trade")
 const TRADE_BOARD_ID = 'trade_top';
+const TRADE_ZONE_ID  = 'trades_zone';
 const BUY_ZONE_ID    = 'buy_zone';
 const BUY_TEXT_ID    = 'buy_text';
 const SELL_ZONE_ID   = 'sell_zone';
 const SELL_TEXT_ID   = 'sell_text';
-const SPECIAL_ZONE_ID= 'special_zone'; // market + bank
+const SPECIAL_ZONE_ID= 'special_zone';// market + bank
 const MARKET_TEXT_ID = 'market_text';
 const BANK_TEXT_ID   = 'bank_text';
 
@@ -255,12 +256,12 @@ const ASSET_COLORS = {0:'res', 1:'com', 2:'ind', 3:'spe', 4:'any', 6:'any',
 const VP_TOKENS = ['vp0', 'vp2', 'vp3', 'vp4','vp6','vp8', 'vp10'];
 const WAREHOUSE_MAP = {1:'wood',2:'food',4:'steel',8:'gold',16:'copper',32:'cow',}
 
+const COST_REPLACE_TYPE = {'steel':{'wood':1,'vp':1}, 'cow':{'gold':1}, 'copper':{'gold':1}, 'gold':{'silver':5}};
+
 // map of tpl id's  used to place the player_zones in turn order.
 const PLAYER_ORDER = ['currentPlayer','First', 'Second', 'Third', 'Fourth',];
 
 const TOKEN_HTML = [];
-// global arrays
-const GLOBAL = [];
 // zone control
 const TRACK_TOKEN_ZONE  = [];
 const WORKER_TOKEN_ZONE = [];

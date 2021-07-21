@@ -68,11 +68,11 @@ class Trade {
 
         if (GLOBAL.isSpectator) return;
         for (let trade_id = 0; trade_id < 6; trade_id++){
-            let type =  GLOBAL.this.getKeyByValue(TRADE_MAP, trade_id).split('_')[1];
+            var type =  GLOBAL.this.getKeyByValue(TRADE_MAP, trade_id).split('_')[1];
             
             // buy
-            let node_loc = `#trade_buy_${type}`;
-            let btn_id   = `#btn_buy_${type}`;
+            var node_loc = `#trade_buy_${type}`;
+            var btn_id   = `#btn_buy_${type}`;
             if (this.canAddTrade(this.getBuyChange(type))){
                 GLOBAL.this.updateAffordability(node_loc, AFFORDABLE);
                 this.updateButtonAffordability(btn_id,    AFFORDABLE);
@@ -94,8 +94,8 @@ class Trade {
         // market
         if (HAS_BUILDING[GLOBAL.player_id][BLD_MARKET]){
             // food
-            let node_loc = `#${PLAYER_BUILDING_ZONE_ID[GLOBAL.player_id]} .market_food`;
-            let btn_id = `#btn_market_food`;
+            var node_loc = `#${PLAYER_BUILDING_ZONE_ID[GLOBAL.player_id]} .market_food`;
+            var btn_id = `#btn_market_food`;
             if (this.canAddTrade(this.getMarketChange('food'))){
                 GLOBAL.this.updateAffordability(node_loc, AFFORDABLE);
                 this.updateButtonAffordability(btn_id,    AFFORDABLE);
@@ -104,7 +104,7 @@ class Trade {
                 this.updateButtonAffordability(btn_id,    UNAFFORDABLE);
             }
             // steel
-            node_loc = `#${PLAYER_BUILDING_ZONE_ID[this.player_id]} .market_steel`;
+            node_loc = `#${PLAYER_BUILDING_ZONE_ID[GLOBAL.player_id]} .market_steel`;
             btn_id = `#btn_market_steel`;
             if (this.canAddTrade(this.getMarketChange('steel'))){
                 GLOBAL.this.updateAffordability(node_loc, AFFORDABLE);
@@ -116,8 +116,8 @@ class Trade {
         }
         // bank 
         if (HAS_BUILDING[GLOBAL.player_id][BLD_BANK]){
-            let node_loc =  `#${BANK_DIVID}`;
-            let btn_id   = `#btn_trade_bank`;
+            var node_loc =  `#${BANK_DIVID}`;
+            var btn_id   = `#btn_trade_bank`;
             if (this.canAddTrade(this.getBankChange)){ // can afford
                 GLOBAL.this.updateAffordability(node_loc, AFFORDABLE);
                 this.updateButtonAffordability(btn_id,    AFFORDABLE);
@@ -140,81 +140,6 @@ class Trade {
                     .removeClass('bgabutton_blue')
                       .addClass('bgabutton_gray');
                 break;
-        }
-    }
-
-    /** 
-     * Enable Trade
-     */
-     enableTradeIfPossible() {
-        if (!GLOBAL.tradeEnabled){
-            GLOBAL.tradeEnabled = true;
-
-            dojo.place(dojo.create('br'),'generalactions','last');
-            let trade_zone = dojo.create('div', {id:TRADE_ZONE_ID, style:'display: inline-flex;justify-content:center;'});
-            dojo.place(trade_zone, 'generalactions', 'last');
-            let zone_style = 'display: flex; justify-content: center; flex-wrap: wrap;';
-            let buy_zone = dojo.create('div', {id:BUY_ZONE_ID, style:zone_style});
-            dojo.place(buy_zone, TRADE_ZONE_ID, 'first');
-            let buy_text = dojo.create('span', {class:"biggerfont", id:BUY_TEXT_ID});
-            dojo.place(buy_text, BUY_ZONE_ID, 'first');
-            var translatedString = _("Buy:");
-            buy_text.innerText = translatedString;
-            let sell_zone = dojo.create('div', {id:SELL_ZONE_ID, style:zone_style});
-            dojo.place(sell_zone, TRADE_ZONE_ID, 'last');
-            let sell_text = dojo.create('span', {class:"biggerfont", id:SELL_TEXT_ID});
-            dojo.place(sell_text, SELL_ZONE_ID, 'first');
-            var translatedString = _("Sell:");
-            sell_text.innerText = translatedString;
-                
-            let types = ['wood','food','steel','gold','cow','copper'];
-            types.forEach(type=> {
-                let tradeAwayTokens = GLOBAL.this.getResourceArrayHtml(this.getBuyAway(type));
-                let tradeForTokens = GLOBAL.this.getResourceArrayHtml(this.getBuyFor(type));
-                GLOBAL.this.addActionButton( `btn_buy_${type}`, `${tradeAwayTokens} ${TOKEN_HTML.arrow} ${tradeForTokens}`, 'onBuyResource', null, false, 'blue');
-                dojo.place(`btn_buy_${type}`, BUY_ZONE_ID, 'last');
-                tradeAwayTokens = GLOBAL.this.getResourceArrayHtml(this.getSellAway(type));
-                tradeForTokens = GLOBAL.this.getResourceArrayHtml(this.getSellFor(type));
-                GLOBAL.this.addActionButton( `btn_sell_${type}`, `${tradeAwayTokens} ${TOKEN_HTML.arrow} ${tradeForTokens}`, 'onSellResource', null, false, 'blue');
-                dojo.place(`btn_sell_${type}`, SELL_ZONE_ID, 'last');
-            });
-            if (HAS_BUILDING[this.player_id][BLD_MARKET] || HAS_BUILDING[this.player_id][BLD_BANK]){
-                let special_zone = dojo.create('div', {id:SPECIAL_ZONE_ID, style:zone_style});
-                dojo.place(special_zone, TRADE_ZONE_ID, 'first');
-            }
-            if (HAS_BUILDING[this.player_id][BLD_MARKET]){
-                let mkt_text = dojo.create('span', {class:"biggerfont", id:MARKET_TEXT_ID, style:"width: 100px;"});
-                dojo.place(mkt_text, SPECIAL_ZONE_ID, 'first');
-                var translatedString = _("Market:");
-                mkt_text.innerText = translatedString;
-                let types = ['food','steel'];
-                types.forEach((type) => {
-                    tradeAwayTokens = this.getResourceArrayHtml(this.getMarketAway(type));
-                    tradeForTokens = this.getResourceArrayHtml(this.getMarketFor(type));
-                    let mkt_btn_id = `btn_market_${type}`;
-                    this.addActionButton( mkt_btn_id, `${tradeAwayTokens} ${TOKEN_HTML.big_arrow} ${tradeForTokens}`, `onMarketTrade_${type}`, null, false, 'blue');
-                    dojo.place(mkt_btn_id, SPECIAL_ZONE_ID, 'last');
-                } );
-            }
-            if (HAS_BUILDING[this.player_id][BLD_BANK]){
-                let bank_text = dojo.create('span', {class:"biggerfont", id:BANK_TEXT_ID, style:"width: 100px;"});
-                dojo.place(bank_text, SPECIAL_ZONE_ID, 'last');
-                var translatedString = _("Bank:"); 
-                bank_text.innerText = translatedString;
-                tradeAwayTokens = this.getResourceArrayHtml({'trade':-1});
-                tradeForTokens = this.getResourceArrayHtml({'silver':1});
-                this.addActionButton( BTN_ID_TRADE_BANK, `${tradeAwayTokens} ${TOKEN_HTML.big_arrow} ${tradeForTokens}`, `onClickOnBankTrade`, null, false, 'blue');
-                dojo.place(BTN_ID_TRADE_BANK, SPECIAL_ZONE_ID, 'last');
-            }
-        }
-        this.updateTradeAffordability();
-    }
-
-    disableTradeIfPossible() {
-        if (GLOBAL.tradeEnabled){
-            GLOBAL.tradeEnabled = false;
-            dojo.query(`#${TRADE_ZONE_ID}`).forEach(dojo.destroy);
-            dojo.query('#generalactions br:nth-last-of-type(1)').forEach(dojo.destroy);
         }
     }
     

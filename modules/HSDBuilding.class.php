@@ -238,6 +238,7 @@ class HSDBuilding extends APP_GameClass
                         'preserve' => [ 2 => 'b_type']);
         if (count($b_cost)>0) {
             $message = clienttranslate('${player_name} builds ${building_name} ${arrow} ${resources}');
+            $values['resources'] = 'resources';
             $values['resource_arr'] = $b_cost;
             $values['arrow'] = "->";
             $values['preserve'][3] = 'resource_arr';
