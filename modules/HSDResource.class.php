@@ -514,6 +514,9 @@ class HSDResource extends APP_GameClass
     // (for tracks or vp2, vp4, vp6 etc).
     function specialTrade($p_id, $cost_arr, $income_arr, $reason_string, $origin="", $key=0){
         $p_name = $this->game->getPlayerName($p_id);
+        if (!$this->canPlayerAfford($p_id, $cost_arr)){
+            throw new BgaUserException( clienttranslate("Not enough resources. Take loan(s) or trade") );
+        }
         if (array_key_exists('track', $income_arr)){
             $track_key = $this->addTrack($p_id);
             $values = array('player_id' => $p_id,
@@ -528,7 +531,6 @@ class HSDResource extends APP_GameClass
             $values = $this->updateArrForNotify($values, $origin, $key); 
             $this->game->notifyAllPlayers( "gainTrack", 
                     clienttranslate('${player_name} trades ${tradeAway} ${arrow} ${track} from ${reason_string}'), $values);
-            $this->game->Log->addTrack($p_id, $track_key);
             foreach ($cost_arr as $type=>$amt){
                 $this->updateResource($p_id, $type, -$amt);
                 $this->game->Log->updateResource($p_id, $type, -$amt);
@@ -565,7 +567,7 @@ class HSDResource extends APP_GameClass
     // updates will need to be applied by `$this->game->Log->triggerHiddenTransactions()` when all players done.
     function hiddenTrade($p_id, $tradeAction){
         $this->game->Log->hiddenTrade($p_id, $tradeAction);
-        $tradeValues = $this->getTradeValues($p_id, $tradeAction);
+        $tradeValues = $this->getTradeValues($p_id, $tradeAction, true);
         // only notify this player, but don't update resources until later.
         $this->game->notifyPlayer($p_id, 'hiddenTrade', $tradeValues['message'].clienttranslate(" (hidden)"), $tradeValues['args']);
     }
@@ -597,7 +599,7 @@ class HSDResource extends APP_GameClass
         $this->game->Score->updatePlayerScore($p_id);
     }
     
-    function getTradeValues($p_id, $tradeAction){
+    function getTradeValues($p_id, $tradeAction, $ignore_afford= false){
         $p_name = $this->game->getPlayerName($p_id);
         // default trade amounts
         $tradeAway = array('trade'=>1);
@@ -659,10 +661,10 @@ class HSDResource extends APP_GameClass
                     default:
                         throw new BgaVisibleSystemException ( sprintf(clienttranslate('Invalid TradeAction: %s'),$tradeAction));
                 }
-                if (!$this->canPlayerAfford($p_id, array($type=>$amt))){
+                if (!$this->canPlayerAfford($p_id, array($type=>$amt)) && !$ignore_afford){
                     throw new BgaUserException( clienttranslate("You cannot afford to make this trade") );
                 }
-                if (!$this->canPlayerAfford($p_id, array('loan'=>1))){
+                if (!$this->canPlayerAfford($p_id, array('loan'=>1)) && !$ignore_afford){
                     throw new BgaUserException( clienttranslate("You have no DEBT to pay" ) );
                 }    
                 return (
@@ -681,7 +683,7 @@ class HSDResource extends APP_GameClass
             default: 
             throw new BgaVisibleSystemException ( sprintf(clienttranslate('Invalid TradeAction: %s'),$tradeAction));
         }
-        if (!$this->canPlayerAfford($p_id, $tradeAway)){
+        if (!$this->canPlayerAfford($p_id, $tradeAway) && !$ignore_afford){
             throw new BgaUserException( clienttranslate("You cannot afford to make this trade") );
         }
         if ($sell && $this->game->Building->doesPlayerOwnBuilding($p_id, BLD_GENERAL_STORE)){

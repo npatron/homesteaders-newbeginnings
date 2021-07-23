@@ -195,7 +195,7 @@ class HSDScore extends APP_GameClass
             $counts[$p_buildings[$b_key]['b_type']]++;
         }
         $counts[VP_B_WORKER] = $this->game->getUniqueValueFromDB("SELECT `workers` FROM `resources` WHERE `player_id`='$p_id'");
-        $counts[VP_B_TRACK] = $this->game->getUniqueValueFromDB("SELECT `track` FROM `resources` WHERE `player_id`='$p_id'");
+        $counts[VP_B_TRACK] = $this->game->getUniqueValueFromDB("SELECT COUNT(*) FROM `tracks` WHERE `player_id`='$p_id'");
         $counts[VP_B_BUILDING] = count($p_buildings);
         
         $this->game->setStat($counts[VP_B_BUILDING],    'buildings', $p_id);

@@ -565,12 +565,12 @@ class homesteadersnewbeginnings extends Table
 
     public function playerSilver2forTrackEvent ( ) 
     {
-        $this->checkAction( "eventBonus" );
+        $this->checkAction( "eventLotBonus" );
         if (!$this->Event->isAuctionAffected()){
             throw new BgaVisibleSystemException ( clienttranslate("trade 2 Silver for track called, but there is no event bonus"));
         }
         if ($this->Event->getEventAucB() != EVT_AUC_2SILVER_TRACK) {
-            throw new BgaVisibleSystemException ( sprintf(clienttranslate("trade 2 Silver for track called, but event bonus is %s"),$this->Event->getEventAucB()));
+            throw new BgaVisibleSystemException ( sprintf(clienttranslate("trade 2 Silver for track called, but event bonus is %s"), $this->Event->getEventAucB()));
         }
         $this->Resource->specialTrade($this->getActivePlayerId(), array('silver'=>2), array('track'=>1), clienttranslate('Event Reward'), 'event');
         $this->Event->postEventBonusNav();
@@ -770,7 +770,7 @@ class homesteadersnewbeginnings extends Table
 
     function argRailBonus() {
         $rail_options= $this->Resource->getRailAdvBonusOptions($this->getActivePlayerId());
-        return array("rail_options"=>$rail_options, "can_undo"=>false);
+        return array("rail_options"=>$rail_options);
     }
 
     function argLotCost() {

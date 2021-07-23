@@ -322,11 +322,13 @@ class HSDEvents extends APP_GameClass
                 }
                 break;
             case EVT_COPPER_COW_GET_GOLD:
+                // apply pending trades
+                $this->game->Log->triggerHiddenTransactions();
                 // player(s) with most cow+copper get a gold
                 $resources =  $this->game->getCollectionFromDB( "SELECT `player_id`, `copper`, `cow` FROM `resources` " );
                 $players = $this->getMost($resources, 'copper', 1, 'cow');
                 foreach($players as $p_id=>$p){
-                    $this->game->Resource->updateAndNotifyPayment($p_id, 'gold', 1, $this->game->event_info[16]['name'], 'event');
+                    $this->game->Resource->updateAndNotifyIncome($p_id, 'gold', 1, $this->game->event_info[16]['name'], 'event');
                 }
                 break;
             case EVT_VP_FOR_WOOD:
@@ -471,6 +473,9 @@ class HSDEvents extends APP_GameClass
     }
 
     private function getMost($values, $key, $minimum=0, $key2=null){
+        self::debug("getMost called with '$key' & '$key2' ");
+        self::dump("values", $values);
+        self::dump("minimum", $minimum);
         $mostPlayers = array();
         $mostValue = $minimum -1;
         foreach ($values as $p_id=> $player){
@@ -480,11 +485,13 @@ class HSDEvents extends APP_GameClass
             }
             if ($p_value > $mostValue){
                 $mostValue = $p_value;
-                $mostPlayers = array($p_id);
+                $mostPlayers = array();
+                $mostPlayers[$p_id] = $p_id;
             } else if ($p_value == $mostValue){
-                $mostPlayers[] = $p_id;
+                $mostPlayers[$p_id] = $p_id;
             }
         }
+        self::dump("most players", $mostPlayers);
         return $mostPlayers;
     }
 

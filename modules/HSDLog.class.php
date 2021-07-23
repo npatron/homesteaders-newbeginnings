@@ -252,7 +252,7 @@ class HSDLog extends APP_GameClass
   {
     $players = $this->game->loadPlayersBasicInfos();
     foreach ($players as $p_id => $player) {
-      $actions =  $this->getLastActions($p_id, ['hiddenTrade'], 'allowTrades');
+      $actions =  array_reverse($this->getLastActions($p_id, ['hiddenTrade'], 'allowTrades'));
       foreach ($actions as $a_id=>$action) {
         $args = json_decode($action['action_arg'], true);
         $this->game->Resource->trade($p_id, $args['tradeAction']);
