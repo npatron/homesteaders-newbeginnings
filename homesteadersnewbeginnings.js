@@ -1347,26 +1347,21 @@ function (dojo, declare) {
                     this.addTradeActionButton();
                     break;
                 case EVT_COPPER_COW_GET_GOLD:
-                    this
+                    console.log(args);
                     this.addActionButton( BTN_ID_EVENT_DONE_HIDDEN_TRADING, _('Done'), METHOD_EVENT_DONE_HIDDEN, null, false, 'blue');
                     dojo.place(dojo.create('br'),'generalactions','last');
                     this.addActionButton( BTN_ID_TRADE, _("Show Trade"),    'tradeActionButton', null, false, 'gray' );
                     this.addActionButton( BTN_ID_TAKE_LOAN, _('Take Debt'), 'onMoreLoan', null, false, 'gray' );
                     this.addActionButton( BTN_ID_UNDO_TRADE, _("Undo All Trade & Debt"), 'undoTransactionsButton', null, false, 'red' );
                     dojo.addClass(BTN_ID_UNDO_TRADE, 'disabled');
+                    this.addActionButton( BTN_ID_CONFIRM_TRADE_HIDDEN, _('Confirm Trades'), METHOD_CONFIRM_TRADE_HIDDEN);
+                    dojo.addClass(BTN_ID_CONFIRM_TRADE_HIDDEN, 'disabled');
 
-                    //this.addActionButton( BTN_ID_CONFIRM_TRADE_HIDDEN, _("Confirm Trade"), METHOD_CONFIRM_TRADE_HIDDEN, null, false, 'blue' );
-                    //dojo.addClass(BTN_ID_CONFIRM_TRADE_HIDDEN, 'disabled');
-                    //dojo.style(TRADE_BOARD_ID, 'order', 2);
-                    
                     this.updateTradeAffordability();
                     this.resetTradeValues();
-                    if (BOARD_RESOURCE_COUNTERS[this.player_id].trade.getValue() ==0) {
-                        this.tradeEnabled = false;
-                        dojo.query(`#${BTN_ID_TRADE}`).addClass('noshow');
-                    } else {
-                        this.enableTradeBoardActions();
-                    }
+                    this.enableTradeBoardActions();
+                    this.showHiddenTrades(args._private);
+                    
                     // players get trade opportunity (trades are hidden during this phase).
                     // then reveal amount of Copper+Cow
                     // the player(s) with the most (at least 1) get a gold.
@@ -1374,11 +1369,11 @@ function (dojo, declare) {
                 case EVT_VP_4SILVER:
                 case EVT_VP_FOR_WOOD:
                     this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Done'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
-                    this.addTradeActionButton( );
+                    this.addTradeActionButton();
                     break;
                 default:
                     this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Done'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
-                    this.addTradeActionButton( );
+                    this.addTradeActionButton();
             }
         },
         onUpdateActionButtons_bonusChoice_eventBuild: function (args){
@@ -2802,6 +2797,7 @@ function (dojo, declare) {
         },
         /** helper method that calculates total offset for resource of type */
         getOffsetValue: function(type) {
+            //console.log('transaction_cost', TRANSACTION_COST);
             let value = 0;
             for(let i in TRANSACTION_COST){
                 value += TRANSACTION_COST[i][type]??0;
@@ -2821,6 +2817,15 @@ function (dojo, declare) {
 
                 this.newPosNeg(type, BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue() + offset);
             }
+        },
+
+        showHiddenTrades: function(trade_result){
+            //if (trade_result){
+            console.log('showHiddenTrades', trade_result);
+                this.updateTrade(trade_result);
+                TRANSACTION_COST.push(trade_result);
+                this.updateTradeAffordability();
+            //}
         },
 
         addTransaction: function (action, type=''){
@@ -2887,6 +2892,7 @@ function (dojo, declare) {
             }
             return {valid:true, parent:parent};
         },
+
         /** OnClick Handler 
          * mapped to trade_option will call associates buy or sell methods.
          */

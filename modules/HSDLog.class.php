@@ -248,6 +248,40 @@ class HSDLog extends APP_GameClass
     $this->insert($p_id, 0, 'hiddenTrade', array('tradeAction'=>$tradeAction));
   }
 
+  public function getHiddenTrades($p_id)
+  {
+    $actions =  array_reverse($this->getLastActions($p_id, ['hiddenTrade'], 'allowTrades'));
+    $resources = array(//'silver'=>0, 'trade'=>0, 'wood'=>0, 'steel'=>0, 'loan'=>0,
+                       //'gold'=>0,   'copper'=>0,'cow'=>0, 'vp'=>0, 
+                      );
+    foreach ($actions as $a_id=>$action) {
+      $args = json_decode($action['action_arg'], true);
+      //self::dump("args", $args);
+      $tradeValues = $this->game->Resource->getTradeValues($p_id, $args['tradeAction'], true);
+      //self::dump("tradeValues", $tradeValues);
+      foreach($tradeValues['tradeAway'] as $type => $amt){
+        if (array_key_exists($type, $resources)){
+          $resources[$type] -=$amt;
+        } else {
+          $resources[$type] = -$amt;
+        }
+        //self::dump("tradeAway-> $type", $amt);
+      }
+      self::dump('resources tradeAway', $resources);
+      foreach($tradeValues['tradeFor'] as $type => $amt){
+        if (array_key_exists($type, $resources)){
+          $resources[$type] +=$amt;
+        } else {
+          $resources[$type] = $amt;
+        }
+        //self::dump("tradeFor-> $type", $amt);
+      }
+      self::dump('resources tradeFor', $resources);
+    }
+    self::dump('resources End', $resources);
+    return array($p_id=>$resources);
+  }
+
   public function triggerHiddenTransactions()
   {
     $players = $this->game->loadPlayersBasicInfos();

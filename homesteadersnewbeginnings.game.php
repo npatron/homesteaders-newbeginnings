@@ -810,8 +810,10 @@ class homesteadersnewbeginnings extends Table
 
     function argsEventPreTrade() {
         $bonus_id = $this->Event->getEventAllB();
-        $hidden = $bonus_id == EVT_COPPER_COW_GET_GOLD;
-        return (array("bonus_id"=>$bonus_id, 'hidden'=>$hidden));
+        if ($bonus_id == EVT_COPPER_COW_GET_GOLD){
+            $hidden = $this->Log->getHiddenTrades($this->getCurrentPlayerId());
+        }
+        return array('bonus_id' =>$bonus_id, '_private' => $hidden);
     }
 
     function argBuildingBonus() {
