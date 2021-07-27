@@ -336,6 +336,8 @@ function (dojo, declare) {
     // queues for pending trades
     const TRANSACTION_LOG  = [];
     const TRANSACTION_COST = [];
+    const HIDDEN_AWAY_COST = [];
+    const HIDDEN_FOR_COST = [];
 
     // storage for buildings
     const MAIN_BUILDING_COUNTS = []; // counts of each building_id in main zone. for use by update Buildings methods.
@@ -1356,6 +1358,7 @@ function (dojo, declare) {
                     dojo.addClass(BTN_ID_UNDO_TRADE, 'disabled');
                     this.addActionButton( BTN_ID_CONFIRM_TRADE_HIDDEN, _('Confirm Trades'), METHOD_CONFIRM_TRADE_HIDDEN);
                     dojo.addClass(BTN_ID_CONFIRM_TRADE_HIDDEN, 'disabled');
+                    this.addActionButton( BTN_ID_CANCEL, _("Cancel"), 'cancelHiddenUndoTransactions', null, false, 'red');
 
                     this.updateTradeAffordability();
                     this.resetTradeValues();
@@ -2629,99 +2632,97 @@ function (dojo, declare) {
         },
 
         /** 
-     * Enable Trade
-     */
-    enableTradeIfPossible: function() {
-        if (!this.tradeEnabled){
-            this.tradeEnabled = true;
+         * Enable Trade
+         */
+        enableTradeIfPossible: function() {
+            if (!this.tradeEnabled){
+                this.tradeEnabled = true;
 
-            dojo.place(dojo.create('br'),'generalactions','last');
-            let trade_zone = dojo.create('div', {id:TRADE_ZONE_ID, style:'display: inline-flex;flex-direction: column;'});
-            dojo.place(trade_zone, 'generalactions', 'last');
-            let zone_style = 'display: flex; justify-content: center; flex-wrap: wrap;';
-            let buy_zone = dojo.create('div', {id:BUY_ZONE_ID, style:zone_style});
-            dojo.place(buy_zone, TRADE_ZONE_ID, 'first');
-            let buy_text = dojo.create('span', {class:"biggerfont", id:BUY_TEXT_ID});
-            dojo.place(buy_text, BUY_ZONE_ID, 'first');
-            var translatedString = _("Buy:");
-            buy_text.innerText = translatedString;
-            let sell_zone = dojo.create('div', {id:SELL_ZONE_ID, style:zone_style});
-            dojo.place(sell_zone, TRADE_ZONE_ID, 'last');
-            let sell_text = dojo.create('span', {class:"biggerfont", id:SELL_TEXT_ID});
-            dojo.place(sell_text, SELL_ZONE_ID, 'first');
-            var translatedString = _("Sell:");
-            sell_text.innerText = translatedString;
-                
-            let types = ['wood','food','steel','gold','cow','copper'];
-            types.forEach(type=> {
-                var tradeAwayTokens = this.getResourceArrayHtml(this.getBuyAway(type));
-                var tradeForTokens = this.getResourceArrayHtml(this.getBuyFor(type));
-                var arrow = TOKEN_HTML.arrow;
-                this.addActionButton( `btn_buy_${type}`, `${tradeAwayTokens} ${arrow} ${tradeForTokens}`, 'onBuyResource', null, false, 'blue');
-                dojo.place(`btn_buy_${type}`, BUY_ZONE_ID, 'last');
-                tradeAwayTokens = this.getResourceArrayHtml(this.getSellAway(type));
-                tradeForTokens = this.getResourceArrayHtml(this.getSellFor(type));
-                this.addActionButton( `btn_sell_${type}`, `${tradeAwayTokens} ${arrow} ${tradeForTokens}`, 'onSellResource', null, false, 'blue');
-                dojo.place(`btn_sell_${type}`, SELL_ZONE_ID, 'last');
-            });
-            if (HAS_BUILDING[this.player_id][BLD_MARKET] || HAS_BUILDING[this.player_id][BLD_BANK]){
-                let special_zone = dojo.create('div', {id:SPECIAL_ZONE_ID, style:zone_style});
-                dojo.place(special_zone, TRADE_ZONE_ID, 'first');
-            }
-            if (HAS_BUILDING[this.player_id][BLD_MARKET]){
-                let mkt_text = dojo.create('span', {class:"biggerfont", id:MARKET_TEXT_ID, style:"width: 100px;"});
-                dojo.place(mkt_text, SPECIAL_ZONE_ID, 'first');
-                var translatedString = _("Market:");
-                mkt_text.innerText = translatedString;
-                let types = ['food','steel'];
-                types.forEach(type => {
-                    var tradeAwayTokens = this.getResourceArrayHtml(this.getMarketAway(type));
-                    var tradeForTokens = this.getResourceArrayHtml(this.getMarketFor(type));
+                dojo.place(dojo.create('br'),'generalactions','last');
+                let trade_zone = dojo.create('div', {id:TRADE_ZONE_ID, style:'display: inline-flex;flex-direction: column;'});
+                dojo.place(trade_zone, 'generalactions', 'last');
+                let zone_style = 'display: flex; justify-content: center; flex-wrap: wrap;';
+                let buy_zone = dojo.create('div', {id:BUY_ZONE_ID, style:zone_style});
+                dojo.place(buy_zone, TRADE_ZONE_ID, 'first');
+                let buy_text = dojo.create('span', {class:"biggerfont", id:BUY_TEXT_ID});
+                dojo.place(buy_text, BUY_ZONE_ID, 'first');
+                var translatedString = _("Buy:");
+                buy_text.innerText = translatedString;
+                let sell_zone = dojo.create('div', {id:SELL_ZONE_ID, style:zone_style});
+                dojo.place(sell_zone, TRADE_ZONE_ID, 'last');
+                let sell_text = dojo.create('span', {class:"biggerfont", id:SELL_TEXT_ID});
+                dojo.place(sell_text, SELL_ZONE_ID, 'first');
+                var translatedString = _("Sell:");
+                sell_text.innerText = translatedString;
+                    
+                let types = ['wood','food','steel','gold','cow','copper'];
+                types.forEach(type=> {
+                    var tradeAwayTokens = this.getResourceArrayHtml(this.getBuyAway(type));
+                    var tradeForTokens = this.getResourceArrayHtml(this.getBuyFor(type));
                     var arrow = TOKEN_HTML.arrow;
-                    let mkt_btn_id = `btn_market_${type}`;
-                    this.addActionButton( mkt_btn_id, `${tradeAwayTokens} ${arrow} ${tradeForTokens}`, `onMarketTrade_${type}`, null, false, 'blue');
-                    dojo.place(mkt_btn_id, SPECIAL_ZONE_ID, 'last');
+                    this.addActionButton( `btn_buy_${type}`, `${tradeAwayTokens} ${arrow} ${tradeForTokens}`, 'onBuyResource', null, false, 'blue');
+                    dojo.place(`btn_buy_${type}`, BUY_ZONE_ID, 'last');
+                    tradeAwayTokens = this.getResourceArrayHtml(this.getSellAway(type));
+                    tradeForTokens = this.getResourceArrayHtml(this.getSellFor(type));
+                    this.addActionButton( `btn_sell_${type}`, `${tradeAwayTokens} ${arrow} ${tradeForTokens}`, 'onSellResource', null, false, 'blue');
+                    dojo.place(`btn_sell_${type}`, SELL_ZONE_ID, 'last');
                 });
+                if (HAS_BUILDING[this.player_id][BLD_MARKET] || HAS_BUILDING[this.player_id][BLD_BANK]){
+                    let special_zone = dojo.create('div', {id:SPECIAL_ZONE_ID, style:zone_style});
+                    dojo.place(special_zone, TRADE_ZONE_ID, 'first');
+                }
+                if (HAS_BUILDING[this.player_id][BLD_MARKET]){
+                    let mkt_text = dojo.create('span', {class:"biggerfont", id:MARKET_TEXT_ID, style:"width: 100px;"});
+                    dojo.place(mkt_text, SPECIAL_ZONE_ID, 'first');
+                    var translatedString = _("Market:");
+                    mkt_text.innerText = translatedString;
+                    let types = ['food','steel'];
+                    types.forEach(type => {
+                        var tradeAwayTokens = this.getResourceArrayHtml(this.getMarketAway(type));
+                        var tradeForTokens = this.getResourceArrayHtml(this.getMarketFor(type));
+                        var arrow = TOKEN_HTML.arrow;
+                        let mkt_btn_id = `btn_market_${type}`;
+                        this.addActionButton( mkt_btn_id, `${tradeAwayTokens} ${arrow} ${tradeForTokens}`, `onMarketTrade_${type}`, null, false, 'blue');
+                        dojo.place(mkt_btn_id, SPECIAL_ZONE_ID, 'last');
+                    });
+                }
+                if (HAS_BUILDING[this.player_id][BLD_BANK]){
+                    let bank_text = dojo.create('span', {class:"biggerfont", id:BANK_TEXT_ID, style:"width: 100px;"});
+                    dojo.place(bank_text, SPECIAL_ZONE_ID, 'last');
+                    var translatedString = _("Bank:"); 
+                    bank_text.innerText = translatedString;
+                    var tradeAwayTokens = this.getResourceArrayHtml({'trade':-1});
+                    var tradeForTokens = this.getResourceArrayHtml({'silver':1});
+                    this.addActionButton( BTN_ID_TRADE_BANK, `${tradeAwayTokens} ${TOKEN_HTML.arrow} ${tradeForTokens}`, `onClickOnBankTrade`, null, false, 'blue');
+                    dojo.place(BTN_ID_TRADE_BANK, SPECIAL_ZONE_ID, 'last');
+                }
             }
-            if (HAS_BUILDING[this.player_id][BLD_BANK]){
-                let bank_text = dojo.create('span', {class:"biggerfont", id:BANK_TEXT_ID, style:"width: 100px;"});
-                dojo.place(bank_text, SPECIAL_ZONE_ID, 'last');
-                var translatedString = _("Bank:"); 
-                bank_text.innerText = translatedString;
-                var tradeAwayTokens = this.getResourceArrayHtml({'trade':-1});
-                var tradeForTokens = this.getResourceArrayHtml({'silver':1});
-                this.addActionButton( BTN_ID_TRADE_BANK, `${tradeAwayTokens} ${TOKEN_HTML.arrow} ${tradeForTokens}`, `onClickOnBankTrade`, null, false, 'blue');
-                dojo.place(BTN_ID_TRADE_BANK, SPECIAL_ZONE_ID, 'last');
-            }
-        }
-        this.updateTradeAffordability();
-    },
+            this.updateTradeAffordability();
+        },
 
-    disableTradeIfPossible: function() {
-        if (this.tradeEnabled){
-            this.tradeEnabled = false;
-            dojo.query(`#${TRADE_ZONE_ID}`).forEach(dojo.destroy);
-            dojo.query('#generalactions br:nth-last-of-type(1)').forEach(dojo.destroy);
-        }
-    },
-        
-    confirmTradeButton: function ( ){
-        if((this.currentState=='allocateWorkers' && !this.isCurrentPlayerActive())){
+        disableTradeIfPossible: function() {
+            if (this.tradeEnabled){
+                this.tradeEnabled = false;
+                dojo.query(`#${TRADE_ZONE_ID}`).forEach(dojo.destroy);
+                dojo.query('#generalactions br:nth-last-of-type(1)').forEach(dojo.destroy);
+            }
+        },
+            
+        confirmTradeButton: function ( ){
+            if((this.currentState=='allocateWorkers' && !this.isCurrentPlayerActive())){
                 // confirm trade
                 this.confirmTrades( true );
-                return;
             } else if (this.checkAction( 'trade' )) {
                 this.confirmTrades( false );
-                return;
             }
         },
 
         confirmHiddenTradeButton: function(){
             if (this.checkAction( 'event' ) && this.checkAction( 'trade' )) {
                 this.confirmTradesHidden( );
-                return;
             }
         },
+        
         /** helper method. 
          * Will hide all offset and New text values that don't have pending changes.
          */
@@ -2761,6 +2762,7 @@ function (dojo, declare) {
                  this.calculateAndUpdateScore(this.player_id);
              }, function( is_error) {});
         },
+
         /** onButtonClick "Confirm Trades" to call tradeHidden 
          * for the 1-of use case most cow/copper */
         confirmTradesHidden: function(){
@@ -2770,7 +2772,6 @@ function (dojo, declare) {
                 trade_action: TRANSACTION_LOG.join(','),
              }, this, function( result ) {
                  this.clearTransactionLog();
-                 this.resetTradeValues();
                  this.can_cancel = true;
                  this.calculateAndUpdateScore(this.player_id);
              }, function( is_error) {});
@@ -2819,13 +2820,45 @@ function (dojo, declare) {
             }
         },
 
-        showHiddenTrades: function(trade_result){
-            //if (trade_result){
-            console.log('showHiddenTrades', trade_result);
-                this.updateTrade(trade_result);
-                TRANSACTION_COST.push(trade_result);
-                this.updateTradeAffordability();
-            //}
+        clearHiddenTrades: function(){
+            console.log('clearHiddenTrades');
+            if (TRANSACTION_COST.hiddenAway){
+                this.updateTrade(TRANSACTION_COST.hiddenAway, true);
+            }
+            HIDDEN_AWAY_COST.length=0;
+            delete TRANSACTION_COST.hiddenAway;
+            if (TRANSACTION_COST.hiddenFor){
+                this.updateTrade(TRANSACTION_COST.hiddenFor, true);
+            }
+            delete TRANSACTION_COST.hiddenFor;
+            HIDDEN_FOR_COST.length=0;
+        },
+
+        updateHiddenTrades: function(trade_result){
+            console.log('updateHiddenTrades', trade_result);
+            for (let type in trade_result.trade_away) {
+                this.addOrSetArrayKey(HIDDEN_AWAY_COST, type, -trade_result.trade_away[type])
+            }
+            for (let type in trade_result.trade_for) {
+                this.addOrSetArrayKey(HIDDEN_FOR_COST, type, trade_result.trade_for[type])
+            }
+            this.showHiddenTrades();
+        },
+
+        showHiddenTrades: function(){
+            //console.log('showHiddenTrades before', TRANSACTION_COST);
+            if (TRANSACTION_COST.hiddenAway){
+                this.updateTrade(TRANSACTION_COST.hiddenAway, true);
+            }
+            TRANSACTION_COST.hiddenAway = HIDDEN_AWAY_COST??[];
+            this.updateTrade(TRANSACTION_COST.hiddenAway);
+            if (TRANSACTION_COST.hiddenFor){
+                this.updateTrade(TRANSACTION_COST.hiddenFor, true);
+            }
+            TRANSACTION_COST.hiddenFor = HIDDEN_FOR_COST??[];
+            this.updateTrade(TRANSACTION_COST.hiddenFor);
+            console.log('showHiddenTrades done', TRANSACTION_COST);
+            this.updateTradeAffordability();
         },
 
         addTransaction: function (action, type=''){
@@ -4667,11 +4700,23 @@ function (dojo, declare) {
             if (this.checkAction( 'done' )){
                 this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/undoTransactions.html", {lock: true}, this, 
                 function( result ) {
-                this.resetTradeValues();
-                this.disableTradeIfPossible();
-                if (this.currentState == 'allocateWorkers'){
-                    this.setOffsetForIncome();
-                 }
+                    this.resetTradeValues();
+                    this.disableTradeIfPossible();
+                    if (this.currentState == 'allocateWorkers'){
+                        this.setOffsetForIncome();
+                    }
+                }, function( is_error) { } );
+            }
+        },
+
+        cancelHiddenUndoTransactions: function () {
+            if (this.checkAction( 'event' ) && this.checkAction( 'trade' )) {
+                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/undoHiddenTransactions.html", {lock: true}, this, 
+                function( result ) {
+                    HIDDEN_FOR_COST.length = 0;
+                    HIDDEN_AWAY_COST.length = 0;
+                    this.resetTradeValues();
+                    this.disableTradeIfPossible();
                 }, function( is_error) { } );
             }
         },
@@ -4717,9 +4762,11 @@ function (dojo, declare) {
             var notifs = [
                 ['buildBuilding', 1000],
                 ['cancel', 500],
+                ['cancelHiddenTrade', 20],
                 ['clearAllBids', 250],
                 ['gainWorker', 20],
                 ['gainTrack', 20],
+                ['hiddenTrade', 20],
                 ['loanPaid', 500],
                 ['loanTaken', 500],
                 ['moveBid', 250],
@@ -5168,6 +5215,17 @@ function (dojo, declare) {
                 }   
             }
             this.calculateAndUpdateScore(p_id);
+        },
+
+        notif_hiddenTrade: function ( notif ){
+            console.log('notif_hiddenTrade', notif);
+            this.updateHiddenTrades({trade_away:notif.args.tradeAway_arr, trade_for:notif.args.tradeFor_arr});
+        },
+
+        notif_cancelHiddenTrade: function (notif ){
+            console.log('notif_cancelHiddenTrade', notif);
+            this.clearHiddenTrades();
+            this.updateTradeAffordability();
         },
 
         notif_trade: function( notif ){

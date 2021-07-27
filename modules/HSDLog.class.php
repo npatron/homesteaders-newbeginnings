@@ -251,35 +251,30 @@ class HSDLog extends APP_GameClass
   public function getHiddenTrades($p_id)
   {
     $actions =  array_reverse($this->getLastActions($p_id, ['hiddenTrade'], 'allowTrades'));
-    $resources = array(//'silver'=>0, 'trade'=>0, 'wood'=>0, 'steel'=>0, 'loan'=>0,
-                       //'gold'=>0,   'copper'=>0,'cow'=>0, 'vp'=>0, 
-                      );
+    self::dump('getHiddenTrades actions', $actions);
+    $tradeAway = array();
+    $tradeFor = array();
     foreach ($actions as $a_id=>$action) {
       $args = json_decode($action['action_arg'], true);
-      //self::dump("args", $args);
       $tradeValues = $this->game->Resource->getTradeValues($p_id, $args['tradeAction'], true);
-      //self::dump("tradeValues", $tradeValues);
       foreach($tradeValues['tradeAway'] as $type => $amt){
-        if (array_key_exists($type, $resources)){
-          $resources[$type] -=$amt;
+        if (array_key_exists($type, $tradeAway)){
+          $tradeAway[$type] -= $amt;
         } else {
-          $resources[$type] = -$amt;
+          $tradeAway[$type] = -$amt;
         }
-        //self::dump("tradeAway-> $type", $amt);
       }
-      self::dump('resources tradeAway', $resources);
+      //self::dump('resources tradeAway', $tradeAway);
       foreach($tradeValues['tradeFor'] as $type => $amt){
-        if (array_key_exists($type, $resources)){
-          $resources[$type] +=$amt;
+        if (array_key_exists($type, $tradeFor)){
+          $tradeFor[$type] += $amt;
         } else {
-          $resources[$type] = $amt;
+          $tradeFor[$type] = $amt;
         }
-        //self::dump("tradeFor-> $type", $amt);
       }
-      self::dump('resources tradeFor', $resources);
     }
-    self::dump('resources End', $resources);
-    return array($p_id=>$resources);
+    self::dump('getHiddenTrades returns', array('trade_away'=>$tradeAway, 'trade_for'=>$tradeFor));
+    return array($p_id=>array('trade_away'=>$tradeAway, 'trade_for'=>$tradeFor));
   }
 
   public function triggerHiddenTransactions()
@@ -368,6 +363,16 @@ class HSDLog extends APP_GameClass
     $logs = $this->getLastTransactions($p_id);
     $transactions = $this->cancelLogs($p_id, $logs);
     $this->game->notifyAllPlayers('cancel', clienttranslate('${player_name} cancels Transactions'), array(
+      'player_name' => $this->game->getPlayerName($p_id),
+      'actions' => $transactions['action'],
+      'move_ids' => $transactions['move_ids'],
+      'player_id' => $p_id));
+  }
+
+  public function cancelHiddenTransactions($p_id){
+    $logs = $this->getLastTransactions($p_id, ['hiddenTrade'], 'allowTrades');
+    $transactions = $this->cancelLogs($p_id, $logs);
+    $this->game->notifyPlayer($p_id, 'cancelHiddenTrade', clienttranslate('${you} cancel (hidden) Transactions'), array(
       'player_name' => $this->game->getPlayerName($p_id),
       'actions' => $transactions['action'],
       'move_ids' => $transactions['move_ids'],

@@ -680,6 +680,13 @@ class homesteadersnewbeginnings extends Table
         $this->Log->cancelTransactions($cur_p_id);
     }
 
+    public function playerCancelHiddenTransactions()
+    {
+        $this->checkAction('event');
+        $cur_p_id = $this->getCurrentPlayerId();
+        $this->Log->cancelTransactions($cur_p_id);
+    }
+
     /** endBuildRound */
     public function playerConfirmChoices (){
         $this->checkAction('done');
