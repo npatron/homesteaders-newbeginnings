@@ -1128,6 +1128,8 @@ function (dojo, declare) {
             } else if (!this.isSpectator) {
                 switch( stateName ) {
                     case 'allocateWorkers':
+                    case 'endGameActions' :
+                    case 'preEventTrade'  :
                         var methodName = "onUpdateActionButtons_" + stateName + "_notActive";
                         console.log('Calling ' + methodName, args);
                         this[methodName](args);
@@ -1326,6 +1328,10 @@ function (dojo, declare) {
             this.addActionButton( BTN_ID_HIRE_WORKER, this.replaceTooltipStrings(_("Hire New ${worker}")), METHOD_HIRE_WORKER, null, false, 'gray' );
             this.addTradeActionButton( false );
         },
+        onUpdateActionButtons_endGameActions_notActive: function () {
+            this.addActionButton( BTN_ID_UNDO_PASS, _("Undo"), 'onUnPass_endGameActions', null, false, 'red');
+        },
+
         ////////////////////
         //// EVENTS onUpdateActionButtons states 
         ////////////////////
@@ -1340,17 +1346,17 @@ function (dojo, declare) {
             switch(bonus_id){
                 case EVT_SELL_NO_TRADE:
                     this.addActionButton( 'btn_start_sell', _('Sell Free'), 'startSellFree', null, false, 'blue');
-                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Done'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
+                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
                     this.addTradeActionButton();
                     break;
                 case EVT_PAY_LOAN_FOOD:
                     this.addActionButton( 'pay_loan_food', this.replaceTooltipStrings(_('pay ${loan} with ${food}')),'payLoanWithFood', null, false, 'blue' );
-                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Done'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
+                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
                     this.addTradeActionButton();
                     break;
                 case EVT_COPPER_COW_GET_GOLD:
                     console.log(args);
-                    this.addActionButton( BTN_ID_EVENT_DONE_HIDDEN_TRADING, _('Done'), METHOD_EVENT_DONE_HIDDEN, null, false, 'blue');
+                    this.addActionButton( BTN_ID_EVENT_DONE_HIDDEN_TRADING, _('Pass'), METHOD_EVENT_DONE_HIDDEN, null, false, 'blue');
                     dojo.place(dojo.create('br'),'generalactions','last');
                     this.addActionButton( BTN_ID_TRADE, _("Show Trade"),    'tradeActionButton', null, false, 'gray' );
                     this.addActionButton( BTN_ID_TAKE_LOAN, _('Take Debt'), 'onMoreLoan', null, false, 'gray' );
@@ -1361,9 +1367,9 @@ function (dojo, declare) {
                     this.addActionButton( BTN_ID_CANCEL, _("Cancel"), 'cancelHiddenUndoTransactions', null, false, 'red');
 
                     this.updateTradeAffordability();
-                    this.resetTradeValues();
                     this.enableTradeBoardActions();
-                    this.showHiddenTrades(args._private);
+                    this.resetTradeValues();
+                    this.setHiddenTrades(args._private);
                     
                     // players get trade opportunity (trades are hidden during this phase).
                     // then reveal amount of Copper+Cow
@@ -1371,14 +1377,28 @@ function (dojo, declare) {
                     break;
                 case EVT_VP_4SILVER:
                 case EVT_VP_FOR_WOOD:
-                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Done'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
+                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
                     this.addTradeActionButton();
                     break;
                 default:
-                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Done'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
+                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
                     this.addTradeActionButton();
             }
         },
+        onUpdateActionButtons_preEventTrade_notActive: function (args){
+            let bonus_id = args.bonus_id;
+            switch(bonus_id){
+                case EVT_SELL_NO_TRADE:
+                    this.addActionButton( BTN_ID_UNDO_PASS, _("Undo"), 'onUnPass_preEventTrade', null, false, 'red');
+                    break;
+                case EVT_COPPER_COW_GET_GOLD:
+                    this.addActionButton( BTN_ID_UNDO_PASS, _("Undo"), 'onUnPass_preEventTrade', null, false, 'red');
+                    this.resetTradeValues();
+                    this.setHiddenTrades(args._private);
+                    break;
+            }
+        },
+
         onUpdateActionButtons_bonusChoice_eventBuild: function (args){
             this.onUpdateActionButtons_bonusChoice_build(args);
         },
@@ -2474,7 +2494,9 @@ function (dojo, declare) {
         },
 
         setupTransitionButton: function( andTrade ){
-            let transitions = [BTN_ID_PAY_DONE, BTN_ID_CONFIRM_WORKERS, BTN_ID_DONE, BTN_ID_BUILD, BTN_ID_FOOD_VP, BTN_ID_GOLD_VP, BTN_ID_COW_VP, BTN_ID_COPPER_VP, BTN_ID_WOOD_TRACK];
+            let transitions = [BTN_ID_PAY_DONE, BTN_ID_DONE, BTN_ID_EVENT_DONE_TRADING, BTN_ID_EVENT_DONE_HIDDEN_TRADING, 
+                                BTN_ID_CONFIRM_WORKERS, BTN_ID_BUILD, 
+                                BTN_ID_FOOD_VP, BTN_ID_GOLD_VP, BTN_ID_COW_VP, BTN_ID_COPPER_VP, BTN_ID_WOOD_TRACK];
             transitions.forEach(button_id=> {
                 if (dojo.query(`#${button_id}`).length == 1){
                     switch (button_id){
@@ -2511,6 +2533,22 @@ function (dojo, declare) {
                                 var button_text = _("Confirm Trades and Pass");
                             }
                             var button_method = METHOD_ENDGAME_DONE;
+                        break;
+                        case BTN_ID_EVENT_DONE_TRADING:
+                            if (andTrade) {
+                                var button_text = _("Pass");
+                            } else {
+                                var button_text = _("Confirm Trades and Pass");
+                            }
+                            var button_method = METHOD_EVENT_DONE_TRADING;
+                        break;
+                        case BTN_ID_EVENT_DONE_HIDDEN_TRADING:
+                            if (andTrade) {
+                                var button_text = _("Pass");
+                            } else {
+                                var button_text = _("Confirm Trades and Pass");
+                            }
+                            var button_method = METHOD_EVENT_DONE_HIDDEN;
                         break;
                         case BTN_ID_CONFIRM_WORKERS:
                             if (andTrade) {
@@ -2834,13 +2872,22 @@ function (dojo, declare) {
             HIDDEN_FOR_COST.length=0;
         },
 
-        updateHiddenTrades: function(trade_result){
-            console.log('updateHiddenTrades', trade_result);
+        setHiddenTrades: function (trade_result){
             for (let type in trade_result.trade_away) {
-                this.addOrSetArrayKey(HIDDEN_AWAY_COST, type, -trade_result.trade_away[type])
+                HIDDEN_AWAY_COST[type] = -trade_result.trade_away[type];
             }
             for (let type in trade_result.trade_for) {
-                this.addOrSetArrayKey(HIDDEN_FOR_COST, type, trade_result.trade_for[type])
+                HIDDEN_FOR_COST[type] = trade_result.trade_for[type];
+            }
+            this.showHiddenTrades();
+        },
+
+        updateHiddenTrades: function(trade_result){
+            for (let type in trade_result.trade_away) {
+                this.addOrSetArrayKey(HIDDEN_AWAY_COST, type, -trade_result.trade_away[type]);
+            }
+            for (let type in trade_result.trade_for) {
+                this.addOrSetArrayKey(HIDDEN_FOR_COST, type, trade_result.trade_for[type]);
             }
             this.showHiddenTrades();
         },
@@ -3478,8 +3525,13 @@ function (dojo, declare) {
             }, function( is_error) { } );
         },
 
+        onUnPass_preEventTrade: function () {
+            this.ajaxcall("/" + this.game_name + "/" +  this.game_name + "/actionCancelDone.html", {}, this, function( result ) {
+            }); 
+        },
+
         onUnPass_endGameActions: function (evt) {
-            this.ajaxcall("/" + this.game_name + "/" +  this.game_name + "/actionCancelEndgame.html", {}, this, function( result ) {}); 
+            this.ajaxcall("/" + this.game_name + "/" +  this.game_name + "/actionCancelDone.html", {}, this, function( result ) {}); 
         },
 
         onUnPass_allocateWorkers: function (evt) {
@@ -3697,8 +3749,7 @@ function (dojo, declare) {
 
         ajaxDoneTradingEvent: function(){
             this.ajaxcall("/" + this.game_name + "/" + this.game_name + "/doneTradingEvent.html", {lock: true}, this, 
-            function( result ) {this.changeStateCleanup(); }, 
-            function( is_error) { } );
+            function( result ) { }, function( is_error) { } );
         },
 
         doneHiddenTradingEvent: function(){

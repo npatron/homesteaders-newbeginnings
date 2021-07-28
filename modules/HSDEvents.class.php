@@ -53,6 +53,16 @@ class HSDEvents extends APP_GameClass
     }
     ///// END event setup method ////
 
+    function showEventTable($values, $message=""){
+        $table = array();
+        $this->game->notifyAllPlayers( "tableWindow", '', array(
+            "id" => 'eventResolved',
+            "title" => clienttranslate($message),
+            "table" => $table,
+            "closing" => clienttranslate( "Close" ),
+        ));
+    }
+
     function discardEventTile(){
         if ($this->game->getGameStateValue('new_beginning_evt') == DISABLED) return ;
         $round_number = $this->game->getGameStateValue( 'round_number' );
@@ -221,12 +231,14 @@ class HSDEvents extends APP_GameClass
             case EVT_IND_VP:
                 // The player(s) with the most ${ind} buildings gets 
                 //${vp} for each resource they recieved in income (${wood}, ${food}, ${steel}, ${gold}, ${copper}, ${cow} produced by buildings and not from trade)
-                
+                //$values = array();
                 $players = $this->getPlayersWithMostBuildings(TYPE_INDUSTRIAL);
                 foreach ($players as $p_id){
                     $res_amt = $this->game->Building->getBuildingResourceIncomeCountForPlayer($p_id);
                     $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', $res_amt, $this->game->event_info[EVT_IND_VP]['name']);
+                    //$values[$p_id] = array('value'=>$res_amt, 'name'=>'<span title = "vp" class="log_vp token_inline"></span>');
                 }
+                //$this->showEventTable($values);
                 break;
         }
         $this->game->gamestate->nextState($next_state);

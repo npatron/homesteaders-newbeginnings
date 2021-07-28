@@ -645,7 +645,7 @@ class homesteadersnewbeginnings extends Table
         $this->Resource->setPaid($p_id, 0);
     }
 
-    public function playerActionCancelEndgame() {
+    public function playerActionCancelDone() {
         $this->gamestate->checkPossibleAction('actionCancel');
         $p_id = $this->getCurrentPlayerId();
         $this->gamestate->setPlayersMultiactive(array ($p_id), 'error', false);
@@ -684,7 +684,7 @@ class homesteadersnewbeginnings extends Table
     {
         $this->checkAction('event');
         $cur_p_id = $this->getCurrentPlayerId();
-        $this->Log->cancelTransactions($cur_p_id);
+        $this->Log->cancelHiddenTransactions($cur_p_id);
     }
 
     /** endBuildRound */
