@@ -1009,7 +1009,7 @@ class homesteadersnewbeginnings extends Table
                 $this->Resource->updateAndNotifyIncome($active_p_id, 'silver', $amt, $b_name, 'building', $b_key);
             break;
             case BUILD_BONUS_PLACE_RESOURCES:
-                $this->Building->setupWarehouse($b_key);
+                $this->Building->setupWarehouse($active_p_id, $b_key);
             break;
             case BUILD_BONUS_RAIL_ADVANCE:
                 $this->Resource->getRailAdv($active_p_id, $b_name, 'building', $b_key);

@@ -292,7 +292,7 @@ class HSDBuilding extends APP_GameClass
         }
         $oldState = $this->getBuildingState($b_key);
         $this->setBuildingState($b_key, $state);
-        $this->game->notifyAllPlayers( "notif_updateWarehouseState", clienttranslate( 'update resources on ${b_name}' ), array(
+        $this->game->notifyAllPlayers( "updateWarehouseState", clienttranslate( 'update resources on ${b_name}' ), array(
             'b_name' => $this->getBuildingNameFromId(BLD_WAREHOUSE),
             'b_key' => $b_key, 
             'state' => $state,
