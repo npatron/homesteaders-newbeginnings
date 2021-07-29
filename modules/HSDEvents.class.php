@@ -166,6 +166,7 @@ class HSDEvents extends APP_GameClass
         $this->game->Resource->clearCost();
         $bonus_id = $this->getEventAllB();
         $next_state = 'done';
+        self::debug("Setup Event Pre Auction bonus_id='$bonus_id'");
         switch($bonus_id){
             //// next_state='evt_trade' states ////
             case EVT_SELL_NO_TRADE:
@@ -225,7 +226,7 @@ class HSDEvents extends APP_GameClass
             case EVT_LEAST_BLD_TRACK: // players with least buildings get track (not adv)
                 $players = $this->getPlayersWithLeastBuildings();
                 foreach($players as $p_id){
-                    $this->game->Resource->addTrack($p_id, _("event"));
+                    $this->game->Resource->addTrackAndNotify($p_id, _("event"));
                 }
                 break;
             case EVT_IND_VP:
@@ -383,7 +384,7 @@ class HSDEvents extends APP_GameClass
                 break;
                 case EVT_AUC_TRACK:
                     // gains a rail track
-                    $this->game->Resource->addTrack($this->game->getActivePlayerId(), _("event"));
+                    $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), _("event"));
                     $next_state = "done";
                 break;
             }
@@ -400,7 +401,7 @@ class HSDEvents extends APP_GameClass
         $pass_evt = $this->getEventPass();
         switch($pass_evt){
             case EVT_PASS_TRACK: //Players who pass, get a ${track}
-                $this->game->Resource->addTrack($this->game->getActivePlayerId(), $this->getEventName());
+                $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), $this->getEventName());
                 return "rail";
             case EVT_PASS_DEPT_SILVER: //Players who pass may pay off debt for 3-{silver} apiece
                 return "event";
@@ -471,14 +472,17 @@ class HSDEvents extends APP_GameClass
     }
 
     private function getLeast($values, $key){
+        self::debug("getLeast called with '$key' ");
+        self::dump("values", $values);
         $leastPlayers = array();
-        $leastValue = 0;
+        $leastValue = 999;
         foreach ($values as $p_id=> $player){
-            if (empty($leastPlayers) || $player[$key]<$leastValue){
+            if (empty($leastPlayers) || $player[$key] < $leastValue){
                 $leastValue = $player[$key];
-                $leastPlayers = array($p_id);
+                $leastPlayers = array();
+                $leastPlayers[$p_id] = $p_id;
             } else if ($player[$key] == $leastValue){
-                $leastPlayers[] = $p_id;
+                $leastPlayers[$p_id] = $p_id;
             }
         }
         return $leastPlayers;
