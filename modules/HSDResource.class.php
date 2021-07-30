@@ -588,7 +588,7 @@ class HSDResource extends APP_GameClass
             $this->game->Log->payOffLoan($p_id, $type, $amt); 
         } else {
             $this->game->Log->tradeResource($p_id, $tradeValues['tradeAway'], $tradeValues['tradeFor']);
-            if(str_starts_with($tradeAction, 'sellfree')){
+            if($tradeAction, 'sellfree'){
                 $this->game->Log->sellFree($p_id);
             }
             foreach($tradeValues['tradeAway'] as $type=>$amt){

@@ -680,6 +680,13 @@ class homesteadersnewbeginnings extends Table
         $this->Log->cancelTransactions($cur_p_id);
     }
 
+    public function playerCancelEventTransactions()
+    {
+        $this->checkAction('event');
+        $cur_p_id = $this->getCurrentPlayerId();
+        $this->Log->cancelTransactions($cur_p_id);
+    }
+
     public function playerCancelHiddenTransactions()
     {
         $this->checkAction('event');
@@ -816,13 +823,17 @@ class homesteadersnewbeginnings extends Table
     }
 
     function argsEventPreTrade() {
+        $cur_p_id = $this->getCurrentPlayerId();
         $bonus_id = $this->Event->getEventAllB();
         if ($bonus_id == EVT_COPPER_COW_GET_GOLD){
-            $hidden = $this->Log->getHiddenTrades($this->getCurrentPlayerId());
+            $hidden = $this->Log->getHiddenTrades($cur_p_id);
         } else if ($bonus_id == EVT_SELL_NO_TRADE){
-            $hidden = $this->Event->getPlayerTradeEventState($this->getCurrentPlayerId());
+            $hidden = $this->Event->getPlayerTradeEventState($cur_p_id);
         }
-        return array('bonus_id' =>$bonus_id, '_private' => $hidden??array());
+        $can_undo = (count($this->Log->getLastTransactions($cur_p_id)) > 0);
+        return array('bonus_id' =>$bonus_id, 
+                     '_private' => $hidden??array(),
+                     'can_undo'=>$can_undo,);
     }
 
     function argBuildingBonus() {
@@ -833,6 +844,11 @@ class homesteadersnewbeginnings extends Table
     function argBonusOption() {
         $auction_bonus = $this->Auction->getCurrentAuctionBonus();
         return (array("auction_bonus"=> $auction_bonus));
+    }
+
+    function argSetupAuction()
+    {
+
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -903,11 +919,6 @@ class homesteadersnewbeginnings extends Table
                 $this->gamestate->nextState( 'auction' );
             }
         }
-    }
-
-    function argSetupAuction()
-    {
-
     }
 
     function stNextBid()

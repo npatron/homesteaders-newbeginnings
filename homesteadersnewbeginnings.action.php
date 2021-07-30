@@ -63,6 +63,12 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
 
+  public function undoEventTransactions() {
+    self::setAjaxMode( );
+    $this->game->playerCancelEventTransactions();
+    self::ajaxResponse( );
+  }
+
   public function undoHiddenTransactions() {
     self::setAjaxMode( );
     $this->game->playerCancelHiddenTransactions();

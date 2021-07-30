@@ -1348,13 +1348,18 @@ function (dojo, declare) {
 
         onUpdateActionButtons_preEventTrade: function (args) {
             let bonus_id = args.bonus_id;
+            this.event_args = args;
             switch(bonus_id){
                 case EVT_SELL_NO_TRADE:
                     console.log(args);
                     if (args._private.sell_free==0){
-                        this.addActionButton( BTN_ID_EVENT_START_SELL, _('Start Sell Free Event'), METHOD_EVENT_START_SELL, null, false, 'blue');
+                        this.addActionButton( BTN_ID_EVENT_START_SELL, this.replaceTooltipStrings(_("Start Sell (No ${trade}) Event")), METHOD_EVENT_START_SELL, null, false, 'blue');
                         this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass on Event'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
                         this.addTradeActionButton();
+                        this.addActionButton( BTN_ID_CANCEL, _("Cancel"), 'cancelEventTransactions', null, false, 'red');
+                        if (!args.can_undo){
+                            dojo.addClass(BTN_ID_CANCEL, 'disable');
+                        }
                     } else {
                         this.startSellFree();
                     }
@@ -1363,6 +1368,7 @@ function (dojo, declare) {
                     this.addActionButton( 'pay_loan_food', this.replaceTooltipStrings(_('pay ${loan} with ${food}')),'payLoanWithFood', null, false, 'blue' );
                     this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
                     this.addTradeActionButton();
+                    this.addActionButton( BTN_ID_CANCEL, _("Cancel"), 'cancelEventTransactions', null, false, 'red');
                     break;
                 case EVT_COPPER_COW_GET_GOLD:
                     console.log(args);
@@ -1395,8 +1401,10 @@ function (dojo, declare) {
                     this.addTradeActionButton();
             }
         },
+        
         onUpdateActionButtons_preEventTrade_notActive: function (args){
             let bonus_id = args.bonus_id;
+            this.args = args;
             switch(bonus_id){
                 case EVT_SELL_NO_TRADE:
                     this.addActionButton( BTN_ID_UNDO_PASS, _("Undo"), 'onUnPass_preEventTrade', null, false, 'red');
@@ -2513,7 +2521,8 @@ function (dojo, declare) {
         },
 
         setupTransitionButton: function( andTrade ){
-            let transitions = [BTN_ID_PAY_DONE, BTN_ID_DONE, BTN_ID_EVENT_DONE_TRADING, BTN_ID_EVENT_DONE_HIDDEN_TRADING, 
+            let transitions = [BTN_ID_PAY_DONE, BTN_ID_DONE, 
+                                BTN_ID_EVENT_DONE_TRADING, BTN_ID_EVENT_DONE_HIDDEN_TRADING, BTN_ID_EVENT_START_SELL,
                                 BTN_ID_CONFIRM_WORKERS, BTN_ID_BUILD, 
                                 BTN_ID_FOOD_VP, BTN_ID_GOLD_VP, BTN_ID_COW_VP, BTN_ID_COPPER_VP, BTN_ID_WOOD_TRACK];
             transitions.forEach(button_id=> {
@@ -2568,6 +2577,14 @@ function (dojo, declare) {
                                 var button_text = _("Confirm Trades and Pass");
                             }
                             var button_method = METHOD_EVENT_DONE_HIDDEN;
+                        break;
+                        case BTN_ID_EVENT_START_SELL:
+                            if (andTrade) {
+                                var button_text = this.replaceTooltipStrings(_("Start Sell (No ${trade}) Event"));
+                            } else {
+                                var button_text = this.replaceTooltipStrings(_("Confirm Trades and Start Sell (No ${trade}) Event"));
+                            }
+                            var button_method = METHOD_EVENT_START_SELL;
                         break;
                         case BTN_ID_CONFIRM_WORKERS:
                             if (andTrade) {
@@ -2781,10 +2798,12 @@ function (dojo, declare) {
         },
 
         startSellFree: function() {
+            this.confirmTrades( false );
             this.gamedatas.gamestate.descriptionmyturn = this.gamedatas.gamestate.descriptionmyturnsellfree;
             this.updatePageTitle();
             this.removeButtons();
             this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
+            this.addActionButton( BTN_ID_CANCEL, _("Cancel"), 'cancelEventTransactions', null, false, 'red');
 
             dojo.place(dojo.create('br'),'generalactions','last');
             let trade_zone = dojo.create('div', {id:TRADE_ZONE_ID, style:'display: inline-flex;flex-direction: column;'});
@@ -2801,10 +2820,33 @@ function (dojo, declare) {
                 var arrow = TOKEN_HTML.arrow;
                 tradeAwayTokens = this.getResourceArrayHtml(this.getSellAwayFree(type));
                 tradeForTokens = this.getResourceArrayHtml(this.getSellFor(type));
-                this.addActionButton( `btn_free_sell_${type}`, `${tradeAwayTokens} ${arrow} ${tradeForTokens}`, 'onFreeSellResource', null, false, 'blue');
-                dojo.place(`btn_free_sell_${type}`, SELL_ZONE_ID, 'last');
+                this.addActionButton( `btn_sell_${type}`, `${tradeAwayTokens} ${arrow} ${tradeForTokens}`, 'onFreeSellResource', null, false, 'blue');
+                dojo.place(`btn_sell_${type}`, SELL_ZONE_ID, 'last');
             });
+            this.enableTradeBoardActionsSell();
         }, 
+
+        enableTradeBoardActionsSell: function() {
+
+            this.updateTradeAffordabilitySell();
+        },
+
+        updateTradeAffordabilitySell: function(){
+            for (let trade_id = 0; trade_id < 6; trade_id++){
+                var type = this.getKeyByValue(TRADE_MAP, trade_id).split('_')[1];
+                
+                // sell
+                var node_loc = `#trade_sell_${type}`;
+                var btn_id   = `#btn_sell_${type}`;
+                if (this.canAddTrade(this.getSellChange(type))){
+                    this.updateAffordability(node_loc, AFFORDABLE);
+                    this.updateButtonAffordability(btn_id, AFFORDABLE);
+                } else {// can not afford
+                    this.updateAffordability(node_loc, UNAFFORDABLE);
+                    this.updateButtonAffordability(btn_id, UNAFFORDABLE);
+                }
+            }
+        },
         
         /** helper method. 
          * Will hide all offset and New text values that don't have pending changes.
@@ -2842,6 +2884,7 @@ function (dojo, declare) {
                  if (this.currentState == 'allocateWorkers' && !notActive){
                     this.setOffsetForIncome();
                  }
+                 dojo.query("#${BTN_ID_CANCEL}").forEach(dojo.removeClass('disabled'));
                  this.calculateAndUpdateScore(this.player_id);
              }, function( is_error) {});
         },
@@ -3432,8 +3475,8 @@ function (dojo, declare) {
                 TRANSACTION_LOG.pop();
                 this.updateTrade(TRANSACTION_COST.pop(), true);
             }
-                this.updateBuildingAffordability();
-                this.updateTradeAffordability();
+            this.updateBuildingAffordability();
+            this.updateTradeAffordability();
             this.setupUndoTransactionsButtons();
             this.resetTradeButton();
         },
@@ -4832,6 +4875,14 @@ function (dojo, declare) {
                         this.setOffsetForIncome();
                     }
                 }, function( is_error) { } );
+            }
+        },
+
+        cancelEventTransactions: function () {
+            this.undoTransactionsButton();
+            if (this.checkAction( 'event' ) && this.checkAction( 'trade' )) {
+                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/undoEventTransactions.html", {lock: true}, this, 
+                function( result ) {}, function( is_error) { } );
             }
         },
 
