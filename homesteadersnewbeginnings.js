@@ -183,6 +183,9 @@ function (dojo, declare) {
     const BTN_ID_PAY_LOAN_GOLD     = 'btn_pay_loan_gold';
     const BTN_ID_PAY_LOAN_3_SILVER = 'btn_loan_3_silver';
 
+    const BTN_ID_EVENT_START_SELL = 'btn_start_sell';
+    const METHOD_EVENT_START_SELL = 'startSellFree';
+
     const BTN_ID_TRADE       = 'btn_trade';
     const BTN_ID_TRADE_BANK  = 'btn_trade_bank';
     const REPLACER_ZONE_ID   = 'replacers';
@@ -205,6 +208,7 @@ function (dojo, declare) {
     const PAY_LOAN_GOLD     = 6;
     const PAY_LOAN_SILVER   = 7;
     const PAY_LOAN_SILVER_3 = 8;
+    const SELL_FREE         = 9;
 
     // arrays for the map between toggle buttons and show/hide zones 
     const TOGGLE_BTN_ID     = ['tgl_future_bld', 'tgl_main_bld', 'tgl_future_auc', 'tgl_past_bld', 'tgl_events'];
@@ -216,7 +220,8 @@ function (dojo, declare) {
     const TRADE_MAP = {'buy_wood':0,  'buy_food':1,  'buy_steel':2, 'buy_gold':3, 'buy_copper':4, 'buy_cow':5,
                         'sell_wood':6, 'sell_food':7, 'sell_steel':8, 'sell_gold':9, 'sell_copper':10, 'sell_cow':11, 
                         'market_food':12, 'market_steel':13, 'bank':14, 'loan':15, 
-                        'payLoan_silver':16, 'payLoan_gold':17,'payLoan_3silver':18};
+                        'payLoan_silver':16, 'payLoan_gold':17,'payLoan_3silver':18,
+                        'sellfree_wood':19, 'sellfree_food':20, 'sellfree_steel':21, 'sellfree_gold':22, 'sellfree_copper':23, 'sellfree_cow':24, };
 
     const MARKET_FOOD_ID  = 'trade_market_wood_food';
     const MARKET_STEEL_ID = 'trade_market_food_steel';
@@ -1345,9 +1350,14 @@ function (dojo, declare) {
             let bonus_id = args.bonus_id;
             switch(bonus_id){
                 case EVT_SELL_NO_TRADE:
-                    this.addActionButton( 'btn_start_sell', _('Sell Free'), 'startSellFree', null, false, 'blue');
-                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
-                    this.addTradeActionButton();
+                    console.log(args);
+                    if (args._private.sell_free==0){
+                        this.addActionButton( BTN_ID_EVENT_START_SELL, _('Start Sell Free Event'), METHOD_EVENT_START_SELL, null, false, 'blue');
+                        this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass on Event'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
+                        this.addTradeActionButton();
+                    } else {
+                        this.startSellFree();
+                    }
                     break;
                 case EVT_PAY_LOAN_FOOD:
                     this.addActionButton( 'pay_loan_food', this.replaceTooltipStrings(_('pay ${loan} with ${food}')),'payLoanWithFood', null, false, 'blue' );
@@ -2207,26 +2217,35 @@ function (dojo, declare) {
         },
 
         raiseCostReplace: function (type) {
-            if (!(type in this.buildingCost) || this.cost_replace[type] >= this.buildingCost[type] ) return;
-
+            console.log('raiseCostReplace:', type);
+            console.log('this.cost_replace[type]', this.cost_replace[type]);
+            console.log('this.buildingCost[type]', this.buildingCost[type]);
+            if (!(type in this.buildingCost) || this.buildingCost[type] >= 0) return;
+            console.log('past if return');
             dojo.style( $(`btn_less_${type}`), 'display', 'inline-block');
 
-            this.cost_replace[type]++;
-            if (this.buildingCost[type] == this.cost_replace[type]){//can't replace any more.
+            this.addOrSetArrayKey(this.cost_replace, type, 1);
+            this.createBuildingBreadcrumb();
+            if (this.buildingCost[type] == 0){//can't replace any more.
                 dojo.style( $(`btn_more_${type}`), 'display', 'none');
             }
-            this.createBuildingBreadcrumb();
         },
 
         lowerCostReplace: function (type) {
-            if (!(type in this.buildingCost) || this.cost_replace[type]<=0 ) return;
+            console.log('lowerCostReplace:', type);
+            console.log('this.cost_replace[type]', this.cost_replace[type]);
+            console.log('this.buildingCost[type]', this.buildingCost[type]);
+            if (!(type in this.buildingCost) || !(type in this.cost_replace) || this.cost_replace[type]<=0 ) return;
+            console.log('past if return');
             dojo.style( $(`btn_more_${type}`), 'display', 'inline-block');
 
-            this.cost_replace[type]--;
+            this.addOrSetArrayKey(this.cost_replace, type, -1);
+            console.log('cost replace set', this.cost_replace);
             if (this.cost_replace[type] == 0){//can't replace any less.
                 dojo.style( $(`btn_less_${type}`), 'display', 'none');
             }
             this.createBuildingBreadcrumb();
+            console.log('cost replace end', this.cost_replace);
         },
 
         /**
@@ -2760,6 +2779,32 @@ function (dojo, declare) {
                 this.confirmTradesHidden( );
             }
         },
+
+        startSellFree: function() {
+            this.gamedatas.gamestate.descriptionmyturn = this.gamedatas.gamestate.descriptionmyturnsellfree;
+            this.updatePageTitle();
+            this.removeButtons();
+            this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
+
+            dojo.place(dojo.create('br'),'generalactions','last');
+            let trade_zone = dojo.create('div', {id:TRADE_ZONE_ID, style:'display: inline-flex;flex-direction: column;'});
+            dojo.place(trade_zone, 'generalactions', 'last');
+            let zone_style = 'display: flex; justify-content: center; flex-wrap: wrap;';
+            let sell_zone = dojo.create('div', {id:SELL_ZONE_ID, style:zone_style});
+            dojo.place(sell_zone, TRADE_ZONE_ID, 'last');
+            let sell_text = dojo.create('span', {class:"biggerfont", id:SELL_TEXT_ID});
+            dojo.place(sell_text, SELL_ZONE_ID, 'first');
+            var translatedString = _("Sell:");
+            sell_text.innerText = translatedString;
+            let types = ['wood','food','steel','gold','cow','copper'];
+            types.forEach(type=> {
+                var arrow = TOKEN_HTML.arrow;
+                tradeAwayTokens = this.getResourceArrayHtml(this.getSellAwayFree(type));
+                tradeForTokens = this.getResourceArrayHtml(this.getSellFor(type));
+                this.addActionButton( `btn_free_sell_${type}`, `${tradeAwayTokens} ${arrow} ${tradeForTokens}`, 'onFreeSellResource', null, false, 'blue');
+                dojo.place(`btn_free_sell_${type}`, SELL_ZONE_ID, 'last');
+            });
+        }, 
         
         /** helper method. 
          * Will hide all offset and New text values that don't have pending changes.
@@ -2919,6 +2964,10 @@ function (dojo, declare) {
                     transactions = {name:_("Sell"), map:TRADE_MAP[`sell_${type}`],
                             away:this.getSellAway(type), for:this.getSellFor(type), change:this.getSellChange(type)};
                 break;
+                case SELL_FREE:
+                    transactions = {name:_("Sell(free)"), map:TRADE_MAP[`sellfree_${type}`],
+                            away:this.getSellAwayFree(type), for:this.getSellFor(type), change:this.getSellChangeFree(type)};
+                break;
                 case MARKET:
                     transactions = {name:_("Market"), map:TRADE_MAP[`market_${type}`],
                             away:this.getMarketAway(type), for:this.getMarketFor(type), change:this.getMarketChange(type)};
@@ -3030,7 +3079,6 @@ function (dojo, declare) {
          * will add Sell transaction to transactionLog (and update offset/breadcrumbs)
          */
         onSellResource: function ( evt , type = "" ){
-            //console.log('onSellResource');
             if (type == ""){
                 dojo.stopEvent( evt );
                 if ( !this.allowTrade && !this.checkAction( 'trade' ) ) { return; }
@@ -3040,14 +3088,34 @@ function (dojo, declare) {
             }
             this.addTransaction(SELL, type);
         },
+        /** OnClick Handler (Free Sell action buttons)
+         * will add Sell transaction to transactionLog (and update offset/breadcrumbs)
+         */
+        onFreeSellResource: function ( evt, type = "") {
+            if (type == ""){
+                dojo.stopEvent( evt );
+                if ( !this.allowTrade && !this.checkAction( 'trade' ) ) { return; }
+                if (evt.target.classList.contains('bgabutton')){
+                    type = evt.target.id.split('_')[2];
+                } else { return; }
+            }
+            this.addTransaction(SELL_FREE, type);
+        },
         /** get function tradeAway for Sell transactions */
         getSellAway: function (type){
             let tradeAway = {trade:-1};
             tradeAway[type] = -1;
             return tradeAway;
         },
+        /** get function tradeAway for Sell transactions */
+        getSellAwayFree: function (type){
+            let tradeAway = {};
+            tradeAway[type] = -1;
+            return tradeAway;
+        },
         /** get function tradeFor for Sell transactions */
         getSellFor: function (type){
+            console.log('getSellFor', type);
             let tradeFor = this.copyArray(RESOURCE_INFO[type].trade_val);
             tradeFor.vp = 1;
             if (HAS_BUILDING[this.player_id][BLD_GENERAL_STORE]){
@@ -3059,6 +3127,12 @@ function (dojo, declare) {
         getSellChange: function ( type ) {
             let tradeChange = this.getSellFor(type);
             tradeChange.trade = -1;
+            tradeChange[type] = -1;
+            return tradeChange;
+        },
+        /** get function tradeChange for Sell transactions */
+        getSellChangeFree: function ( type ) {
+            let tradeChange = this.getSellFor(type);
             tradeChange[type] = -1;
             return tradeChange;
         },
@@ -3163,7 +3237,7 @@ function (dojo, declare) {
             if (HAS_BUILDING[this.player_id][BLD_LUMBER_MILL]){
                 if (cost.steel<0){
                     dojo.style(BTN_ID_MORE_STEEL, 'display', 'inline-block');
-                    dojo.style(BTN_ID_LESS_STEEL, 'display', 'inline-block');
+                    dojo.style(BTN_ID_LESS_STEEL, 'display', 'none');
                 } else {
                     dojo.style(BTN_ID_MORE_STEEL, 'display', 'none');
                     dojo.style(BTN_ID_LESS_STEEL, 'display', 'none');
@@ -3189,9 +3263,12 @@ function (dojo, declare) {
                 let max_loop = Math.max(this.cost_replace[type], cost[type]);
                 for(let i =0; i< max_loop;i++ ){
                     for(let replace_type in COST_REPLACE_TYPE[type]){
-                        cost = this.addOrSetArrayKey(cost, replace_type, COST_REPLACE_TYPE[type][replace_type]);
+                        cost = this.addOrSetArrayKey(cost, replace_type, -COST_REPLACE_TYPE[type][replace_type]);
+                        if (cost[replace_type] == 0){
+                            delete cost[replace_type];
+                        }
                     }
-                    cost[type]--;
+                    cost = this.addOrSetArrayKey(cost, type, 1);
                 }
             }
             if (this.goldAsCopper && ('copper' in cost)){
@@ -3634,10 +3711,8 @@ function (dojo, declare) {
          * be careful...
          */
         removeButtons: function () {
-            let buttons = dojo.query(`#generalactions .bgabutton`);
-            for (let i in buttons){
-                this.fadeOutAndDestroy(buttons[i].id);
-            }
+            dojo.query(`#generalactions .bgabutton`).forEach(dojo.destroy);
+            dojo.query(`#generalactions br`).forEach(dojo.destroy);
         },
         
         /***** PAY WORKERS or PAY AUCTION PHASE *****/

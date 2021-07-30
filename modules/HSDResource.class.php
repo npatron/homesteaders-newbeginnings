@@ -588,6 +588,9 @@ class HSDResource extends APP_GameClass
             $this->game->Log->payOffLoan($p_id, $type, $amt); 
         } else {
             $this->game->Log->tradeResource($p_id, $tradeValues['tradeAway'], $tradeValues['tradeFor']);
+            if(str_starts_with($tradeAction, 'sellfree')){
+                $this->game->Log->sellFree($p_id);
+            }
             foreach($tradeValues['tradeAway'] as $type=>$amt){
                 $this->updateResource($p_id, $type, -$amt);
             }
@@ -618,6 +621,14 @@ class HSDResource extends APP_GameClass
             case 'sell':
                 $type = $tradeAct_segs[1];
                 $tradeAway[$type] = 1;
+                $tradeFor = $this->game->resource_info[$type]['trade_val'];
+                $tradeFor['vp'] = 1;
+                $tradeType= $type;
+                $sell = true;
+            break;
+            case 'sellfree':
+                $type = $tradeAct_segs[1];
+                $tradeAway = array($type=>1);
                 $tradeFor = $this->game->resource_info[$type]['trade_val'];
                 $tradeFor['vp'] = 1;
                 $tradeType= $type;
@@ -736,11 +747,13 @@ class HSDResource extends APP_GameClass
      */ 
     function costReplace($arr, $type, $amt){
         $cost_replace = $this->game->costReplace[$type];
+        // remove $amt from $type
+        $arr[$type] -= $amt;
+        if ($arr[$type]==0){
+            unset($arr[$type]);
+        }
+        // add in (amt * replacement) costs to arr
         foreach($cost_replace as $r_type=>$r_amt){
-            $arr[$type] -= $amt;
-            if ($arr[$type]==0){
-                unset($arr[$type]);
-            }
             $arr = $this->updateKeyOrCreate($arr, $r_type, ($r_amt * $amt));
         }
         return $arr;

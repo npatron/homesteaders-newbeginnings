@@ -242,6 +242,11 @@ class HSDLog extends APP_GameClass
     $this->insert($p_id, 0, 'trade', array('trade_away' => $trade_away, 'trade_for' => $trade_for));
   }
 
+  public function sellFree($p_id)
+  {
+    $this->insert($p_id, 0, 'sellFree');
+  }
+
   // for logging trades that are not shown until everyone is done.
   public function hiddenTrade($p_id, $tradeAction)
   {
@@ -332,7 +337,7 @@ class HSDLog extends APP_GameClass
   public function getLastTransactions($p_id = null)
   {
     $p_id = $p_id ?: $this->game->getActivePlayerId();
-    $actions =  $this->getLastActions($p_id, ['trade', 'hiddenTrade', 'loan', 'gainWorker', 'updateResource', 'loanPaid', 'buildingState'], 'allowTrades');
+    $actions =  $this->getLastActions($p_id, ['trade', 'hiddenTrade', 'loan', 'gainWorker', 'updateResource', 'loanPaid', 'buildingState', 'sellFree'], 'allowTrades');
     return $actions;
   }
 
