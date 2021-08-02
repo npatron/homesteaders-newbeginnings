@@ -72,8 +72,9 @@ $machinestates = array(
 
     STATE_EVT_TRADE => array(
         "name" => "preEventTrade",
-        "description" => clienttranslate('Some players may choose to trade before event'),
+        "description" => clienttranslate('Some players may choose to trade for Event'),
         "descriptionmyturn" => clienttranslate('${you} may choose to trade before event'),
+        "descriptionmyturntrade" => clienttranslate('${you} may choose to trade before event'),
         "descriptionmyturnsellfree" => clienttranslate('${you} may sell resources'),
         "descriptionhidden" => clienttranslate('Some players may choose to trade before event (trades temporarily hidden)'),
         "descriptionmyturnhidden" => clienttranslate('${you} may choose to trade before event (trades temporarily hidden)'),

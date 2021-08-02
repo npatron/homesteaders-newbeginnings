@@ -645,6 +645,13 @@ class homesteadersnewbeginnings extends Table
         $this->Resource->setPaid($p_id, 0);
     }
 
+    public function playerActionCancelEventDone() {
+        $this->gamestate->checkPossibleAction('actionCancel');
+        $p_id = $this->getCurrentPlayerId();
+        $this->Log->cancelTransactions($p_id);
+        $this->gamestate->setPlayersMultiactive(array ($p_id), 'error', false);
+    }
+
     public function playerActionCancelDone() {
         $this->gamestate->checkPossibleAction('actionCancel');
         $p_id = $this->getCurrentPlayerId();
@@ -827,13 +834,9 @@ class homesteadersnewbeginnings extends Table
         $bonus_id = $this->Event->getEventAllB();
         if ($bonus_id == EVT_COPPER_COW_GET_GOLD){
             $hidden = $this->Log->getHiddenTrades($cur_p_id);
-        } else if ($bonus_id == EVT_SELL_NO_TRADE){
-            $hidden = $this->Event->getPlayerTradeEventState($cur_p_id);
         }
-        $can_undo = (count($this->Log->getLastTransactions($cur_p_id)) > 0);
         return array('bonus_id' =>$bonus_id, 
-                     '_private' => $hidden??array(),
-                     'can_undo'=>$can_undo,);
+                     '_private' => $hidden??array(),);
     }
 
     function argBuildingBonus() {

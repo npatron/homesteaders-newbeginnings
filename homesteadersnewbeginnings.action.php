@@ -136,6 +136,12 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse();
   }
 
+  public function actionCancelEventDone() {
+    self::setAjaxMode();
+    $this->game->playerActionCancelEventDone();
+    self::ajaxResponse();
+  }
+
   // bid actions
   public function confirmBid (){
     self::setAjaxMode( );

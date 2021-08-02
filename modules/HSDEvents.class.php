@@ -243,19 +243,6 @@ class HSDEvents extends APP_GameClass
         $this->game->gamestate->nextState($next_state);
     }
 
-    /** denotes whether player has entered free sell state(by selling for free).
-     * or completed the sellFree state (by clicking "Done Sell Free")
-     * 0 => not yet soldFree
-     * 1 => has soldFree (cannot buy in this state)
-     */
-    function getPlayerTradeEventState($p_id) {
-        $logs = $this->game->Log->getLastActions($p_id, ['sellFree'], 'allowTrades');
-        if (!empty($logs)){
-            return array($p_id=>['sell_free'=>1]);
-        }
-        return array($p_id=>['sell_free'=>0]);
-    }
-
     function setupEventBonus(){
         $bonus_id = $this->getEventAllB();
         $pending_players = array();
