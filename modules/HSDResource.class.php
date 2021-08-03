@@ -666,6 +666,10 @@ class HSDResource extends APP_GameClass
                         $type = 'silver';
                         $amt = 3;
                         break;
+                    case 'food':
+                        $type = 'food';
+                        $amt = 1;
+                        break;
                     default:
                         throw new BgaVisibleSystemException ( sprintf(clienttranslate('Invalid TradeAction: %s'),$tradeAction));
                 }

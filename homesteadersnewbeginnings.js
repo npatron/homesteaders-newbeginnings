@@ -235,7 +235,7 @@ function (dojo, declare) {
     const PAY_LOAN_GOLD     = 6;
     const PAY_LOAN_SILVER   = 7;
     const PAY_LOAN_SILVER_3 = 8;
-    const SELL_FREE         = 9;
+    const PAY_LOAN_FOOD     = 9;
 
     // arrays for the map between toggle buttons and show/hide zones 
     const TOGGLE_BTN_ID     = ['tgl_future_bld', 'tgl_main_bld', 'tgl_future_auc', 'tgl_past_bld', 'tgl_events'];
@@ -246,8 +246,8 @@ function (dojo, declare) {
     const TRADE_MAP = {'buy_wood':0,  'buy_food':1,  'buy_steel':2, 'buy_gold':3, 'buy_copper':4, 'buy_cow':5,
                         'sell_wood':6, 'sell_food':7, 'sell_steel':8, 'sell_gold':9, 'sell_copper':10, 'sell_cow':11, 
                         'market_food':12, 'market_steel':13, 'bank':14, 'loan':15, 
-                        'payLoan_silver':16, 'payLoan_gold':17,'payLoan_3silver':18,
-                        'sellfree_wood':19, 'sellfree_food':20, 'sellfree_steel':21, 'sellfree_gold':22, 'sellfree_copper':23, 'sellfree_cow':24, };
+                        'payLoan_silver':16, 'payLoan_gold':17,'payLoan_3silver':18, 'payLoan_food':19,
+                        'sellfree_wood':20, 'sellfree_food':21, 'sellfree_steel':22, 'sellfree_gold':23, 'sellfree_copper':23, 'sellfree_cow':24, };
 
     const MARKET_FOOD_ID  = 'trade_market_wood_food';
     const MARKET_STEEL_ID = 'trade_market_food_steel';
@@ -2319,7 +2319,7 @@ function (dojo, declare) {
         },
 
         /***** BREADCRUMB METHODS *****/
-        createTradeBreadcrumb: function(id, text, tradeAway, tradeFor, loan=false){
+        createTradeBreadcrumb: function(id, text, tradeAway, tradeFor){
             dojo.place(this.format_block( 'jptpl_breadcrumb_trade', 
             {
                 id: id, 
@@ -2328,6 +2328,17 @@ function (dojo, declare) {
                 for:this.getResourceArrayHtml(tradeFor, true, `position: relative; top: 9px;`)}
                 ), `breadcrumb_transactions`, 'before');
                 dojo.connect($(`x_${id}`), 'onclick', this, 'undoTransaction' );
+        },
+
+        createFreeTradeBreadcrumb: function(id, text, tradeAway, tradeFor){
+            dojo.place(this.format_block( 'jptpl_breadcrumb_trade', 
+            {
+                id: id, 
+                text:text, 
+                away:this.getResourceArrayHtml(tradeAway, true, "position: relative; top: 9px;"),
+                for:this.getResourceArrayHtml(tradeFor, true, `position: relative; top: 9px;`)}
+                ), `breadcrumb_transactions`, 'before');
+                dojo.connect($(`x_${id}`), 'onclick', this, 'undoSellFreeTransaction' );
         },
 
         destroyTradeBreadcrumb: function(id){
@@ -2899,23 +2910,24 @@ function (dojo, declare) {
          * undo transactions specific to sell Event (Wartime Demand) interim client state.
          */
         undoTransactionsButton_sellEvent: function( ){
-            if (TRANSACTION_COST.length <=this.event_pending_amount) return;
-            while (TRANSACTION_LOG.length>this.event_pending_amount){
+            if (TRANSACTION_COST.length <= this.event_pending_amount) return;
+            while (TRANSACTION_LOG.length > this.event_pending_amount){
                 this.destroyTradeBreadcrumb(TRANSACTION_COST.length-1);
                 TRANSACTION_LOG.pop();
                 this.updateTrade(TRANSACTION_COST.pop(), true);
             }
             this.updateBuildingAffordability();
             this.updateTradeAffordability_sellEvent();
+            this.setupUndoTransactionsButtons_sellEvent();
         },
 
         // (Wartime Demand)
-        setupUndoTransactionsButtons_sellEvent: function(){
-            if (TRANSACTION_LOG.length == 0){
-                dojo.query(`#${BTN_ID_UNDO_TRADE}:not(.disabled)`).addClass('disabled');
+        setupUndoTransactionsButtons_sellEvent: function( ){
+            if (TRANSACTION_LOG.length < this.event_pending_amount){
+                dojo.query(`#${BTN_ID_UNDO_SELL_EVENT}:not(.disabled)`).addClass('disabled');
                 this.setupTransitionButton(true);
             } else {
-                dojo.query(`#${BTN_ID_UNDO_TRADE}.disabled`).removeClass('disabled');
+                dojo.query(`#${BTN_ID_UNDO_SELL_EVENT}.disabled`).removeClass('disabled');
                 this.setupTransitionButton(false);
             }
         },
@@ -2931,7 +2943,7 @@ function (dojo, declare) {
             if(this.canAddTrade(transactions.change)){
                 this.updateTrade(transactions.change);
                 // add breadcrumb
-                this.createTradeBreadcrumb(TRANSACTION_LOG.length, transactions.name, transactions.away, transactions.for, true);
+                this.createFreeTradeBreadcrumb(TRANSACTION_LOG.length, transactions.name, transactions.away, transactions.for);
     
                 TRANSACTION_COST.push(transactions.change);
                 TRANSACTION_LOG.push(transactions.map);
@@ -2948,22 +2960,7 @@ function (dojo, declare) {
          *  add transaction to pay loan with food.
          */
         payLoanWithFood: function() {
-            var transactions = {name:_("Sell(free)"), map:TRADE_MAP[`sellfree_${type}`],
-                away:this.getSellAwayFree(type), for:this.getSellFor(type), change:this.getSellChangeFree(type)};
-            if(this.canAddTrade(transactions.change)){
-                this.updateTrade(transactions.change);
-                // add breadcrumb
-                this.createTradeBreadcrumb(TRANSACTION_LOG.length, transactions.name, transactions.away, transactions.for, true);
-
-                TRANSACTION_COST.push(transactions.change);
-                TRANSACTION_LOG.push(transactions.map);
-                this.updateBuildingAffordability();
-                this.updateTradeAffordability_sellEvent();
-                this.setupUndoTransactionsButtons_sellEvent();
-                this.updateConfirmTradeButton(TRADE_BUTTON_SHOW);
-            } else {
-                this.showMessage( _("You cannot afford this"), 'error' );
-            }
+            this.addTransaction(PAY_LOAN_FOOD);
         },
         
         /** helper method. 
@@ -3136,11 +3133,14 @@ function (dojo, declare) {
                     transactions = {name:_("Pay Dept"), map:TRADE_MAP.payLoan_3silver,
                             away:{'silver':-3}, for:{'loan':-1}, change:{'silver':-3,'loan':-1}};
                 break;
+                case PAY_LOAN_FOOD:
+                    transactions = {name:_("Pay Dept"), map:TRADE_MAP.payLoan_food,
+                            away:{'food':-1}, for:{'loan':-1}, change:{'food':-1,'loan':-1}};
             }
             if(this.canAddTrade(transactions.change)){
                 this.updateTrade(transactions.change);
                 // add breadcrumb
-                this.createTradeBreadcrumb(TRANSACTION_LOG.length, transactions.name, transactions.away, transactions.for, true);
+                this.createTradeBreadcrumb(TRANSACTION_LOG.length, transactions.name, transactions.away, transactions.for);
     
                 TRANSACTION_COST.push(transactions.change);
                 TRANSACTION_LOG.push(transactions.map);
@@ -3597,8 +3597,22 @@ function (dojo, declare) {
             }
             this.updateBuildingAffordability();
             this.setupUndoTransactionsButtons();
-            this.resetTradeButton();
             this.updateTradeAffordability();
+        },
+
+        undoSellFreeTransaction: function( evt ) {
+            dojo.stopEvent( evt );
+            if (TRANSACTION_COST.length ==0) return;
+            let log_no = evt.target.id.split("_")[1];
+            if (log_no > TRANSACTION_COST.length) return;
+            while (TRANSACTION_COST.length > log_no){
+                this.destroyTradeBreadcrumb(TRANSACTION_COST.length-1);
+                TRANSACTION_LOG.pop();
+                this.updateTrade(TRANSACTION_COST.pop(), true);
+            }
+            this.updateBuildingAffordability();
+            this.setupUndoTransactionsButtons_sellEvent();
+            this.updateTradeAffordability_sellEvent();
         },
 
         resetTradeButton: function(){
@@ -3608,6 +3622,7 @@ function (dojo, declare) {
                 } else {
                     this.setTradeButtonTo(TRADE_BUTTON_SHOW);
                 }
+            } else {
                 if (TRANSACTION_LOG.length >0){
                     this.updateConfirmTradeButton(TRADE_BUTTON_SHOW);
                 } else {
@@ -4974,6 +4989,7 @@ function (dojo, declare) {
             if (this.checkAction( 'event' ) && this.checkAction( 'trade' )) {
                 this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/undoEventTransactions.html", {lock: true}, this, 
                 function( result ) {
+                    this.resetTradeValues();
                     this.removeButtons();
                     this.onUpdateActionButtons_preEventTrade(this.event_args)
                 }, function( is_error) { } );
