@@ -247,7 +247,7 @@ function (dojo, declare) {
                         'sell_wood':6, 'sell_food':7, 'sell_steel':8, 'sell_gold':9, 'sell_copper':10, 'sell_cow':11, 
                         'market_food':12, 'market_steel':13, 'bank':14, 'loan':15, 
                         'payLoan_silver':16, 'payLoan_gold':17,'payLoan_3silver':18, 'payLoan_food':19,
-                        'sellfree_wood':20, 'sellfree_food':21, 'sellfree_steel':22, 'sellfree_gold':23, 'sellfree_copper':23, 'sellfree_cow':24, };
+                        'sellfree_wood':20, 'sellfree_food':21, 'sellfree_steel':22, 'sellfree_gold':23, 'sellfree_copper':24, 'sellfree_cow':25, };
 
     const MARKET_FOOD_ID  = 'trade_market_wood_food';
     const MARKET_STEEL_ID = 'trade_market_food_steel';
@@ -361,6 +361,7 @@ function (dojo, declare) {
     const SCORE_LEFT_COUNTER = [];
     const SCORE_RIGHT_COUNTER = [];
     const BUILDING_CONNECT_HANDLER = [];
+    const TRADE_CONNECT_HANDLER = [];
 
     const LAST_SELECTED = [];
 
@@ -923,6 +924,7 @@ function (dojo, declare) {
             for(let type in RESOURCES){
                 TOKEN_HTML[type] = this.format_block( 'jstpl_resource_inline', {type:type}, );
                 TOKEN_HTML["big_"+type] = this.format_block( 'jstpl_resource_inline', {type:"big_"+type}, );
+                TOKEN_HTML["x_"+type] = `<span title = "${type}" class="log_${type} crossout token_inline" style="top: 9px;"></span>`;
             }
             let types = ['arrow', 'big_arrow', 'inc_arrow'];
             for(let i in types){
@@ -1633,8 +1635,10 @@ function (dojo, declare) {
             
             if (this.events[i] != null){
                 console.log(this.events[i]);
-                let text = this.replaceTooltipStrings(_(EVENT_INFO[this.events[i].e_id].tt))
-                dojo.place(`<div id="eventsBar" class="font">${text}</div>`, 'eventsBar', 'replace');
+                let currentEvent = EVENT_INFO[this.events[i].e_id];
+                let eventName = _(currentEvent.name);
+                let eventText = this.replaceTooltipStrings(_(currentEvent.tt));
+                dojo.place(`<div id="eventsBar" class="font"><span class="bold">${eventName}:</span> ${eventText}</div>`, 'eventsBar', 'replace');
                 if (this.events[i].e_id == 2){
                     let tile = dojo.query(`#${TPL_AUC_ZONE}1 .auction_tile`);
                     console.log(tile);
@@ -2327,7 +2331,7 @@ function (dojo, declare) {
                 away:this.getResourceArrayHtml(tradeAway, true, "position: relative; top: 9px;"),
                 for:this.getResourceArrayHtml(tradeFor, true, `position: relative; top: 9px;`)}
                 ), `breadcrumb_transactions`, 'before');
-                dojo.connect($(`x_${id}`), 'onclick', this, 'undoTransaction' );
+                TRADE_CONNECT_HANDLER[id] = dojo.connect($(`x_${id}`), 'onclick', this, 'undoTransaction' );
         },
 
         createFreeTradeBreadcrumb: function(id, text, tradeAway, tradeFor){
@@ -2338,7 +2342,7 @@ function (dojo, declare) {
                 away:this.getResourceArrayHtml(tradeAway, true, "position: relative; top: 9px;"),
                 for:this.getResourceArrayHtml(tradeFor, true, `position: relative; top: 9px;`)}
                 ), `breadcrumb_transactions`, 'before');
-                dojo.connect($(`x_${id}`), 'onclick', this, 'undoSellFreeTransaction' );
+                TRADE_CONNECT_HANDLER[id] = dojo.connect($(`x_${id}`), 'onclick', this, 'undoSellFreeTransaction' );
         },
 
         destroyTradeBreadcrumb: function(id){
@@ -2843,6 +2847,7 @@ function (dojo, declare) {
 
         clientState_sellEvent: function() {
             this.removeButtons();
+            this.tradeEnabled=false;
             this.event_pending_amount = TRANSACTION_LOG.length;
             if (this.event_pending_amount>0){ // at least 1 transaction queued.
                 this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _("Confirm Trade(s) and Pass"), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
@@ -2871,6 +2876,7 @@ function (dojo, declare) {
             this.addActionButton( BTN_ID_UNDO_SELL_EVENT, _("Undo All Event Trade(s)"), METHOD_UNDO_SELL_EVENT, null, false, 'red' );
             dojo.query(`#${BTN_ID_UNDO_SELL_EVENT}`).addClass('disabled');
             
+            this.updateUndoButtons_sellEvent();
             this.updateTradeAffordability_sellEvent();
         }, 
         
@@ -2887,6 +2893,14 @@ function (dojo, declare) {
             this.onUpdateActionButtons_preEventTrade(this.event_args);
         },
         
+        // make existing undo buttons use `undoSellFreeTransaction` instead.
+        updateUndoButtons_sellEvent: function () {
+            for (let i =0; i <this.event_pending_amount; i++){
+                dojo.disconnect(TRADE_CONNECT_HANDLER[i]);
+                TRADE_CONNECT_HANDLER[i] = dojo.connect($(`x_${i}`), 'onclick', this, 'undoSellFreeTransaction' );
+            }
+        },
+
         /** implementation of updateTradeAffordability
          * speficic to the sell Event (Wartime Demand) client state
          * in which only sell actions are available.
@@ -2938,7 +2952,7 @@ function (dojo, declare) {
          * specific to the sell (for free) Event.
          */
         addTransaction_sellEvent: function (type){
-            var transactions = {name:_("Sell(free)"), map:TRADE_MAP[`sellfree_${type}`],
+            var transactions = {name:dojo.string.substitute(_("Sell(${no_trade})"), {'no_trade':TOKEN_HTML.x_trade}), map:TRADE_MAP[`sellfree_${type}`],
                 away:this.getSellAwayFree(type), for:this.getSellFor(type), change:this.getSellChangeFree(type)};
             if(this.canAddTrade(transactions.change)){
                 this.updateTrade(transactions.change);
@@ -3609,6 +3623,11 @@ function (dojo, declare) {
                 this.destroyTradeBreadcrumb(TRANSACTION_COST.length-1);
                 TRANSACTION_LOG.pop();
                 this.updateTrade(TRANSACTION_COST.pop(), true);
+            }
+            if (log_no < this.event_pending_amount){
+                this.event_pending_amount = log_no;
+                this.removeButtons();
+                return this.onUpdateActionButtons_preEventTrade(this.event_args);
             }
             this.updateBuildingAffordability();
             this.setupUndoTransactionsButtons_sellEvent();

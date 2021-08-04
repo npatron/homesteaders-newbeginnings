@@ -573,9 +573,9 @@ class HSDResource extends APP_GameClass
     }
 
     function trade($p_id, $tradeAction) {
-        //var_dump('trade', $p_id, $tradeAction);
+        self::dump("tradeAction $p_id",$tradeAction);
         $tradeValues = $this->getTradeValues($p_id, $tradeAction);
-        //var_dump($tradeValues);
+        self::dump('tradeValues',$tradeValues);
         if ($tradeValues['transaction']==='loanTaken'){
             $this->updateResource($p_id, 'silver', 2);
             $this->updateResource($p_id, 'loan', 1);
