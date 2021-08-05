@@ -1638,7 +1638,7 @@ function (dojo, declare) {
                 let currentEvent = EVENT_INFO[this.events[i].e_id];
                 let eventName = _(currentEvent.name);
                 let eventText = this.replaceTooltipStrings(_(currentEvent.tt));
-                dojo.place(`<div id="eventsBar" class="font"><span class="bold">${eventName}:</span> ${eventText}</div>`, 'eventsBar', 'replace');
+                dojo.place(`<div id="eventsBar" class="font"><span class="bold">${eventName}:</span>${eventText}</div>`, 'eventsBar', 'replace');
                 if (this.events[i].e_id == 2){
                     let tile = dojo.query(`#${TPL_AUC_ZONE}1 .auction_tile`);
                     console.log(tile);
@@ -4209,8 +4209,8 @@ function (dojo, declare) {
             }
             // bank 
             if (HAS_BUILDING[this.player_id][BLD_BANK]){
-                var node_loc =  `#${BANK_DIVID}`;
-                var btn_id   = `#btn_trade_bank`;
+                var node_loc =  `#${BANK_ID}`;
+                var btn_id   = `#${BTN_ID_TRADE_BANK}`;
                 if (this.canAddTrade(this.getBankChange)){ // can afford
                     this.updateAffordability(node_loc, AFFORDABLE);
                     this.updateButtonAffordability(btn_id, AFFORDABLE);
