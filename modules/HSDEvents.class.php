@@ -53,6 +53,22 @@ class HSDEvents extends APP_GameClass
     }
     ///// END event setup method ////
 
+    function showEventTable($values, $message=""){
+        $table = array();
+        $this->game->notifyAllPlayers( "tableWindow", '', array(
+            "id" => 'eventResolved',
+            "title" => clienttranslate($message),
+            "table" => $table,
+            "closing" => clienttranslate( "Close" ),
+        ));
+    }
+
+    function discardEventTile(){
+        if ($this->game->getGameStateValue('new_beginning_evt') == DISABLED) return ;
+        $round_number = $this->game->getGameStateValue( 'round_number' );
+        $this->game->DBQuery("UPDATE `events` SET `location`=0 WHERE `position`=$round_number");
+    }
+
     function getEvent($round_number = null){
         if ($this->game->getGameStateValue('new_beginning_evt') == DISABLED) return 0;
         $round_number = (is_null($round_number)?$this->game->getGameStateValue( 'round_number' ):$round_number);
@@ -60,16 +76,27 @@ class HSDEvents extends APP_GameClass
         return $this->game->getUniqueValueFromDB( $sql );
     }
 
-    function updateEvent($round_number){
-        $value = $this->game->getGameStateValue('new_beginning_evt');
-        if ($value == DISABLED) return;
-        $this->game->setGameStateValue('current_event', $this->getEvent($round_number));
+    function getEventName($round_number = null){
+        return $this->game->event_info[$this->getEvent($round_number)]['name'];
+    }
+
+    function getEventAttribute($attribute, $round_number= null){
+        $event = $this->getEvent($round_number);
+        if ($event == 0) return 0;
+        return $this->game->event_info[$event][$attribute]??0;
     }
 
     function getEventAucB($round_number = null){
-        $event = $this->getEvent($round_number);
-        if ($event == 0) return 0;
-        return $this->game->event_info[$event]['auc_b'];
+        return $this->getEventAttribute('auc_b', $round_number);
+    }
+
+    // get id for event phase id 'all_b'
+    function getEventAllB($round_number = null){
+        return $this->getEventAttribute('all_b', $round_number);
+    }
+
+    function getEventPass($round_number = null){
+        return $this->getEventAttribute('pass', $round_number);
     }
     
     ///// BEGIN event phase helper methods ////
@@ -126,17 +153,20 @@ class HSDEvents extends APP_GameClass
     function eventHaskey($key){
         $value = $this->game->getGameStateValue('new_beginning_evt');
         if ($value == DISABLED) return false;
+        
         $event_id = $this->getEvent();
+        if ($event_id == 0) return false;
         return array_key_exists($key, $this->game->event_info[$event_id]);
     }
     ///// END event phase helper methods ////
 
     ///// BEGIN pre auction Event Phase Handling methods ////
     function setupEventPreAuction(){
-        $current_event = $this->getEvent();
-        $this->game->setGameStateValue('current_event', $current_event);
-        $bonus_id = $this->game->event_info[$current_event]['all_b'];
+        $this->game->Resource->clearPaid();
+        $this->game->Resource->clearCost();
+        $bonus_id = $this->getEventAllB();
         $next_state = 'done';
+        self::debug("Setup Event Pre Auction bonus_id='$bonus_id'");
         switch($bonus_id){
             //// next_state='evt_trade' states ////
             case EVT_SELL_NO_TRADE:
@@ -155,8 +185,29 @@ class HSDEvents extends APP_GameClass
             case EVT_VP_FOR_WOOD: 
                 // players get ${vp} for every ${wood} held
                 // so offer trade first.
-                $this->game->gamestate->setAllPlayersMultiactive( );
                 $next_state = 'evt_trade';
+                break;
+            //// next_state='bonus' states //// (multi-active version of choose bonus)
+            case EVT_LOAN_TRACK: 
+            case EVT_RES_ADV_TRACK:
+            case EVT_LEAST_WORKER:
+                $next_state = 'bonus';
+                break;
+            //// next_state='evt_pay' states //// (multi-active pay cost state)
+            case EVT_INTEREST: //note: players can't pay off loans until end of game. (so no trade before pay)
+                $players = $this->game->loadPlayersBasicInfos();
+                foreach($players as $p_id=> $player){
+                    $p_loans = $this->game->Resource->getPlayerResourceAmount($p_id, 'loan');
+                    $this->game->Resource->setCost($p_id, $p_loans);
+                }
+                $next_state = 'evt_pay';
+                break;
+            case EVT_BLD_TAX_SILVER:
+                $players= $this->getPlayersAmountOfBuildings();
+                foreach($players as $p_id => $player){
+                    $this->game->Resource->setCost($p_id, $player['amt']);
+                }
+                $next_state = 'evt_pay';
                 break;
             //// next_state='done' states ////
             case EVT_TRADE: //everyone gets a trade token. (no trade req)
@@ -175,86 +226,101 @@ class HSDEvents extends APP_GameClass
             case EVT_LEAST_BLD_TRACK: // players with least buildings get track (not adv)
                 $players = $this->getPlayersWithLeastBuildings();
                 foreach($players as $p_id){
-                    $this->game->Resource->addTrack($p_id, _("event"));
+                    $this->game->Resource->addTrackAndNotify($p_id, _("event"));
                 }
                 break;
             case EVT_IND_VP:
                 // The player(s) with the most ${ind} buildings gets 
-                //${vp} for each resource they recieved in income (${wood}, ${food}, ${steel}, ${gold}, ${copper}, ${cow} produced by buildings and not from trade)
-                $res_types = array('wood', 'food', 'steel', 'gold', 'copper', 'cow');
+                //${vp} for each resource they received in income (${wood}, ${food}, ${steel}, ${gold}, ${copper}, ${cow} produced by buildings and not from trade)
+
                 $players = $this->getPlayersWithMostBuildings(TYPE_INDUSTRIAL);
                 foreach ($players as $p_id){
-                    $bld_income = $this->game->Building->getBuildingIncomeForPlayer($p_id);
-                    $res = 0;
-                    foreach ($bld_income as $b_id =>$income) {
-                        foreach($income as $type=>$amt){
-                            if (in_array($type, $res_types)){
-                                $res += $amt;
-                            }
-                        }
-                    }
-                    $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', $res, _('event'));
+                    $res_amt = $this->game->Building->getBuildingResourceIncomeCountForPlayer($p_id);
+                    $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', $res_amt, $this->game->event_info[EVT_IND_VP]['name']);
                 }
-                break;
-
-            //// next_state='bonus' states //// (multi-active version of choose bonus)
-            case EVT_LOAN_TRACK: 
-                //least loan gets track adv (no trade req)
-                $players = $this->getPlayersWithLeastResource('loan');
-                foreach ($players as $p_id){
-                    $this->game->Resource->getRailAdv($p_id, _('event'));
-                }
-                $this->game->gamestate->setPlayersMultiactive($players);
-                $next_state = 'bonus';
-                break;
-            case EVT_RES_ADV_TRACK:
-                //The player(s) with the most ${res} buildings gets ${adv_track}
-                $players= $this->getPlayersWithMostBuildings(TYPE_RESIDENTIAL);
-                foreach ($players as $p_id){
-                    $this->game->Resource->getRailAdv($p_id, _('event'));
-                }
-                $this->game->gamestate->setPlayersMultiactive($players);
-                $next_state = 'bonus';
-                break;
-            case EVT_LEAST_WORKER:
-                $players = $this->getPlayersWithLeastResource('worker');
-                $this->game->gamestate->setPlayersMultiactive($players);
-                // go to state to choose to get bonus (worker) or pass 
-                $next_state = 'bonus';
-                // go to new state (multi-active version of recieve bonus worker state).
-                break;
-            //// next_state='evt_pay' states //// (multi-active pay cost state)
-            case EVT_INTEREST: //note: players can't pay off loans until end of game. (so no trade before pay)
-                $players = $this->getPlayersWithAtLeastOneResource('loan');
-                if (count($players) ==0){
-                    $next_state = 'done';
-                } else {
-                    // send to new multi-active pay state, with cost based upon amount of loans
-                    foreach($players as $p_id){
-                        $loan_amt = $this->game->Resource->getPlayerResourceAmount($p_id, 'loan');
-                        $this->game->Resource->setCost($p_id, $loan_amt);
-                    }
-                    $this->game->gamestate->setPlayersMultiactive($players);
-                    $next_state = 'evt_pay';
-                }
-                break;
-            case EVT_BLD_TAX_SILVER:
-                $players= $this->getPlayersAmountOfBuildings();
-                foreach($players as $p_id => $player){
-                    $this->game->Resource->setCost($p_id, $player['amt']);
-                }
-                // Players must pay ${silver} per Building they have
-                $this->game->gamestate->setAllPlayersMultiactive( );
-                $next_state = 'evt_pay';
                 break;
         }
-        $this->game->gamestate->nextState( $next_state );
+        $this->game->gamestate->nextState($next_state);
+    }
+
+    function setupEventBonus(){
+        $bonus_id = $this->getEventAllB();
+        $pending_players = array();
+        switch($bonus_id){
+            case EVT_LOAN_TRACK:
+                $pending_players = $this->getPlayersWithLeastResource('loan');
+                foreach ($pending_players as $p_id=>$player){
+                    $this->game->Resource->getRailAdv($p_id, $this->getEventName());
+                    $this->game->Log->allowTrades($p_id);
+                } 
+            break;
+            case EVT_LEAST_WORKER:
+                $pending_players = $this->getPlayersWithLeastResource('workers');
+                foreach($pending_players as $p_id=>$player){
+                    $this->game->Log->allowTrades($p_id);
+                }
+            break;
+            case EVT_RES_ADV_TRACK:   
+                $pending_players= $this->getPlayersWithMostBuildings(TYPE_RESIDENTIAL);
+                foreach ($pending_players as $p_id=>$player){
+                    $this->game->Resource->getRailAdv($p_id, $this->getEventName());
+                    $this->game->Log->allowTrades($p_id);
+                }             
+            break;
+        }
+        if (count($pending_players) == 0){
+            $this->game->gamestate->nextState("done");
+        } else {
+            $this->game->gamestate->setPlayersMultiactive($pending_players, 'done');
+        }
+    }
+
+    function getEventPayCost() {
+        $cost= array();
+        $players = $this->game->loadPlayersBasicInfos();
+        foreach($players as $p_id=> $player){
+            $cost[$p_id] = $this->game->Resource->getCost($p_id);
+        }
+        return $cost;
+    }
+
+    function setupEventPay() {
+        $bonus_id = $this->getEventAllB();
+        switch($bonus_id){
+            case EVT_INTEREST:
+                $players = $this->getPlayersWithAtLeastOneResource('loan');
+                // send to new multi-active pay state, with cost based upon amount of loans
+                if (count($players) == 0){
+                    $this->game->gamestate->nextState("done");
+                } else {
+                    $this->game->gamestate->setPlayersMultiactive($players, 'done');
+                }
+            break;
+            case EVT_BLD_TAX_SILVER:
+                // Players must pay ${silver} per Building they have
+                $this->game->Log->allowTradesAllPlayers();
+                $this->game->gamestate->setAllPlayersMultiActive();    
+            break;
+        }
+    }
+
+    function getNextStatePreTrade(){
+        $bonus_id = $this->getEventAllB();
+        switch($bonus_id){
+            case EVT_SELL_NO_TRADE:
+            case EVT_PAY_LOAN_FOOD:
+            case EVT_VP_4SILVER:
+            case EVT_COPPER_COW_GET_GOLD:
+            case EVT_VP_FOR_WOOD:
+                return 'post';
+            default: 
+                return 'done';
+        }
     }
 
     // for after trade window of events that need to wait for players to trade before resolving.
     function resolveEventPostTrade(){
-        $current_event = $this->game->getGameStateValue('current_event');
-        $bonus_id = $this->game->event_info[$current_event]['all_b'];
+        $bonus_id = $this->getEventAllB();
         switch($bonus_id){
             case EVT_SELL_NO_TRADE:// no action required
             case EVT_PAY_LOAN_FOOD:// no action required
@@ -263,15 +329,17 @@ class HSDEvents extends APP_GameClass
                 // all players with vp token, get 4 silver
                 $players = $this->getPlayersWithAtLeastOneResource('vp');
                 foreach ($players as $p_id){
-                    $this->game->Resource->updateAndNotifyIncome($p_id, 'silver', 4, _('event'));
+                    $this->game->Resource->updateAndNotifyIncome($p_id, 'silver', 4, $this->game->event_info[4]['name'], 'event');
                 }
                 break;
             case EVT_COPPER_COW_GET_GOLD:
+                // apply pending trades
+                $this->game->Log->triggerHiddenTransactions();
                 // player(s) with most cow+copper get a gold
                 $resources =  $this->game->getCollectionFromDB( "SELECT `player_id`, `copper`, `cow` FROM `resources` " );
                 $players = $this->getMost($resources, 'copper', 1, 'cow');
                 foreach($players as $p_id=>$p){
-                    $this->game->Resource->updateAndNotifyPayment($p_id, 'gold', 1, _('event'));
+                    $this->game->Resource->updateAndNotifyIncome($p_id, 'gold', 1, $this->game->event_info[16]['name'], 'event');
                 }
                 break;
             case EVT_VP_FOR_WOOD:
@@ -279,14 +347,14 @@ class HSDEvents extends APP_GameClass
                 $players_wood = $this->getPlayersWithAtLeastOneResource('wood');
                 foreach($players_wood as $p_id){
                     $wood_amt = $this->game->Resource->getPlayerResourceAmount($p_id,'wood');
-                    $this->game->Resource->updateAndNotifyPayment($p_id, 'vp', $wood_amt, _('event'));
+                    $this->game->Resource->updateAndNotifyPayment($p_id, 'vp', $wood_amt, $this->game->event_info[18]['name'], 'event');
                 }
                 break;
         }
         $this->game->gamestate->nextState( 'done' );
     }
 
-    function resolveBuildEventPhase(){
+    function setupEventLotBonus(){
         $next_state = "done";
         if ($this->isAuctionAffected()) {
             $event = $this->getEventAucB();
@@ -295,38 +363,31 @@ class HSDEvents extends APP_GameClass
                 case EVT_AUC_NO_AUCTION:
                 case EVT_AUC_COM_DISCOUNT:
                     break;
-                case EVT_AUC_BUILD_AGAIN:// can build again (any).
                 case EVT_AUC_SECOND_BUILD:// build again (same types)
-                case EVT_AUC_STEEL_ANY:// player may pay a steel to build any building
                     $next_state = "evt_build";
-                    break;
+                    $this->game->Auction->setCurrentAuctionBuildType();
+                break;
+                case EVT_AUC_BUILD_AGAIN:// can build again (any).
+                    $next_state = "evt_build";
+                    $this->game->setGameStateValue('build_type_int', 15);//all
+                break;
+                case EVT_AUC_STEEL_ANY:// player may pay a steel to build any building
+                    $next_state = "bonus";
+                    $this->game->setGameStateValue('build_type_int', 15);//all
+
+                break;
                 case EVT_AUC_BONUS_WORKER:// can recieve worker
                 case EVT_AUC_2SILVER_TRACK:// pay 2 silver for track advancement
                     $next_state = "bonus";
                 break;
                 case EVT_AUC_TRACK:
                     // gains a rail track
-                    $this->game->Resource->addTrack($this->game->getActivePlayerId(), _("event"));
+                    $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), _("event"));
                     $next_state = "done";
                 break;
             }
         }
         $this->game->gamestate->nextstate( $next_state );
-    }
-
-    function getAllowedBuildings(){
-        $event = $this->getEventAucB();
-        switch($event){
-            case EVT_AUC_SECOND_BUILD: // build again (same types)
-                $build_type_options = $this->game->Auction->getCurrentAuctionBuildTypeOptions();
-                return ($this->Building->getAllowedBuildings($build_type_options));
-            case EVT_AUC_BUILD_AGAIN: // can build again (any).
-            case EVT_AUC_STEEL_ANY: // player may pay a steel to build any building
-                $build_type_options = array(TYPE_RESIDENTIAL, TYPE_COMMERCIAL, TYPE_INDUSTRIAL, TYPE_SPECIAL);
-                return ($this->Building->getAllowedBuildings($build_type_options));
-            default:
-                throw new BgaVisibleSystemException ( clienttranslate("State incorrectly entered.") );
-        }
     }
 
     //// BEGIN pass Bid ////
@@ -335,17 +396,26 @@ class HSDEvents extends APP_GameClass
      */
     function passBid(){
         if(!$this->passPhase()){ return "rail"; }
-        $pass_evt = $this->game->event_info[$this->getEvent()]['pass'];
+        $pass_evt = $this->getEventPass();
         switch($pass_evt){
             case EVT_PASS_TRACK: //Players who pass, get a ${track}
-                $this->game->Resource->addTrack($this->game->getActivePlayerId(), _("event"));
+                $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), $this->getEventName());
                 return "rail";
             case EVT_PASS_DEPT_SILVER: //Players who pass may pay off debt for 3-{silver} apiece
-                return "trade";
+                return "event";
         }
     }
 
+
+    function postEventBonusNav(){
+        $next_state = 'done';
+        if ($this->game->Auction->getCurrentAuctionBonus() != AUC_BONUS_NONE){
+            $next_state = 'auction_bonus';
+        }
+        $this->game->gamestate->nextState($next_state);
+    }
     //// END setup Auction ////
+
 
     //// BEGIN private HELPER methods for determining effected players & values ////
     function doesPlayerHaveMostBuildings($p_id, $type){
@@ -400,20 +470,26 @@ class HSDEvents extends APP_GameClass
     }
 
     private function getLeast($values, $key){
+        self::debug("getLeast called with '$key' ");
+        self::dump("values", $values);
         $leastPlayers = array();
-        $leastValue = 0;
+        $leastValue = 999;
         foreach ($values as $p_id=> $player){
-            if (empty($leastPlayers) || $player[$key]<$leastValue){
+            if (empty($leastPlayers) || $player[$key] < $leastValue){
                 $leastValue = $player[$key];
-                $leastPlayers = array($p_id);
+                $leastPlayers = array();
+                $leastPlayers[$p_id] = $p_id;
             } else if ($player[$key] == $leastValue){
-                $leastPlayers[] = $p_id;
+                $leastPlayers[$p_id] = $p_id;
             }
         }
-        return $leastPlayers();
+        return $leastPlayers;
     }
 
     private function getMost($values, $key, $minimum=0, $key2=null){
+        self::debug("getMost called with '$key' & '$key2' ");
+        self::dump("values", $values);
+        self::dump("minimum", $minimum);
         $mostPlayers = array();
         $mostValue = $minimum -1;
         foreach ($values as $p_id=> $player){
@@ -423,11 +499,13 @@ class HSDEvents extends APP_GameClass
             }
             if ($p_value > $mostValue){
                 $mostValue = $p_value;
-                $mostPlayers = array($p_id);
+                $mostPlayers = array();
+                $mostPlayers[$p_id] = $p_id;
             } else if ($p_value == $mostValue){
-                $mostPlayers[] = $p_id;
+                $mostPlayers[$p_id] = $p_id;
             }
         }
+        self::dump("most players", $mostPlayers);
         return $mostPlayers;
     }
 

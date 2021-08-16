@@ -38,13 +38,8 @@ class action_homesteadersnewbeginnings extends APP_GameAction
           self::trace( "Complete reinitialization of board game" );
     }
   } 
-  // common actions
-  public function takeLoan () {
-    self::setAjaxMode( );
-    $this->game->playerTakeLoan ();
-    self::ajaxResponse( );
-  }
 
+  // common actions
   public function trade(){
     self::setAjaxMode( );
     $trade_action = self::getArg( "trade_action", AT_numberlist, true );
@@ -54,9 +49,29 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
 
+  public function tradeHidden(){
+    self::setAjaxMode( );
+    $trade_action = self::getArg( "trade_action", AT_numberlist, true );
+    
+    $this->game->playerTradeHidden($trade_action);
+    self::ajaxResponse( );
+  }
+
   public function undoTransactions(){
     self::setAjaxMode( );
     $this->game->playerCancelTransactions();
+    self::ajaxResponse( );
+  }
+
+  public function undoEventTransactions() {
+    self::setAjaxMode( );
+    $this->game->playerCancelEventTransactions();
+    self::ajaxResponse( );
+  }
+
+  public function undoHiddenTransactions() {
+    self::setAjaxMode( );
+    $this->game->playerCancelHiddenTransactions();
     self::ajaxResponse( );
   }
 
@@ -68,15 +83,21 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
 
+  public function doneTradingEvent() {
+    self::setAjaxMode( );
+    $this->game->playerDoneTradingEvent();
+    self::ajaxResponse( );
+  }
+
   public function cancelTurn() {
     self::setAjaxMode( );
-    $this->game->Action->playerCancelPhase();
+    $this->game->playerCancelPhase();
     self::ajaxResponse( );
   }
 
   public function confirmChoices() {
     self::setAjaxMode( );
-    $this->game->Action->playerConfirmChoices();
+    $this->game->playerConfirmChoices();
     self::ajaxResponse( );
   }
 
@@ -103,9 +124,21 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
 
-  public function actionCancel() {
+  public function actionCancelAllocateWorkers() {
     self::setAjaxMode();
-    $this->game->playerActionCancel();
+    $this->game->playerActionCancelAllocateWorkers();
+    self::ajaxResponse();
+  }
+
+  public function actionCancelDone() {
+    self::setAjaxMode();
+    $this->game->playerActionCancelDone();
+    self::ajaxResponse();
+  }
+
+  public function actionCancelEventDone() {
+    self::setAjaxMode();
+    $this->game->playerActionCancelEventDone();
     self::ajaxResponse();
   }
 
@@ -113,74 +146,136 @@ class action_homesteadersnewbeginnings extends APP_GameAction
   public function confirmBid (){
     self::setAjaxMode( );
     $bid_loc = self::getArg( "bid_loc", AT_posint, true);
-    $this->game->Action->playerConfirmBid( $bid_loc );
+    $this->game->playerConfirmBid( $bid_loc );
     self::ajaxResponse( );
   }
 
   public function confirmDummyBid (){
     self::setAjaxMode( );
     $bid_loc = self::getArg( "bid_loc", AT_posint, true);
-    $this->game->Action->playerConfirmDummyBid( $bid_loc );
+    $this->game->playerConfirmDummyBid( $bid_loc );
     self::ajaxResponse( );
   }
 
   public function passBid (){
     self::setAjaxMode( );
-    $this->game->Action->playerPassBid( );
+    $this->game->playerPassBid( );
+    self::ajaxResponse( );
+  }
+
+  public function donePassEvent(){
+    self::setAjaxMode( );
+    $this->game->playerDonePassEvent( );
     self::ajaxResponse( );
   }
   
   // DONE actions
   public function doNotBuild() {
     self::setAjaxMode( );
-    $this->game->Action->playerDoNotBuild( );
+    $this->game->playerDoNotBuild( );
     self::ajaxResponse( );
-   }
+  }
 
-   public function doNotBuild_steelTrack() {
+  public function steelBuildBuilding(){
     self::setAjaxMode( );
-    $this->game->Action->playerDoNotBuild_steelTrack( );
+    $this->game->playerBuildSteel();
     self::ajaxResponse( );
-   }
+  }
 
   public function buildBuilding(){
     self::setAjaxMode( );
     $building_key = self::getArg( "building_key", AT_posint, true);
-    $goldAsCow = self::getArg( "goldAsCow", AT_bool, true);
-    $goldAsCopper = self::getArg( "goldAsCopper", AT_bool, true);
-    
-    $this->game->Action->playerBuildBuilding( $building_key, $goldAsCow, $goldAsCopper );
+    $costReplaceArgs = array();
+    $goldAsCow = self::getArg( "goldAsCow", AT_posint, false);
+    if ($goldAsCow??0>0){
+      $costReplaceArgs['cow']=$goldAsCow;
+    }
+    $goldAsCopper = self::getArg( "goldAsCopper", AT_posint, false);
+    if ($goldAsCopper??0>0){
+      $costReplaceArgs['copper']=$goldAsCopper;
+    }
+    $steelReplace = self::getArg( "steelReplace", AT_posint, false);
+    if ($steelReplace??0>0){
+      $costReplaceArgs['steel']=$steelReplace;
+    }
+
+    $this->game->playerBuildBuilding( $building_key, $costReplaceArgs);
+    self::ajaxResponse( );
+  }
+
+  public function buildBuildingDiscount(){
+    self::setAjaxMode( );
+    $building_key = self::getArg( "building_key", AT_posint, true);
+    $costReplaceArgs = array();
+    $goldAsCow = self::getArg( "goldAsCow", AT_posint, false);
+    if ($goldAsCow??0>0){
+      $costReplaceArgs['cow']=$goldAsCow;
+    }
+    $goldAsCopper = self::getArg( "goldAsCopper", AT_posint, false);
+    if ($goldAsCopper??0>0){
+      $costReplaceArgs['copper']=$goldAsCopper;
+    }
+    $steelReplace = self::getArg( "steelReplace", AT_posint, false);
+    if ($steelReplace??0>0){
+      $costReplaceArgs['steel']=$steelReplace;
+    }
+    $discount = self::getArg( "discount", AT_posint, true);
+    $this->game->playerBuildBuildingDiscount( $building_key, $costReplaceArgs, $discount);
     self::ajaxResponse( );
   }
   
-  public function doneSelectingBonus (){
+  public function selectRailBonus (){
     self::setAjaxMode();
     $bonus = self::getArg( "bonus", AT_posint, true);
-    $this->game->Action->playerSelectRailBonus( $bonus );
+    $this->game->playerSelectRailBonus( $bonus );
+    self::ajaxResponse( );
+  }
+
+  public function selectRailBonusEvent() {
+    self::setAjaxMode();
+    $bonus = self::getArg( "bonus", AT_posint, true);
+    $this->game->playerSelectRailBonusEvent( $bonus );
     self::ajaxResponse( );
   }
   
   public function cancelBidPass() {
     self::setAjaxMode();
-    $this->game->Action->playerCancelBidPass( );
+    $this->game->playerCancelBidPass( );
     self::ajaxResponse( );
   }
 
-  public function passBuildingBonus() {
+  public function passBonusBuilding() {
     self::setAjaxMode( );
-    $this->game->Action->playerPassBuildingBonus( );
+    $this->game->playerPassBuildingBonus( );
     self::ajaxResponse( );
   }
 
   public function freeHireWorkerAuction (){
     self::setAjaxMode( );
-    $this->game->Action->playerFreeHireWorkerAuction();
+    $this->game->playerFreeHireWorkerAuction();
     self::ajaxResponse( );
   }
 
   public function freeHireWorkerBuilding (){
     self::setAjaxMode( );
-    $this->game->Action->playerFreeHireWorkerBuilding();
+    $this->game->playerFreeHireWorkerBuilding();
+    self::ajaxResponse( );
+  }
+
+  public function freeHireWorkerEvent (){
+    self::setAjaxMode( );
+    $lot = self::getArg( "lot", AT_bool, true);
+    if ($lot){//active player
+      $this->game->playerFreeHireWorkerEvent();
+    } else {//current player
+      $this->game->playerFreeHireWorkerEvent();
+    }
+    self::ajaxResponse( );
+  }
+
+  public function silver2forTrackEvent (){
+    self::setAjaxMode( );
+    $this->game->playerSilver2forTrackEvent();
     self::ajaxResponse( );
   }
 
@@ -188,20 +283,25 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::setAjaxMode( );
     $tradeAway = self::getArg( "tradeAway", AT_int, true);
     $tradeFor = self::getArg( "tradeFor", AT_int, true);
-    $this->game->Action->playerTypeForType($tradeAway, $tradeFor);
+    $this->game->playerTypeForType($tradeAway, $tradeFor);
     self::ajaxResponse( );
   }
 
-  public function passAuctionBonus (){
+  public function passBonusAuction (){
     self::setAjaxMode( );
-    $this->game->Action->playerPassAuctionBonus( );
+    $this->game->playerPassBonusAuction( );
     self::ajaxResponse( );
   }
 
-  public function payLoan(){
+  public function passBonusEvent (){
     self::setAjaxMode( );
-    $gold = self::getArg( 'gold', AT_bool, true);
-    $this->game->playerPayLoan( $gold);
+    $this->game->playerPassBonusEvent( );
+    self::ajaxResponse( );
+  }
+
+  public function passBonusLotEvent(){
+    self::setAjaxMode( );
+    $this->game->playerPassBonusLotEvent( );
     self::ajaxResponse( );
   }
 
@@ -209,6 +309,13 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::setAjaxMode( );
     $this->game->playerDoneEndgame();
     self::ajaxResponse( );
+  }
+
+  public function loadBugSQL() {
+    self::setAjaxMode();
+    $reportId = (int) self::getArg('report_id', AT_int, true);
+    $this->game->loadBugSQL($reportId);
+    self::ajaxResponse();
   }
 
 }

@@ -50,6 +50,7 @@
         $this->tpl['UNDO_LAST_TRADE']  = self::_("Undo Last Trade/Dept");
         $this->tpl['FUTURE_AUCTION']   = self::_("Show Upcoming Auctions");
         $this->tpl['BUILDING_STOCK']   = self::_("Hide Current Buildings");
+        $this->tpl['EVENT_STOCK']      = self::_("Hide Events");
         $this->tpl['BUILDING_DISCARD'] = self::_("Show Building Discard");
         $this->tpl['FUTURE_BUILDING']  = self::_('Show Upcoming Buildings');
         $this->tpl['EVENTS']           = self::_("Events");

@@ -55,8 +55,8 @@ class HSDScore extends APP_GameClass
         foreach($players as $p_id=>$player){
             $p_score = $this->calculateEndgameScore($p_id);
             $row1[] = array( 'str' => '${player_name}',
-                                 'args' => array( 'player_name' => $player['player_name'] ),
-                                 'type' => 'header');  
+                             'args' => array( 'player_name' => $player['player_name'] ),
+                             'type' => 'header');
             $row2[] = $p_score['vp'];
             $row3[] = $p_score['bld'];
             $row4[] = $p_score['bonus'];
@@ -195,7 +195,7 @@ class HSDScore extends APP_GameClass
             $counts[$p_buildings[$b_key]['b_type']]++;
         }
         $counts[VP_B_WORKER] = $this->game->getUniqueValueFromDB("SELECT `workers` FROM `resources` WHERE `player_id`='$p_id'");
-        $counts[VP_B_TRACK] = $this->game->getUniqueValueFromDB("SELECT `track` FROM `resources` WHERE `player_id`='$p_id'");
+        $counts[VP_B_TRACK] = $this->game->getUniqueValueFromDB("SELECT COUNT(*) FROM `tracks` WHERE `player_id`='$p_id'");
         $counts[VP_B_BUILDING] = count($p_buildings);
         
         $this->game->setStat($counts[VP_B_BUILDING],    'buildings', $p_id);
