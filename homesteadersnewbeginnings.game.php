@@ -670,7 +670,7 @@ class homesteadersnewbeginnings extends Table
      */
     public function playerCancelPhase () {
         $this->checkAction('undoLot');
-        // undo all actions since beginning of STATE_PAY_AUCTION
+        // undo all actions since beginning of STATE_PAY_LOT
         $this->Log->cancelPhase();
         $this->gamestate->nextState('undoLot');
     }
