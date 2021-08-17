@@ -209,11 +209,12 @@ class HSDBuilding extends APP_GameClass
                         'player_name' => $this->game->getPlayerName($p_id),
                         'building' => $building,
                         'i18n' => array( 'building_name' ), 
-                        'building_name' => array('str'=>$b_name, 'type'=>$this->getBuildingTypeFromKey($b_key)));
+                        'b_type' => $this->getBuildingTypeFromKey($b_key),
+                        'building_name' => $b_name,
+                        'preserve' => [ 2 => 'b_type']);
         if (count($b_cost)>0) {
-            $message .= ' ${arrow} ${resources}';
-            $values['resources'] = $b_cost;
-            $values['arrow'] = "arrow";
+            $values['resource_arr'] = $b_cost;
+            $values['preserve'][3] = 'resource_arr';
         }
         $this->game->notifyAllPlayers( "buildBuilding", $message, $values);
         $this->game->Log->buyBuilding($p_id, $b_key, $b_cost, $this->game->Score->dbGetScore($p_id));
