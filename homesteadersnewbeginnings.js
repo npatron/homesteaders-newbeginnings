@@ -1634,14 +1634,14 @@ function (dojo, declare) {
             }
             
             if (this.events[i] != null){
-                console.log(this.events[i]);
+                //console.log(this.events[i]);
                 let currentEvent = EVENT_INFO[this.events[i].e_id];
                 let eventName = _(currentEvent.name);
                 let eventText = this.replaceTooltipStrings(_(currentEvent.tt));
                 dojo.place(`<div id="eventsBar" class="font"><span class="bold">${eventName}:</span>${eventText}</div>`, 'eventsBar', 'replace');
                 if (this.events[i].e_id == 2){
                     let tile = dojo.query(`#${TPL_AUC_ZONE}1 .auction_tile`);
-                    console.log(tile);
+                    //console.log(tile);
                     tile.addClass('unavailable');
                 }
             } else {
@@ -2262,11 +2262,7 @@ function (dojo, declare) {
         },
 
         raiseCostReplace: function (type) {
-            console.log('raiseCostReplace:', type);
-            console.log('this.cost_replace[type]', this.cost_replace[type]);
-            console.log('this.buildingCost[type]', this.buildingCost[type]);
             if (!(type in this.buildingCost) || this.buildingCost[type] >= 0) return;
-            console.log('past if return');
             dojo.style( $(`btn_less_${type}`), 'display', 'inline-block');
 
             this.addOrSetArrayKey(this.cost_replace, type, 1);
@@ -2277,20 +2273,15 @@ function (dojo, declare) {
         },
 
         lowerCostReplace: function (type) {
-            console.log('lowerCostReplace:', type);
-            console.log('this.cost_replace[type]', this.cost_replace[type]);
-            console.log('this.buildingCost[type]', this.buildingCost[type]);
             if (!(type in this.buildingCost) || !(type in this.cost_replace) || this.cost_replace[type]<=0 ) return;
-            console.log('past if return');
+            
             dojo.style( $(`btn_more_${type}`), 'display', 'inline-block');
 
             this.addOrSetArrayKey(this.cost_replace, type, -1);
-            console.log('cost replace set', this.cost_replace);
             if (this.cost_replace[type] == 0){//can't replace any less.
                 dojo.style( $(`btn_less_${type}`), 'display', 'none');
             }
             this.createBuildingBreadcrumb();
-            console.log('cost replace end', this.cost_replace);
         },
 
         /**
@@ -2571,7 +2562,7 @@ function (dojo, declare) {
         setupTransitionButton: function( andTrade ){
             let transitions = [BTN_ID_PAY_DONE, BTN_ID_DONE, 
                                 BTN_ID_EVENT_DONE_TRADING, BTN_ID_EVENT_DONE_HIDDEN_TRADING,
-                                BTN_ID_CONFIRM_WORKERS, BTN_ID_BUILD_BUILDING, 
+                                BTN_ID_CONFIRM_WORKERS, BTN_ID_BUILD_BUILDING, BTN_ID_EVENT_STEEL_BUILD,
                                 BTN_ID_FOOD_VP, BTN_ID_GOLD_VP, BTN_ID_COW_VP, BTN_ID_COPPER_VP, BTN_ID_WOOD_TRACK];
             transitions.forEach(button_id=> {
                 if (dojo.query(`#${button_id}`).length == 1){
@@ -2600,7 +2591,6 @@ function (dojo, declare) {
                                 dojo.style( $(PAY_GOLD_TOKEN), 'display', 'inline-block');
                                 dojo.style( $(BTN_ID_LESS_GOLD), 'display', 'inline-block');
                             }
-                            console.log(this.silverCost, this.goldCost);
                             return;
                         case BTN_ID_DONE:
                             if (andTrade) {
@@ -2646,6 +2636,14 @@ function (dojo, declare) {
                                 var button_text = dojo.string.substitute(_("Confirm Trade(s) & Build ${building_name}"), {building_name:`<span id="${BUILDING_NAME_ID}">${b_name}</span>`});
                             }
                             var button_method = METHOD_BUILD_BUILDING;
+                        break;
+                        case BTN_ID_EVENT_STEEL_BUILD:
+                            if (andTrade) {
+                                var button_text = this.replaceTooltipStrings(_('Pay ${steel} to build ${any}'));
+                            } else {
+                                var button_text = this.replaceTooltipStrings(_('Confirm Trade(s) & Pay ${steel} to build ${any}'));
+                            }
+                            var button_method = METHOD_CONFIRM_WORKERS;
                         break;
                         case BTN_ID_FOOD_VP:
                             if (andTrade) {
@@ -3097,7 +3095,6 @@ function (dojo, declare) {
         },
 
         showHiddenTrades: function(){
-            //console.log('showHiddenTrades before', TRANSACTION_COST);
             if (TRANSACTION_COST.hiddenAway){
                 this.updateTrade(TRANSACTION_COST.hiddenAway, true);
             }
@@ -3108,7 +3105,6 @@ function (dojo, declare) {
             }
             TRANSACTION_COST.hiddenFor = HIDDEN_FOR_COST??[];
             this.updateTrade(TRANSACTION_COST.hiddenFor);
-            console.log('showHiddenTrades done', TRANSACTION_COST);
             this.updateTradeAffordability();
         },
 
@@ -3205,12 +3201,10 @@ function (dojo, declare) {
         onBuyResource: function ( evt , type = ""){
             //console.log('onBuyResource');
             
-            if (type == ""){ // didn't come from onSelectTradeAction.
-                if ( !this.allowTrade && !this.checkAction( 'trade' ) ) { return; }
-                dojo.stopEvent( evt );
-                if (evt.target.classList.contains('bgabutton')){
-                    type = evt.target.id.split('_')[2];
-                } else { return; }
+            dojo.stopEvent( evt );
+            if ( !this.allowTrade && !this.checkAction( 'trade' ) ) { return; }
+            if (type == ""){
+                type = evt.target.id.split('_')[0];
             }
             this.addTransaction(BUY, type);
         },
@@ -3314,7 +3308,6 @@ function (dojo, declare) {
          * will add takeLoan transaction to transactionLog (and update offset/breadcrumbs)
          */
         onClickOnMarketTrade: function ( evt ){
-            //console.log('onClickOnMarketTrade', evt);
             let tradeable = this.checkActionTrade(evt);
             if (!tradeable.valid){return;}
             let target = (tradeable.parent?evt.target.parentNode:evt.target);
@@ -3336,7 +3329,7 @@ function (dojo, declare) {
         /** get function tradeFor for Market transactions */
         getMarketFor: function (type){
             let tradeFor = [];
-            tradeFor[type] =1;
+            tradeFor[type] = 1;
             return tradeFor;
         },
         /** get function tradeChange for Market transactions */
@@ -4918,7 +4911,7 @@ function (dojo, declare) {
                 }
             }
         },
-
+        //METHOD_EVENT_STEEL_BUILD
         steelBuildBuilding: function() {
             if (this.checkAction( 'eventLotBonus' )){
                 if (TRANSACTION_LOG.length >0){
@@ -5249,20 +5242,6 @@ function (dojo, declare) {
                     }
                     // end -> add font only args  
 
-                    // handles Building & Auctions, player_tokens, worker, or track
-                    /*if (args.reason_string && typeof (args.reason_string) != "string"){
-                        if (args.reason_string.type){ //Building & Auctions
-                            let color = ASSET_COLORS[Number(args.reason_string.type)];
-                            args.reason_string = this.format_block('jstpl_color_log', {string:args.reason_string.str, color:color});
-                        } else if (args.reason_string.token) { // player_tokens (bid/train)
-                            const color = PLAYER_COLOR[args.reason_string.player_id];
-                            args.reason_string = this.format_block('jstpl_player_token_log', {"color" : color, "type" : args.reason_string.token});
-                        } else if (args.reason_string.worker) { // worker token
-                            args.reason_string = this.getOneResourceHtml('worker', 1, false);
-                        } else if (args.reason_string.track) { // track 
-                            args.reason_string = TOKEN_HTML.track;
-                        }
-                    } */
                 }
             } catch (e) {
                 console.error(log,args,"Exception thrown", e.stack);
