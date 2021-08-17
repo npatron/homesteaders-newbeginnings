@@ -125,7 +125,7 @@ $stats_type = array(
                     "name" => totranslate("# win Auction 3"),
                     "type" => "int" ),
         "win_auction_4" => array("id"=> 35,
-                    "name" => totranslate("# win Auction 3"),
+                    "name" => totranslate("# win Auction 4"),
                     "type" => "int" ),
         "spent_on_auctions" => array("id"=> 36,
                     "name" => totranslate("Amount spent on auctions"),
@@ -138,6 +138,9 @@ $stats_type = array(
                     "type" => "int" ),
         "loans" => array("id"=> 39,
                     "name" => totranslate("# Loans taken"),
+                    "type" => "int" ),
+        "loans_paid_end" => array("id"=> 40,
+                    "name" => totranslate("# Loans paid at end of game"),
                     "type" => "int" ),
     )
 

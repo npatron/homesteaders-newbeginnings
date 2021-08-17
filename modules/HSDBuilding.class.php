@@ -90,16 +90,13 @@ class HSDBuilding extends APP_GameClass
         return ($this->game->getUniqueValuefromDB( $sql ));
     }
 
-    function getBuildingCostFromKey($b_key, $goldAsCow, $goldAsCopper){
+    function getBuildingCostFromKey($b_key, $costReplaceArgs){
         $b_id = $this->getBuildingIdFromKey($b_key);
-        $cost = $this->game->building_info[$b_id]['cost'];
-        if ($goldAsCopper && array_key_exists('copper', $cost)){
-            $cost = $this->game->Resource->updateKeyOrCreate($cost, 'gold', $cost['copper']);
-            unset($cost['copper']);
-        }
-        if ($goldAsCow && array_key_exists('cow', $cost)){
-            $cost = $this->game->Resource->updateKeyOrCreate($cost, 'gold', $cost['cow']);
-            unset($cost['cow']);
+        $cost = $this->game->building_info[$b_id]['cost']??array();
+        foreach ($costReplaceArgs as $type =>$amt){
+            if (array_key_exists($type, $cost) & $amt >0){
+                $cost = $this->game->Resource->costReplace($cost, $type, $amt);
+            }
         }
         return $cost;
     }
@@ -109,7 +106,7 @@ class HSDBuilding extends APP_GameClass
     }
 
     function getBuildingNameFromId($b_id){
-        return $this->game->building_info[$b_id]['name'];
+        return $this->game->building_info[$b_id]['name']??'';
     }
 
     function doesPlayerOwnBuilding($p_id, $b_id) {
@@ -119,6 +116,11 @@ class HSDBuilding extends APP_GameClass
             return true;
         }
         return false;
+    }
+
+    function getKeyOfPlayersBuilding($p_id, $b_id){
+        $sql = "SELECT building_key FROM `buildings` WHERE `player_id`='".$p_id."' AND `building_id`='$b_id'";
+        return $this->game->getUniqueValueFromDB($sql);
     }
 
     function updateBuildingsForRound($round_number){
@@ -185,13 +187,35 @@ class HSDBuilding extends APP_GameClass
         return $buildings;
     }
 
-    function buildBuilding( $p_id, $b_key, $goldAsCow = false, $goldAsCopper = false )
+    function buildBuilding( $p_id, $b_key, $costReplaceArgs )
     {
-        $b_cost = $this->getBuildingCostFromKey ($b_key, $goldAsCow, $goldAsCopper);
+        $b_cost = $this->getBuildingCostFromKey ($b_key, $costReplaceArgs);
+        $this->buildBuildingHelper($p_id, $b_key, $b_cost);
+    }
+
+    function buildBuildingDiscount( $p_id, $b_key, $costReplaceArgs, $discount_type)
+    {
+        
+        $b_cost = $this->getBuildingCostFromKey ($b_key, $costReplaceArgs);
+        if (!array_key_exists($discount_type, $b_cost)){
+            throw new BgaUserException( clienttranslate("You cannot discount it any further ").$discount_type);
+        }
+        if (($b_cost[$discount_type]--)<=1){
+            unset($b_cost[$discount_type]);
+        }
+        $this->buildBuildingHelper($p_id, $b_key, $b_cost);
+    }
+
+    function buildBuildingHelper( $p_id, $b_key, $b_cost){
         $afford = $this->game->Resource->canPlayerAfford($p_id, $b_cost);
         $building = $this->getBuildingFromKey($b_key);
         $b_id = $building['b_id'];
         $b_name = $this->getBuildingNameFromId($b_id);
+        $build_type_int = $this->game->getGameStateValue('build_type_int');
+        $allowedBuildings = $this->getAllowedBuildings($this->buildTypeIntIntoArray($build_type_int));
+        if (!array_key_exists($b_key, $allowedBuildings)){// check b_key is allowed.
+            throw new BgaUserException( clienttranslate("You are not allowed to build this building at this time"));
+        }
         if (!$afford){
             throw new BgaUserException( sprintf(clienttranslate("You cannot afford to build %s"),$b_name));
         }
@@ -208,19 +232,27 @@ class HSDBuilding extends APP_GameClass
         $values = array('player_id' => $p_id,
                         'player_name' => $this->game->getPlayerName($p_id),
                         'building' => $building,
-                        'i18n' => array( 'building_name' ), 
+//                        'i18n' => array( 'building_name' ), 
                         'b_type' => $this->getBuildingTypeFromKey($b_key),
                         'building_name' => $b_name,
                         'preserve' => [ 2 => 'b_type']);
         if (count($b_cost)>0) {
+            $message = clienttranslate('${player_name} builds ${building_name} ${arrow} ${resources}');
+            $values['resources'] = 'resources';
             $values['resource_arr'] = $b_cost;
+            $values['arrow'] = "->";
             $values['preserve'][3] = 'resource_arr';
         }
+        $this->game->DbQuery( $sql );
         $this->game->notifyAllPlayers( "buildBuilding", $message, $values);
         $this->game->Log->buyBuilding($p_id, $b_key, $b_cost, $this->game->Score->dbGetScore($p_id));
-        
-        $this->game->DbQuery( $sql );
+
+        if ($this->game->Building->doesPlayerOwnBuilding($p_id, BLD_FORGE) && $b_id != BLD_FORGE){
+            $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', 1, $this->game->building_info[BLD_FORGE]['name'], 'building', $this->getKeyOfPlayersBuilding($p_id, BLD_FORGE));
+        }
+
         $this->game->setGameStateValue('last_building', $b_key);
+        $this->game->setGameStateValue('building_bonus', $this->game->Building->getOnBuildBonusForBuildingId($b_id));
     }
 
     function payForBuilding($p_id, $b_cost){
@@ -231,40 +263,119 @@ class HSDBuilding extends APP_GameClass
         }
     }
 
-    function getOnBuildBonusForBuildingKey($b_key){
-        $b_id = $this->getBuildingIdFromKey($b_key);
-        return (array_key_exists('on_b', $this->game->building_info[$b_id])? $this->game->building_info[$b_id]['on_b']:0);
+    function getOnBuildBonusForBuildingId($b_id){ 
+        return (int)($this->game->building_info[$b_id]['on_b']??BUILD_BONUS_NONE);
     }
 
     function getBuildingScoreFromKey($b_key){
-        return ($this->getBuildingScoreFromId($this->getBuildingIdFromKey($b_key)));
+        return (int)($this->getBuildingScoreFromId($this->getBuildingIdFromKey($b_key)));
     }
 
     function getBuildingScoreFromId($b_id) {
-        return (array_key_exists('vp', $this->game->building_info[$b_id])? $this->game->building_info[$b_id]['vp']:0);
+        return (int)($this->game->building_info[$b_id]['vp']??0);
     }
 
-    function canPlayerReceiveWarehouseIncome($p_id, $type){
-        $sql = "SELECT `state` FROM `buildings` WHERE `player_id`=$p_id AND `building_id`=".BLD_WAREHOUSE;
-        $warehouseState = $this->game->getUniqueValuefromDB($sql);
-        if (is_null($warehouseState)) return false; // don't own warehouse
+    function getBuildingState($b_key){
+        return (int) $this->game->getUniqueValueFromDB("SELECT `state` FROM `buildings` WHERE `building_key`=$b_key");
+    }
+
+    function setBuildingState($b_key, $state){
+        $this->game->DBQuery("UPDATE `buildings` SET `state`=$state WHERE `building_key`=$b_key");
+    }
+
+    function setupWarehouse($p_id, $b_key, $state=0){
+        //default is to add all options.
+        if ($state==0){
+            foreach ($this->game->warehouse_map as $type=>$val){
+                $state |= $val;
+            }
+        }
+        $oldState = $this->getBuildingState($b_key);
+        $this->setBuildingState($b_key, $state);
+        $this->game->notifyAllPlayers( "updateWarehouseState", clienttranslate( 'update resources on ${b_name}' ), array(
+            'b_name' => $this->getBuildingNameFromId(BLD_WAREHOUSE),
+            'b_key' => $b_key, 
+            'state' => $state,
+        ));
+        $this->game->Log->updateBuildingState($p_id, $b_key, $oldState, $state);
+    }
+
+    function canPlayerReceiveWarehouseIncome($p_id, $b_key, $type){
+        if (!$this->doesPlayerOwnBuilding($p_id, BLD_WAREHOUSE)) return false; // don't own warehouse
+        if ($this->getBuildingIdFromKey($b_key) != BLD_WAREHOUSE) 
+            throw new BgaUserException( clienttranslate("This building isn't ")); // bad usage.
+        $warehouseState = $this->getBuildingState($b_key);
         // if the value in warehouseState includes
         // checking using bitwise and (see $this->game->warehouse_map for bit_locations)
         return ($warehouseState & $this->game->warehouse_map[$type] >0);
     }
 
-    // INCOME
-    function buildingIncomeForPlayer($p_id){
-        $income_b_id = $this->getBuildingIncomeForPlayer($p_id);
-        foreach ($income_b_id as $b_id =>$income) {
-            $name = $income['name'];
-            $b_key = $income['key'];
-            $income = array_diff_key($income, array_flip(['name','key']));
-            $this->game->Resource->updateAndNotifyIncomeGroup($p_id, $income, $name, 'building', $b_key);
+    function warehouseIncomeForPlayer($p_id, $b_key, $type){
+        if (!$this->canPlayerReceiveWarehouseIncome($p_id, $b_key, $type)){
+            throw new BgaUserException( clienttranslate("You cannot select that warehouse income"));
+        } else {
+            $this->game->Resource->updateAndNotifyIncome($p_id, $type, 1, $this->getBuildingNameFromId(BLD_WAREHOUSE), 'building', $b_key);
+            $state = $this->getBuildingState($b_key);
+            $state -= $this->game->warehouse_map[$type];
+            $this->setupWarehouse($p_id, $b_key, $state);
         }
     }
-    
-    function getBuildingIncomeForPlayer($p_id, $warehouse_type =null){
+
+    /** 
+     * get count of total amount of resources produced by player( not including trades)
+     * only care about: ${wood}, ${food}, ${steel}, ${gold}, ${copper}, ${cow}
+     */
+    function getBuildingResourceIncomeCountForPlayer($p_id){
+        $p_bld = $this->getAllPlayerBuildings($p_id);
+        $player_workers = $this->game->getCollectionFromDB( "SELECT * FROM `workers` WHERE `player_id` = '$p_id'");
+        $res_count = 0;
+        $res_types = array('wood', 'food', 'steel', 'gold', 'copper', 'cow');
+        foreach( $p_bld as $b_key => $building ) {
+            $b_id = $building['b_id'];
+            $b_info = $this->game->building_info[$b_id];
+            if ($b_id == BLD_BANK){
+                //no resources
+            } else if ($b_id == BLD_RODEO){
+                //no resources
+            } else if ($b_id == BLD_WAREHOUSE) {
+                $res_count++;
+            } else {
+                foreach ((array_key_exists('inc', $b_info)?$b_info['inc']:array()) as $type => $amt){
+                    if (in_array($type, $res_types)){
+                        $res_count += $amt;
+                    }
+                }
+            }
+        }
+        $riverPortWorkers = 0;
+        foreach($player_workers as $worker_key => $worker ) {
+            if ($worker['building_key'] != 0){
+                $b_key = $worker['building_key'];
+                $b_id = $this->getBuildingIdFromKey($b_key);
+                $b_info = $this->game->building_info[$b_id];
+                $slot = "s".$worker['building_slot'];
+                if ($slot == "s3"){ 
+                    if ($b_id == BLD_RIVER_PORT){// only BLD_RIVER_PORT.
+                        if ($riverPortWorkers++ ==1){// only triggers on 2nd worker assigned to this building
+                            $res_count++;
+                        }
+                    }
+                } else {
+                    if (array_key_exists($slot, $b_info)) {
+                        foreach ($b_info[$slot] as $type => $amt){
+                            if (in_array($type, $res_types)){
+                                $res_count += $amt;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $res_count;
+    }
+
+    // INCOME
+    function buildingIncomeForPlayer($p_id, $warehouse_type =null){
         $p_bld = $this->getAllPlayerBuildings($p_id);
         $player_workers = $this->game->getCollectionFromDB( "SELECT * FROM `workers` WHERE `player_id` = '$p_id'");
         $income_b_id = array();
@@ -273,19 +384,14 @@ class HSDBuilding extends APP_GameClass
             $b_info = $this->game->building_info[$b_id];
             $income_b_id[$b_id] = array ('name' => $b_info['name'], 'key' =>$b_key);
             if ($b_id == BLD_BANK){
-                $loans = $this->game->Resource->getPlayerResourceAmount($p_id, 'loan');
-                if ($loans ==0){
-                    $income_b_id[$b_id]['silver'] = 2;
-                } else {
-                    $income_b_id[$b_id]['loan'] = 1;
-                }
+                $this->game->Resource->payLoanOrRecieveSilver($p_id, $b_info['name'], 'building', $b_key);
             } else if ($b_id == BLD_RODEO){
                 $rodeoIncome = min(count($player_workers), 5);
-                $income_b_id[$b_id]['silver'] = $rodeoIncome;
+                $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id], 'silver', $rodeoIncome);
             } else if ($b_id == BLD_WAREHOUSE) {
-                $income_b_id[$b_id][$warehouse_type]= 1;
-            } else if (array_key_exists('inc', $b_info)) {
-                foreach ($b_info['inc'] as $type => $amt){
+                $this->warehouseIncomeForPlayer($p_id, $b_key, $this->game->resource_map[$warehouse_type]);
+            } else {
+                foreach ((array_key_exists('inc', $b_info)?$b_info['inc']:array()) as $type => $amt){
                     $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id], $type, $amt);
                 }
             }
@@ -312,7 +418,52 @@ class HSDBuilding extends APP_GameClass
                 }
             }
         }
-        return $income_b_id;
+        foreach ($income_b_id as $b_id =>$income) {
+            $name = $income['name'];
+            $b_key = $income['key'];
+            $income = array_diff_key($income, array_flip(['name','key']));
+            $this->game->Resource->updateAndNotifyIncomeGroup($p_id, $income, $name, 'building' ,$b_key);
+        }
+    }
+
+    /**  for storing buildTypeOptions in global
+     * ex.
+     * 8+4+2+1 = 15 -> all
+     * 8+0+2+1 = 10 -> Commercial + Special
+     * 0+0+0+1 = 1  -> Residential
+     */   
+    function buildTypeArrayIntoInt($b_type_options){
+        $b_type_int = 0;
+        foreach($b_type_options as $type){//using bitwise | (or)
+            if ($type == TYPE_RESIDENTIAL){
+                $b_type_int |= 1;
+            } else if ($type == TYPE_COMMERCIAL){
+                $b_type_int |= 2;
+            } else if ($type == TYPE_INDUSTRIAL){
+                $b_type_int |= 4;
+            } else if ($type == TYPE_SPECIAL){
+                $b_type_int |= 8;
+            }
+        }
+        return $b_type_int;
+    }
+    
+    // for restoring buildTypeOptions in global
+    function buildTypeIntIntoArray($b_type_int){
+        $b_type_options = array();
+        if ($b_type_int & 1){//using bitwise & (and)
+            $b_type_options[]=TYPE_RESIDENTIAL;
+        }
+        if ($b_type_int & 2){
+            $b_type_options[]=TYPE_COMMERCIAL;
+        }
+        if ($b_type_int & 4){
+            $b_type_options[]=TYPE_INDUSTRIAL;
+        }
+        if ($b_type_int & 8){
+            $b_type_options[]=TYPE_SPECIAL;
+        }
+        return $b_type_options;
     }
 
 }

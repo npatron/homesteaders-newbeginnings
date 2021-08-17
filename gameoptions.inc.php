@@ -26,13 +26,13 @@
 
 $game_options = array(
 
-    100 => array(//SHOW_PLAYER_INFO
+    SHOW_PLAYER_INFO => array(
         'name' => totranslate('show or hide resources'),
         'values' => array(
-            0 => array(//SHOW_ALL_RESOURCES
+            SHOW_ALL_RESOURCES => array(
                 'name' => totranslate('show all player resources'),
             ),
-            1 => array(//HIDE_ALL_RESOURCES
+            HIDE_ALL_RESOURCES => array(
                 'name' => totranslate('hide resources from other players'),
                 'description' => totranslate('hide player resources from other players'),
                 'tmdisplay' => totranslate('hide other player resources'),
@@ -41,42 +41,51 @@ $game_options = array(
         ),
     ),
 
-    101  => array(//RAIL_NO_BUILD
-        'name' => totranslate('Recieve Rail Line if No Build'),
+    RAIL_NO_BUILD => array(
+        'name' => totranslate('Receive Rail Line if No Build'),
         'values' => array(
-            0 => array(//DISABLED
+            DISABLED => array(
                 'name' => totranslate('normal no-build rule')),
-            1 => array(//ENABLED
+            ENABLED => array(
                 'name' => totranslate('Recieve a rail line when passing on build building (recommended for 5 player)'),
                 'tmdisplay' => totranslate('Rail line on no-build'),
             ),
         ),
     ),
 
-    110 => array(//
+    NEW_BEGINNING_BLD => array(
         'name' => totranslate('New Beginnings Buildings'),
         'values' => array(
-            0 => array(//DISABLED
+            DISABLED => array(
                 'name' => totranslate('do not use expansion buildings')),
-            1 => array(//ENABLED
-                'name' => totranslate('use expansion buildings (recommended for 5 players)'),
+            ENABLED => array(//ENABLED
+                'name' => totranslate('use expansion buildings (required for 5 players)'),
                 'tmdisplay' => totranslate('New Beginnings Buildings'),
             ),
         ),
+        'startcondition' => [
+            DISABLED=>[
+                [
+                    'type' => 'minplayers',
+                    'value' => 5,
+                    'message' => totranslate('New Beginnings Buildings are required for 5 player')
+                ],
+            ],
+        ],
     ),
     
-    111 => array(//NEW_BEGINNING_EVT
+    NEW_BEGINNING_EVT => array(
         'name' => totranslate('Expansion Events'),
         'values' => array(
-            0 => array(//DISABLED
+            DISABLED => array(
                 'name' => totranslate('do not use Events')),
-            1 => array(//ENABLED
+            ENABLED => array(
                 'name' => totranslate('Use New Beginnings Events'),
                 'tmdisplay' => totranslate('Use New Beginnings Events'),
             ),
         ),
     ),
-
+    
 );
 
 $game_preferences = array(
