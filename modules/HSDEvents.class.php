@@ -263,7 +263,7 @@ class HSDEvents extends APP_GameClass
             case EVT_RES_ADV_TRACK:   
                 $pending_players= $this->getPlayersWithMostBuildings(TYPE_RESIDENTIAL);
                 foreach ($pending_players as $p_id=>$player){
-                    $this->game->Resource->getRailAdv($p_id, $this->getEventName());
+                    $this->game->Resource->getRailAdv($p_id, clienttranslate('Residential Dominance'));
                     $this->game->Log->allowTrades($p_id);
                 }             
             break;
@@ -399,7 +399,7 @@ class HSDEvents extends APP_GameClass
         $pass_evt = $this->getEventPass();
         switch($pass_evt){
             case EVT_PASS_TRACK: //Players who pass, get a ${track}
-                $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), $this->getEventName());
+                $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), _("event"));
                 return "rail";
             case EVT_PASS_DEPT_SILVER: //Players who pass may pay off debt for 3-{silver} apiece
                 return "event";

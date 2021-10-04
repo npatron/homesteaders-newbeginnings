@@ -27,7 +27,7 @@ class HSDResource extends APP_GameClass
     }
     
     /**
-     * This will NOT notify the player only for use when notification has already happened (workers), drack, loan, 
+     * This will NOT notify the player only for use when notification has already happened (workers), track, loan, 
      * updating the trackers: bid_loc, rail_adv, 
      */
     function updateResource($p_id, $type, $amount){
@@ -263,7 +263,7 @@ class HSDResource extends APP_GameClass
                     'reason_string' => $reason_string,
                     'track_key'=> $track_key, );
         $values = $this->updateArrForNotify($values, $origin, $key);                
-        $this->game->notifyAllPlayers( "gainTrack", clienttranslate( '${player_name} recieves ${track} from ${reason_string}' ), $values);
+        $this->game->notifyAllPlayers( "gainTrack", clienttranslate( '${player_name} receives ${track} from ${reason_string}' ), $values);
     }
     /**
      * Add track for player 
@@ -328,7 +328,7 @@ class HSDResource extends APP_GameClass
      * to force player to get 2 silver if have no loan to payoff
      * Bank income, and Build Bonus for Boarding House, but there are additional options from expansion.
      */
-    function payLoanOrRecieveSilver($p_id, $reason_string, $origin='',$key=0){
+    function payLoanOrReceiveSilver($p_id, $reason_string, $origin='',$key=0){
         $playerLoan = $this->game->getUniqueValueFromDb("SELECT `loan` FROM `resources` WHERE `player_id`='".$p_id."'");
         if ($playerLoan== 0){
             $this->updateAndNotifyIncome($p_id, 'silver', 2, $reason_string, $origin, $key);
@@ -573,9 +573,9 @@ class HSDResource extends APP_GameClass
     }
 
     function trade($p_id, $tradeAction) {
-        self::dump("tradeAction $p_id",$tradeAction);
+        //self::dump("tradeAction $p_id",$tradeAction);
         $tradeValues = $this->getTradeValues($p_id, $tradeAction);
-        self::dump('tradeValues',$tradeValues);
+        //self::dump('tradeValues',$tradeValues);
         if ($tradeValues['transaction']==='loanTaken'){
             $this->updateResource($p_id, 'silver', 2);
             $this->updateResource($p_id, 'loan', 1);
@@ -707,7 +707,7 @@ class HSDResource extends APP_GameClass
             $args = array(  'player_id' => $p_id,           'player_name' => $p_name,
                             'tradeAway_arr' => $tradeAway,  'tradeFor_arr' => $tradeFor,
                             'buy_sell'  => $buy_sell,       'resource' => $this->game->resource_info[$tradeType]['name'],
-                            'preserve'=> [2=>'tradeAway_arr', 3=>'tradeFor_arr'], );
+                            'preserve'=> [3=>'tradeAway_arr', 4=>'tradeFor_arr'], );
         } else {
             $message = clienttranslate('${player_name} trades with ${building_name} ${resource}');
             $args = array(  'player_id' => $p_id,            'player_name' => $p_name,
@@ -715,7 +715,7 @@ class HSDResource extends APP_GameClass
                             'building_name'=> $this->game->Building->getBuildingNameFromId($b_id),
                             'resource' => $this->game->resource_info[$tradeType]['name'],
                             'b_type'=> $this->game->Building->getBuildingTypeFromId($b_id),
-                            'preserve'=> [2=>'b_type', 3=>'tradeAway_arr', 4=>'tradeFor_arr']);
+                            'preserve'=> [2=>'b_type', 3=>'tradeAway_arr', 4=>'tradeFor_arr'], );
         }
         return array('transaction'=> 'trade', 
                     'message'=> $message, 

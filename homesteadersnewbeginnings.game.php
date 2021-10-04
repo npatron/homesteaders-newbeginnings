@@ -1015,7 +1015,7 @@ class homesteadersnewbeginnings extends Table
                 $this->Resource->updateAndNotifyIncome($active_p_id, 'trade', 2, $b_name, 'building', $b_key);
             break;
             case BUILD_BONUS_PAY_LOAN:
-                $this->Resource->payLoanOrRecieveSilver($active_p_id, $b_name, 'building', $b_key);
+                $this->Resource->payLoanOrReceiveSilver($active_p_id, $b_name, 'building', $b_key);
             break;
             case BUILD_BONUS_TRADE:
                 $this->Resource->updateAndNotifyIncome($active_p_id, 'trade', 1, $b_name, 'building', $b_key);

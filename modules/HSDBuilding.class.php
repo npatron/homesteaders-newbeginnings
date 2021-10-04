@@ -82,7 +82,7 @@ class HSDBuilding extends APP_GameClass
     function getBuildingTypeFromId($b_id){
         $sql = "SELECT `building_type` FROM `buildings` WHERE `building_id`='".$b_id."'";
         $building_type = $this->game->getObjectListFromDB( $sql );
-        return (reset($building_type));
+        return (reset($building_type)['building_type']);
     }
 
     function getBuildingTypeFromKey($b_key){
@@ -237,10 +237,7 @@ class HSDBuilding extends APP_GameClass
                         'building_name' => $b_name,
                         'preserve' => [ 2 => 'b_type']);
         if (count($b_cost)>0) {
-            $message = clienttranslate('${player_name} builds ${building_name} ${arrow} ${resources}');
-            $values['resources'] = 'resources';
             $values['resource_arr'] = $b_cost;
-            $values['arrow'] = "->";
             $values['preserve'][3] = 'resource_arr';
         }
         $this->game->DbQuery( $sql );
@@ -384,7 +381,7 @@ class HSDBuilding extends APP_GameClass
             $b_info = $this->game->building_info[$b_id];
             $income_b_id[$b_id] = array ('name' => $b_info['name'], 'key' =>$b_key);
             if ($b_id == BLD_BANK){
-                $this->game->Resource->payLoanOrRecieveSilver($p_id, $b_info['name'], 'building', $b_key);
+                $this->game->Resource->payLoanOrReceiveSilver($p_id, $b_info['name'], 'building', $b_key);
             } else if ($b_id == BLD_RODEO){
                 $rodeoIncome = min(count($player_workers), 5);
                 $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id], 'silver', $rodeoIncome);

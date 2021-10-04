@@ -127,6 +127,7 @@ function (dojo, declare) {
     const BTN_ID_TRADE       = 'btn_trade';
        // 'tradeActionButton', 
     const BTN_ID_TRADE_BANK  = 'btn_trade_bank';
+    const BANK_CHANGE_ARR    = {'trade':-1,'silver':1};
        // 'onClickOnBankTrade'
     /** Auction Bonus buttons */
     const BTN_ID_FOOD_VP = 'btn_food_vp';
@@ -174,6 +175,7 @@ function (dojo, declare) {
     const BTN_ID_HIRE_WORKER  = 'btn_hire_worker';
     const METHOD_HIRE_WORKER  = 'hireWorkerButton';
     const BTN_ID_TAKE_LOAN    = 'btn_take_loan';
+    const TAKE_LOAN_ARR       = {'silver':2,'loan':1};
        // 'onMoreLoan'
     /*** Build Building ***/
     const BTN_ID_BUILD_BUILDING = 'btn_choose_building';
@@ -204,12 +206,14 @@ function (dojo, declare) {
     const METHOD_DONE_PAY  = 'donePay';
     
     /*** Endgame buttons ***/
-    const BTN_ID_DONE            = 'btn_done'; // endgame
-    const METHOD_ENDGAME_DONE    = 'doneEndgameActions';
-    const BTN_ID_PAY_LOAN_SILVER = 'btn_pay_loan_silver';
-    const METHOD_PAY_LOAN_SILVER = 'payLoanSilver'; 
-    const BTN_ID_PAY_LOAN_GOLD   = 'btn_pay_loan_gold';
-    const METHOD_PAY_LOAN_GOLD   = 'payLoanGold';
+    const BTN_ID_DONE             = 'btn_done'; // endgame
+    const METHOD_ENDGAME_DONE     = 'doneEndgameActions';
+    const BTN_ID_PAY_LOAN_SILVER  = 'btn_pay_loan_silver';
+    const METHOD_PAY_LOAN_SILVER  = 'payLoanSilver'; 
+    const PAY_LOAN_SILVER_ARR     = {'silver':-5,'loan':-1};
+    const BTN_ID_PAY_LOAN_GOLD    = 'btn_pay_loan_gold';
+    const METHOD_PAY_LOAN_GOLD    = 'payLoanGold';
+    const PAY_LOAN_GOLD_ARR       = {'gold':-1,'loan':-1};
 
     /** Event Bonus Buttons **/ 
     /* EVT_SELL_NO_TRADE -> 'Wartime Demand' */
@@ -221,10 +225,12 @@ function (dojo, declare) {
     /* EVT_PAY_LOAN_FOOD -> 'Sharecropping' */
     const BTN_ID_PAY_LOAN_FOOD = 'btn_pay_loan_food';
     const METHOD_PAY_LOAN_FOOD = 'payLoanWithFood';
+    const PAY_LOAN_FOOD_ARR    = {'food':-1,'loan':-1};
     /*** on Pass Event button ***/
     /** EVT_PASS_DEPT_SILVER -> 'Nelson Act' **/
     const BTN_ID_PAY_LOAN_3_SILVER = 'btn_loan_3_silver';
     const METHOD_PAY_LOAN_3_SILVER = 'payLoan3Silver';
+    const PAY_LOAN_3_SILVER_ARR    = {'silver':-5,'loan':-1};
 
     // transaction constants
     const BUY               = 1;
@@ -1636,7 +1642,7 @@ function (dojo, declare) {
             if (this.events[i] != null){
                 //console.log(this.events[i]);
                 let currentEvent = EVENT_INFO[this.events[i].e_id];
-                let eventName = _(currentEvent.name);
+                let eventName = this.replaceTooltipStrings(_(currentEvent.name));
                 let eventText = this.replaceTooltipStrings(_(currentEvent.tt));
                 dojo.place(`<div id="eventsBar" class="font"><span class="bold">${eventName}:</span>${eventText}</div>`, 'eventsBar', 'replace');
                 if (this.events[i].e_id == 2){
@@ -2643,7 +2649,7 @@ function (dojo, declare) {
                             } else {
                                 var button_text = this.replaceTooltipStrings(_('Confirm Trade(s) & Pay ${steel} to build ${any}'));
                             }
-                            var button_method = METHOD_CONFIRM_WORKERS;
+                            var button_method = METHOD_EVENT_STEEL_BUILD;
                         break;
                         case BTN_ID_FOOD_VP:
                             if (andTrade) {
@@ -3125,27 +3131,27 @@ function (dojo, declare) {
                 break;
                 case BANK:
                     transactions = {name:_('Bank'), map:TRADE_MAP.bank,
-                            away:{'trade':-1}, for:{'silver':1}, change:{'trade':-1,'silver':1}};
+                            away:{'trade':-1}, for:{'silver':1}, change:BANK_CHANGE_ARR};
                 break;
                 case TAKE_LOAN:
                     transactions = {name:_("Take Dept"), map:TRADE_MAP.loan,
-                            away:{'loan':1}, for:{'silver':2}, change:{'silver':2,'loan':1}};
+                            away:{'loan':1}, for:{'silver':2}, change:TAKE_LOAN_ARR};
                 break;
                 case PAY_LOAN_GOLD:
                     transactions = {name:_("Pay Dept"), map:TRADE_MAP.payLoan_gold,
-                            away:{'gold':-1}, for:{'loan':-1}, change:{'gold':-1,'loan':-1}};
+                            away:{'gold':-1}, for:{'loan':-1}, change:PAY_LOAN_GOLD_ARR};
                 break;
                 case PAY_LOAN_SILVER:
                     transactions = {name:_("Pay Dept"), map:TRADE_MAP.payLoan_silver,
-                            away:{'silver':-5}, for:{'loan':-1}, change:{'silver':-5,'loan':-1}};
+                            away:{'silver':-5}, for:{'loan':-1}, change:PAY_LOAN_SILVER_ARR};
                 break;
                 case PAY_LOAN_SILVER_3:
                     transactions = {name:_("Pay Dept"), map:TRADE_MAP.payLoan_3silver,
-                            away:{'silver':-3}, for:{'loan':-1}, change:{'silver':-3,'loan':-1}};
+                            away:{'silver':-3}, for:{'loan':-1}, change:PAY_LOAN_3_SILVER_ARR};
                 break;
                 case PAY_LOAN_FOOD:
                     transactions = {name:_("Pay Dept"), map:TRADE_MAP.payLoan_food,
-                            away:{'food':-1}, for:{'loan':-1}, change:{'food':-1,'loan':-1}};
+                            away:{'food':-1}, for:{'loan':-1}, change:PAY_LOAN_FOOD_ARR};
             }
             if(this.canAddTrade(transactions.change)){
                 this.updateTrade(transactions.change);
@@ -3166,14 +3172,16 @@ function (dojo, declare) {
         checkActionTrade: function( evt){
             dojo.stopEvent( evt );
             if ( !this.allowTrade && !this.checkAction( 'trade' ) ) { return {valid:false}; }
-            let parent = false;
-            if ( !dojo.hasClass (evt.target.id, 'selectable')) { 
-                if (!dojo.hasClass (evt.target.id, 'selectable')){
-                    return {valid:false};
-                }
-                parent = true;
+            if ((evt.target.classList.contains("bgabutton"))) {
+                return {valid:true, parent:false, button:true};
             }
-            return {valid:true, parent:parent};
+            if (evt.target.classList.contains('selectable')) { 
+                return {valid:true, parent:false, button:false};
+            }
+            if (evt.target.parent.classList.contains('selectable')){
+                return {valid:true, parent:true, button:false};
+            }
+            return {valid:false, parent:false, button:false};
         },
 
         /** OnClick Handler 
@@ -3200,11 +3208,12 @@ function (dojo, declare) {
          */
         onBuyResource: function ( evt , type = ""){
             //console.log('onBuyResource');
-            
-            dojo.stopEvent( evt );
-            if ( !this.allowTrade && !this.checkAction( 'trade' ) ) { return; }
-            if (type == ""){
-                type = evt.target.id.split('_')[0];
+            if (type == ""){ // didn't come from onSelectTradeAction.
+                dojo.stopEvent( evt );
+                if ( !this.allowTrade && !this.checkAction( 'trade' ) ) { return; }
+                if (evt.target.classList.contains('bgabutton')){
+                    type = evt.target.id.split('_')[2];
+                } else { return; }
             }
             this.addTransaction(BUY, type);
         },
@@ -3299,26 +3308,29 @@ function (dojo, declare) {
         },
 
         onMarketTrade_food: function (evt){
-            return this.onClickOnMarketTrade(evt, 'food');
+            let tradeable = this.checkActionTrade(evt);
+            if (!tradeable.valid){return;}
+            this.addTransaction(MARKET, 'food'); 
         },
         onMarketTrade_steel: function (evt){
-            return this.onClickOnMarketTrade(evt, 'steel');
+            let tradeable = this.checkActionTrade(evt);
+            if (!tradeable.valid){return;}
+            this.addTransaction(MARKET, 'steel'); 
         },
+        
         /** OnClick Handler Market Trade Actions 
          * will add takeLoan transaction to transactionLog (and update offset/breadcrumbs)
          */
-        onClickOnMarketTrade: function ( evt ){
+        onClickOnMarketTrade: function ( evt){
             let tradeable = this.checkActionTrade(evt);
             if (!tradeable.valid){return;}
-            let target = (tradeable.parent?evt.target.parentNode:evt.target);
-
+            let target = (tradeable.parent?evt.target.parentNode:evt.target);//if tradeable.parent fix target
             if (target.classList.contains('market_food')){
-                var type = 'food';
+                type = 'food';
             } else if (target.classList.contains('market_steel')){
-                var type = 'steel';
+                type = 'steel';
             } else {return;}
-            
-            this.addTransaction(MARKET, type);
+            this.addTransaction(MARKET, type);            
         },
         /** get function tradeAway for Market transactions */
         getMarketAway: function (type){
@@ -3346,7 +3358,6 @@ function (dojo, declare) {
             //console.log('onClickOnBankTrade');
             let tradeable = this.checkActionTrade(evt);
             if (!tradeable.valid){return;}
-
             this.addTransaction(BANK);
         },
 
@@ -4204,7 +4215,7 @@ function (dojo, declare) {
             if (HAS_BUILDING[this.player_id][BLD_BANK]){
                 var node_loc =  `#${BANK_ID}`;
                 var btn_id   = `#${BTN_ID_TRADE_BANK}`;
-                if (this.canAddTrade(this.getBankChange)){ // can afford
+                if (this.canAddTrade(BANK_CHANGE_ARR)){ // can afford
                     this.updateAffordability(node_loc, AFFORDABLE);
                     this.updateButtonAffordability(btn_id, AFFORDABLE);
                 } else {// can not afford
@@ -5093,6 +5104,8 @@ function (dojo, declare) {
         
         /** Override this function to inject html for log items  */
 
+        // NOTE: this method will ALWAYS be run first on all notifications (args) before their `notif_xxx` method, updating the args values accordingly.
+        // (from BGA wiki https://en.doc.boardgamearena.com/BGA_Studio_Cookbook)
         /* @Override */
         format_string_recursive: function (log, args) {
             try {
@@ -5103,6 +5116,7 @@ function (dojo, declare) {
                         args.You = this.divYou(); // will replace ${You} with colored version
                     }
                     
+                    // replace args.token with appropriate html token (if possible)
                     if (args.token){
                         let color = '';
                         let type = '';
@@ -5124,20 +5138,30 @@ function (dojo, declare) {
                         }
                         args.token = this.format_block('jstpl_player_token_log', {"color" : color, "type" : type});
                     }
-                    if (args.building_name && typeof (args.building_name) != "string"){
+
+                    // The following 5 if statements are for handling old version notifications, and may be removable, when releasing new version (testing required).
+
+                    // make args.building_name that is not string (expected Object array) fit expected args format
+                    if (args.building_name && typeof (args.building_name) != "string"){ // make building name color coded
                         args.b_type = args.building_name.type;
                         args.building_name = args.building_name.str;
                     }
+                    // make args.auction that is not string (expected Object array) fit expected args format
                     if (args.auction && typeof (args.auction) != 'string'){
                         args.key = Number(args.auction.key);
                         args.auction = args.auction.str;
                     }
-                    if (args.tradeFor && typeof (args.tradeFor) != 'string'){
+                    // this (and next) is for handling cases where tradeFor is an Object[Object] and tradeFor_arr is not passed
+                    // it will make tradeFor_arr use tradeFor.  
+                    if (args.tradeFor && typeof (args.tradeFor) != 'string'){ 
                         args.tradeFor_arr = args.tradeFor;
                     }
+                    // this is for handling cases where tradeAway is an Object[Object] and tradeAway_arr is not passed
                     if (args.tradeAway && typeof (args.tradeAway) != 'string'){
                         args.tradeAway_arr = args.tradeAway;
                     }
+                    // make args.type that is not string (expected Object array) fit expected args format.
+                    // this will also set args.amount to 1, if no value is set.
                     if (args.type && typeof (args.type) != 'string'){
                         if (args.type.amount == null){
                             args.amount = 1;
@@ -5146,7 +5170,8 @@ function (dojo, declare) {
                         }
                         args.type = args.type.type;
                     }
-
+                    
+                    // replace args.reason_string with token, if appropriate.
                     if (args.reason_string){
                         if (args.origin == "building" ){
                             let color = ASSET_COLORS[Number(args.b_type??0)];
@@ -5164,8 +5189,7 @@ function (dojo, declare) {
                         }   
                     }
 
-                    // begin -> resource args
-                    // only one type of resource.
+                    // only one type of resource, make into token(s)
                     if (args.type){
                         if (args.amount == null){
                             args.amount = 1;
@@ -5175,7 +5199,8 @@ function (dojo, declare) {
                     }
 
                     // trade
-                    // multiple types of resources
+                    // multiple types of resources (args.tradeAway, args.tradeFor, args.resource, args.resources) 
+                    // so must use `this.getResourceArrayHtml` to parse resourceArray
                     if (args.tradeAway && args.tradeAway_arr){
                         args.tradeAway = this.getResourceArrayHtml(args.tradeAway_arr);
                     }
@@ -5183,6 +5208,7 @@ function (dojo, declare) {
                         args.tradeFor = this.getResourceArrayHtml(args.tradeFor_arr);
                     }
                     if (args.resource && args.tradeFor_arr && args.tradeAway_arr){ // Buy/Sell/Market/Bank
+                        console.log('in Buy/Sell/Market/Bank', args.resource, args.tradeFor_arr, args.tradeAway_arr);
                         let tradeAway = this.getResourceArrayHtml(args.tradeAway_arr);
                         let tradeFor  = this.getResourceArrayHtml(args.tradeFor_arr);
                         args.resource = dojo.string.substitute(_("${tradeAway} ${arrow} ${tradeFor}"),{tradeAway:tradeAway, arrow:TOKEN_HTML.arrow, tradeFor:tradeFor});
@@ -5193,9 +5219,8 @@ function (dojo, declare) {
                         }
                         args.resources = this.getResourceArrayHtml(args.resource_arr);
                     }
-                    // end -> resource args
 
-                    // begin -> specific token args 
+                    // begin -> replace specific args with respective tokens
                     if (args.arrow){
                         args.arrow = TOKEN_HTML.arrow;
                     }
@@ -5215,9 +5240,9 @@ function (dojo, declare) {
                         let color = PLAYER_COLOR[args.player_id];
                         args.bid = this.format_block('jstpl_player_token_log', {"color" : color, "type" : 'bid'});
                     }
+                    // end -> replace specific args with respective tokens
 
-                    // end -> specific token args
-
+                    // begin -> update font args
                     /* formats args.building_name to have the building Color by type, 
                      * and add resources if cost included.
                      */
@@ -5233,15 +5258,14 @@ function (dojo, declare) {
                         args.bidVal = this.format_block('jstpl_color_log', {string:"$"+args.bidVal, color:color + ' biggerFont'});
                     }
                     // this will always set `args.auction` (allowing it to be used in the Title)
-                    if (args.auction){
+                    if (args.auction){ //if key given, use that
                         let color = ASSET_COLORS[Number(args.key)+10]??'';
                         args.auction = this.format_block('jstpl_color_number_log', {string:_("AUCTION "), color:color, number:args.key});
-                    } else {
+                    } else { // otherwise use current_auction
                         let color = ASSET_COLORS[Number(this.current_auction)+10]??'';
                         args.auction = this.format_block('jstpl_color_number_log', {color:color, string:_("AUCTION "), number:this.current_auction});
                     }
-                    // end -> add font only args  
-
+                    // end -> update font args
                 }
             } catch (e) {
                 console.error(log,args,"Exception thrown", e.stack);
@@ -5249,6 +5273,7 @@ function (dojo, declare) {
             return this.inherited(arguments);
         },
 
+        // You font update (from BGA wiki https://en.doc.boardgamearena.com/BGA_Studio_Cookbook)
         divYou : function() {
             var color = this.gamedatas.players[this.player_id].color;
             var color_bg = "";
@@ -5259,6 +5284,7 @@ function (dojo, declare) {
             return you;
         },
 
+        // return set of resources (of one type) as tokens in a log_container
         getOneResourceHtml: function(type, amount=1, asSpan = false, style=""){
             let html_type = asSpan ? 'span': 'div';
             var resString = `<${html_type} class="log_container" style="${style}">`;
@@ -5271,6 +5297,15 @@ function (dojo, declare) {
             return resString + `</${html_type}>`;
         },
 
+        /**
+         * getter method for token array processing.
+         * This method will use BigVp tokens, instead of normal vp tokens.
+         * This primarily for use in building tiles.
+         * 
+         * @argument array - object array with resources to show
+         * @argument asSpan - boolean define if container should be span(true), or div(false)
+         * @return set of resources (of more than 1 type) as tokens in a log_container div or span
+         */
         getResourceArrayHtmlBigVp: function (array ={}, asSpan=false) {
             let html_type = asSpan ? 'span': 'div';
             var aggregateString = `<${html_type} class="log_container">`;
@@ -5295,7 +5330,14 @@ function (dojo, declare) {
             }
             return aggregateString + `</${html_type}>`;
         },
-
+        
+        /**
+         * getter method for token array processing.
+         * 
+         * @argument array - object array with resources to show
+         * @argument asSpan - boolean define if container should be span(true), or div(false)
+         * @return set of resources (of more than 1 type) as tokens in a log_container div or span
+         */
         getResourceArrayHtml: function( array ={}, asSpan=false, style=""){
             let html_type = asSpan ? 'span': 'div';
             var aggregateString = `<${html_type} class="log_container" style="${style}">`;
@@ -5316,12 +5358,15 @@ function (dojo, declare) {
             }
             return aggregateString + `</${html_type}>`;
         },
-
+        
+        ///////////// Begin `notif_xxx` methods
+        // for transition between rounds, (moving build able buildings)
         notif_updateBuildingStocks: function ( notif ){
             this.updateBuildingStocks(notif.args.buildings);
             this.showHideButtons();
         },
 
+        // for moving workers between building worker slots.
         notif_workerMoved: function( notif ){
             //console.log('notif_workerMoved');
             const worker_divId = 'token_worker_'+Number(notif.args.worker_key);
@@ -5332,12 +5377,14 @@ function (dojo, declare) {
             }
         },
 
+        // for moving train tokens on rail advancement track
         notif_railAdv: function( notif ){
             //console.log('notif_railAdv');
             const train_token = TRAIN_TOKEN_ID[notif.args.player_id];
             this.moveObject(train_token, `train_advancement_${notif.args.rail_destination}`);
         }, 
 
+        // for gain worker events (not assigned to building by default)
         notif_gainWorker: function( notif ){
             //console.log('notif_gainWorker');
             const worker_divId = `token_worker_${notif.args.worker_key}`;
@@ -5353,6 +5400,7 @@ function (dojo, declare) {
             this.calculateAndUpdateScore(notif.args.player_id);
         },
 
+        // for pay worker action.  Has faux transition to new state, removing action buttons except for `undo`
         notif_workerPaid: function( notif ){
             this.showPay = false;
             let buttons = dojo.query(`#generalactions a`);
@@ -5364,6 +5412,7 @@ function (dojo, declare) {
             this.resetTradeValues();
         },
 
+        // for gaining railroad Track
         notif_gainTrack: function( notif ){
             //console.log('notif_gainTrack');
             const p_id = Number(notif.args.player_id);
@@ -5384,10 +5433,12 @@ function (dojo, declare) {
             }
         },
 
+        // for moving a player's bid token (Boot)
         notif_moveBid: function( notif ){
             this.moveBid(notif.args.player_id, notif.args.bid_location);
         },
 
+        // for moving first player token
         notif_moveFirstPlayer: function (notif ){
             const p_id = Number(notif.args.player_id);
             const tile_id = FIRST_PLAYER_ID;
@@ -5397,12 +5448,14 @@ function (dojo, declare) {
             }
         },
 
+        // for moving all bids to Pass area (bottom of Auction board)
         notif_clearAllBids: function( notif ){
             for (let i in PLAYER_COLOR){
                 this.moveBid(i, BID_PASS);
             }
         },
 
+        // for moving a building from Stock to player area.
         notif_buildBuilding: function( notif ){
             this.buildingCost = [];
             const p_id = notif.args.player_id;
@@ -5425,6 +5478,7 @@ function (dojo, declare) {
             this.calculateAndUpdateScore(p_id);
         },
 
+        // set/update player resource amounts (if visible) when they gain income (1 resource type)
         notif_playerIncome: function( notif ){
             //console.log('notif_playerIncome');
             var start = this.getTargetFromNotifArgs(notif);
@@ -5442,6 +5496,7 @@ function (dojo, declare) {
             this.calculateAndUpdateScore(p_id);
         },
 
+        // set/update player resource amounts (if visible) when they gain income (multiple resource types)
         notif_playerIncomeGroup: function( notif ){
             //console.log('notif_playerIncomeGroup');
             var start = this.getTargetFromNotifArgs(notif);
@@ -5463,6 +5518,7 @@ function (dojo, declare) {
             this.calculateAndUpdateScore(p_id);
         },
 
+        // set/update warehouse state (resources available)
         notif_updateWarehouseState: function (notif){
             //console.log('notif_updateWarehouseState', notif.args);
             let origin = null;
@@ -5472,6 +5528,7 @@ function (dojo, declare) {
             this.updateWarehouseState(notif.args.state, origin);
         },
 
+        // set/update player resource amounts (if visible) when they make payment (1 resource type)
         notif_playerPayment: function( notif ){         
             //console.log('notif_playerPayment');
             var destination = this.getTargetFromNotifArgs(notif);
@@ -5485,6 +5542,7 @@ function (dojo, declare) {
             this.calculateAndUpdateScore(p_id);
         },
 
+        // set/update player resource amounts (if visible) when they make payment (multiple resource types)
         notif_playerPaymentGroup: function( notif ){
             //console.log('notif_playerPaymentGroup');
             var destination = this.getTargetFromNotifArgs(notif);
@@ -5502,17 +5560,20 @@ function (dojo, declare) {
             this.calculateAndUpdateScore(p_id);
         },
 
+        // show hidden/pending trades (only to this player).
         notif_hiddenTrade: function ( notif ){
             console.log('notif_hiddenTrade', notif);
             this.updateHiddenTrades({trade_away:notif.args.tradeAway_arr, trade_for:notif.args.tradeFor_arr});
         },
 
+        // clear hidden/pending trades (only shown to this player).
         notif_cancelHiddenTrade: function (notif ){
             console.log('notif_cancelHiddenTrade', notif);
             this.clearHiddenTrades();
             this.updateTradeAffordability();
         },
 
+        // update player resources when a trade is done.
         notif_trade: function( notif ){
             //console.log('notif_trade');
             const p_id = notif.args.player_id;
@@ -5545,6 +5606,7 @@ function (dojo, declare) {
             this.calculateAndUpdateScore(p_id);
         },
 
+        // update player resources when a loan is paid
         notif_loanPaid: function( notif ){
             //console.log('notif_loanPaid');
             const p_id = notif.args.player_id;
@@ -5567,6 +5629,7 @@ function (dojo, declare) {
             this.calculateAndUpdateScore(p_id);
         },
 
+        // update player resources when a loan is taken
         notif_loanTaken: function( notif ){
             //console.log('notif_loanTaken');
             const p_id = notif.args.player_id;
@@ -5580,6 +5643,7 @@ function (dojo, declare) {
             this.calculateAndUpdateScore(p_id);
         },
 
+        // update player score
         notif_score: function( notif ){
             //console.log('notif_score', notif);
             const p_id = notif.args.player_id;
@@ -5604,6 +5668,7 @@ function (dojo, declare) {
             this.updateScore(p_id, score);
         },
 
+        // for use when in non-show resources game, when reaching round 11 (where all player resources are revealed)
         notif_showResources: function( notif ){
             //console.log('notif_showResources', notif);
             if (this.show_player_info) return;// already showing player resources.
@@ -5618,6 +5683,7 @@ function (dojo, declare) {
             }
         },
 
+        // complex action that undoes other notifications, as well as board states associated with those actions.
         notif_cancel: function( notif ){
             //console.log('notif_cancel', notif);
             const p_id = notif.args.player_id;
