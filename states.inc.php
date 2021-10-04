@@ -88,14 +88,14 @@ $machinestates = array(
 
     STATE_EVT_BONUS => array(
         "name" => "bonusChoice_event",
-        "description" => clienttranslate('${actplayer} must choose a railroad advance bonus'),
+        "description" => clienttranslate('Some players must choose a railroad advance bonus'),
         "descriptionmyturn" => clienttranslate('${you} must choose a railroad advance bonus'),
         "descriptionalternate" => clienttranslate('Some players may choose to receive bonus'),
         "descriptionmyturnalternate" => clienttranslate('${you} may choose to receive bonus'),
         "type" => "multipleactiveplayer",
         "action" => "stEventSetupBonus",
         "args" => "argEventBonus",
-        "possibleactions" => array( "eventBonus" ),
+        "possibleactions" => array( "chooseBonus", "eventBonus" ),
         "transitions" => array( "done" => STATE_BEGIN_AUCTION,)
     ),
 

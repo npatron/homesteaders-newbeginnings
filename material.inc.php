@@ -784,7 +784,7 @@ $this->event_info = array(
   EVENT_STATE_FAIR => array(
     'name'  => clienttranslate('State Fair'),
     'stage' => STAGE_TOWN,
-    'tt'    => clienttranslate('The player(s) with the most ${copper} plus ${cow} (at least one) gets a ${gold}'),
+    'tt'    => clienttranslate('The player(s) with the most ${copper} plus ${cow}, (at least one) gets a ${gold}'),
     'all_b' => EVT_COPPER_COW_GET_GOLD,
   ),
   EVENT_TRANSCONTINENTAL_RR => array(

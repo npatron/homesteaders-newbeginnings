@@ -134,6 +134,13 @@ class HSDAuction extends APP_GameClass
             case AUC_BONUS_6VP_AND_FOOD_VP:
                 $this->game->Resource->updateAndNotifyIncome($this->game->getActivePlayerId(), 'vp6', 1, clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
             break;
+            case AUC_BONUS_4DEPT_FREE:
+                $this->game->Resource->payLoanOrReceiveSilver($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
+                $this->game->Resource->payLoanOrReceiveSilver($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
+                $this->game->Resource->payLoanOrReceiveSilver($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
+                $this->game->Resource->payLoanOrReceiveSilver($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
+                $next_state = 'done';
+            break;
             default:
                 // all others are handled by player actions, so go to that state.
             break;
