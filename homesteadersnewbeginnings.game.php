@@ -53,6 +53,7 @@ class homesteadersnewbeginnings extends Table
             "last_building"     => 17,
             "b_order"           => 18,
             "build_type_int"    => 19,
+            "lot_state"         => 20,
             "show_player_info"  => SHOW_PLAYER_INFO,
             "rail_no_build"     => RAIL_NO_BUILD,
             "new_beginning_bld" => NEW_BEGINNING_BLD,
@@ -127,6 +128,7 @@ class homesteadersnewbeginnings extends Table
         $this->setGameStateInitialValue( 'building_bonus', 0 );
         $this->setGameStateInitialValue( 'last_building',  0 );
         $this->setGameStateInitialValue( 'b_order' ,       0 );
+        $this->setGameStateInitialValue( 'lot_state',      0 );
           
         $values = array();
         // set colors
@@ -434,14 +436,22 @@ class homesteadersnewbeginnings extends Table
         $bid_cost = max($bid_cost - 5*$gold, 0);
         $auc_no = $this->getGameStateValue('current_auction');
         $this->Resource->pay($act_p_id, $bid_cost, $gold, sprintf(clienttranslate("Auction %s"), $auc_no), $auc_no);
+
+        //setup lot_state so user can choose lot actions.
+        $lot_state = 0;
         if ($this->Auction->doesCurrentAuctionHaveBuildPhase()){
             $this->Auction->setCurrentAuctionBuildType();
-            $this->gamestate->nextstate( 'build' );
-        } else if ($this->Event->isAuctionAffected()){
-            $this->gamestate->nextstate( 'event' );
-        } else {
-            $this->gamestate->nextstate( 'auction_bonus');
+            $lot_state +=LOT_STATE_BUILD;
         }
+        if ($this->Auction->doesCurrentAuctionHaveAuctionBonus()){
+            $lot_state +=LOT_STATE_AUC_BONUS;
+        }
+        if ($this->Event->isAuctionAffected()){
+            $lot_state +=LOT_STATE_EVT_BONUS;
+        }
+        $this->setGameStateValue("lot_state", $lot_state);
+        // go to choose lot actions.
+        $this->gamestate->nextState( 'chooseLotAction');
     }
 
     public function payEvent($gold){
@@ -664,6 +674,37 @@ class homesteadersnewbeginnings extends Table
         $this->Log->cancelPass();
         $this->gamestate->nextState('undoPass');
     }
+
+    /* **** Lot change state player choice **** */
+    public function playerGoToBuild () {
+        $this->checkAction('chooseLotAction');
+        $lot_state = $this->getGameStateValue('lot_state');
+        $lot_state = (int) $lot_state - LOT_STATE_BUILD;
+        $this->setGameStateValue('lot_state', $lot_state);
+        $this->gamestate->nextState('build');
+    }
+
+    public function playerGoToEvent () {
+        $this->checkAction('chooseLotAction');
+        $lot_state = $this->getGameStateValue('lot_state');
+        $lot_state = (int) $lot_state - LOT_STATE_AUC_BONUS;
+        $this->setGameStateValue('lot_state', $lot_state);
+        $this->gamestate->nextState('event');
+    }
+
+    public function playerGoToAuction () {
+        $this->checkAction('chooseLotAction');
+        $lot_state = $this->getGameStateValue('lot_state');
+        $lot_state = (int) $lot_state - LOT_STATE_EVT_BONUS;
+        $this->setGameStateValue('lot_state', $lot_state);
+        $this->gamestate->nextState('auction_bonus');
+    }
+
+    public function playerGoToConfirm () {
+        $this->checkAction('chooseLotAction');
+        $this->setGameStateValue('lot_state', 0);
+        $this->gamestate->nextState('pass');
+    }
  
     /*
      * restartTurn: called when a player decide to go back at the beginning of the player build phase
@@ -803,6 +844,11 @@ class homesteadersnewbeginnings extends Table
             }
         }
         return array("lot_cost"=>$bid_cost);
+    }
+
+    function argLotChooseAction() {
+        $lot_state = $this->getGameStateValue("lot_state");
+        return array("lot_state"=>$lot_state);
     }
 
     function argAllowedBuildings() {
@@ -962,6 +1008,20 @@ class homesteadersnewbeginnings extends Table
     function stWinAuction()
     {
         
+    }
+
+    function stLotChooseAction()
+    {
+        $lot_state = $this->getGameStateValue("lot_state");
+        if ($lot_state == 0){ // no actions remaining
+            $this->gamestate->nextState( "pass" );
+        } else if ($lot_state == LOT_STATE_BUILD){// only build
+            $this->gamestate->nextState( "build" );
+        } else if ($lot_state == LOT_STATE_AUC_BONUS){ // only auction
+            $this->gamestate->nextState( "auction_bonus" );
+        } else if ($lot_state == LOT_STATE_EVT_BONUS){ // only event
+            $this->gamestate->nextState( "event" );
+        }
     }
 
     function stBuildingPhase()

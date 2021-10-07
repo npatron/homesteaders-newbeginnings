@@ -84,6 +84,10 @@ function (dojo, declare) {
     const AUC_LOC_FUTURE  = 2;
     const EVT_LOC_MAIN    = 4;
 
+    const LOT_STATE_BUILD     = 1;
+    const LOT_STATE_AUC_BONUS = 2;
+    const LOT_STATE_EVT_BONUS = 4;
+
     const TRADE_BUTTON_SHOW    = 0;
     const TRADE_BUTTON_HIDE    = 1;
     const TRADE_BUTTON_CONFIRM = 2;
@@ -149,9 +153,15 @@ function (dojo, declare) {
        // 'workerForFreeBuilding', 'workerForFreeAuction', 'workerForFreeEvent', 'workerForFreeLotEvent
     const BTN_ID_PASS_BONUS   = 'btn_pass_bonus';   
        // 'passBonusBuilding', 'passBonusAuction', 'passBonusLotEvent'
+    const METHOD_PASS_BONUS   = 'passBonusEvent';
     /** Rail Bonus **/
+
+    const METHOD_BOARD_SELECT_BONUS = 'onSelectBonusOption'
+    // BTN_ID_SELECT_BONUS = `btn_bonus_${type}`; // DYNAMIC
+    const METHOD_SELECT_BONUS = 'selectBonusButton';
     const BTN_ID_CHOOSE_BONUS = 'btn_choose_bonus'; 
     const METHOD_CHOOSE_BONUS = 'doneSelectingRailBonus';
+    const METHOD_CHOOSE_BONUS_EVENT = 'doneSelectingRailBonusEvent';
     /** Event Bonus buttons */
     const BTN_ID_EVENT_SILVER_TRACK = 'btn_silver_track';
     const METHOD_EVENT_SILVER_TRACK = 'silver2ForTrack';
@@ -168,15 +178,28 @@ function (dojo, declare) {
     /*** common buttons ***/
     const BTN_ID_UNDO_PASS    = 'btn_undo_pass';
        // 'onUnPass_allocateWorkers', 'onUndoBidPass', 'onUnPass_endGameActions' 
+    const BTN_ID_ON_PASS_EVENT_DONE = 'btn_done_pass_event';
+        // 'donePassEvent';
     const BTN_ID_CANCEL       = 'btn_cancel_button';
        // 'cancelUndoTransactions', 'cancelEventTransactions', 'cancelHiddenUndoTransactions',
     const BTN_ID_REDO_AUCTION = 'btn_redo_build_phase';
-       //  'cancelTurn'
+    const METHOD_CANCEL_TURN = 'cancelTurn';
     const BTN_ID_HIRE_WORKER  = 'btn_hire_worker';
     const METHOD_HIRE_WORKER  = 'hireWorkerButton';
     const BTN_ID_TAKE_LOAN    = 'btn_take_loan';
     const TAKE_LOAN_ARR       = {'silver':2,'loan':1};
        // 'onMoreLoan'
+
+    /*** Choose Lot Action ***/
+    const BTN_LOT_ACTION_BUILD  = 'btn_build';
+    const METHOD_LOT_ACTION_BUILD  = 'lotGoToBuild';
+    const BTN_LOT_ACTION_EVENT  = 'btn_event';
+    const METHOD_LOT_ACTION_EVENT  = 'lotGoToEvent';
+    const BTN_LOT_ACTION_AUCTION  = 'btn_auction';
+    const METHOD_LOT_ACTION_AUCTION  = 'lotGoToAuction';
+    const BTN_LOT_ACTION_PASS  = 'btn_pass';
+    const METHOD_LOT_ACTION_PASS  = 'lotGoToConfirm';
+
     /*** Build Building ***/
     const BTN_ID_BUILD_BUILDING = 'btn_choose_building';
     const METHOD_BUILD_BUILDING = 'chooseBuilding';
@@ -917,7 +940,7 @@ function (dojo, declare) {
             const bonus_options = dojo.query('.train_bonus');
             for(let i in bonus_options){
                 if (bonus_options[i].id){
-                    dojo.connect($(bonus_options[i].id),'onclick', this, 'onSelectBonusOption');
+                    dojo.connect($(bonus_options[i].id),'onclick', this, );
                     let type = bonus_options[i].id.split('_')[3];
                     if (type in RESOURCE_INFO){
                         this.addTooltipHtml(_(RESOURCE_INFO[type].tt));
@@ -1248,7 +1271,7 @@ function (dojo, declare) {
             if (args.event_pass == EVT_PASS_DEPT_SILVER){
                 this.addActionButton( BTN_ID_PAY_LOAN_3_SILVER, this.replaceTooltipStrings(_('pay off ${loan} for ${silver}${silver}${silver}')), METHOD_PAY_LOAN_3_SILVER, null, false, 'blue');
             }
-            this.addActionButton( 'btn_done_pass_event', _('Done'), 'donePassEvent', null, false, 'blue');
+            this.addActionButton( BTN_ID_ON_PASS_EVENT_DONE, _('Done'), 'donePassEvent', null, false, 'blue');
             this.addTradeActionButton();
         },
         onUpdateActionButtons_getRailBonus: function(args){
@@ -1256,12 +1279,12 @@ function (dojo, declare) {
             this.setupButtonsForRailBonus(args);
         },
         onUpdateActionButtons_getRailBonus_auction: function(args){
-            this.addActionButton( BTN_ID_REDO_AUCTION, _('Cancel'), 'cancelTurn', null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _('Cancel'), METHOD_CANCEL_TURN, null, false, 'red');
             this.can_cancel = true;
             this.setupButtonsForRailBonus(args);
         },
         onUpdateActionButtons_getRailBonus_build: function(args){
-            this.addActionButton( BTN_ID_REDO_AUCTION, _('Cancel'), 'cancelTurn', null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _('Cancel'), METHOD_CANCEL_TURN, null, false, 'red');
             this.can_cancel = true;
             this.setupButtonsForRailBonus(args);            
         },
@@ -1276,9 +1299,9 @@ function (dojo, declare) {
                 const id = BONUS_OPTIONS[args.rail_options[i]];
                 dojo.addClass(id, 'selectable');
                 if (type == 'vp'){
-                    this.addActionButton( `btn_bonus_${type}`, TOKEN_HTML.vp3, 'selectBonusButton', null, false, 'gray');
+                    this.addActionButton( `btn_bonus_${type}`, TOKEN_HTML.vp3, METHOD_SELECT_BONUS, null, false, 'gray');
                 } else {
-                    this.addActionButton( `btn_bonus_${type}`, TOKEN_HTML[type], 'selectBonusButton', null, false, 'gray');
+                    this.addActionButton( `btn_bonus_${type}`, TOKEN_HTML[type], METHOD_SELECT_BONUS, null, false, 'gray');
                 }
             }
             this.addActionButton( BTN_ID_CHOOSE_BONUS, _("Choose Bonus"), METHOD_CHOOSE_BONUS);
@@ -1290,6 +1313,19 @@ function (dojo, declare) {
             this.addPaymentButtons(true);
             this.addTradeActionButton();
             this.setOffsetForPaymentButtons();
+        },
+        onUpdateActionButtons_chooseLotAction: function(args){
+            if ((args.lot_state & LOT_STATE_BUILD) >0){
+                this.addActionButton( BTN_LOT_ACTION_BUILD, _("Build"), METHOD_LOT_ACTION_BUILD);
+            }
+            if ((args.lot_state & LOT_STATE_EVT_BONUS) >0){
+                this.addActionButton( BTN_LOT_ACTION_EVENT, _("Event Bonus"), METHOD_LOT_ACTION_EVENT);
+            }
+            if ((args.lot_state & LOT_STATE_AUC_BONUS) >0){
+                this.addActionButton( BTN_LOT_ACTION_AUCTION, _("Auction Bonus"), METHOD_LOT_ACTION_AUCTION);
+            }
+            this.addActionButton( BTN_LOT_ACTION_PASS, _("Pass"), METHOD_LOT_ACTION_PASS , null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _("Cancel"), METHOD_CANCEL_TURN, null, false, 'red');
         },
         onUpdateActionButtons_chooseBuildingToBuild: function(args){
             this.allowed_buildings = args.allowed_buildings;
@@ -1311,7 +1347,7 @@ function (dojo, declare) {
                 this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_("(FREE) Hire ${worker}")), 'workerForFreeBuilding');
             } 
             this.addActionButton( BTN_ID_PASS_BONUS,   _("Do Not Get Bonus"), 'passBonusBuilding', null, false, 'red');
-            this.addActionButton( BTN_ID_REDO_AUCTION, _("Cancel"),  'cancelTurn', null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _("Cancel"),  METHOD_CANCEL_TURN, null, false, 'red');
             this.can_cancel = true;
         },
         onUpdateActionButtons_bonusChoice_auction: function (args) {
@@ -1349,13 +1385,13 @@ function (dojo, declare) {
                     break;
             }
             this.addActionButton( BTN_ID_PASS_BONUS, _("Do Not Get Bonus"), 'passBonusAuction', null, false, 'red');
-            this.addActionButton( BTN_ID_REDO_AUCTION, _("Cancel"), 'cancelTurn', null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _("Cancel"), METHOD_CANCEL_TURN, null, false, 'red');
             this.addTradeActionButton();
         },
         onUpdateActionButtons_confirmActions: function () {
             this.updateBuildingAffordability();
             this.addActionButton( BTN_ID_CONFIRM_ACTIONS, _("Confirm"), 'confirmBuildPhase');
-            this.addActionButton( BTN_ID_REDO_AUCTION,    _("Cancel"), 'cancelTurn', null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION,    _("Cancel"), METHOD_CANCEL_TURN, null, false, 'red');
             this.can_cancel = true;
         },
         onUpdateActionButtons_endGameActions: function () {
@@ -1463,15 +1499,23 @@ function (dojo, declare) {
                 case EVT_RES_ADV_TRACK: // most residential buildings get track adv
                     this.setupButtonsForRailBonus(args.args[this.player_id]);
                     dojo.destroy(BTN_ID_CHOOSE_BONUS);
-                    this.addActionButton( BTN_ID_CHOOSE_BONUS, _('Choose Bonus'), 'doneSelectingRailBonusEvent');
-                    dojo.addClass(BTN_ID_CHOOSE_BONUS, 'disabled');
+                    this.addActionButton( BTN_ID_CHOOSE_BONUS, _('Choose Bonus'), METHOD_CHOOSE_BONUS_EVENT);
+                    if (LAST_SELECTED.bonus == ""){
+                        dojo.addClass(BTN_ID_CHOOSE_BONUS, 'disabled');
+                    } else {
+                        let type = LAST_SELECTED.bonus;
+                        let btn_id = `btn_bonus_${type}`;
+                        dojo.toggleClass(btn_id, 'bgabutton_blue');
+                        dojo.toggleClass(btn_id, 'bgabutton_gray');
+                    }
                 break;
                 case EVT_LEAST_WORKER: //least workers can hire worker (free).
                     this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_('(FREE) Hire ${worker}')), 'workerForFreeEvent');
-                    this.addActionButton( BTN_ID_PASS_BONUS_EVENT, _('Do Not Get Bonus'), 'passBonusEvent', null, false, 'red');
+                    this.addActionButton( BTN_ID_PASS_BONUS, _('Do Not Get Bonus'), METHOD_PASS_BONUS, null, false, 'red');
                 break;
             }
         },
+
         onUpdateActionButtons_eventPay: function (args){
             this.silverCost= args.cost[this.player_id];
             this.goldCost = 0;
@@ -1495,7 +1539,7 @@ function (dojo, declare) {
                 break;
             }
             this.addActionButton( BTN_ID_PASS_BONUS, _('Do Not Get Bonus'), 'passBonusLotEvent', null, false, 'red');
-            this.addActionButton( BTN_ID_REDO_AUCTION, _('Cancel'), 'cancelTurn', null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _('Cancel'), METHOD_CANCEL_TURN, null, false, 'red');
             this.addTradeActionButton();
         },
         
@@ -1701,7 +1745,7 @@ function (dojo, declare) {
             this.addActionButton( BTN_ID_BUILD_BUILDING, dojo.string.substitute(_("Build ${building_name}"), {building_name:`<span id="${BUILDING_NAME_ID}"></span>`}), METHOD_BUILD_BUILDING);
             dojo.addClass(BTN_ID_BUILD_BUILDING ,'disabled');
             this.addActionButton( BTN_ID_DO_NOT_BUILD, _("Do Not Build"), 'doNotBuild', null, false, 'red');
-            this.addActionButton( BTN_ID_REDO_AUCTION, _("Cancel"), 'cancelTurn', null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _("Cancel"), METHOD_CANCEL_TURN, null, false, 'red');
             this.can_cancel = true;
             this.addTradeActionButton();
 
@@ -4052,7 +4096,36 @@ function (dojo, declare) {
             }
         },
 
-        /***** cancel back to PAY AUCTION PHASE *****/
+        /*** LOT choose Actions ***/
+        lotGoToBuild: function() {
+            if( this.checkAction( 'chooseLotAction' )){
+                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/lotGoToBuild.html", {lock: true}, this, 
+                function( result ) {}, function( is_error) { } ); 
+            }
+        },
+
+        lotGoToEvent: function() {
+            if( this.checkAction( 'chooseLotAction' )){
+                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/lotGoToEvent.html", {lock: true}, this, 
+                function( result ) {}, function( is_error) { } ); 
+            }
+        },
+
+        lotGoToAuction: function() {
+            if( this.checkAction( 'chooseLotAction' )){
+                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/lotGoToAuction.html", {lock: true}, this, 
+                function( result ) {}, function( is_error) { } ); 
+            }
+        },
+
+        lotGoToConfirm: function() {
+            if( this.checkAction( 'chooseLotAction' )){
+                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/lotGoToConfirm.html", {lock: true}, this, 
+                function( result ) {}, function( is_error) { } ); 
+            }
+        },
+
+        /***** cancel back to PAY AUCTION PHASE (METHOD_CANCEL_TURN) *****/
         cancelTurn: function() {
             this.undoTransactionsButton();
             if( this.checkAction( 'undoLot' )){
@@ -4064,7 +4137,7 @@ function (dojo, declare) {
             }
         },
 
-        /***** CHOOSE BONUS OPTION *****/
+        /***** METHOD_BOARD_SELECT_BONUS (`btn_bonus_${type}`) *****/
         onSelectBonusOption: function( evt ){
             evt.preventDefault();
             dojo.stopEvent( evt );
@@ -4074,7 +4147,16 @@ function (dojo, declare) {
                 this.updateSelectedBonus(type);
             }
         },
-        // METHOD_CHOOSE_BONUS (BTN_ID_CHOOSE_BONUS)
+        /**  METHOD_CHOOSE_BONUS (`btn_bonus_${type}`) **/
+        selectBonusButton: function( evt ) {
+            //console.log('selectBonusButton', evt);
+            if (this.checkAction( 'chooseBonus' )){
+                let target_id = (evt.target.id?evt.target.id:evt.target.parentNode.id);
+                let type = target_id.split("_")[2];
+                this.updateSelectedBonus(type);
+            }
+        },
+        /**  METHOD_CHOOSE_BONUS (BTN_ID_CHOOSE_BONUS) **/
         doneSelectingRailBonus: function(){
             if (this.checkAction( 'chooseBonus' )){
                 if (LAST_SELECTED['bonus'] == ""){ 
@@ -4090,7 +4172,7 @@ function (dojo, declare) {
                     function( is_error) { } ); 
             }
         },
-
+        /**  METHOD_CHOOSE_BONUS_EVENT (BTN_ID_CHOOSE_BONUS) **/
         doneSelectingRailBonusEvent: function (){
             if (this.checkAction( 'eventBonus' )){
                 if (LAST_SELECTED['bonus'] == ""){ 
@@ -4104,15 +4186,6 @@ function (dojo, declare) {
                         this.changeStateCleanup();
                         this.clearSelectable('bonus', true);}, 
                     function( is_error) { } ); 
-            }
-        },
-
-        selectBonusButton: function( evt ) {
-            //console.log('selectBonusButton', evt);
-            if (this.checkAction( 'chooseBonus' )){
-                let target_id = (evt.target.id?evt.target.id:evt.target.parentNode.id);
-                let type = target_id.split("_")[2];
-                this.updateSelectedBonus(type);
             }
         },
          
@@ -4941,6 +5014,7 @@ function (dojo, declare) {
             }
         },
 
+        /*** BTN_ID_PASS_BONUS ***/
         passBonusLotEvent: function() {
             if (this.checkAction( 'eventLotBonus' )){
                 this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/passBonusLotEvent.html", {lock: true}, this, 
@@ -4948,6 +5022,7 @@ function (dojo, declare) {
             }
         },
 
+        /*** METHOD_PASS_BONUS ***/
         passBonusEvent: function() {
             if (this.checkAction( 'eventBonus' )){
                 this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/passBonusEvent.html", {lock: true}, this, 

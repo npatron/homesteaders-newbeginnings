@@ -206,9 +206,23 @@ $machinestates = array(
         "type" => "activeplayer",
         "args" => "argLotCost",
         "possibleactions" => array( "trade", "takeLoan", "updateGold", "done" ),
-        "transitions" => array( "build" => STATE_CHOOSE_BUILDING,
+        "transitions" => array( "chooseLotAction" => STATE_CHOOSE_LOT_ACTION,
+                                "zombiePass"=> STATE_END_CURRENT_LOT)
+    ),
+
+    STATE_CHOOSE_LOT_ACTION => array(
+        "name" => "chooseLotAction",
+        "description" => clienttranslate('${actplayer} must choose lot action to resolve'),
+        "descriptionmyturn" => clienttranslate('${you} must choose lot action to resolve'),
+        "type" => "activeplayer",
+        "args" => "argLotChooseAction",
+        "action" => "stLotChooseAction",
+        "possibleactions" => array( "chooseLotAction", "done", "undoLot" ),
+        "transitions" => array( "undoLot" => STATE_PAY_LOT,
+                                "build" => STATE_CHOOSE_BUILDING,
                                 "event" => STATE_EVT_SETUP_BONUS,
                                 "auction_bonus" => STATE_AUC_SETUP_BONUS,
+                                "pass" => STATE_CONFIRM_LOT,
                                 "zombiePass"=> STATE_END_CURRENT_LOT)
     ),
 
@@ -233,7 +247,7 @@ $machinestates = array(
         "transitions" => array( "building_bonus" => STATE_BUILD_BONUS, 
                                 "rail_bonus"    => STATE_BUILD_RAIL_BONUS,
                                 "train_station_build"=> STATE_TRAIN_STATION_BUILD,
-                                "done"   =>        STATE_EVT_SETUP_BONUS,)
+                                "done"   =>        STATE_CHOOSE_LOT_ACTION,)
     ),
 
     STATE_BUILD_BONUS =>  array(
@@ -245,7 +259,7 @@ $machinestates = array(
         "action" => "stSetupTrade",
         "possibleactions" => array( "trade", "takeLoan", "buildBonus", "undoLot" ),
         "transitions" => array( "undoLot"  => STATE_PAY_LOT,
-                                "done"   => STATE_EVT_SETUP_BONUS,
+                                "done"   => STATE_CHOOSE_LOT_ACTION,
                                 "zombiePass"    => STATE_END_CURRENT_LOT)
     ),
 
@@ -257,7 +271,7 @@ $machinestates = array(
         "args" => "argRailBonus",
         "possibleactions" => array( "chooseBonus", "undoLot"),
         "transitions" => array( "undoLot"  => STATE_PAY_LOT,
-                                "done"=> STATE_EVT_SETUP_BONUS,
+                                "done"=> STATE_CHOOSE_LOT_ACTION,
                                 "zombiePass"=> STATE_END_CURRENT_LOT)
                                 
     ),
@@ -274,6 +288,7 @@ $machinestates = array(
                                 "done"       => STATE_RESOLVE_BUILD, 
                                 "zombiePass" => STATE_END_CURRENT_LOT )
     ),
+
     // build paths should "done" => STATE_EVT_SETUP_BONUS, 
     STATE_EVT_SETUP_BONUS  => array(
         "name" => "setup_lot_event",
@@ -296,7 +311,7 @@ $machinestates = array(
         "possibleactions" => array( "trade", "takeLoan", "eventLotBonus", "undoLot" ),
         "transitions" => array( "undoLot"  => STATE_PAY_LOT,
                                 "evt_build" => STATE_EVT_BUILD_AGAIN, 
-                                "done"      => STATE_AUC_SETUP_BONUS,
+                                "done"      => STATE_CHOOSE_LOT_ACTION,
                                 "zombiePass"=> STATE_END_CURRENT_LOT )
     ),
 
@@ -320,7 +335,7 @@ $machinestates = array(
         "action" => "stResolveBuilding",
         "transitions" => array( "building_bonus" => STATE_EVT_BUILD_BONUS, 
                                 "rail_bonus"    =>  STATE_EVT_RAIL_BONUS,
-                                "done"=>            STATE_AUC_SETUP_BONUS,)
+                                "done"=>            STATE_CHOOSE_LOT_ACTION,)
     ),
 
     STATE_EVT_BUILD_BONUS => array(
@@ -332,7 +347,7 @@ $machinestates = array(
         "action" => "stSetupTrade",
         "possibleactions" => array( "trade", "takeLoan", "buildBonus", "undoLot" ),
         "transitions" => array( "undoLot"     => STATE_PAY_LOT,
-                                "done"        => STATE_AUC_SETUP_BONUS,
+                                "done"        => STATE_CHOOSE_LOT_ACTION,
                                 "zombiePass"  => STATE_END_CURRENT_LOT)
     ),
 
@@ -344,7 +359,7 @@ $machinestates = array(
         "args" => "argRailBonus",
         "possibleactions" => array( "chooseBonus", "undoLot"),
         "transitions" => array( "undoLot"  => STATE_PAY_LOT,
-                                "done"      => STATE_AUC_SETUP_BONUS,
+                                "done"      => STATE_CHOOSE_LOT_ACTION,
                                 "zombiePass"=> STATE_END_CURRENT_LOT)
     ),  
     // all EVT states should `done=>STATE_AUC_SETUP_BONUS`
@@ -355,7 +370,7 @@ $machinestates = array(
         "action" => "stSetupAuctionBonus",
         "transitions" => array( "bonusChoice" => STATE_AUC_CHOOSE_BONUS, 
                                 "rail_bonus"  => STATE_AUC_RAIL_BONUS,
-                                "done"    => STATE_CONFIRM_LOT,)
+                                "done"    => STATE_CHOOSE_LOT_ACTION,)
     ),
 
     STATE_AUC_CHOOSE_BONUS => array(
@@ -367,7 +382,7 @@ $machinestates = array(
         "action" => "stSetupTrade",
         "possibleactions" => array( "auctionBonus", 'trade', 'takeLoan', "undoLot" ),
         "transitions" => array( "undoLot"  => STATE_PAY_LOT,
-                                "done"      => STATE_CONFIRM_LOT,
+                                "done"      => STATE_CHOOSE_LOT_ACTION,
                                 "rail_bonus" => STATE_AUC_RAIL_BONUS,
                                 "zombiePass"=> STATE_END_CURRENT_LOT )
     ),
@@ -380,7 +395,7 @@ $machinestates = array(
         "args" => "argPassRailBonus",
         "possibleactions" => array( "chooseBonus", "undoLot"),
         "transitions" => array( "undoLot"  => STATE_PAY_LOT,
-                                "done"=>    STATE_CONFIRM_LOT,
+                                "done"=>    STATE_CHOOSE_LOT_ACTION,
                                 "zombiePass"=> STATE_END_CURRENT_LOT)
     ),
 

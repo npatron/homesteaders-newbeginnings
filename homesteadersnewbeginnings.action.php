@@ -244,6 +244,30 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
 
+  public function lotGoToBuild() {
+    self::setAjaxMode();
+    $this->game->playerGoToBuild( );
+    self::ajaxResponse( );
+  }
+
+  public function lotGoToEvent() {
+    self::setAjaxMode();
+    $this->game->playerGoToEvent( );
+    self::ajaxResponse( );
+  }
+
+  public function lotGoToAuction() {
+    self::setAjaxMode();
+    $this->game->playerGoToAuction( );
+    self::ajaxResponse( );
+  }
+
+  public function lotGoToConfirm() {
+    self::setAjaxMode();
+    $this->game->playerGoToConfirm( );
+    self::ajaxResponse( );
+  }
+
   public function passBonusBuilding() {
     self::setAjaxMode( );
     $this->game->playerPassBuildingBonus( );
