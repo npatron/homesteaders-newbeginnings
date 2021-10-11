@@ -106,6 +106,10 @@ class HSDAuction extends APP_GameClass
         return array_key_exists('build', $this->game->auction_info[$this->getCurrentAuctionId()]);
     }
 
+    function doesCurrentAuctionHaveAuctionBonus() {
+        return ($this->getCurrentAuctionBonus() !=AUC_BONUS_NONE);
+    }
+
     /**
      * returns an array of valid build types for current auction Tile.
      */

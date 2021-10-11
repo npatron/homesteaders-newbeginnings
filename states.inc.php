@@ -212,8 +212,8 @@ $machinestates = array(
 
     STATE_CHOOSE_LOT_ACTION => array(
         "name" => "chooseLotAction",
-        "description" => clienttranslate('${actplayer} must choose lot action to resolve'),
-        "descriptionmyturn" => clienttranslate('${you} must choose lot action to resolve'),
+        "description" => clienttranslate('${actplayer} must choose action to resolve'),
+        "descriptionmyturn" => clienttranslate('${you} must choose action to resolve'),
         "type" => "activeplayer",
         "args" => "argLotChooseAction",
         "action" => "stLotChooseAction",
@@ -289,15 +289,14 @@ $machinestates = array(
                                 "zombiePass" => STATE_END_CURRENT_LOT )
     ),
 
-    // build paths should "done" => STATE_EVT_SETUP_BONUS, 
     STATE_EVT_SETUP_BONUS  => array(
         "name" => "setup_lot_event",
         "description" => '',
         "type" => "game",
         "action" => "stSetupEventLotBonus",
         "transitions" => array( "evt_build" => STATE_EVT_BUILD_AGAIN, 
-                                "bonus"     => STATE_EVT_CHOICE,
-                                "done"      => STATE_AUC_SETUP_BONUS )
+                                "evt_bonus" => STATE_EVT_CHOICE,
+                                "done"      => STATE_CHOOSE_LOT_ACTION )
     ),
 
     STATE_EVT_CHOICE => array(
@@ -317,8 +316,8 @@ $machinestates = array(
 
     STATE_EVT_BUILD_AGAIN  => array(
         "name" => "chooseBuildingToBuild_event",
-        "description" => clienttranslate('${actplayer} may build another building'),
-        "descriptionmyturn" => clienttranslate('${you} may build another building'),
+        "description" => clienttranslate('${actplayer} may build a building'),
+        "descriptionmyturn" => clienttranslate('${you} may build a building'),
         "type" => "activeplayer",
         "args" => "argEventBuildings",
         "action" => "stSetupTrade",

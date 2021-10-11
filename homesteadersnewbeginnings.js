@@ -4501,6 +4501,7 @@ function (dojo, declare) {
             }
         },
 
+        // METHOD_BUILD_BUILDING
         chooseBuilding: function () {
             //console.log('chooseBuilding');
             if (this.checkAction( 'buildBuilding')){
@@ -5283,7 +5284,7 @@ function (dojo, declare) {
                         args.tradeFor = this.getResourceArrayHtml(args.tradeFor_arr);
                     }
                     if (args.resource && args.tradeFor_arr && args.tradeAway_arr){ // Buy/Sell/Market/Bank
-                        console.log('in Buy/Sell/Market/Bank', args.resource, args.tradeFor_arr, args.tradeAway_arr);
+                        //console.log('in Buy/Sell/Market/Bank', args.resource, args.tradeFor_arr, args.tradeAway_arr);
                         let tradeAway = this.getResourceArrayHtml(args.tradeAway_arr);
                         let tradeFor  = this.getResourceArrayHtml(args.tradeFor_arr);
                         args.resource = dojo.string.substitute(_("${tradeAway} ${arrow} ${tradeFor}"),{tradeAway:tradeAway, arrow:TOKEN_HTML.arrow, tradeFor:tradeFor});

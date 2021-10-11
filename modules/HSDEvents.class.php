@@ -372,13 +372,13 @@ class HSDEvents extends APP_GameClass
                     $this->game->setGameStateValue('build_type_int', 15);//all
                 break;
                 case EVT_AUC_STEEL_ANY:// player may pay a steel to build any building
-                    $next_state = "bonus";
+                    $next_state = "evt_bonus";
                     $this->game->setGameStateValue('build_type_int', 15);//all
 
                 break;
                 case EVT_AUC_BONUS_WORKER:// can recieve worker
                 case EVT_AUC_2SILVER_TRACK:// pay 2 silver for track advancement
-                    $next_state = "bonus";
+                    $next_state = "evt_bonus";
                 break;
                 case EVT_AUC_TRACK:
                     // gains a rail track

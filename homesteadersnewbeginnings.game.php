@@ -1016,12 +1016,16 @@ class homesteadersnewbeginnings extends Table
         if ($lot_state == 0){ // no actions remaining
             $this->gamestate->nextState( "pass" );
         } else if ($lot_state == LOT_STATE_BUILD){// only build
+            $this->setGameStateValue('lot_state', 0);
             $this->gamestate->nextState( "build" );
         } else if ($lot_state == LOT_STATE_AUC_BONUS){ // only auction
+            $this->setGameStateValue('lot_state', 0);
             $this->gamestate->nextState( "auction_bonus" );
         } else if ($lot_state == LOT_STATE_EVT_BONUS){ // only event
+            $this->setGameStateValue('lot_state', 0);
             $this->gamestate->nextState( "event" );
         }
+        //otherwise wait for player to choose next action.
     }
 
     function stBuildingPhase()
