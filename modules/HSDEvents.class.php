@@ -246,6 +246,7 @@ class HSDEvents extends APP_GameClass
     function setupEventBonus(){
         $bonus_id = $this->getEventAllB();
         $pending_players = array();
+        $change_state = false;
         switch($bonus_id){
             case EVT_LOAN_TRACK:
                 $pending_players = $this->getPlayersWithLeastResource('loan');
@@ -253,6 +254,7 @@ class HSDEvents extends APP_GameClass
                     $this->game->Resource->getRailAdv($p_id, $this->getEventName());
                     $this->game->Log->allowTrades($p_id);
                 } 
+                $change_state = true;
             break;
             case EVT_LEAST_WORKER:
                 $pending_players = $this->getPlayersWithLeastResource('workers');
@@ -265,13 +267,17 @@ class HSDEvents extends APP_GameClass
                 foreach ($pending_players as $p_id=>$player){
                     $this->game->Resource->getRailAdv($p_id, clienttranslate('Residential Dominance'));
                     $this->game->Log->allowTrades($p_id);
-                }             
+                }
+                $change_state = true;
             break;
         }
         if (count($pending_players) == 0){
             $this->game->gamestate->nextState("done");
         } else {
             $this->game->gamestate->setPlayersMultiactive($pending_players, 'done');
+            if ($change_state){
+                $this->game->gamestate->nextState("rail_bonus");
+            }
         }
     }
 

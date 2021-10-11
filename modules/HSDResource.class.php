@@ -323,6 +323,30 @@ class HSDResource extends APP_GameClass
         array( 'resources' => $this->getResources()));
     }
 
+    function pay4Loans($p_id, $reason, $origin='', $key=0){
+        $playerLoan = $this->game->getUniqueValueFromDb("SELECT `loan` FROM `resources` WHERE `player_id`='".$p_id."'");
+        $amtPaidOff = min(4, $playerLoan);
+        $amtSilverGain = (int) (4-$amtPaidOff) * 2;
+        for ($i = 1; $i <= $playerLoan; $i++) {
+            $this->game->Log->payOffLoan($p_id);
+            $this->updateResource ($p_id, 'loan', -1);
+        }
+        if ($amtSilverGain>0){
+            $this->updateResource ($p_id, 'silver', $amtSilverGain);
+            $this->game->Log->updateResource($p_id, 'silver', $amtSilverGain);
+        }
+        $changeArr = array('silver'=>$amtSilverGain, 'loan'=>-$amtPaidOff);
+        $values = array('player_id' => $p_id,
+                        'player_name' => $this->game->getPlayerName($p_id),
+                        'resources' =>clienttranslate('resources'),
+                        'resource_arr' => $changeArr,
+                        'reason_string' => $reason,
+                        'preserve' => array( 2=> 'resource_arr' ),);
+        $values = $this->updateArrForNotify($values, $origin, $key);
+        $this->game->notifyAllPlayers( "auctionLoanPaid", clienttranslate( '${reason_string} paid ${player_name} ${resources}' ), $values);
+        $this->game->Score->updatePlayerScore($p_id);
+    }
+
     /** 
      * Helper method to allow automating income of payLoan
      * to force player to get 2 silver if have no loan to payoff

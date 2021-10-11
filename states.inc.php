@@ -88,15 +88,13 @@ $machinestates = array(
 
     STATE_EVT_BONUS => array(
         "name" => "bonusChoice_event",
-        "description" => clienttranslate('Some players must choose a railroad advance bonus'),
-        "descriptionmyturn" => clienttranslate('${you} must choose a railroad advance bonus'),
-        "descriptionalternate" => clienttranslate('Some players may choose to receive bonus'),
-        "descriptionmyturnalternate" => clienttranslate('${you} may choose to receive bonus'),
+        "description" => clienttranslate('Some players may choose to receive bonus'),
+        "descriptionmyturn" => clienttranslate('${you} may choose to receive bonus'),
         "type" => "multipleactiveplayer",
         "action" => "stEventSetupBonus",
-        "args" => "argEventBonus",
-        "possibleactions" => array( "chooseBonus", "eventBonus" ),
-        "transitions" => array( "done" => STATE_BEGIN_AUCTION,)
+        "possibleactions" => array( "eventBonus" ),
+        "transitions" => array( "rail_bonus"=> STATE_EVT_BONUS_RAIL,
+                                "done" => STATE_BEGIN_AUCTION,)
     ),
 
     STATE_EVT_PAY => array(
@@ -118,6 +116,17 @@ $machinestates = array(
         "transitions" => array( "done" => STATE_BEGIN_AUCTION,)
     ),
 
+    STATE_EVT_BONUS_RAIL => array(
+        "name" => "bonusChoice_eventRail",
+        "description" => clienttranslate('Some players must choose a railroad advance bonus'),
+        "descriptionmyturn" => clienttranslate('${you} must choose a railroad advance bonus'),
+        "type" => "multipleactiveplayer",
+        "args" => "argEventBonus",
+        "possibleactions" => array( "chooseBonus" ),
+        "transitions" => array( "done" => STATE_BEGIN_AUCTION,)
+    ),
+
+    // bidding phase
     STATE_BEGIN_AUCTION  => array(
         "name" => "beginAuction",
         "description" => '',

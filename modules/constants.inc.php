@@ -25,6 +25,7 @@
   define("STATE_EVT_BONUS",          32);
   define("STATE_EVT_PAY",            33);
   define("STATE_EVT_POST_TRADE",     34);
+  define("STATE_EVT_BONUS_RAIL",     35);
   
   // Bidding phase
   define("STATE_BEGIN_AUCTION",      40);

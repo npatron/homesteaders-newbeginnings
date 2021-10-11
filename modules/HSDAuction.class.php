@@ -139,10 +139,7 @@ class HSDAuction extends APP_GameClass
                 $this->game->Resource->updateAndNotifyIncome($this->game->getActivePlayerId(), 'vp6', 1, clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
             break;
             case AUC_BONUS_4DEPT_FREE:
-                $this->game->Resource->payLoanOrReceiveSilver($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
-                $this->game->Resource->payLoanOrReceiveSilver($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
-                $this->game->Resource->payLoanOrReceiveSilver($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
-                $this->game->Resource->payLoanOrReceiveSilver($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
+                $this->game->Resource->pay4Loans($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
                 $next_state = 'done';
             break;
             default:

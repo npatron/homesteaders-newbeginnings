@@ -1086,6 +1086,7 @@ function (dojo, declare) {
                     // choose bonus
                 case 'bonusChoice_build':
                 case 'bonusChoice_event':
+                case 'bonusChoice_eventRail':
                 case 'bonusChoice_auction':
                     if (!this.isSpectator){
                         dojo.style(TRADE_BOARD_ID, 'order', -2);
@@ -1492,28 +1493,24 @@ function (dojo, declare) {
             this.onUpdateActionButtons_bonusChoice_build(args);
         },
 
-        onUpdateActionButtons_bonusChoice_event: function (args){
-            let option = Number(args.event_bonus);
-            switch (option){
-                case EVT_LOAN_TRACK:    // least loans
-                case EVT_RES_ADV_TRACK: // most residential buildings get track adv
-                    this.setupButtonsForRailBonus(args.args[this.player_id]);
-                    dojo.destroy(BTN_ID_CHOOSE_BONUS);
-                    this.addActionButton( BTN_ID_CHOOSE_BONUS, _('Choose Bonus'), METHOD_CHOOSE_BONUS_EVENT);
-                    if (LAST_SELECTED.bonus == ""){
-                        dojo.addClass(BTN_ID_CHOOSE_BONUS, 'disabled');
-                    } else {
-                        let type = LAST_SELECTED.bonus;
-                        let btn_id = `btn_bonus_${type}`;
-                        dojo.toggleClass(btn_id, 'bgabutton_blue');
-                        dojo.toggleClass(btn_id, 'bgabutton_gray');
-                    }
-                break;
-                case EVT_LEAST_WORKER: //least workers can hire worker (free).
-                    this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_('(FREE) Hire ${worker}')), 'workerForFreeEvent');
-                    this.addActionButton( BTN_ID_PASS_BONUS, _('Do Not Get Bonus'), METHOD_PASS_BONUS, null, false, 'red');
-                break;
+        onUpdateActionButtons_bonusChoice_eventRail: function (args) {
+            // 'EVT_LOAN_TRACK' & 'EVT_RES_ADV_TRACK' get track adv
+            this.setupButtonsForRailBonus(args.args[this.player_id]);
+            dojo.destroy(BTN_ID_CHOOSE_BONUS);
+            this.addActionButton( BTN_ID_CHOOSE_BONUS, _('Choose Bonus'), METHOD_CHOOSE_BONUS_EVENT);
+            if (LAST_SELECTED.bonus == ""){
+                dojo.addClass(BTN_ID_CHOOSE_BONUS, 'disabled');
+            } else {
+                let type = LAST_SELECTED.bonus;
+                let btn_id = `btn_bonus_${type}`;
+                dojo.toggleClass(btn_id, 'bgabutton_blue');
+                dojo.toggleClass(btn_id, 'bgabutton_gray');
             }
+        },
+
+        onUpdateActionButtons_bonusChoice_event: function (args){
+            this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_('(FREE) Hire ${worker}')), 'workerForFreeEvent');
+            this.addActionButton( BTN_ID_PASS_BONUS, _('Do Not Get Bonus'), METHOD_PASS_BONUS, null, false, 'red');
         },
 
         onUpdateActionButtons_eventPay: function (args){
@@ -5146,6 +5143,7 @@ function (dojo, declare) {
         setupNotifications: function(cancel_move_ids)
         {
             var notifs = [
+                ['auctionLoanPaid', 500],
                 ['buildBuilding', 1000],
                 ['cancel', 500],
                 ['cancelHiddenTrade', 20],
@@ -5679,6 +5677,25 @@ function (dojo, declare) {
             }
             if (p_id == this.player_id)
                 this.resetTradeValues();
+            this.calculateAndUpdateScore(p_id);
+        },
+
+        notif_auctionLoanPaid: function( notif){
+            console.log('notif_auctionLoanPaid');
+            console.log(notif);
+            const p_id = notif.args.player_id;
+            var destination = this.getTargetFromNotifArgs(notif);
+            let amt_loan = notif.args.resource_arr.loan;
+            let amt_silver = notif.args.resource_arr.silver;
+            var delay = 0;
+            for (let i =0; i > amt_loan; i--){
+                this.slideTemporaryObject(TOKEN_HTML.loan, 'limbo', PLAYER_SCORE_ZONE_ID[p_id], destination , 500 , 100*(delay++) );
+                this.incResCounter(p_id, 'loan', -1);
+            }
+            for (let i =0; i < amt_silver; i++){
+                this.slideTemporaryObject(TOKEN_HTML.silver, 'limbo', destination, PLAYER_SCORE_ZONE_ID[p_id], 500 , 100*(delay++) );
+                this.incResCounter(p_id, 'silver', 1);
+            }
             this.calculateAndUpdateScore(p_id);
         },
 

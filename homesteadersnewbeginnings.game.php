@@ -687,7 +687,7 @@ class homesteadersnewbeginnings extends Table
     public function playerGoToEvent () {
         $this->checkAction('chooseLotAction');
         $lot_state = $this->getGameStateValue('lot_state');
-        $lot_state = (int) $lot_state - LOT_STATE_AUC_BONUS;
+        $lot_state = (int) $lot_state - LOT_STATE_EVT_BONUS;
         $this->setGameStateValue('lot_state', $lot_state);
         $this->gamestate->nextState('event');
     }
@@ -695,7 +695,7 @@ class homesteadersnewbeginnings extends Table
     public function playerGoToAuction () {
         $this->checkAction('chooseLotAction');
         $lot_state = $this->getGameStateValue('lot_state');
-        $lot_state = (int) $lot_state - LOT_STATE_EVT_BONUS;
+        $lot_state = (int) $lot_state - LOT_STATE_AUC_BONUS;
         $this->setGameStateValue('lot_state', $lot_state);
         $this->gamestate->nextState('auction_bonus');
     }
@@ -790,17 +790,12 @@ class homesteadersnewbeginnings extends Table
     }
 
     function argEventBonus() {
-        $event_bonus = $this->Event->getEventAllB();
         $bonus_option = array();
         $players = $this->loadPlayersBasicInfos();
-        if ($event_bonus == EVT_LEAST_WORKER){
-            return array('event_bonus'=>$event_bonus, 'alternate' =>true);
-        } else{
-            foreach($players as $p_id=>$player){
-                $bonus_option[$p_id]= array('rail_options'=> $this->Resource->getRailAdvBonusOptions($p_id));
-            }
-            return array('event_bonus'=>$event_bonus, 'args'=>$bonus_option);
+        foreach($players as $p_id=>$player){
+            $bonus_option[$p_id]= array('rail_options'=> $this->Resource->getRailAdvBonusOptions($p_id));
         }
+        return array('args'=>$bonus_option);
     }
 
     function argEventBuildBonus() {
