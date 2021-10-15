@@ -76,6 +76,7 @@ function (dojo, declare) {
     const VP_B_TRACK = 5; 
     const VP_B_BUILDING = 6;
     const VP_B_WRK_TRK = 7; //Workers & TRACK Bonus
+    const VP_B_PAID_LOAN = 8;
 
     const BLD_LOC_FUTURE  = 0;
     const BLD_LOC_OFFER   = 1;
@@ -112,6 +113,7 @@ function (dojo, declare) {
     const FIRST_PLAYER_ID = 'first_player_tile';
 
     const BTN_ID_CONFIRM_TRADE = 'confirm_trade_btn';
+    const METHOD_CONFIRM_TRADE = 'confirmTradeButton';
        // confirmTradeButton
     const BTN_ID_UNDO_TRADE    = 'undo_trades_btn';
        // 'undoTransactionsButton'
@@ -940,7 +942,7 @@ function (dojo, declare) {
             const bonus_options = dojo.query('.train_bonus');
             for(let i in bonus_options){
                 if (bonus_options[i].id){
-                    dojo.connect($(bonus_options[i].id),'onclick', this, );
+                    dojo.connect($(bonus_options[i].id),'onclick', this, METHOD_BOARD_SELECT_BONUS);
                     let type = bonus_options[i].id.split('_')[3];
                     if (type in RESOURCE_INFO){
                         this.addTooltipHtml(_(RESOURCE_INFO[type].tt));
@@ -3317,7 +3319,7 @@ function (dojo, declare) {
         },
         /** get function tradeFor for Sell transactions */
         getSellFor: function (type){
-            console.log('getSellFor', type);
+            //console.log('getSellFor', type);
             let tradeFor = this.copyArray(RESOURCE_INFO[type].trade_val);
             tradeFor.vp = 1;
             if (HAS_BUILDING[this.player_id][BLD_GENERAL_STORE]){
@@ -3863,7 +3865,6 @@ function (dojo, declare) {
          */
         payLoan3Silver: function() {
             this.addTransaction(PAY_LOAN_SILVER_3);
-            this.donePassEvent();
         },
 
         onClickOnWorker: function( evt )
@@ -4144,7 +4145,7 @@ function (dojo, declare) {
                 this.updateSelectedBonus(type);
             }
         },
-        /**  METHOD_CHOOSE_BONUS (`btn_bonus_${type}`) **/
+        /**  METHOD_SELECT_BONUS (`btn_bonus_${type}`) **/
         selectBonusButton: function( evt ) {
             //console.log('selectBonusButton', evt);
             if (this.checkAction( 'chooseBonus' )){
@@ -4171,7 +4172,7 @@ function (dojo, declare) {
         },
         /**  METHOD_CHOOSE_BONUS_EVENT (BTN_ID_CHOOSE_BONUS) **/
         doneSelectingRailBonusEvent: function (){
-            if (this.checkAction( 'eventBonus' )){
+            if (this.checkAction( 'eventChooseBonus' )){
                 if (LAST_SELECTED['bonus'] == ""){ 
                     this.showMessage( _("You must select a bonus"), 'error' );
                     return;
@@ -4799,14 +4800,16 @@ function (dojo, declare) {
     
         calculateBuildingScore: function (p_id) {
             let bld_static = 0;
-            let bld_type = [0,0,0,0,0,0,0];// count of bld of types: [res,com,ind,spe]
-            let vp_b =     [0,0,0,0,0,0,0];//vp_b [Res, Com, Ind, Spe, Wrk, Trk, Bld]
+            let bld_type = [0,0,0,0,0,0,0,0,0];// count of bld of types: [res,com,ind,spe]
+            let vp_b =     [0,0,0,0,0,0,0,0,0];//vp_b [Res, Com, Ind, Spe, Wrk, Trk, Bld]
             for(let b_id in HAS_BUILDING[p_id]){
                 if ('vp' in BUILDING_INFO[b_id]){
                     bld_static += BUILDING_INFO[b_id].vp;
                 }
                 if ('vp_b' in BUILDING_INFO[b_id]){
-                    if (BUILDING_INFO[b_id].vp_b == VP_B_WRK_TRK){
+                    if (BUILDING_INFO[b_id].vp_b == VP_B_PAID_LOAN){
+
+                    } else if (BUILDING_INFO[b_id].vp_b == VP_B_WRK_TRK){
                         vp_b[VP_B_WORKER] ++;
                         vp_b[VP_B_TRACK] ++;
                     } else {
@@ -5649,7 +5652,8 @@ function (dojo, declare) {
 
         // update player resources when a trade is done.
         notif_trade: function( notif ){
-            //console.log('notif_trade');
+            console.log('notif_trade');
+            console.log(notif);
             const p_id = notif.args.player_id;
             var delay = 0;
             for(let type in notif.args.tradeAway_arr){
@@ -5701,7 +5705,7 @@ function (dojo, declare) {
 
         // update player resources when a loan is paid
         notif_loanPaid: function( notif ){
-            //console.log('notif_loanPaid');
+            console.log('notif_loanPaid', notif);
             const p_id = notif.args.player_id;
             var destination = this.getTargetFromNotifArgs(notif);
             this.slideTemporaryObject( `<div class="loan token_loan"></div>`, 'limbo' , PLAYER_SCORE_ZONE_ID[p_id], destination,  500 , 0 );
@@ -5778,7 +5782,7 @@ function (dojo, declare) {
 
         // complex action that undoes other notifications, as well as board states associated with those actions.
         notif_cancel: function( notif ){
-            //console.log('notif_cancel', notif);
+            console.log('notif_cancel', notif);
             const p_id = notif.args.player_id;
             const updateResource = (p_id == this.player_id) || this.show_player_info;
             const player_zone = PLAYER_SCORE_ZONE_ID[p_id];

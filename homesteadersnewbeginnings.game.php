@@ -617,7 +617,7 @@ class homesteadersnewbeginnings extends Table
     }
 
     public function playerSelectRailBonusEvent($selected_bonus) {
-        $this->checkAction( "eventBonus" );
+        $this->checkAction( "eventChooseBonus" );
         if (!in_array($this->Event->getEventAllB(), array(EVT_LOAN_TRACK, EVT_RES_ADV_TRACK))){
             throw new BgaUserException( clienttranslate("invalid Bonus for this Event") );
         }
@@ -634,8 +634,9 @@ class homesteadersnewbeginnings extends Table
     public function playerPassBonusEvent(){
         $this->checkAction( "eventBonus" );
         $cur_p_id = $this->getCurrentPlayerId();
-        $this->notifyAllPlayers( "passBonus", clienttranslate( '${player_name} passes on Event Bonus' ), 
-            array('player_id' => $cur_p_id, 'player_name' => $this->getPlayerName($cur_p_id)));
+        $this->notifyAllPlayers( "passBonus", clienttranslate( '${player_name} passes on Event Bonus' ), array(
+                'player_id' => $cur_p_id, 
+                'player_name' => $this->getPlayerName($cur_p_id)));
         $this->gamestate->setPlayerNonMultiactive($cur_p_id, "done");
     }
     
@@ -986,6 +987,7 @@ class homesteadersnewbeginnings extends Table
 
     function stPassEvent()
     {
+        $this->Log->allowTrades($this->getActivePlayerId());
         $pass_evt = $this->Event->getEventPass();
         if ($pass_evt != EVT_PASS_DEPT_SILVER){// every other event should not be here.
             $this->gamestate->nextState( "rail" );

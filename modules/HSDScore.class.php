@@ -197,6 +197,7 @@ class HSDScore extends APP_GameClass
         $counts[VP_B_WORKER] = $this->game->getUniqueValueFromDB("SELECT `workers` FROM `resources` WHERE `player_id`='$p_id'");
         $counts[VP_B_TRACK] = $this->game->getUniqueValueFromDB("SELECT COUNT(*) FROM `tracks` WHERE `player_id`='$p_id'");
         $counts[VP_B_BUILDING] = count($p_buildings);
+        $counts[VP_B_PAID_LOAN] = 0;
         
         $this->game->setStat($counts[VP_B_BUILDING],    'buildings', $p_id);
         $this->game->setStat($counts[TYPE_RESIDENTIAL], 'residential', $p_id);
@@ -209,7 +210,7 @@ class HSDScore extends APP_GameClass
         $vps_b = array();
         $vp_b_mult = array(
             TYPE_RESIDENTIAL=> 0, TYPE_COMMERCIAL => 0, TYPE_INDUSTRIAL => 0, TYPE_SPECIAL    => 0,
-            VP_B_WORKER     => 0, VP_B_TRACK      => 0, VP_B_BUILDING   => 0, ); /* VP_LOAN_PAID=>0 //(expansion)*/
+            VP_B_WORKER     => 0, VP_B_TRACK      => 0, VP_B_BUILDING   => 0,  VP_B_PAID_LOAN => 0, );
         foreach($p_buildings as $b_key => $building){
             $b_id   = $p_buildings[$b_key]['b_id']; 
             $b_static_vp = (array_key_exists('vp',$this->game->building_info[$b_id])?$this->game->building_info[$b_id]['vp']:0);

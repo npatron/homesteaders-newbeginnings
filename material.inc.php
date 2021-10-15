@@ -537,7 +537,7 @@ $this->building_info = array_merge(
     'name' => clienttranslate("Post Office"),
     'stage'=> STAGE_CITY,
     'type' => TYPE_SPECIAL,
-    'cost' => array('cow'=>1,'steel'=>1,'wood'=>2),
+    'cost' => array('cow'=>1,'steel'=>1,'wood'=>1),
     'vp'   => 8,
     'vp_b' => VP_B_PAID_LOAN,
     'amt'  => 1,

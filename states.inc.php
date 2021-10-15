@@ -122,7 +122,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} must choose a railroad advance bonus'),
         "type" => "multipleactiveplayer",
         "args" => "argEventBonus",
-        "possibleactions" => array( "chooseBonus" ),
+        "possibleactions" => array( "chooseBonus", "eventChooseBonus" ),
         "transitions" => array( "done" => STATE_BEGIN_AUCTION,)
     ),
 
