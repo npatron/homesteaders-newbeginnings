@@ -1687,7 +1687,7 @@ function (dojo, declare) {
                 let currentEvent = EVENT_INFO[this.events[i].e_id];
                 let eventName = this.replaceTooltipStrings(_(currentEvent.name));
                 let eventText = this.replaceTooltipStrings(_(currentEvent.tt));
-                dojo.place(`<div id="eventsBar" class="font"><span class="bold">${eventName}:</span>${eventText}</div>`, 'eventsBar', 'replace');
+                dojo.place(`<div id="eventsBar" class="font"><span class="bold">${eventName}: </span>${eventText}</div>`, 'eventsBar', 'replace');
                 if (this.events[i].e_id == 2){
                     let tile = dojo.query(`#${TPL_AUC_ZONE}1 .auction_tile`);
                     //console.log(tile);
