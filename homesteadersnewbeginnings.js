@@ -197,6 +197,11 @@ function (dojo, declare) {
     const BTN_LOT_ACTION_PASS  = 'btn_pass';
     const METHOD_LOT_ACTION_PASS  = 'lotGoToConfirm';
 
+    const BTN_ID_AUCTION_DONE_TRADING = 'btn_done_trading';
+    const METHOD_AUCTION_DONE_TRADING = 'doneTradingAuction';
+    const BTN_ID_UNDO_SELL_AUCTION = 'btn_undo_trades_sell_auction';
+    const METHOD_UNDO_SELL_AUCTION = 'undoTradesButton_sellAuction';
+
     /*** Build Building ***/
     const BTN_ID_BUILD_BUILDING = 'btn_choose_building';
     const METHOD_BUILD_BUILDING = 'chooseBuilding';
@@ -1383,7 +1388,7 @@ function (dojo, declare) {
                 case AUC_BONUS_4DEPT_FREE:
                     break;
                 case AUC_BONUS_3VP_SELL_FREE:
-                    // sell for free (no trade)
+                    this.addActionButton( BTN_ID_EVENT_START_SELL, _("Start Sell Event"), 'clientState_sellAuction', null, false, 'blue');
                     break;
                 case AUC_BONUS_TRACK_RAIL_ADV: // should not come here
                     break;
@@ -2605,12 +2610,13 @@ function (dojo, declare) {
          * if log has 1+ show undo
          */
         setupUndoTransactionsButtons: function(){
-            this.setupTransitionButton(TRANSACTION_LOG.length == 0);
+            this.setupTransitionButton();
             this.updateConfirmAndUndoTradeButtons();
         },
 
-        setupTransitionButton: function( andTrade ){
-            let transitions = [BTN_ID_PAY_DONE, BTN_ID_DONE, 
+        setupTransitionButton: function( ){
+            let noTrade = TRANSACTION_LOG.length == 0;
+            let transitions = [BTN_ID_PAY_DONE, BTN_ID_DONE, BTN_ID_AUCTION_DONE_TRADING,
                                 BTN_ID_EVENT_DONE_TRADING, BTN_ID_EVENT_DONE_HIDDEN_TRADING, BTN_ID_ON_PASS_EVENT_DONE, 
                                 BTN_ID_CONFIRM_WORKERS, BTN_ID_BUILD_BUILDING, BTN_ID_EVENT_STEEL_BUILD,
                                 BTN_ID_FOOD_VP, BTN_ID_GOLD_VP, BTN_ID_COW_VP, BTN_ID_COPPER_VP, BTN_ID_WOOD_TRACK];
@@ -2618,7 +2624,7 @@ function (dojo, declare) {
                 if (dojo.query(`#${button_id}`).length == 1){
                     switch (button_id){
                         case BTN_ID_PAY_DONE:
-                            if (andTrade) {
+                            if (noTrade) {
                                 var button_text = dojo.string.substitute(_("Pay: ${amt}"), {amt:this.format_block("jstpl_pay_button", {})});
                             } else {
                                 var button_text = dojo.string.substitute(_("Confirm Trade(s) & Pay: ${amt}"), {amt:this.format_block("jstpl_pay_button", {})});
@@ -2643,7 +2649,7 @@ function (dojo, declare) {
                             }
                             return;
                         case BTN_ID_DONE:
-                            if (andTrade) {
+                            if (noTrade) {
                                 var button_text = _("Pass");
                             } else {
                                 var button_text = _("Confirm Trade(s) and Pass");
@@ -2651,7 +2657,7 @@ function (dojo, declare) {
                             var button_method = METHOD_ENDGAME_DONE;
                         break;
                         case BTN_ID_ON_PASS_EVENT_DONE:
-                            if (andTrade) {
+                            if (noTrade) {
                                 var button_text = _("Done");
                             } else {
                                 var button_text = _("Confirm Trade(s) and Done");
@@ -2659,15 +2665,23 @@ function (dojo, declare) {
                             var button_method = METHOD_ON_PASS_EVENT_DONE;
                         break;
                         case BTN_ID_EVENT_DONE_TRADING:
-                            if (andTrade) {
+                            if (noTrade) {
                                 var button_text = _("Pass");
                             } else {
                                 var button_text = _("Confirm Trade(s) and Pass");
                             }
                             var button_method = METHOD_EVENT_DONE_TRADING;
                         break;
+                        case BTN_ID_AUCTION_DONE_TRADING:
+                            if (noTrade) {
+                                var button_text = _("Pass");
+                            } else {
+                                var button_text = _("Confirm Trade(s) and Pass");
+                            }
+                            var button_method = METHOD_AUCTION_DONE_TRADING;
+                        break;
                         case BTN_ID_EVENT_DONE_HIDDEN_TRADING:
-                            if (andTrade) {
+                            if (noTrade) {
                                 var button_text = _("Pass");
                             } else {
                                 var button_text = _("Confirm Trade(s) and Pass");
@@ -2675,7 +2689,7 @@ function (dojo, declare) {
                             var button_method = METHOD_EVENT_DONE_HIDDEN;
                         break;
                         case BTN_ID_CONFIRM_WORKERS:
-                            if (andTrade) {
+                            if (noTrade) {
                                 var button_text = this.replaceTooltipStrings(_("Confirm ${worker} Placement"));
                             } else {
                                 var button_text = this.replaceTooltipStrings(_("Confirm Trade(s) & ${worker} Placement"));
@@ -2688,7 +2702,7 @@ function (dojo, declare) {
                                 let b_id = $(LAST_SELECTED.building).className.split(' ')[1].split('_')[2];
                                 b_name = _(BUILDING_INFO[b_id].name); 
                             }
-                            if (andTrade) {
+                            if (noTrade) {
                                 var button_text = dojo.string.substitute(_("Build ${building_name}"), {building_name:`<span id="${BUILDING_NAME_ID}">${b_name}</span>`});
                             } else {
                                 var button_text = dojo.string.substitute(_("Confirm Trade(s) & Build ${building_name}"), {building_name:`<span id="${BUILDING_NAME_ID}">${b_name}</span>`});
@@ -2696,7 +2710,7 @@ function (dojo, declare) {
                             var button_method = METHOD_BUILD_BUILDING;
                         break;
                         case BTN_ID_EVENT_STEEL_BUILD:
-                            if (andTrade) {
+                            if (noTrade) {
                                 var button_text = this.replaceTooltipStrings(_('Pay ${steel} to build ${any}'));
                             } else {
                                 var button_text = this.replaceTooltipStrings(_('Confirm Trade(s) & Pay ${steel} to build ${any}'));
@@ -2704,7 +2718,7 @@ function (dojo, declare) {
                             var button_method = METHOD_EVENT_STEEL_BUILD;
                         break;
                         case BTN_ID_FOOD_VP:
-                            if (andTrade) {
+                            if (noTrade) {
                                 var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), ARR_FOOD_VP));
                             } else {
                                 var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("Confirm Trade(s) & ${resource1} ${arrow} ${resource2}"), ARR_FOOD_VP));
@@ -2712,7 +2726,7 @@ function (dojo, declare) {
                             var button_method = METHOD_FOOD_VP;
                         break;
                         case  BTN_ID_GOLD_VP:
-                            if (andTrade){
+                            if (noTrade){
                                 var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), ARR_GOLD_VP));
                             } else {
                                 var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("Confirm Trade(s) & ${resource1} ${arrow} ${resource2}"), ARR_GOLD_VP));
@@ -2720,7 +2734,7 @@ function (dojo, declare) {
                             var button_method = METHOD_GOLD_VP;
                         break;
                         case BTN_ID_COW_VP:
-                            if (andTrade){
+                            if (noTrade){
                                 var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), ARR_COW_VP));
                             } else {
                                 var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("Confirm Trade(s) & ${resource1} ${arrow} ${resource2}"), ARR_COW_VP));
@@ -2728,7 +2742,7 @@ function (dojo, declare) {
                             var button_method = METHOD_COW_VP;
                         break;
                         case BTN_ID_COPPER_VP:
-                            if (andTrade){
+                            if (noTrade){
                                 var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), ARR_COPPER_VP));
                             } else {
                                 var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("Confirm Trade(s) & ${resource1} ${arrow} ${resource2}"), ARR_COPPER_VP));
@@ -2736,7 +2750,7 @@ function (dojo, declare) {
                             var button_method = METHOD_COPPER_VP;
                         break;
                         case BTN_ID_WOOD_TRACK:
-                            if (andTrade){
+                            if (noTrade){
                                 var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), ARR_WOOD_TRACK));
                             } else {
                                 var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("Confirm Trade(s) & ${resource1} ${arrow} ${resource2}"), ARR_WOOD_TRACK));
@@ -2901,8 +2915,8 @@ function (dojo, declare) {
         clientState_sellEvent: function() {
             this.removeButtons();
             this.tradeEnabled=false;
-            this.event_pending_amount = TRANSACTION_LOG.length;
-            if (this.event_pending_amount>0){ // at least 1 transaction queued.
+            this.pre_pendingTradeAmount = TRANSACTION_LOG.length;
+            if (this.pre_pendingTradeAmount>0){ // at least 1 transaction queued.
                 this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _("Confirm Trade(s) and Pass"), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
             } else {  // no transactions queued.
                 this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
@@ -2929,10 +2943,44 @@ function (dojo, declare) {
             this.addActionButton( BTN_ID_UNDO_SELL_EVENT, _("Undo All Event Trade(s)"), METHOD_UNDO_SELL_EVENT, null, false, 'red' );
             dojo.query(`#${BTN_ID_UNDO_SELL_EVENT}`).addClass('disabled');
             
-            this.updateUndoButtons_sellEvent();
-            this.updateTradeAffordability_sellEvent();
+            this.updateUndoButtons_sellFree();
+            this.updateTradeAffordability_sellFree();
         }, 
-        
+
+        clientState_sellAuction: function() {
+            this.removeButtons();
+            this.tradeEnabled=false;
+            this.pre_pendingTradeAmount = TRANSACTION_LOG.length;
+            if (this.pre_pendingTradeAmount>0){ // at least 1 transaction queued.
+                this.addActionButton( BTN_ID_AUCTION_DONE_TRADING, _("Confirm Trade(s) and Pass"), METHOD_AUCTION_DONE_TRADING, null, false, 'blue');
+            } else {  // no transactions queued.
+                this.addActionButton( BTN_ID_AUCTION_DONE_TRADING, _('Pass'), METHOD_AUCTION_DONE_TRADING, null, false, 'blue');
+            }
+            this.addActionButton( BTN_ID_REDO_AUCTION, _('Cancel'), METHOD_CANCEL_TURN, null, false, 'red');
+            dojo.place(dojo.create('br'),'generalactions','last');
+            
+            let zone_style = 'display: flex; justify-content: center; flex-wrap: wrap;';
+            let sell_zone = dojo.create('div', {id:SELL_ZONE_ID, style:zone_style});
+            dojo.place(sell_zone, 'generalactions', 'last');
+            let sell_text = dojo.create('span', {class:"biggerfont", id:SELL_TEXT_ID});
+            dojo.place(sell_text, SELL_ZONE_ID, 'first');
+            var translatedString = _("Sell:");
+            sell_text.innerText = translatedString;
+            
+            let types = ['wood','food','steel','gold','cow','copper'];
+            types.forEach(type=> {
+                var arrow = TOKEN_HTML.arrow;
+                tradeAwayTokens = this.getResourceArrayHtml(this.getSellAwayFree(type));
+                tradeForTokens = this.getResourceArrayHtml(this.getSellFor(type));
+                this.addActionButton( `btn_sell_${type}`, `${tradeAwayTokens} ${arrow} ${tradeForTokens}`, 'onFreeSellResource', null, false, 'blue');
+                dojo.place(`btn_sell_${type}`, SELL_ZONE_ID, 'last');
+            });
+            this.addActionButton( BTN_ID_UNDO_SELL_AUCTION, _("Undo All Trade(s) & Debt"), METHOD_UNDO_SELL_AUCTION, null, false, 'red' );
+            
+            this.updateUndoButtons_sellFree();
+            this.updateTradeAffordability_sellFree();
+        }, 
+
         /** METHOD_BACK_SELL_EVENT (Wartime Demand)
          * event specific button method for 
          *    cancel all transaction
@@ -2947,19 +2995,19 @@ function (dojo, declare) {
         },
         
         // make existing undo buttons use `undoSellFreeTransaction` instead.
-        updateUndoButtons_sellEvent: function () {
-            for (let i =0; i <this.event_pending_amount; i++){
+        updateUndoButtons_sellFree: function () {
+            for (let i =0; i <this.pre_pendingTradeAmount; i++){
                 dojo.disconnect(TRADE_CONNECT_HANDLER[i]);
                 TRADE_CONNECT_HANDLER[i] = dojo.connect($(`x_${i}`), 'onclick', this, 'undoSellFreeTransaction' );
             }
         },
 
         /** implementation of updateTradeAffordability
-         * speficic to the sell Event (Wartime Demand) client state
+         * specific to the sell Event (Wartime Demand) client state
          * in which only sell actions are available.
          * (so buy/market/bank/etc. are omitted.) 
          */
-        updateTradeAffordability_sellEvent: function(){
+        updateTradeAffordability_sellFree: function(){
             for (let trade_id = 0; trade_id < 6; trade_id++){
                 var type = this.getKeyByValue(TRADE_MAP, trade_id).split('_')[1];
                 
@@ -2977,26 +3025,25 @@ function (dojo, declare) {
          * undo transactions specific to sell Event (Wartime Demand) interim client state.
          */
         undoTransactionsButton_sellEvent: function( ){
-            if (TRANSACTION_COST.length <= this.event_pending_amount) return;
-            while (TRANSACTION_LOG.length > this.event_pending_amount){
+            if (TRANSACTION_COST.length <= this.pre_pendingTradeAmount) return;
+            while (TRANSACTION_LOG.length > this.pre_pendingTradeAmount){
                 this.destroyTradeBreadcrumb(TRANSACTION_COST.length-1);
                 TRANSACTION_LOG.pop();
                 this.updateTrade(TRANSACTION_COST.pop(), true);
             }
             this.updateBuildingAffordability();
-            this.updateTradeAffordability_sellEvent();
+            this.updateTradeAffordability_sellFree();
             this.setupUndoTransactionsButtons_sellEvent();
         },
 
         // (Wartime Demand)
         setupUndoTransactionsButtons_sellEvent: function( ){
-            if (TRANSACTION_LOG.length < this.event_pending_amount){
+            if (TRANSACTION_LOG.length < this.pre_pendingTradeAmount){
                 dojo.query(`#${BTN_ID_UNDO_SELL_EVENT}:not(.disabled)`).addClass('disabled');
-                this.setupTransitionButton(true);
             } else {
                 dojo.query(`#${BTN_ID_UNDO_SELL_EVENT}.disabled`).removeClass('disabled');
-                this.setupTransitionButton(false);
             }
+            this.setupTransitionButton();
         },
 
         /** 
@@ -3015,7 +3062,7 @@ function (dojo, declare) {
                 TRANSACTION_COST.push(transactions.change);
                 TRANSACTION_LOG.push(transactions.map);
                 this.updateBuildingAffordability();
-                this.updateTradeAffordability_sellEvent();
+                this.updateTradeAffordability_sellFree();
                 this.setupUndoTransactionsButtons_sellEvent();
                 this.updateConfirmAndUndoTradeButtons();
             } else {
@@ -3681,14 +3728,14 @@ function (dojo, declare) {
                 TRANSACTION_LOG.pop();
                 this.updateTrade(TRANSACTION_COST.pop(), true);
             }
-            if (log_no < this.event_pending_amount){
-                this.event_pending_amount = log_no;
+            if (log_no < this.pre_pendingTradeAmount){
+                this.pre_pendingTradeAmount = log_no;
                 this.removeButtons();
                 return this.onUpdateActionButtons_preEventTrade(this.event_args);
             }
             this.updateBuildingAffordability();
             this.setupUndoTransactionsButtons_sellEvent();
-            this.updateTradeAffordability_sellEvent();
+            this.updateTradeAffordability_sellFree();
         },
 
         resetTradeButton: function(){
@@ -5635,8 +5682,7 @@ function (dojo, declare) {
 
         // update player resources when a trade is done.
         notif_trade: function( notif ){
-            console.log('notif_trade');
-            console.log(notif);
+            //console.log('notif_trade', notif);
             const p_id = notif.args.player_id;
             var delay = 0;
             for(let type in notif.args.tradeAway_arr){
@@ -5668,8 +5714,7 @@ function (dojo, declare) {
         },
 
         notif_auctionLoanPaid: function( notif){
-            console.log('notif_auctionLoanPaid');
-            console.log(notif);
+            //console.log('notif_auctionLoanPaid', notif);
             const p_id = notif.args.player_id;
             var destination = this.getTargetFromNotifArgs(notif);
             let amt_loan = notif.args.resource_arr.loan;
@@ -5688,7 +5733,7 @@ function (dojo, declare) {
 
         // update player resources when a loan is paid
         notif_loanPaid: function( notif ){
-            console.log('notif_loanPaid', notif);
+            //console.log('notif_loanPaid', notif);
             const p_id = notif.args.player_id;
             var delay = 0;
             var destination = this.getTargetFromNotifArgs(notif);
@@ -5712,7 +5757,7 @@ function (dojo, declare) {
 
         // update player resources when a loan is taken
         notif_loanTaken: function( notif ){
-            //console.log('notif_loanTaken');
+            //console.log('notif_loanTaken', notif);
             var delay = 0;
             const p_id = notif.args.player_id;
             this.slideTemporaryObject( TOKEN_HTML.loan, 'limbo' , 'board', PLAYER_SCORE_ZONE_ID[p_id],  500 , 50*(delay++) );
