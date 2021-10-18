@@ -70,13 +70,13 @@ $this->trade_map = array(
   20=>'sellfree_wood', 21=>'sellfree_food', 22=>'sellfree_steel', 23=>'sellfree_gold', 24=>'sellfree_copper', 25=>'sellfree_cow',);
 
 $this->translation_strings = array(
-  0=> clienttranslate('Residential'), 
-  1=> clienttranslate('Commercial'), 
-  2=> clienttranslate('Industrial'), 
-  3=> clienttranslate('Special'), 
+  TYPE_RESIDENTIAL=> clienttranslate('Residential'), 
+  TYPE_COMMERCIAL=> clienttranslate('Commercial'), 
+  TYPE_INDUSTRIAL=> clienttranslate('Industrial'), 
+  TYPE_SPECIAL=> clienttranslate('Special'), 
   4=> clienttranslate('Any'), 
   6=> clienttranslate('Building'), 
-  7=> clienttranslate('Advance the Railroad track'),
+  7=> clienttranslate('Advance on Railroad track'),
   9=> clienttranslate('You have already built this building'),
   10=> clienttranslate('You can not afford to build this building'),
   11=> clienttranslate('You can afford to build this building (trades required)'),

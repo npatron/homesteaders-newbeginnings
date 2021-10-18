@@ -279,6 +279,7 @@ function (dojo, declare) {
     const MARKET_STEEL_ID = 'trade_market_food_steel';
     const BANK_ID         = 'trade_bank_trade_silver';
     const WAREHOUSE_RES_ID = 'warehouse_resources';
+    const WAREHOUSE_DESCRIPTION_ID = 'warehouse_description';
     const BONUS_OPTIONS = { 7:'train_bonus_1_trade', 8:'train_bonus_2_track', 9:'train_bonus_3_worker',
         1:'train_bonus_4_wood', 5:'train_bonus_4_food', 2:'train_bonus_4_steel', 3:'train_bonus_4_gold',
         4:'train_bonus_4_copper', 6:'train_bonus_4_cow', 10:'train_bonus_5_vp'};
@@ -355,7 +356,7 @@ function (dojo, declare) {
     const BUILD_BONUS_WORKER = 3; 
 
     const BID_VAL_ARR = [3,4,5,6,7,9,12,16,21];//note: starts at 0.
-    const ASSET_COLORS = {0:'res', 1:'com', 2:'ind', 3:'spe', 4:'any', 6:'any',
+    const ASSET_COLORS = {0:'res', 1:'com', 2:'ind', 3:'spe', 4:'any', 6:'any', 7:'adv_track',
                         10:'a0',11:'a1', 12:'a2', 13:'a3', 14:'a4'};
     const VP_TOKENS = ['vp0', 'vp2', 'vp3', 'vp4','vp6','vp8', 'vp10'];
     const WAREHOUSE_MAP = {1:'wood',2:'food',4:'steel',8:'gold',16:'copper',32:'cow',}
@@ -968,17 +969,22 @@ function (dojo, declare) {
             for(let i in types){
                 TOKEN_HTML[i] = this.format_block('jptpl_tt_break', {text:types[i], type:'dot'==i?'dot':'break'});
             }
-            types = [0,1,2,3,4,11,12,13,14]; // from ASSET_COLORS
-            for (let i=0; i< 5; i++){
+            types = {0:0, 1:1, 2:2, 3:3, 4:4, 7:7}; // from ASSET_COLORS
+            console.log("ASSET_STRINGS", ASSET_STRINGS);
+            console.log("ASSET_COLORS", ASSET_COLORS);
+            for (let i in types){
+                console.log(`adding ${ASSET_COLORS[i]}`, i);
                 TOKEN_HTML[ASSET_COLORS[i]] = this.format_block('jstpl_color_log', 
                 {'string':_(ASSET_STRINGS[i]), 'color':ASSET_COLORS[i]});
+                console.log(`TOKEN_HTML:${ASSET_COLORS[i]}`, TOKEN_HTML[ASSET_COLORS[i]]);
             }
             types = {10:'4', 11:'1', 12:'2', 13:'3'};
             for (let i in types){
                 TOKEN_HTML['a'+types[i]] = this.format_block('jstpl_color_log', 
                 {'string':dojo.string.substitute(_("Auction ${a}"),{a:types[i]}), 'color': 'auc'+types[i]} );
             }
-            TOKEN_HTML.adv_track = _(ASSET_STRINGS[7]);
+            TOKEN_HTML.click = `img class="imgtext" src="https://en.1.studio.boardgamearena.com:8083/data/themereleases/210929-0932/img/layout/help_click.png" alt="action"></img>`
+            console.log("TOKEN_HTML", TOKEN_HTML);
         },
 
         /**
@@ -1854,7 +1860,7 @@ function (dojo, declare) {
                         bonus_html += this.replaceTooltipStrings(_("May hire a ${worker} (for free)"));
                     break;
                     case AUC_BONUS_WORKER_RAIL_ADV:
-                        bonus_html += this.replaceTooltipStrings(_("May hire a ${worker} (for free) ${and} Advance the Railroad track"));
+                        bonus_html += this.replaceTooltipStrings(_("May hire a ${worker} (for free) ${and} ${adv_track}"));
                     break;
                     case AUC_BONUS_WOOD_FOR_TRACK:
                         bonus_html += this.replaceTooltipStrings(_("May trade ${wood} for ${track}(once)"));
@@ -1875,7 +1881,7 @@ function (dojo, declare) {
                         bonus_html += this.replaceTooltipStrings(_("No Auction"));
                     break;
                     case AUC_BONUS_TRACK_RAIL_ADV:
-                        bonus_html += this.replaceTooltipStrings(_("${track} ${and} Advance the Railroad track"));
+                        bonus_html += this.replaceTooltipStrings(_("${track} ${and} ${adv_track}"));
                     break;
                     case AUC_BONUS_4DEPT_FREE:
                         bonus_html += this.replaceTooltipStrings(_("may pay off up to 4 ${loan}"));
@@ -1934,7 +1940,7 @@ function (dojo, declare) {
                         {token:TOKEN_HTML.worker});
                         break;
                     case 4: //BUILD_BONUS_RAIL_ADVANCE
-                        var on_build_desc = _('When built: Advance the Railroad track');
+                        var on_build_desc = this.replaceTooltipStrings(_('When built: ${adv_track}'));
                         break;
                     case 5: //BUILD_BONUS_TRACK_AND_BUILD
                         var on_build_desc = this.replaceTooltipStrings(_('When built: Receive ${track}<br>You may also build another building of ${any} type'));
@@ -1946,7 +1952,7 @@ function (dojo, declare) {
                         var on_build_desc = this.replaceTooltipStrings(_('When built: Receive ${silver} per ${worker}<br>When you gain a ${worker} gain a ${silver}'));
                         break;
                     case 8: //BUILD_BONUS_PLACE_RESOURCES
-                        var on_build_desc = this.replaceTooltipStrings(_('When built: place ${wood}${food}${steel}${gold}${copper}${cow} on Warehouse'));
+                        var on_build_desc = `<div id="${WAREHOUSE_DESCRIPTION_ID}">` + this.replaceTooltipStrings(_('When built: place ${wood}${food}${steel}${gold}${copper}${cow} on Warehouse')) + '</div>';
                         on_build_desc += `<div id="${WAREHOUSE_RES_ID}"></div>`;
                         break;
                     default:
@@ -2019,6 +2025,8 @@ function (dojo, declare) {
                     income_values = this.replaceTooltipStrings(_('${silver} per ${worker} (max 5)'));
                 } else if (b_info.inc.loan == '-1') {
                     income_values = dojo.string.substitute(_('Pay off ${loan}'), {loan:TOKEN_HTML.loan}) + '<br>';
+                } else if (b_info.inc.special == '1') {
+                    income_values = dojo.string.substitute(_('Take one resource from Warehouse'));
                 } else {
                     income_values = this.getResourceArrayHtmlBigVp(b_info.inc, true);
                 }
@@ -2116,6 +2124,10 @@ function (dojo, declare) {
 
         updateWarehouseResource: function(type, add, p_id){
             let origin = 'limbo';
+            if (this.prefs[USE_ART_USER_PREF].value == DISABLED_USER_PREF){
+                dojo.query(`#${WAREHOUSE_DESCRIPTION_ID}`).addClass('noshow');
+                dojo.style( $( WAREHOUSE_RES_ID ), 'position', 'unset');
+            }
             if (add){
                 let tkn_id = `warehouse_${type}`;
                 let resToken = dojo.create('span', {class: `log_${type} token_inline`, title:type, id:tkn_id});
