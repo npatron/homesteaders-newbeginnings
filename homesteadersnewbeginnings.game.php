@@ -264,6 +264,7 @@ class homesteadersnewbeginnings extends Table
     public function playerTrade( $tradeAction_csv, $notActive =false )
     {
         // allow out of turn trade, only when flag is passed during allocateWorkers State.
+        // this is to allow player to make trades/loans & pay workers during the allocateWorkers State
         if (!($notActive && $this->gamestate->state()['name'] === "allocateWorkers")){
             $this->checkAction( 'trade' );
         }
@@ -340,7 +341,6 @@ class homesteadersnewbeginnings extends Table
 
     public function playerDonePassEvent(){
         $this->checkAction( "payLoanEvent" );
-        $this->Resource->addTrack($this->getActivePlayerId(), $this->Event->getEventName());
         $this->gamestate->nextState( "rail" );
     }
 

@@ -89,10 +89,6 @@ function (dojo, declare) {
     const LOT_STATE_AUC_BONUS = 2;
     const LOT_STATE_EVT_BONUS = 4;
 
-    const TRADE_BUTTON_SHOW    = 0;
-    const TRADE_BUTTON_HIDE    = 1;
-    const TRADE_BUTTON_CONFIRM = 2;
-
     // building ID's required for trade
     const BLD_MARKET = 7;
     const BLD_GENERAL_STORE = 14;
@@ -114,9 +110,8 @@ function (dojo, declare) {
 
     const BTN_ID_CONFIRM_TRADE = 'confirm_trade_btn';
     const METHOD_CONFIRM_TRADE = 'confirmTradeButton';
-       // confirmTradeButton
     const BTN_ID_UNDO_TRADE    = 'undo_trades_btn';
-       // 'undoTransactionsButton'
+    const METHOD_UNDO_TRADE    = 'undoTransactionsButton';
     const BTN_ID_CONFIRM_WORKERS = 'btn_confirm_workers'; // allocate workers
     const METHOD_CONFIRM_WORKERS = 'donePlacingWorkers';
     /** Bid Buttons **/
@@ -181,7 +176,7 @@ function (dojo, declare) {
     const BTN_ID_UNDO_PASS    = 'btn_undo_pass';
        // 'onUnPass_allocateWorkers', 'onUndoBidPass', 'onUnPass_endGameActions' 
     const BTN_ID_ON_PASS_EVENT_DONE = 'btn_done_pass_event';
-        // 'donePassEvent';
+    const METHOD_ON_PASS_EVENT_DONE = 'donePassEvent';
     const BTN_ID_CANCEL       = 'btn_cancel_button';
        // 'cancelUndoTransactions', 'cancelEventTransactions', 'cancelHiddenUndoTransactions',
     const BTN_ID_REDO_AUCTION = 'btn_redo_build_phase';
@@ -1270,11 +1265,11 @@ function (dojo, declare) {
         },
         onUpdateActionButtons_pass_event: function (args) {
             // state for pass bid event triggers.
+            this.addActionButton( BTN_ID_ON_PASS_EVENT_DONE, _('Done'), METHOD_ON_PASS_EVENT_DONE, null, false, 'blue');
             this.addActionButton( BTN_ID_UNDO_PASS, _('Undo Pass Bid'), 'onUndoBidPass', null, false, 'red');
             if (args.event_pass == EVT_PASS_DEPT_SILVER){
                 this.addActionButton( BTN_ID_PAY_LOAN_3_SILVER, this.replaceTooltipStrings(_('pay off ${loan} for ${silver}${silver}${silver}')), METHOD_PAY_LOAN_3_SILVER, null, false, 'blue');
             }
-            this.addActionButton( BTN_ID_ON_PASS_EVENT_DONE, _('Done'), 'donePassEvent', null, false, 'blue');
             this.addTradeActionButton();
         },
         onUpdateActionButtons_getRailBonus: function(args){
@@ -1431,8 +1426,8 @@ function (dojo, declare) {
                     dojo.place(dojo.create('br'),'generalactions','last');
                     this.addActionButton( BTN_ID_TRADE, _("Show Trade"),  'tradeActionButton', null, false, 'gray' );
                     this.addActionButton( BTN_ID_TAKE_LOAN,  _("Take Debt"), 'onMoreLoan', null, false, 'gray' );
-                    this.addActionButton( BTN_ID_UNDO_TRADE, _("Undo All Trade(s) & Debt"), 'undoTransactionsButton', null, false, 'red' );
-                    dojo.addClass(BTN_ID_UNDO_TRADE, 'disabled');
+                    this.addActionButton( BTN_ID_UNDO_TRADE, _("Undo All Trade(s) & Debt"), METHOD_UNDO_TRADE, null, false, 'red' );
+                    this.updateConfirmAndUndoTradeButtons();
                     this.updateTradeAffordability();
                     this.resetTradeValues();
                     this.enableTradeBoardActions();
@@ -1449,10 +1444,9 @@ function (dojo, declare) {
                     dojo.place(dojo.create('br'),'generalactions','last');
                     this.addActionButton( BTN_ID_TRADE, _("Show Trade"),    'tradeActionButton', null, false, 'gray' );
                     this.addActionButton( BTN_ID_TAKE_LOAN, _('Take Debt'), 'onMoreLoan', null, false, 'gray' );
-                    this.addActionButton( BTN_ID_UNDO_TRADE, _("Undo All Trade(s) & Debt"), 'undoTransactionsButton', null, false, 'red' );
-                    dojo.addClass(BTN_ID_UNDO_TRADE, 'disabled');
+                    this.addActionButton( BTN_ID_UNDO_TRADE, _("Undo All Trade(s) & Debt"), METHOD_UNDO_TRADE, null, false, 'red' );
                     this.addActionButton( BTN_ID_CONFIRM_TRADE_HIDDEN, _('Confirm Trade(s)'), METHOD_CONFIRM_TRADE_HIDDEN);
-                    dojo.addClass(BTN_ID_CONFIRM_TRADE_HIDDEN, 'disabled');
+                    this.updateConfirmAndUndoTradeButtons();
                     this.addActionButton( BTN_ID_CANCEL, _("Cancel"), 'cancelHiddenUndoTransactions', null, false, 'red');
 
                     this.updateTradeAffordability();
@@ -2599,18 +2593,13 @@ function (dojo, declare) {
          * if log has 1+ show undo
          */
         setupUndoTransactionsButtons: function(){
-            if (TRANSACTION_LOG.length == 0){
-                dojo.query(`#${BTN_ID_UNDO_TRADE}:not(.disabled)`).addClass('disabled');
-                this.setupTransitionButton(true);
-            } else {
-                dojo.query(`#${BTN_ID_UNDO_TRADE}.disabled`).removeClass('disabled');
-                this.setupTransitionButton(false);
-            }
+            this.setupTransitionButton(TRANSACTION_LOG.length == 0);
+            this.updateConfirmAndUndoTradeButtons();
         },
 
         setupTransitionButton: function( andTrade ){
             let transitions = [BTN_ID_PAY_DONE, BTN_ID_DONE, 
-                                BTN_ID_EVENT_DONE_TRADING, BTN_ID_EVENT_DONE_HIDDEN_TRADING,
+                                BTN_ID_EVENT_DONE_TRADING, BTN_ID_EVENT_DONE_HIDDEN_TRADING, BTN_ID_ON_PASS_EVENT_DONE, 
                                 BTN_ID_CONFIRM_WORKERS, BTN_ID_BUILD_BUILDING, BTN_ID_EVENT_STEEL_BUILD,
                                 BTN_ID_FOOD_VP, BTN_ID_GOLD_VP, BTN_ID_COW_VP, BTN_ID_COPPER_VP, BTN_ID_WOOD_TRACK];
             transitions.forEach(button_id=> {
@@ -2648,6 +2637,14 @@ function (dojo, declare) {
                                 var button_text = _("Confirm Trade(s) and Pass");
                             }
                             var button_method = METHOD_ENDGAME_DONE;
+                        break;
+                        case BTN_ID_ON_PASS_EVENT_DONE:
+                            if (andTrade) {
+                                var button_text = _("Done");
+                            } else {
+                                var button_text = _("Confirm Trade(s) and Done");
+                            }
+                            var button_method = METHOD_ON_PASS_EVENT_DONE;
                         break;
                         case BTN_ID_EVENT_DONE_TRADING:
                             if (andTrade) {
@@ -2748,11 +2745,9 @@ function (dojo, declare) {
             }
             this.addActionButton( BTN_ID_TRADE,      _("Show Trade"), 'tradeActionButton', null, false, 'gray' );
             this.addActionButton( BTN_ID_TAKE_LOAN,  _("Take Debt"),  'onMoreLoan', null, false, 'gray' );
-            this.addActionButton( BTN_ID_UNDO_TRADE, _("Undo All Trade(s) & Debt"), 'undoTransactionsButton', null, false, 'red' );
-            dojo.addClass(BTN_ID_UNDO_TRADE, 'disabled');
-
-            this.addActionButton( BTN_ID_CONFIRM_TRADE, _("Confirm Trade(s)"), 'confirmTradeButton', null, false, 'blue' );
-            dojo.addClass(BTN_ID_CONFIRM_TRADE, 'disabled');
+            this.addActionButton( BTN_ID_UNDO_TRADE, _("Undo All Trade(s) & Debt"), METHOD_UNDO_TRADE, null, false, 'red' );
+            this.addActionButton( BTN_ID_CONFIRM_TRADE, _("Confirm Trade(s)"), METHOD_CONFIRM_TRADE, null, false, 'blue' );
+            this.updateConfirmAndUndoTradeButtons();
 
             dojo.style(TRADE_BOARD_ID, 'order', 2);
             this.updateTradeAffordability();
@@ -2779,16 +2774,14 @@ function (dojo, declare) {
          *  - if trade buttons already displayed, but no trades selected
          *  - bgabutton_red
          */
-        tradeActionButton: function( evt){
+        tradeActionButton: function( ){
             if(  (this.currentState=='allocateWorkers' && this.allowTrade) || this.checkAction( 'trade' ) ){
-                if (this.tradeEnabled){// hide
+                this.setTradeButtonToShow( this.tradeEnabled );
+                if (this.tradeEnabled){// hide trade
                     this.disableTradeIfPossible();
-                    this.setTradeButtonTo( TRADE_BUTTON_SHOW );
-                    return;
+                } else {// show trade
+                    this.enableTradeIfPossible();
                 }
-                // show trade
-                this.enableTradeIfPossible();
-                this.setTradeButtonTo( TRADE_BUTTON_HIDE );
             }
         },
 
@@ -2869,6 +2862,7 @@ function (dojo, declare) {
             }
         },
             
+        // METHOD_CONFIRM_TRADE
         confirmTradeButton: function ( ){
             if((this.currentState=='allocateWorkers' && !this.isCurrentPlayerActive())){
                 // confirm trade
@@ -3011,7 +3005,7 @@ function (dojo, declare) {
                 this.updateBuildingAffordability();
                 this.updateTradeAffordability_sellEvent();
                 this.setupUndoTransactionsButtons_sellEvent();
-                this.updateConfirmTradeButton(TRADE_BUTTON_SHOW);
+                this.updateConfirmAndUndoTradeButtons();
             } else {
                 this.showMessage( _("You cannot afford this"), 'error' );
             }
@@ -3046,8 +3040,11 @@ function (dojo, declare) {
                 dojo.query(`#${thisPlayer} .player_${type}_new.noshow`).removeClass('noshow');
             }
         },
-        /** onButtonClick "Confirm Trades" */
-        confirmTrades: function ( notActive ){
+        /** onButtonClick "Confirm Trades" 
+         * @arg notActive - required for the 1 case in which user IS allowed to trade while notActive
+         *  (in the pseudo state where a player has allocated workers for income, but can do their trades & pay workers during the same state)
+         */
+        confirmTrades: function ( notActive= false ){
             if (TRANSACTION_LOG.length == 0) { return; }
             this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/trade.html", { 
                 lock: true, 
@@ -3060,7 +3057,7 @@ function (dojo, declare) {
                  if (this.currentState == 'allocateWorkers' && !notActive){
                     this.setOffsetForIncome();
                  }
-                 dojo.query(`#${BTN_ID_CANCEL}`).forEach(dojo.removeClass('disabled'));
+                 dojo.query(`#${BTN_ID_CANCEL}`).removeClass('disabled');
                  this.calculateAndUpdateScore(this.player_id);
              }, function( is_error) {});
         },
@@ -3206,7 +3203,7 @@ function (dojo, declare) {
                 this.updateBuildingAffordability();
                 this.updateTradeAffordability();
                 this.setupUndoTransactionsButtons();
-                this.updateConfirmTradeButton(TRADE_BUTTON_SHOW);
+                this.updateConfirmAndUndoTradeButtons();
             } else {
                 this.showMessage( _("You cannot afford this"), 'error' );
             }
@@ -3630,6 +3627,7 @@ function (dojo, declare) {
             this.updateBuildingAffordability();
         },
 
+        //METHOD_UNDO_TRADE
         undoTransactionsButton: function( ){
             if (TRANSACTION_COST.length ==0) return;
             while (TRANSACTION_LOG.length>0){
@@ -3682,51 +3680,30 @@ function (dojo, declare) {
         },
 
         resetTradeButton: function(){
-            if(TRANSACTION_LOG.length == 0){
-                if (this.tradeEnabled){
-                    this.setTradeButtonTo(TRADE_BUTTON_HIDE);
-                } else {
-                    this.setTradeButtonTo(TRADE_BUTTON_SHOW);
-                }
-            } else {
-                if (TRANSACTION_LOG.length >0){
-                    this.updateConfirmTradeButton(TRADE_BUTTON_SHOW);
-                } else {
-                    this.updateConfirmTradeButton(TRADE_BUTTON_HIDE);
-                }
-            }
+            this.setTradeButtonToShow(!this.tradeEnabled);
+            this.updateConfirmAndUndoTradeButtons();
         },
 
-        setTradeButtonTo: function( toVal){
-            switch(toVal){
-                case TRADE_BUTTON_SHOW:
-                    var translatedString = _("Show Trade");
-                    dojo.query(`#${BTN_ID_TRADE}`).forEach(element => element.innerText= translatedString);
-                    break;
-                case TRADE_BUTTON_HIDE:
-                    var translatedString = _("Hide Trade");                    
-                    dojo.query(`#${BTN_ID_TRADE}`).forEach(element => element.innerText= translatedString);
-                    break;
+        // update text for Show/Hide trade Button
+        setTradeButtonToShow: function( show ){
+            if (show){
+                var translatedString = _("Show Trade");
+            } else {
+                var translatedString = _("Hide Trade");                    
             }
+            dojo.query(`#${BTN_ID_TRADE}`).forEach(element => element.innerText= translatedString);
         },
-        updateConfirmTradeButton: function( show){
-            switch(show){
-                case TRADE_BUTTON_SHOW:
-                    if (dojo.query(`#${BTN_ID_CONFIRM_TRADE}`).length >0){
-                        dojo.removeClass(BTN_ID_CONFIRM_TRADE, 'disabled');
-                    }
-                    if (dojo.query(`#${BTN_ID_CONFIRM_TRADE_HIDDEN}`).length >0){
-                        dojo.removeClass(BTN_ID_CONFIRM_TRADE_HIDDEN, 'disabled');
-                    }
-                    break;
-                case TRADE_BUTTON_HIDE:
-                    if (dojo.query(`#${BTN_ID_CONFIRM_TRADE}`).length >0){
-                        dojo.addClass(BTN_ID_CONFIRM_TRADE, 'disabled');
-                    }
-                    if (dojo.query(`#${BTN_ID_CONFIRM_TRADE_HIDDEN}`).length >0){
-                        dojo.addClass(BTN_ID_CONFIRM_TRADE_HIDDEN, 'disabled');
-                    }
-                break;
+
+        // set enabled/disabled states for confirm/undo trades buttons
+        updateConfirmAndUndoTradeButtons: function( ){
+            if (TRANSACTION_LOG.length >0) {
+                dojo.query(`#${BTN_ID_CONFIRM_TRADE}.disabled`).removeClass('disabled');
+                dojo.query(`#${BTN_ID_CONFIRM_TRADE_HIDDEN}.disabled`).removeClass('disabled');
+                dojo.query(`#${BTN_ID_UNDO_TRADE}.disabled`).removeClass('disabled');
+            } else {
+                dojo.query(`#${BTN_ID_CONFIRM_TRADE}:not(.disabled)`).addClass('disabled');
+                dojo.query(`#${BTN_ID_CONFIRM_TRADE_HIDDEN}:not(.disabled)`).addClass('disabled');
+                dojo.query(`#${BTN_ID_UNDO_TRADE}:not(.disabled)`).addClass('disabled');
             }
         },
 
@@ -5237,16 +5214,6 @@ function (dojo, declare) {
                     if (args.tradeAway && typeof (args.tradeAway) != 'string'){
                         args.tradeAway_arr = args.tradeAway;
                     }
-                    // make args.type that is not string (expected Object array) fit expected args format.
-                    // this will also set args.amount to 1, if no value is set.
-                    if (args.type && typeof (args.type) != 'string'){
-                        if (args.type.amount == null){
-                            args.amount = 1;
-                        } else {
-                            args.amount = args.type.amount;
-                        }
-                        args.type = args.type.type;
-                    }
                     
                     // replace args.reason_string with token, if appropriate.
                     if (args.reason_string){
@@ -5265,7 +5232,6 @@ function (dojo, declare) {
                             args.reason_string = TOKEN_HTML.track;
                         }   
                     }
-
                     // only one type of resource, make into token(s)
                     if (args.type){
                         if (args.amount == null){
@@ -5436,8 +5402,10 @@ function (dojo, declare) {
             return aggregateString + `</${html_type}>`;
         },
         
-        ///////////// Begin `notif_xxx` methods
-        // for transition between rounds, (moving build able buildings)
+        /////////////////////////
+        //Begin `notif_xxx` methods
+
+        // for transition between rounds, (moving build-able buildings)
         notif_updateBuildingStocks: function ( notif ){
             this.updateBuildingStocks(notif.args.buildings);
             this.showHideButtons();
@@ -5493,6 +5461,7 @@ function (dojo, declare) {
         notif_gainTrack: function( notif ){
             //console.log('notif_gainTrack');
             const p_id = Number(notif.args.player_id);
+            var delay = 0;
             dojo.place(this.format_block( 'jptpl_track', 
                     {id: Number(notif.args.track_key), color: PLAYER_COLOR[Number(notif.args.player_id)]}),
                     TRACK_TOKEN_ZONE[p_id]);
@@ -5501,7 +5470,7 @@ function (dojo, declare) {
                 var destination = this.getTargetFromNotifArgs(notif);
                 for(let type in notif.args.tradeAway_arr){
                     for(let i = 0; i < notif.args.tradeAway_arr[type]; i++){
-                        this.slideTemporaryObject( TOKEN_HTML[type], 'limbo' , PLAYER_SCORE_ZONE_ID[p_id], destination,  500 , 100*i );
+                        this.slideTemporaryObject( TOKEN_HTML[type], 'limbo' , PLAYER_SCORE_ZONE_ID[p_id], destination,  500 , 50*(delay++) );
                         if (p_id == this.player_id || this.show_player_info){
                             this.incResCounter(p_id, type, -1);
                         }
@@ -5543,7 +5512,7 @@ function (dojo, declare) {
             for(let type in notif.args.resource_arr){
                 let amt = notif.args.resource_arr[type];
                 for(let i = 0; i < amt; i++){
-                    this.slideTemporaryObject( TOKEN_HTML[type], 'limbo', PLAYER_SCORE_ZONE_ID[p_id], destination , 500 , 100*(delay++) );
+                    this.slideTemporaryObject( TOKEN_HTML[type], 'limbo', PLAYER_SCORE_ZONE_ID[p_id], destination , 500 , 50*(delay++) );
                     if (p_id == this.player_id || this.show_player_info){
                         this.incResCounter(p_id, type, -1);
                     }
@@ -5560,9 +5529,10 @@ function (dojo, declare) {
             //console.log('notif_playerIncome');
             var start = this.getTargetFromNotifArgs(notif);
             const p_id = notif.args.player_id;
+            var delay = 0;
             for(let i = 0; i < notif.args.amount; i++){
-            this.slideTemporaryObject( TOKEN_HTML[String(notif.args.typeStr)], 'limbo', start , PLAYER_SCORE_ZONE_ID[p_id] , 500 , 100*i );
-            if (p_id == this.player_id || this.show_player_info){
+                this.slideTemporaryObject( TOKEN_HTML[String(notif.args.typeStr)], 'limbo', start , PLAYER_SCORE_ZONE_ID[p_id] , 500 , 50*(delay++) );
+                if (p_id == this.player_id || this.show_player_info){
                     if (VP_TOKENS.includes(notif.args.typeStr)){
                         this.incResCounter(p_id, 'vp',Number(notif.args.typeStr.charAt(2)));
                     } else{ // normal case
@@ -5582,7 +5552,7 @@ function (dojo, declare) {
             for(let type in notif.args.resource_arr){
                 let amt = notif.args.resource_arr[type];
                 for(let i = 0; i < amt; i++){
-                    this.slideTemporaryObject( TOKEN_HTML[type], 'limbo', start , PLAYER_SCORE_ZONE_ID[p_id] , 500 , 100*(delay++) );
+                    this.slideTemporaryObject( TOKEN_HTML[type], 'limbo', start , PLAYER_SCORE_ZONE_ID[p_id] , 500 , 50*(delay++) );
                     if (p_id == this.player_id || this.show_player_info){
                         if (VP_TOKENS.includes(notif.args.typeStr)){
                             this.incResCounter(p_id, 'vp', Number(notif.args.typeStr.charAt(2)));    
@@ -5610,8 +5580,9 @@ function (dojo, declare) {
             //console.log('notif_playerPayment');
             var destination = this.getTargetFromNotifArgs(notif);
             const p_id = notif.args.player_id;
+            var delay = 0;
             for(let i = 0; i < notif.args.amount; i++){
-                this.slideTemporaryObject( TOKEN_HTML[notif.args.typeStr], 'limbo' , PLAYER_SCORE_ZONE_ID[p_id], destination,  500 , 100*i );
+                this.slideTemporaryObject( TOKEN_HTML[notif.args.typeStr], 'limbo' , PLAYER_SCORE_ZONE_ID[p_id], destination,  500 , 50*(delay++) );
                 if (p_id == this.player_id || this.show_player_info){
                     this.incResCounter(p_id, notif.args.typeStr, -1);
                 }
@@ -5628,7 +5599,7 @@ function (dojo, declare) {
             for(let type in notif.args.resource_arr){
                 let amt = notif.args.resource_arr[type];
                     for(let i = 0; i < amt; i++){
-                        this.slideTemporaryObject( TOKEN_HTML[type], 'limbo', PLAYER_SCORE_ZONE_ID[p_id], destination , 500 , 100*(delay++) );
+                        this.slideTemporaryObject( TOKEN_HTML[type], 'limbo', PLAYER_SCORE_ZONE_ID[p_id], destination , 500 , 50*(delay++) );
                         if (p_id == this.player_id || this.show_player_info){
                             this.incResCounter(p_id, type, -1);
                     }
@@ -5659,7 +5630,7 @@ function (dojo, declare) {
             for(let type in notif.args.tradeAway_arr){
                 let amt = notif.args.tradeAway_arr[type];
                 for(let i = 0; i < amt; i++){
-                    this.slideTemporaryObject( TOKEN_HTML[type], 'limbo', PLAYER_SCORE_ZONE_ID[p_id], TRADE_BOARD_ID , 500 , 100*(delay++) );
+                    this.slideTemporaryObject( TOKEN_HTML[type], 'limbo', PLAYER_SCORE_ZONE_ID[p_id], TRADE_BOARD_ID , 500 , 50*(delay++) );
                     if (p_id == this.player_id || this.show_player_info){
                         this.incResCounter(p_id, type, -1);
                     }
@@ -5668,7 +5639,7 @@ function (dojo, declare) {
             for(let type in notif.args.tradeFor_arr){
                 let amt = notif.args.tradeFor_arr[type];
                 for(let i = 0; i < amt; i++){
-                    this.slideTemporaryObject( TOKEN_HTML[type], 'limbo', TRADE_BOARD_ID, PLAYER_SCORE_ZONE_ID[p_id], 500 , 100*(delay++) );
+                    this.slideTemporaryObject( TOKEN_HTML[type], 'limbo', TRADE_BOARD_ID, PLAYER_SCORE_ZONE_ID[p_id], 500 , 50*(delay++) );
                 }   
                 if (p_id == this.player_id || this.show_player_info){
                     if (VP_TOKENS.includes(type)){
@@ -5693,11 +5664,11 @@ function (dojo, declare) {
             let amt_silver = notif.args.resource_arr.silver;
             var delay = 0;
             for (let i =0; i > amt_loan; i--){
-                this.slideTemporaryObject(TOKEN_HTML.loan, 'limbo', PLAYER_SCORE_ZONE_ID[p_id], destination , 500 , 100*(delay++) );
+                this.slideTemporaryObject(TOKEN_HTML.loan, 'limbo', PLAYER_SCORE_ZONE_ID[p_id], destination , 500 , 50*(delay++) );
                 this.incResCounter(p_id, 'loan', -1);
             }
             for (let i =0; i < amt_silver; i++){
-                this.slideTemporaryObject(TOKEN_HTML.silver, 'limbo', destination, PLAYER_SCORE_ZONE_ID[p_id], 500 , 100*(delay++) );
+                this.slideTemporaryObject(TOKEN_HTML.silver, 'limbo', destination, PLAYER_SCORE_ZONE_ID[p_id], 500 , 50*(delay++) );
                 this.incResCounter(p_id, 'silver', 1);
             }
             this.calculateAndUpdateScore(p_id);
@@ -5707,14 +5678,15 @@ function (dojo, declare) {
         notif_loanPaid: function( notif ){
             console.log('notif_loanPaid', notif);
             const p_id = notif.args.player_id;
+            var delay = 0;
             var destination = this.getTargetFromNotifArgs(notif);
-            this.slideTemporaryObject( `<div class="loan token_loan"></div>`, 'limbo' , PLAYER_SCORE_ZONE_ID[p_id], destination,  500 , 0 );
+            this.slideTemporaryObject( TOKEN_HTML.loan, 'limbo' , PLAYER_SCORE_ZONE_ID[p_id], destination,  500 , 50*(delay++) );
             if (p_id == this.player_id || this.show_player_info){
                 this.incResCounter(p_id, 'loan', -1);
             }
             if (notif.args.type ){
                 for (let i = 0; i < notif.args.amount; i++){
-                    this.slideTemporaryObject( notif.args.type , 'limbo', PLAYER_SCORE_ZONE_ID[p_id], 'board', 500, 100 +(i*100));
+                    this.slideTemporaryObject( TOKEN_HTML[notif.args.typeStr] , 'limbo', PLAYER_SCORE_ZONE_ID[p_id], 'board', 500, 50*(delay++));
                 }
                 if (p_id == this.player_id || this.show_player_info){
                     this.incResCounter(p_id, notif.args.typeStr, -1*(notif.args.amount));
@@ -5729,10 +5701,11 @@ function (dojo, declare) {
         // update player resources when a loan is taken
         notif_loanTaken: function( notif ){
             //console.log('notif_loanTaken');
+            var delay = 0;
             const p_id = notif.args.player_id;
-            this.slideTemporaryObject( `<div class="loan token_loan"></div>`, 'limbo' , 'board', PLAYER_SCORE_ZONE_ID[p_id],  500 , 0 );
-            this.slideTemporaryObject( TOKEN_HTML.silver, 'limbo', 'board', PLAYER_SCORE_ZONE_ID[p_id], 500 , 100);
-            this.slideTemporaryObject( TOKEN_HTML.silver, 'limbo', 'board', PLAYER_SCORE_ZONE_ID[p_id], 500 , 200);
+            this.slideTemporaryObject( TOKEN_HTML.loan, 'limbo' , 'board', PLAYER_SCORE_ZONE_ID[p_id],  500 , 50*(delay++) );
+            this.slideTemporaryObject( TOKEN_HTML.silver, 'limbo', 'board', PLAYER_SCORE_ZONE_ID[p_id], 500 , 50*(delay++));
+            this.slideTemporaryObject( TOKEN_HTML.silver, 'limbo', 'board', PLAYER_SCORE_ZONE_ID[p_id], 500 , 50*(delay++));
             if (p_id == this.player_id || this.show_player_info){
                 this.incResCounter(p_id, 'loan', 1);
                 this.incResCounter(p_id, 'silver', 2);
