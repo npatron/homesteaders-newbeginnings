@@ -78,13 +78,35 @@ class action_homesteadersnewbeginnings extends APP_GameAction
   // pay workers
   public function donePay() {
     self::setAjaxMode( );
+    
+    // resolve pending trades
+    $trade_action = self::getArg( "trade_action", AT_numberlist, true );
+    $this->game->playerTrade($trade_action, false);
+
     $gold = self::getArg( "gold", AT_posint, true);
     $this->game->playerPay($gold);
     self::ajaxResponse( );
   }
 
+  public function doneTradingAuction() {
+    self::setAjaxMode( );
+
+    self::debug("doneTradingAuction");
+    // resolve pending trades
+    $trade_action = self::getArg( "trade_action", AT_numberlist, true );
+    self::dump("trade_action", $trade_action);
+    $this->game->playerTrade($trade_action, false);
+    
+    self::debug("doneTradingAuction2");
+    $this->game->playerDoneTradingAuction();
+    self::ajaxResponse( );
+  }
+
   public function doneTradingEvent() {
     self::setAjaxMode( );
+    $trade_action = self::getArg( "trade_action", AT_numberlist, true );
+    $this->game->playerTrade($trade_action, false);
+
     $this->game->playerDoneTradingEvent();
     self::ajaxResponse( );
   }
@@ -165,6 +187,11 @@ class action_homesteadersnewbeginnings extends APP_GameAction
 
   public function donePassEvent(){
     self::setAjaxMode( );
+
+    // resolve pending trades
+    $trade_action = self::getArg( "trade_action", AT_numberlist, true );
+    $this->game->playerTrade($trade_action, false);
+
     $this->game->playerDonePassEvent( );
     self::ajaxResponse( );
   }
@@ -178,12 +205,22 @@ class action_homesteadersnewbeginnings extends APP_GameAction
 
   public function steelBuildBuilding(){
     self::setAjaxMode( );
+
+    // resolve pending trades
+    $trade_action = self::getArg( "trade_action", AT_numberlist, true );
+    $this->game->playerTrade($trade_action, false);
+
     $this->game->playerBuildSteel();
     self::ajaxResponse( );
   }
 
   public function buildBuilding(){
     self::setAjaxMode( );
+    
+    // resolve pending trades
+    $trade_action = self::getArg( "trade_action", AT_numberlist, true );
+    $this->game->playerTrade($trade_action, false);
+
     $building_key = self::getArg( "building_key", AT_posint, true);
     $costReplaceArgs = array();
     $goldAsCow = self::getArg( "goldAsCow", AT_posint, false);
@@ -299,12 +336,20 @@ class action_homesteadersnewbeginnings extends APP_GameAction
 
   public function silver2forTrackEvent (){
     self::setAjaxMode( );
+    // resolve pending trades
+    $trade_action = self::getArg( "trade_action", AT_numberlist, true );
+    $this->game->playerTrade($trade_action, false);
+    
     $this->game->playerSilver2forTrackEvent();
     self::ajaxResponse( );
   }
 
   public function bonusTypeForType (){
     self::setAjaxMode( );
+    // resolve pending trades
+    $trade_action = self::getArg( "trade_action", AT_numberlist, true );
+    $this->game->playerTrade($trade_action, false);
+    
     $tradeAway = self::getArg( "tradeAway", AT_int, true);
     $tradeFor = self::getArg( "tradeFor", AT_int, true);
     $this->game->playerTypeForType($tradeAway, $tradeFor);
@@ -331,6 +376,11 @@ class action_homesteadersnewbeginnings extends APP_GameAction
 
   public function doneEndgameActions(){
     self::setAjaxMode( );
+    
+    // resolve pending trades
+    $trade_action = self::getArg( "trade_action", AT_numberlist, true );
+    $this->game->playerTrade($trade_action, false);
+
     $this->game->playerDoneEndgame();
     self::ajaxResponse( );
   }

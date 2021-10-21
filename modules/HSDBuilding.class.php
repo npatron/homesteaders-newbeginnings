@@ -280,9 +280,9 @@ class HSDBuilding extends APP_GameClass
         $this->game->DBQuery("UPDATE `buildings` SET `state`=$state WHERE `building_key`=$b_key");
     }
 
-    function setupWarehouse($p_id, $b_key, $state=0){
+    function setupWarehouse($p_id, $b_key, $state){
         //default is to add all options.
-        if ($state==0){
+        if ($state== -1){
             foreach ($this->game->warehouse_map as $type=>$val){
                 $state |= $val;
             }

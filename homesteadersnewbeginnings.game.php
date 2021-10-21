@@ -263,6 +263,9 @@ class homesteadersnewbeginnings extends Table
 
     public function playerTrade( $tradeAction_csv, $notActive =false )
     {
+        if ( strlen($tradeAction_csv) == 0){
+            return;
+        }
         // allow out of turn trade, only when flag is passed during allocateWorkers State.
         // this is to allow player to make trades/loans & pay workers during the allocateWorkers State
         if (!($notActive && $this->gamestate->state()['name'] === "allocateWorkers")){
@@ -629,6 +632,11 @@ class homesteadersnewbeginnings extends Table
         
         $this->Resource->receiveRailBonus($cur_p_id, $selected_bonus);
         $this->gamestate->setPlayerNonMultiactive($cur_p_id, "done" );
+    }
+
+    public function playerDoneTradingAuction(){
+        $this->checkAction("auctionBonus");
+        $this->gamestate->nextState('done');
     }
 
     public function playerPassBonusEvent(){
@@ -1086,7 +1094,7 @@ class homesteadersnewbeginnings extends Table
                 $this->Resource->updateAndNotifyIncome($active_p_id, 'silver', $amt, $b_name, 'building', $b_key);
             break;
             case BUILD_BONUS_PLACE_RESOURCES:
-                $this->Building->setupWarehouse($active_p_id, $b_key);
+                $this->Building->setupWarehouse($active_p_id, $b_key, -1);
             break;
             case BUILD_BONUS_RAIL_ADVANCE:
                 $this->Resource->getRailAdv($active_p_id, $b_name, 'building', $b_key);

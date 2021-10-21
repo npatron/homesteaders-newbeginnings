@@ -644,7 +644,7 @@ class HSDResource extends APP_GameClass
                 $tradeAway[$type] = 1;
                 $tradeFor = $this->game->resource_info[$type]['trade_val'];
                 $tradeFor['vp'] = 1;
-                $tradeType= $type;
+                $tradeType = $type;
                 $sell = true;
             break;
             case 'sellfree':
@@ -652,7 +652,7 @@ class HSDResource extends APP_GameClass
                 $tradeAway = array($type=>1);
                 $tradeFor = $this->game->resource_info[$type]['trade_val'];
                 $tradeFor['vp'] = 1;
-                $tradeType= $type;
+                $tradeType = $type;
                 $sell = true;
             break;
             case 'market':
@@ -660,12 +660,12 @@ class HSDResource extends APP_GameClass
                 $b_id = BLD_MARKET;
                 $tradeAway = array_merge($tradeAway, $this->game->resource_info[$type]['market']);
                 $tradeFor[$type] = 1;
-                $tradeType= $type;
+                $tradeType = $type;
             break;
             case 'bank':
                 $b_id = BLD_BANK;
                 $tradeFor['silver'] = 1;
-                $tradeType= 'silver';
+                $tradeType = 'silver';
             break;
             case 'loan':
                 return (array(
@@ -714,8 +714,8 @@ class HSDResource extends APP_GameClass
                                     'type' => $type, 
                                     'amount'=>$amt,
                                     'preserve' => [2=>'amount']),
-                        'tradeFor'=>array('loan'=>-1), 
-                        'tradeAway'=>array($type=>$amt)));
+                        'tradeFor'=>array('loan'=> -1), 
+                        'tradeAway'=>array($type=> $amt)));
             default: 
             throw new BgaVisibleSystemException ( sprintf(clienttranslate('Invalid TradeAction: %s'),$tradeAction));
         }
@@ -743,9 +743,9 @@ class HSDResource extends APP_GameClass
         }
         return array('transaction'=> 'trade', 
                     'message'=> $message, 
-                    'args'=>$args, 
-                    'tradeFor'=>$tradeFor,
-                    'tradeAway'=>$tradeAway);
+                    'args'=> $args, 
+                    'tradeFor'=> $tradeFor,
+                    'tradeAway'=> $tradeAway);
     }
 
     /**
