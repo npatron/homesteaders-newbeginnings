@@ -917,8 +917,9 @@ function (dojo, declare) {
                 dojo.place(`btn_warehouse_${type}`,'choose_warehouse_buttons', 'last');
                 this.warehouse = type;
             }
-            dojo.addClass(`btn_warehouse_${this.warehouse}`, 'bgabutton_blue' );
-            dojo.removeClass(`btn_warehouse_${this.warehouse}`, 'bgabutton_gray');
+            dojo.query(`#btn_warehouse_${this.warehouse}:not(.bgabutton_blue)`).addClass('bgabutton_blue' );
+            dojo.query(`#btn_warehouse_${this.warehouse}.bgabutton_gray`).removeClass('bgabutton_gray');
+            
         },
         
         onClickWarehouseResource: function( evt ){
@@ -5844,7 +5845,7 @@ function (dojo, declare) {
                         }
                         if (dojo.query('#choose_warehouse_buttons').length >0){    
                             let newState = this.getWarehouseResources();
-                            //console.log('newState', newState);
+                            console.log('newState', newState);
                             for(let type in newState){
                                 //console.log('checking', type);
                                 if (!(type in oldState)){
@@ -5855,6 +5856,8 @@ function (dojo, declare) {
                                 }
                             }
                         }
+                        dojo.query(`#btn_warehouse_${this.warehouse}:not(.bgabutton_blue)`).addClass('bgabutton_blue' );
+                        dojo.query(`#btn_warehouse_${this.warehouse}.bgabutton_gray`).removeClass('bgabutton_gray');
                     break;
                     case 'passBid':
                         this.moveBid(p_id, log.last_bid);

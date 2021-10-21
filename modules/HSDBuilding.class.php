@@ -372,7 +372,7 @@ class HSDBuilding extends APP_GameClass
     }
 
     // INCOME
-    function buildingIncomeForPlayer($p_id, $warehouse_type =null){
+    function buildingIncomeForPlayer($p_id, $warehouse_type = null) {
         $p_bld = $this->getAllPlayerBuildings($p_id);
         $player_workers = $this->game->getCollectionFromDB( "SELECT * FROM `workers` WHERE `player_id` = '$p_id'");
         $income_b_id = array();
@@ -386,7 +386,9 @@ class HSDBuilding extends APP_GameClass
                 $rodeoIncome = min(count($player_workers), 5);
                 $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id], 'silver', $rodeoIncome);
             } else if ($b_id == BLD_WAREHOUSE) {
-                $this->warehouseIncomeForPlayer($p_id, $b_key, $this->game->resource_map[$warehouse_type]);
+                if ($warehouse_type != null){
+                    $this->warehouseIncomeForPlayer($p_id, $b_key, $this->game->resource_map[$warehouse_type]);
+                }
             } else {
                 foreach ((array_key_exists('inc', $b_info)?$b_info['inc']:array()) as $type => $amt){
                     $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id], $type, $amt);
