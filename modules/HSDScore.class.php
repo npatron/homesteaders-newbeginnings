@@ -197,13 +197,14 @@ class HSDScore extends APP_GameClass
         $counts[VP_B_WORKER] = $this->game->getUniqueValueFromDB("SELECT `workers` FROM `resources` WHERE `player_id`='$p_id'");
         $counts[VP_B_TRACK] = $this->game->getUniqueValueFromDB("SELECT COUNT(*) FROM `tracks` WHERE `player_id`='$p_id'");
         $counts[VP_B_BUILDING] = count($p_buildings);
-        $counts[VP_B_PAID_LOAN] = 0;
+        $counts[VP_B_PAID_LOAN] = $this->game->Log->getLoansPaidAmount($p_id);
         
-        $this->game->setStat($counts[VP_B_BUILDING],    'buildings', $p_id);
         $this->game->setStat($counts[TYPE_RESIDENTIAL], 'residential', $p_id);
         $this->game->setStat($counts[TYPE_COMMERCIAL],  'industrial', $p_id);
         $this->game->setStat($counts[TYPE_INDUSTRIAL],  'commercial', $p_id);
         $this->game->setStat($counts[TYPE_SPECIAL],     'special', $p_id);
+        $this->game->setStat($counts[VP_B_BUILDING],    'buildings', $p_id);
+        $this->game->setStat($counts[VP_B_PAID_LOAN],   'loans_paid_end', $p_id);
         
         $vps = array('static'=>0,
                      'bonus'=>0,);
@@ -239,6 +240,8 @@ class HSDScore extends APP_GameClass
         $this->game->setStat($vp_b_mult[VP_B_WORKER] * $counts[VP_B_WORKER], 'bonus_vp_4', $p_id);
         $this->game->setStat($vp_b_mult[VP_B_TRACK] * $counts[VP_B_TRACK], 'bonus_vp_5', $p_id);
         $this->game->setStat($vp_b_mult[VP_B_BUILDING] * $counts[VP_B_BUILDING], 'bonus_vp_6', $p_id);
+        $this->game->setStat($vp_b_mult[VP_B_PAID_LOAN] * $counts[VP_B_PAID_LOAN], 'bonus_vp_7', $p_id);
+
         
         return array('vp'=>$vps, 'vp_b'=>$vps_b);
     }

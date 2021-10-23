@@ -109,27 +109,48 @@ function (dojo, declare) {
     const FIRST_PLAYER_ID = 'first_player_tile';
 
     const BTN_ID_CONFIRM_TRADE = 'confirm_trade_btn';
+    const MESSAGE_CONFIRM_TRADE= "Confirm Trade(s)";
     const METHOD_CONFIRM_TRADE = 'confirmTradeButton';
     const BTN_ID_UNDO_TRADE    = 'undo_trades_btn';
+    const MESSAGE_UNDO_TRADE   = "Undo All Trade(s) & Debt";
     const METHOD_UNDO_TRADE    = 'undoTransactionsButton';
     const BTN_ID_CONFIRM_WORKERS = 'btn_confirm_workers'; // allocate workers
     const METHOD_CONFIRM_WORKERS = 'donePlacingWorkers';
+    const MESSAGE_CONFIRM_WORKERS = "Confirm ${worker} Placement";
+    const MESSAGE_CONFIRM_WORKERS_TRADES = "Confirm Trade(s) & ${worker} Placement";
     /** Bid Buttons **/
     const BTN_ID_CONFIRM_BID = 'btn_confirm_bid';
        // confirmBidButton
+    const MESSAGE_CONFIRM_BID = "Confirm Bid";
     const BTN_ID_CONFIRM_DUMMY_BID = 'btn_confirm_dummy_bid';
        // confirmDummyBidButton
-    const BTN_ID_PASS_BID     = 'btn_pass'; 
+    const MESSAGE_CONFIRM_DUMMY_BID = "Confirm Dummy Bid";
+    const BTN_ID_PASS_BID     = 'btn_pass';
        // passBidButton
+    const MESSAGE_PASS = "Pass";
+    const MESSAGE_PASS_CONFIRM = "Confirm Trade(s) and Pass";
     /** Confirm Lot Actions **/
     const BTN_ID_CONFIRM_ACTIONS = 'btn_confirm';
        // confirmBuildPhase
+    const MESSAGE_CONFIRM = "Confirm";
     /*** trade buttons ***/
-    const BTN_ID_TRADE       = 'btn_trade';
-       // 'tradeActionButton', 
-    const BTN_ID_TRADE_BANK  = 'btn_trade_bank';
-    const BANK_CHANGE_ARR    = {'trade':-1,'silver':1};
-       // 'onClickOnBankTrade'
+    const BTN_ID_TRADE_TOGGLE     = 'btn_trade';
+    const MESSAGE_TRADE_TOGGLE_ON = "Hide Trade";
+    const MESSAGE_TRADE_TOGGLE_OFF= "Show Trade";
+    const METHOD_TRADE_TOGGLE     = "tradeActionButton";
+
+    const BLD_ID_MARKET_FOOD  = 'trade_market_wood_food';
+    const BLD_ID_MARKET_STEEL = 'trade_market_food_steel';
+    const BLD_METHOD_MARKET   = 'onClickOnMarketTrade';
+
+    const BLD_ID_TRADE_BANK     = 'trade_bank_trade_silver';
+    const BLD_METHOD_TRADE_BANK = 'onClickOnBankTrade';
+    const BTN_ID_TRADE_BANK     = 'btn_trade_bank';
+    const METHOD_TRADE_BANK     = 'onClickOnBankTrade';
+    const TRADE_BANK_CHANGE_ARR = {'trade':-1,'silver':1};
+    const TRADE_BANK_GROUP      = {'id'    : BLD_ID_TRADE_BANK,
+                                   'btn'   : BTN_ID_TRADE_BANK,
+                                   'change': TRADE_BANK_CHANGE_ARR,};
     /** Auction Bonus buttons */
     const BTN_ID_FOOD_VP = 'btn_food_vp';
     const METHOD_FOOD_VP = 'foodFor2VP';
@@ -146,11 +167,17 @@ function (dojo, declare) {
     const BTN_ID_WOOD_TRACK = 'btn_wood_track';
     const METHOD_WOOD_TRACK = 'woodForTrack';
     const ARR_WOOD_TRACK    = {resource1:'${wood}', resource2:'${track}', arrow:'${arrow}'};
+
+    const MESSAGE_X_FOR_Y = "${resource1} ${arrow} ${resource2}";
+    const MESSAGE_X_FOR_Y_CONFIRM = "Confirm Trade(s) & ${resource1} ${arrow} ${resource2}";
     const BTN_ID_BONUS_WORKER = 'btn_bonus_worker'; 
        // 'workerForFreeBuilding', 'workerForFreeAuction', 'workerForFreeEvent', 'workerForFreeLotEvent
+    const MESSAGE_BONUS_WORKER = '(FREE) Hire ${worker}';
+    
     const BTN_ID_PASS_BONUS   = 'btn_pass_bonus';   
        // 'passBonusBuilding', 'passBonusAuction', 'passBonusLotEvent'
     const METHOD_PASS_BONUS   = 'passBonusEvent';
+    const MESSAGE_PASS_BONUS = "Do Not Get Bonus";
     /** Rail Bonus **/
 
     const METHOD_BOARD_SELECT_BONUS = 'onSelectBonusOption'
@@ -159,14 +186,18 @@ function (dojo, declare) {
     const BTN_ID_CHOOSE_BONUS = 'btn_choose_bonus'; 
     const METHOD_CHOOSE_BONUS = 'doneSelectingRailBonus';
     const METHOD_CHOOSE_BONUS_EVENT = 'doneSelectingRailBonusEvent';
+    const MESSAGE_CHOOSE_BONUS = "Choose Bonus";
     /** Event Bonus buttons */
     const BTN_ID_EVENT_SILVER_TRACK = 'btn_silver_track';
     const METHOD_EVENT_SILVER_TRACK = 'silver2ForTrack';
     const BTN_ID_EVENT_STEEL_BUILD = 'btn_steel_build';
     const METHOD_EVENT_STEEL_BUILD = 'steelBuildBuilding';
+    const MESSAGE_EVENT_STEEL_BUILD = "Pay ${steel} to build ${any}";
+    const MESSAGE_EVENT_STEEL_BUILD_CONFIRM = "Confirm Trade(s) & Pay ${steel} to build ${any}";
     /***  PRE-EVENT TRADE PHASE ***/
     const BTN_ID_EVENT_DONE_TRADING = 'btn_done_trading';
     const METHOD_EVENT_DONE_TRADING = 'doneTradingEvent';
+    const MESSAGE_EVENT_DONE  = "Pass on Event";
     /** EVENT_STATE_FAIR -> State Fair **/
     const BTN_ID_EVENT_DONE_HIDDEN_TRADING = 'btn_done_hidden_trading';
     const METHOD_EVENT_DONE_HIDDEN = 'doneHiddenTradingEvent';
@@ -175,17 +206,30 @@ function (dojo, declare) {
     /*** common buttons ***/
     const BTN_ID_UNDO_PASS    = 'btn_undo_pass';
        // 'onUnPass_allocateWorkers', 'onUndoBidPass', 'onUnPass_endGameActions' 
+    const MESSAGE_UNDO_PASS   = "Undo Pass";
+
     const BTN_ID_ON_PASS_EVENT_DONE = 'btn_done_pass_event';
     const METHOD_ON_PASS_EVENT_DONE = 'donePassEvent';
+    const MESSAGE_DONE = 'Done';
+    const MESSAGE_DONE_CONFIRM = 'Confirm Trade(s) and Done';
     const BTN_ID_CANCEL       = 'btn_cancel_button';
        // 'cancelUndoTransactions', 'cancelEventTransactions', 'cancelHiddenUndoTransactions',
     const BTN_ID_REDO_AUCTION = 'btn_redo_build_phase';
     const METHOD_CANCEL_TURN = 'cancelTurn';
+    const MESSAGE_CANCEL_TURN = "Cancel";
+
     const BTN_ID_HIRE_WORKER  = 'btn_hire_worker';
     const METHOD_HIRE_WORKER  = 'hireWorkerButton';
+    const MESSAGE_HIRE_WORKER = "Hire New ${worker}";
+    const HIRE_WORKER_ARR     = {'food':-1,'trade':-1};
+    const HIRE_WORKER_GROUP   = {'button' : BTN_ID_HIRE_WORKER,
+                                 'method' : METHOD_HIRE_WORKER,
+                                 'message': MESSAGE_HIRE_WORKER,
+                                 'change' : HIRE_WORKER_ARR,};
     const BTN_ID_TAKE_LOAN    = 'btn_take_loan';
+    const METHOD_TAKE_LOAN    = 'onMoreLoan';
+    const MESSAGE_TAKE_LOAN   = "Take Debt";
     const TAKE_LOAN_ARR       = {'silver':2,'loan':1};
-       // 'onMoreLoan'
 
     /*** Choose Lot Action ***/
     const BTN_LOT_ACTION_BUILD  = 'btn_build';
@@ -206,8 +250,11 @@ function (dojo, declare) {
     const BTN_ID_BUILD_BUILDING = 'btn_choose_building';
     const METHOD_BUILD_BUILDING = 'chooseBuilding';
     const BUILDING_NAME_ID    = 'bld_name';
+    const MESSAGE_BUILDING_NAME = "Build ${building_name}";
+    const MESSAGE_BUILDING_NAME_CONFIRM = "Confirm Trade(s) & Build ${building_name}";
     const BTN_ID_DO_NOT_BUILD = 'btn_do_not_build'; 
        // 'doNotBuild'
+    const MESSAGE_DO_NOT_BUILD = "Do Not Build";
     /**  build building cost replacement **/
     const REPLACER_ZONE_ID   = 'replacers';
     const BTN_ID_GOLD_COW    = 'btn_gold_cow';      // riverport
@@ -221,28 +268,41 @@ function (dojo, declare) {
     /** Pay cost update buttons */
     const BTN_ID_MORE_GOLD = 'btn_more_gold';
     const METHOD_MORE_GOLD = 'raiseGold';
+    const MESSAGE_MORE_GOLD = "Use More ${gold}";
     const PAY_GOLD_TEXT    = 'pay_gold';
     const PAY_GOLD_TOKEN   = 'pay_gold_tkn';
     const BTN_ID_LESS_GOLD = 'btn_less_gold';
     const METHOD_LESS_GOLD = 'lowerGold';
+    const MESSAGE_LESS_GOLD = "Use Less ${gold}";
     const PAY_SILVER_TEXT  = 'pay_silver';
     const PAY_SILVER_TOKEN = 'pay_silver_tkn';
     const BTN_ID_PAY_DONE  = 'btn_pay_done';
     const METHOD_DONE_PAY  = 'donePay';
+    const MESSAGE_DONE_PAY = "Pay: ${amt}";
+    const MESSAGE_DONE_PAY_CONFIRM = "Confirm Trade(s) & Pay: ${amt}";
     
     /*** Endgame buttons ***/
     const BTN_ID_DONE             = 'btn_done'; // endgame
     const METHOD_ENDGAME_DONE     = 'doneEndgameActions';
     const BTN_ID_PAY_LOAN_SILVER  = 'btn_pay_loan_silver';
+    const MESSAGE_PAY_LOAN_SILVER = "Pay Debt ${silver}";
     const METHOD_PAY_LOAN_SILVER  = 'payLoanSilver'; 
     const PAY_LOAN_SILVER_ARR     = {'silver':-5,'loan':-1};
+    const PAY_LOAN_SILVER_GROUP   = {'btn'   : BTN_ID_PAY_LOAN_SILVER,
+                                     'method': METHOD_PAY_LOAN_SILVER,
+                                     'change': PAY_LOAN_SILVER_ARR,};
     const BTN_ID_PAY_LOAN_GOLD    = 'btn_pay_loan_gold';
+    const MESSAGE_PAY_LOAN_GOLD   = "Pay Debt ${gold}";
     const METHOD_PAY_LOAN_GOLD    = 'payLoanGold';
     const PAY_LOAN_GOLD_ARR       = {'gold':-1,'loan':-1};
+    const PAY_LOAN_GOLD_GROUP     = {'btn'    : BTN_ID_PAY_LOAN_GOLD,
+                                     'method': METHOD_PAY_LOAN_GOLD,
+                                     'change': PAY_LOAN_GOLD_ARR,};
 
     /** Event Bonus Buttons **/ 
     /* EVT_SELL_NO_TRADE -> 'Wartime Demand' */
     const BTN_ID_EVENT_START_SELL = 'btn_start_sell';
+    const MESSAGE_START_SELL = "Start Sell Event"
     const BTN_ID_UNDO_SELL_EVENT = 'btn_undo_sell_event';
     const METHOD_UNDO_SELL_EVENT = 'undoTransactionsButton_sellEvent';
     const BTN_ID_BACK_SELL_EVENT = 'btn_back_sell_event';
@@ -256,6 +316,9 @@ function (dojo, declare) {
     const BTN_ID_PAY_LOAN_3_SILVER = 'btn_loan_3_silver';
     const METHOD_PAY_LOAN_3_SILVER = 'payLoan3Silver';
     const PAY_LOAN_3_SILVER_ARR    = {'silver':-5,'loan':-1};
+    const PAY_LOAN_3_SILVER_GROUP = {'btn'   :BTN_ID_PAY_LOAN_3_SILVER, 
+                                     'method':METHOD_PAY_LOAN_3_SILVER,
+                                     'change':PAY_LOAN_3_SILVER_ARR};
 
     // transaction constants
     const BUY               = 1;
@@ -280,9 +343,7 @@ function (dojo, declare) {
                         'payLoan_silver':16, 'payLoan_gold':17,'payLoan_3silver':18, 'payLoan_food':19,
                         'sellfree_wood':20, 'sellfree_food':21, 'sellfree_steel':22, 'sellfree_gold':23, 'sellfree_copper':24, 'sellfree_cow':25, };
 
-    const MARKET_FOOD_ID  = 'trade_market_wood_food';
-    const MARKET_STEEL_ID = 'trade_market_food_steel';
-    const BANK_ID         = 'trade_bank_trade_silver';
+    
     const WAREHOUSE_RES_ID = 'warehouse_resources';
     const WAREHOUSE_DESCRIPTION_ID = 'warehouse_description';
     const BONUS_OPTIONS = { 7:'train_bonus_1_trade', 8:'train_bonus_2_track', 9:'train_bonus_3_worker',
@@ -727,17 +788,19 @@ function (dojo, declare) {
         },
 
         /**
-         * Create Building worker slots 
-         * that are used for assigning workers to buildings (when owned by players)
+         * Create Building Trade Actions and Worker Slots 
+         * Trade actions that are used for queueing trades
+         * Worker slots are used for assigning workers to buildings (when owned by players)
+         * 
          * @param {*} building - information about the building to add slots to
          * @param {*} b_info - info from material.inc for building_id 
          */
-         addBuildingWorkerSlots: function(b_id, b_key){
+         addBuildingTradeActionsAndWorkerSlots: function(b_id, b_key){
             const b_divId = `${TPL_BLD_TILE}_${b_key}`;
             if (b_id == BLD_BANK){
-                dojo.place(`<div id="${BANK_ID}" class="bank trade_option"></div>`, b_divId,'last');
+                dojo.place(`<div id="${BLD_ID_TRADE_BANK}" class="bank trade_option"></div>`, b_divId,'last');
             } else if (b_id == BLD_MARKET){
-                dojo.place(`<div id="${b_key}_${MARKET_FOOD_ID}" class="market_food trade_option"> </div><div id="${b_key}_${MARKET_STEEL_ID}" class="market_steel trade_option"> </div>`, b_divId,'last');
+                dojo.place(`<div id="${b_key}_${BLD_ID_MARKET_FOOD}" class="market_food trade_option"> </div><div id="${b_key}_${BLD_ID_MARKET_STEEL}" class="market_steel trade_option"> </div>`, b_divId,'last');
             } else if (b_id == BLD_WAREHOUSE){
                 dojo.place(`<div id="${WAREHOUSE_RES_ID}"></div>`, b_divId, 'last');
             }
@@ -755,10 +818,10 @@ function (dojo, declare) {
 
         setupBuildingWorkerSlots: function(b_id, b_key){
             if (b_id == BLD_BANK){
-                dojo.connect($(BANK_ID), 'onclick', this, 'onClickOnBankTrade');
+                dojo.connect($(BLD_ID_TRADE_BANK), 'onclick', this, BLD_METHOD_TRADE_BANK);
             } else if (b_id == BLD_MARKET){
-                dojo.connect($(`${b_key}_${MARKET_FOOD_ID}`), 'onclick', this, 'onClickOnMarketTrade');
-                dojo.connect($(`${b_key}_${MARKET_STEEL_ID}`), 'onclick', this, 'onClickOnMarketTrade');
+                dojo.connect($(`${b_key}_${BLD_ID_MARKET_FOOD}`),  'onclick', this, BLD_METHOD_MARKET);
+                dojo.connect($(`${b_key}_${BLD_ID_MARKET_STEEL}`), 'onclick', this, BLD_METHOD_MARKET);
             }
             let b_info = BUILDING_INFO[b_id];
             if (!(b_info.hasOwnProperty('slot'))) return;
@@ -920,6 +983,11 @@ function (dojo, declare) {
             dojo.query(`#btn_warehouse_${this.warehouse}:not(.bgabutton_blue)`).addClass('bgabutton_blue' );
             dojo.query(`#btn_warehouse_${this.warehouse}.bgabutton_gray`).removeClass('bgabutton_gray');
             
+        },
+
+        addActionButtonFromGroup: function( group ){
+            var color = this.canAddTrade(group.change)?'blue':'gray';
+            this.addActionButton( group.btn, this.replaceTooltipStrings(_(group.message)), group.method, null, false, color );
         },
         
         onClickWarehouseResource: function( evt ){
@@ -1221,10 +1289,12 @@ function (dojo, declare) {
             // also make building_slots selectable.
             dojo.query( `#${TPL_BLD_ZONE}${PLAYER_COLOR[this.player_id]} .worker_slot` ).addClass( 'selectable' );
             
-            this.addActionButton( BTN_ID_CONFIRM_WORKERS, this.replaceTooltipStrings(_("Confirm ${worker} Placement")), METHOD_CONFIRM_WORKERS );
-            this.addActionButton( BTN_ID_CANCEL, _("Cancel"), 'cancelUndoTransactions', null, false, 'red');
+            this.addActionButton( BTN_ID_CONFIRM_WORKERS, this.replaceTooltipStrings(_(MESSAGE_CONFIRM_WORKERS)), METHOD_CONFIRM_WORKERS );
+            this.addActionButton( BTN_ID_CANCEL, _(MESSAGE_CANCEL_TURN), 'cancelUndoTransactions', null, false, 'red');
             dojo.place(dojo.create('br'),'generalactions','last');
-            this.addActionButton( BTN_ID_HIRE_WORKER, this.replaceTooltipStrings(_("Hire New ${worker}")), METHOD_HIRE_WORKER, null, false, 'gray' );
+            this.addActionButtonFromGroup(HIRE_WORKER_GROUP);
+            //this.addActionButton( BTN_ID_HIRE_WORKER, this.replaceTooltipStrings(_()), METHOD_HIRE_WORKER, null, false, 'gray' );
+
             this.tradeEnabled = false;
             this.addTradeActionButton( false );
             if (HAS_BUILDING[this.player_id][BLD_WAREHOUSE]){
@@ -1246,7 +1316,7 @@ function (dojo, declare) {
                 this.setOffsetForPaymentButtons();
             } 
             if (dojo.query(`#${BTN_ID_UNDO_PASS}`).length !=1){
-                this.addActionButton(BTN_ID_UNDO_PASS, _("Undo"), 'onUnPass_allocateWorkers', null, false, 'red');
+                this.addActionButton(BTN_ID_UNDO_PASS, _(MESSAGE_UNDO_PASS), 'onUnPass_allocateWorkers', null, false, 'red');
                 dojo.place(BTN_ID_UNDO_PASS, 'generalactions', 'first');
             }
         },
@@ -1265,7 +1335,7 @@ function (dojo, declare) {
                 const bid_slot_id = this.getBidLocDivIdFromBidNo(args.valid_bids[bid_key]);
                 dojo.addClass(bid_slot_id, "selectable" );
             }
-            this.addActionButton( BTN_ID_CONFIRM_DUMMY_BID, _("Confirm Dummy Bid"), 'confirmDummyBidButton' );
+            this.addActionButton( BTN_ID_CONFIRM_DUMMY_BID, _(MESSAGE_CONFIRM_DUMMY_BID), 'confirmDummyBidButton' );
         },
         onUpdateActionButtons_playerBid: function(args){
             LAST_SELECTED['bid'] = '';
@@ -1273,29 +1343,29 @@ function (dojo, declare) {
                 const bid_slot_id = this.getBidLocDivIdFromBidNo(args.valid_bids[bid_key]);
                 dojo.addClass(bid_slot_id, "selectable" );
             }
-            this.addActionButton( BTN_ID_CONFIRM_BID, _("Confirm Bid"), 'confirmBidButton' );
-            this.addActionButton( BTN_ID_PASS_BID,    _("Pass"),    'passBidButton', null, false, 'red' );
+            this.addActionButton( BTN_ID_CONFIRM_BID, _(MESSAGE_CONFIRM_BID), 'confirmBidButton' );
+            this.addActionButton( BTN_ID_PASS_BID,    _(MESSAGE_PASS),    'passBidButton', null, false, 'red' );
         },
         onUpdateActionButtons_pass_event: function (args) {
             // state for pass bid event triggers.
-            this.addActionButton( BTN_ID_ON_PASS_EVENT_DONE, _('Done'), METHOD_ON_PASS_EVENT_DONE, null, false, 'blue');
-            this.addActionButton( BTN_ID_UNDO_PASS, _('Undo Pass Bid'), 'onUndoBidPass', null, false, 'red');
+            this.addActionButton( BTN_ID_ON_PASS_EVENT_DONE, _(MESSAGE_DONE_PASS), METHOD_ON_PASS_EVENT_DONE, null, false, 'blue');
+            this.addActionButton( BTN_ID_UNDO_PASS, _(MESSAGE_UNDO_PASS), 'onUndoBidPass', null, false, 'red');
             if (args.event_pass == EVT_PASS_DEPT_SILVER){
                 this.addActionButton( BTN_ID_PAY_LOAN_3_SILVER, this.replaceTooltipStrings(_('pay off ${loan} for ${silver}${silver}${silver}')), METHOD_PAY_LOAN_3_SILVER, null, false, 'blue');
             }
             this.addTradeActionButton();
         },
         onUpdateActionButtons_getRailBonus: function(args){
-            this.addActionButton( BTN_ID_UNDO_PASS, _("Undo"), 'onUndoBidPass', null, false, 'red');
+            this.addActionButton( BTN_ID_UNDO_PASS, _(MESSAGE_UNDO_PASS), 'onUndoBidPass', null, false, 'red');
             this.setupButtonsForRailBonus(args);
         },
         onUpdateActionButtons_getRailBonus_auction: function(args){
-            this.addActionButton( BTN_ID_REDO_AUCTION, _('Cancel'), METHOD_CANCEL_TURN, null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _(MESSAGE_CANCEL_TURN), METHOD_CANCEL_TURN, null, false, 'red');
             this.can_cancel = true;
             this.setupButtonsForRailBonus(args);
         },
         onUpdateActionButtons_getRailBonus_build: function(args){
-            this.addActionButton( BTN_ID_REDO_AUCTION, _('Cancel'), METHOD_CANCEL_TURN, null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _(MESSAGE_CANCEL_TURN), METHOD_CANCEL_TURN, null, false, 'red');
             this.can_cancel = true;
             this.setupButtonsForRailBonus(args);            
         },
@@ -1315,7 +1385,7 @@ function (dojo, declare) {
                     this.addActionButton( `btn_bonus_${type}`, TOKEN_HTML[type], METHOD_SELECT_BONUS, null, false, 'gray');
                 }
             }
-            this.addActionButton( BTN_ID_CHOOSE_BONUS, _("Choose Bonus"), METHOD_CHOOSE_BONUS);
+            this.addActionButton( BTN_ID_CHOOSE_BONUS, _(MESSAGE_CHOOSE_BONUS), METHOD_CHOOSE_BONUS);
             dojo.addClass( BTN_ID_CHOOSE_BONUS, 'disabled');
         },
         onUpdateActionButtons_payLot: function(args){
@@ -1335,8 +1405,8 @@ function (dojo, declare) {
             if ((args.lot_state & LOT_STATE_AUC_BONUS) >0){
                 this.addActionButton( BTN_LOT_ACTION_AUCTION, _("Auction Bonus"), METHOD_LOT_ACTION_AUCTION);
             }
-            this.addActionButton( BTN_LOT_ACTION_PASS, _("Pass"), METHOD_LOT_ACTION_PASS , null, false, 'red');
-            this.addActionButton( BTN_ID_REDO_AUCTION, _("Cancel"), METHOD_CANCEL_TURN, null, false, 'red');
+            this.addActionButton( BTN_LOT_ACTION_PASS, _(MESSAGE_PASS), METHOD_LOT_ACTION_PASS , null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _(MESSAGE_CANCEL_TURN), METHOD_CANCEL_TURN, null, false, 'red');
         },
         onUpdateActionButtons_chooseBuildingToBuild: function(args){
             this.allowed_buildings = args.allowed_buildings;
@@ -1355,10 +1425,10 @@ function (dojo, declare) {
         // currently only bonus involving a choice is hire worker.
         onUpdateActionButtons_bonusChoice_build: function (args) {
             if (args.building_bonus == BUILD_BONUS_WORKER){
-                this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_("(FREE) Hire ${worker}")), 'workerForFreeBuilding');
+                this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_(MESSAGE_BONUS_WORKER)), 'workerForFreeBuilding');
             } 
-            this.addActionButton( BTN_ID_PASS_BONUS,   _("Do Not Get Bonus"), 'passBonusBuilding', null, false, 'red');
-            this.addActionButton( BTN_ID_REDO_AUCTION, _("Cancel"),  METHOD_CANCEL_TURN, null, false, 'red');
+            this.addActionButton( BTN_ID_PASS_BONUS,   _(MESSAGE_PASS_BONUS), 'passBonusBuilding', null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _(MESSAGE_CANCEL_TURN),  METHOD_CANCEL_TURN, null, false, 'red');
             this.can_cancel = true;
         },
         onUpdateActionButtons_bonusChoice_auction: function (args) {
@@ -1366,7 +1436,7 @@ function (dojo, declare) {
             switch (option){
                 case AUC_BONUS_WORKER:
                 case AUC_BONUS_WORKER_RAIL_ADV:
-                    this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_("(FREE) Hire ${worker}")) , 'workerForFreeAuction');
+                    this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_(MESSAGE_BONUS_WORKER)) , 'workerForFreeAuction');
                 break;
                 case AUC_BONUS_WOOD_FOR_TRACK:
                     this.addActionButton( BTN_ID_WOOD_TRACK, this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), ARR_WOOD_TRACK)), METHOD_WOOD_TRACK);
@@ -1390,32 +1460,33 @@ function (dojo, declare) {
                 case AUC_BONUS_4DEPT_FREE:
                     break;
                 case AUC_BONUS_3VP_SELL_FREE:
-                    this.addActionButton( BTN_ID_EVENT_START_SELL, _("Start Sell Event"), 'clientState_sellAuction', null, false, 'blue');
+                    this.addActionButton( BTN_ID_EVENT_START_SELL, _(MESSAGE_START_SELL), 'clientState_sellAuction', null, false, 'blue');
                     break;
                 case AUC_BONUS_TRACK_RAIL_ADV: // should not come here
                     break;
             }
-            this.addActionButton( BTN_ID_PASS_BONUS, _("Do Not Get Bonus"), 'passBonusAuction', null, false, 'red');
-            this.addActionButton( BTN_ID_REDO_AUCTION, _("Cancel"), METHOD_CANCEL_TURN, null, false, 'red');
+            this.addActionButton( BTN_ID_PASS_BONUS, _(MESSAGE_PASS_BONUS), 'passBonusAuction', null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _(MESSAGE_CANCEL_TURN), METHOD_CANCEL_TURN, null, false, 'red');
             this.addTradeActionButton();
         },
         onUpdateActionButtons_confirmActions: function () {
             this.updateBuildingAffordability();
-            this.addActionButton( BTN_ID_CONFIRM_ACTIONS, _("Confirm"), 'confirmBuildPhase');
-            this.addActionButton( BTN_ID_REDO_AUCTION,    _("Cancel"), METHOD_CANCEL_TURN, null, false, 'red');
+            this.addActionButton( BTN_ID_CONFIRM_ACTIONS, _(MESSAGE_CONFIRM), 'confirmBuildPhase');
+            this.addActionButton( BTN_ID_REDO_AUCTION,    _(MESSAGE_CANCEL_TURN), METHOD_CANCEL_TURN, null, false, 'red');
             this.can_cancel = true;
         },
         onUpdateActionButtons_endGameActions: function () {
-            this.addActionButton( BTN_ID_DONE,   _("Pass"), METHOD_ENDGAME_DONE);    
-            this.addActionButton( BTN_ID_CANCEL, _("Cancel"), 'cancelUndoTransactions', null, false, 'red');
+            this.addActionButton( BTN_ID_DONE,   _(MESSAGE_PASS), METHOD_ENDGAME_DONE);    
+            this.addActionButton( BTN_ID_CANCEL, _(MESSAGE_CANCEL_TURN), 'cancelUndoTransactions', null, false, 'red');
             dojo.place(dojo.create('br'),'generalactions','last');
-            this.addActionButton( BTN_ID_PAY_LOAN_SILVER, dojo.string.substitute(_("Pay Loan ${type}"), {type:TOKEN_HTML.silver}), METHOD_PAY_LOAN_SILVER, null, false, 'gray');
-            this.addActionButton( BTN_ID_PAY_LOAN_GOLD,   dojo.string.substitute(_("Pay Loan ${type}"), {type:TOKEN_HTML.gold}),   METHOD_PAY_LOAN_GOLD,   null, false, 'gray');
-            this.addActionButton( BTN_ID_HIRE_WORKER, this.replaceTooltipStrings(_("Hire New ${worker}")), METHOD_HIRE_WORKER, null, false, 'gray' );
+            this.addActionButton( BTN_ID_PAY_LOAN_SILVER, dojo.string.substitute(_(MESSAGE_PAY_LOAN_SILVER), {type:TOKEN_HTML.silver}), METHOD_PAY_LOAN_SILVER, null, false, 'gray');
+            this.addActionButton( BTN_ID_PAY_LOAN_GOLD,   dojo.string.substitute(_(MESSAGE_PAY_LOAN_GOLD), {type:TOKEN_HTML.gold}),   METHOD_PAY_LOAN_GOLD,   null, false, 'gray');
+            this.addActionButtonFromGroup(HIRE_WORKER_GROUP);
+            
             this.addTradeActionButton( false );
         },
         onUpdateActionButtons_endGameActions_notActive: function () {
-            this.addActionButton( BTN_ID_UNDO_PASS, _("Undo"), 'onUnPass_endGameActions', null, false, 'red');
+            this.addActionButton( BTN_ID_UNDO_PASS, _(MESSAGE_UNDO_PASS), 'onUnPass_endGameActions', null, false, 'red');
         },
 
         ////////////////////
@@ -1434,12 +1505,12 @@ function (dojo, declare) {
                 case EVT_SELL_NO_TRADE:
                     console.log(args);
                     this.gamedatas.gamestate.descriptionmyturn = this.gamedatas.gamestate.descriptionmyturntrade;
-                    this.addActionButton( BTN_ID_EVENT_START_SELL, _("Start Sell Event"), 'clientState_sellEvent', null, false, 'blue');
-                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass on Event'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
+                    this.addActionButton( BTN_ID_EVENT_START_SELL, _(MESSAGE_START_SELL), 'clientState_sellEvent', null, false, 'blue');
+                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _(MESSAGE_EVENT_DONE), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
                     dojo.place(dojo.create('br'),'generalactions','last');
-                    this.addActionButton( BTN_ID_TRADE, _("Show Trade"),  'tradeActionButton', null, false, 'gray' );
-                    this.addActionButton( BTN_ID_TAKE_LOAN,  _("Take Debt"), 'onMoreLoan', null, false, 'gray' );
-                    this.addActionButton( BTN_ID_UNDO_TRADE, _("Undo All Trade(s) & Debt"), METHOD_UNDO_TRADE, null, false, 'red' );
+                    this.addActionButton( BTN_ID_TRADE_TOGGLE,_(MESSAGE_TRADE_TOGGLE_OFF),  METHOD_TRADE_TOGGLE, null, false, 'gray' );
+                    this.addActionButton( BTN_ID_TAKE_LOAN,  _(MESSAGE_TAKE_LOAN), METHOD_TAKE_LOAN, null, false, 'gray' );
+                    this.addActionButton( BTN_ID_UNDO_TRADE, _(MESSAGE_UNDO_TRADE), METHOD_UNDO_TRADE, null, false, 'red' );
                     this.updateConfirmAndUndoTradeButtons();
                     this.updateTradeAffordability();
                     this.resetTradeValues();
@@ -1447,20 +1518,20 @@ function (dojo, declare) {
                 break;
                 case EVT_PAY_LOAN_FOOD:
                     this.addActionButton( BTN_ID_PAY_LOAN_FOOD, this.replaceTooltipStrings(_('pay ${loan} with ${food}')), METHOD_PAY_LOAN_FOOD, null, false, 'blue' );
-                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
+                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _(MESSAGE_PASS), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
                     this.addTradeActionButton();
-                    this.addActionButton( BTN_ID_CANCEL, _("Cancel"), 'cancelEventTransactions', null, false, 'red');
+                    this.addActionButton( BTN_ID_CANCEL, _(MESSAGE_CANCEL_TURN), 'cancelEventTransactions', null, false, 'red');
                     break;
                 case EVT_COPPER_COW_GET_GOLD:
                     console.log(args);
-                    this.addActionButton( BTN_ID_EVENT_DONE_HIDDEN_TRADING, _('Pass'), METHOD_EVENT_DONE_HIDDEN, null, false, 'blue');
+                    this.addActionButton( BTN_ID_EVENT_DONE_HIDDEN_TRADING, _(MESSAGE_PASS), METHOD_EVENT_DONE_HIDDEN, null, false, 'blue');
                     dojo.place(dojo.create('br'),'generalactions','last');
-                    this.addActionButton( BTN_ID_TRADE, _("Show Trade"),    'tradeActionButton', null, false, 'gray' );
-                    this.addActionButton( BTN_ID_TAKE_LOAN, _('Take Debt'), 'onMoreLoan', null, false, 'gray' );
-                    this.addActionButton( BTN_ID_UNDO_TRADE, _("Undo All Trade(s) & Debt"), METHOD_UNDO_TRADE, null, false, 'red' );
-                    this.addActionButton( BTN_ID_CONFIRM_TRADE_HIDDEN, _('Confirm Trade(s)'), METHOD_CONFIRM_TRADE_HIDDEN);
+                    this.addActionButton( BTN_ID_TRADE_TOGGLE, _(MESSAGE_TRADE_TOGGLE_OFF), METHOD_TRADE, null, false, 'gray' );
+                    this.addActionButton( BTN_ID_TAKE_LOAN, _(MESSAGE_TAKE_LOAN), METHOD_TAKE_LOAN, null, false, 'gray' );
+                    this.addActionButton( BTN_ID_UNDO_TRADE, _(MESSAGE_UNDO_TRADE), METHOD_UNDO_TRADE, null, false, 'red' );
+                    this.addActionButton( BTN_ID_CONFIRM_TRADE_HIDDEN, _(MESSAGE_CONFIRM_TRADE), METHOD_CONFIRM_TRADE_HIDDEN);
                     this.updateConfirmAndUndoTradeButtons();
-                    this.addActionButton( BTN_ID_CANCEL, _("Cancel"), 'cancelHiddenUndoTransactions', null, false, 'red');
+                    this.addActionButton( BTN_ID_CANCEL, _(MESSAGE_CANCEL_TURN), 'cancelHiddenUndoTransactions', null, false, 'red');
 
                     this.updateTradeAffordability();
                     this.enableTradeBoardActions();
@@ -1473,14 +1544,14 @@ function (dojo, declare) {
                     break;
                 case EVT_VP_4SILVER:
                 case EVT_VP_FOR_WOOD:
-                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
+                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _(MESSAGE_PASS), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
                     this.addTradeActionButton();
-                    this.addActionButton( BTN_ID_CANCEL, _("Cancel"), 'cancelEventTransactions', null, false, 'red');
+                    this.addActionButton( BTN_ID_CANCEL, _(MESSAGE_CANCEL_TURN), 'cancelEventTransactions', null, false, 'red');
                     break;
                 default:
-                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
+                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _(MESSAGE_PASS), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
                     this.addTradeActionButton();
-                    this.addActionButton( BTN_ID_CANCEL, _("Cancel"), 'cancelEventTransactions', null, false, 'red');
+                    this.addActionButton( BTN_ID_CANCEL, _(MESSAGE_CANCEL_TURN), 'cancelEventTransactions', null, false, 'red');
             }
         },
         onUpdateActionButtons_preEventTrade_notActive: function (args){
@@ -1488,10 +1559,10 @@ function (dojo, declare) {
             this.current_args = args;
             switch(bonus_id){
                 case EVT_SELL_NO_TRADE:
-                    this.addActionButton( BTN_ID_UNDO_PASS, _("Undo"), 'onUnPass_preEventTrade', null, false, 'red');
+                    this.addActionButton( BTN_ID_UNDO_PASS, _(MESSAGE_UNDO_PASS), 'onUnPass_preEventTrade', null, false, 'red');
                     break;
                 case EVT_COPPER_COW_GET_GOLD:
-                    this.addActionButton( BTN_ID_UNDO_PASS, _("Undo"), 'onUnPass_preEventTrade', null, false, 'red');
+                    this.addActionButton( BTN_ID_UNDO_PASS, _(MESSAGE_UNDO_PASS), 'onUnPass_preEventTrade', null, false, 'red');
                     this.resetTradeValues();
                     this.setHiddenTrades(args._private);
                     break;
@@ -1506,7 +1577,7 @@ function (dojo, declare) {
             // 'EVT_LOAN_TRACK' & 'EVT_RES_ADV_TRACK' get track adv
             this.setupButtonsForRailBonus(args.args[this.player_id]);
             dojo.destroy(BTN_ID_CHOOSE_BONUS);
-            this.addActionButton( BTN_ID_CHOOSE_BONUS, _('Choose Bonus'), METHOD_CHOOSE_BONUS_EVENT);
+            this.addActionButton( BTN_ID_CHOOSE_BONUS, _(MESSAGE_CHOOSE_BONUS), METHOD_CHOOSE_BONUS_EVENT);
             if (LAST_SELECTED.bonus == ""){
                 dojo.addClass(BTN_ID_CHOOSE_BONUS, 'disabled');
             } else {
@@ -1518,8 +1589,8 @@ function (dojo, declare) {
         },
 
         onUpdateActionButtons_bonusChoice_event: function (args){
-            this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_('(FREE) Hire ${worker}')), 'workerForFreeEvent');
-            this.addActionButton( BTN_ID_PASS_BONUS, _('Do Not Get Bonus'), METHOD_PASS_BONUS, null, false, 'red');
+            this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_(MESSAGE_BONUS_WORKER)), 'workerForFreeEvent');
+            this.addActionButton( BTN_ID_PASS_BONUS, _(MESSAGE_PASS_BONUS), METHOD_PASS_BONUS, null, false, 'red');
         },
 
         onUpdateActionButtons_eventPay: function (args){
@@ -1538,14 +1609,14 @@ function (dojo, declare) {
                     this.addActionButton( BTN_ID_EVENT_SILVER_TRACK, `${TOKEN_HTML.silver}${TOKEN_HTML.silver} ${TOKEN_HTML.arrow} ${TOKEN_HTML.track}`, METHOD_EVENT_SILVER_TRACK);
                 break;
                 case EVT_AUC_BONUS_WORKER: // Auc 1 also gives worker
-                    this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_('(FREE) Hire ${worker}')), 'workerForFreeLotEvent');
+                    this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_(MESSAGE_BONUS_WORKER)), 'workerForFreeLotEvent');
                 break;
                 case EVT_AUC_STEEL_ANY:
-                    this.addActionButton( BTN_ID_EVENT_STEEL_BUILD, this.replaceTooltipStrings(_('Pay ${steel} to build ${any}')) , METHOD_EVENT_STEEL_BUILD);
+                    this.addActionButton( BTN_ID_EVENT_STEEL_BUILD, this.replaceTooltipStrings(_(MESSAGE_EVENT_STEEL_BUILD)) , METHOD_EVENT_STEEL_BUILD);
                 break;
             }
-            this.addActionButton( BTN_ID_PASS_BONUS, _('Do Not Get Bonus'), 'passBonusLotEvent', null, false, 'red');
-            this.addActionButton( BTN_ID_REDO_AUCTION, _('Cancel'), METHOD_CANCEL_TURN, null, false, 'red');
+            this.addActionButton( BTN_ID_PASS_BONUS, _(MESSAGE_PASS_BONUS), 'passBonusLotEvent', null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _(MESSAGE_CANCEL_TURN), METHOD_CANCEL_TURN, null, false, 'red');
             this.addTradeActionButton();
         },
         
@@ -1748,10 +1819,10 @@ function (dojo, declare) {
             LAST_SELECTED['building']="";
             this.createBuildingBreadcrumb();
             this.makeBuildingsSelectable(this.allowed_buildings);
-            this.addActionButton( BTN_ID_BUILD_BUILDING, dojo.string.substitute(_("Build ${building_name}"), {building_name:`<span id="${BUILDING_NAME_ID}"></span>`}), METHOD_BUILD_BUILDING);
+            this.addActionButton( BTN_ID_BUILD_BUILDING, dojo.string.substitute(_(MESSAGE_BUILDING_NAME), {building_name:`<span id="${BUILDING_NAME_ID}"></span>`}), METHOD_BUILD_BUILDING);
             dojo.addClass(BTN_ID_BUILD_BUILDING ,'disabled');
-            this.addActionButton( BTN_ID_DO_NOT_BUILD, _("Do Not Build"), 'doNotBuild', null, false, 'red');
-            this.addActionButton( BTN_ID_REDO_AUCTION, _("Cancel"), METHOD_CANCEL_TURN, null, false, 'red');
+            this.addActionButton( BTN_ID_DO_NOT_BUILD, _(MESSAGE_DO_NOT_BUILD), 'doNotBuild', null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _(MESSAGE_CANCEL_TURN), METHOD_CANCEL_TURN, null, false, 'red');
             this.can_cancel = true;
             this.addTradeActionButton();
 
@@ -1998,8 +2069,8 @@ function (dojo, declare) {
                     case 1: //MARKET
                         var translatedString = _("Allows trades: ${start}${trade}${wood} ${arrow}${food}${mid}${trade}${food} ${arrow} ${steel}${end}");
                         full_desc += dojo.string.substitute(translatedString, 
-                        {start: `<div id="${b_key}_${MARKET_FOOD_ID}" class="market_food trade_option">`,
-                         mid:   `</div><div id="${b_key}_${MARKET_STEEL_ID}" class="market_steel trade_option">`,
+                        {start: `<div id="${b_key}_${BLD_ID_MARKET_FOOD}" class="market_food trade_option">`,
+                         mid:   `</div><div id="${b_key}_${BLD_ID_MARKET_STEEL}" class="market_steel trade_option">`,
                          end:   "</div>",
                          trade: TOKEN_HTML.trade, 
                          wood:  TOKEN_HTML.wood, 
@@ -2010,7 +2081,7 @@ function (dojo, declare) {
                     case 2: //BANK
                         var translatedString = _("Allows trades: ${start}${trade} ${arrow} ${silver}${end}");
                         full_desc += dojo.string.substitute(translatedString, 
-                        {start:  `<div id="${BANK_ID}" class="trade_option">`,
+                        {start:  `<div id="${BLD_ID_TRADE_BANK}" class="trade_option">`,
                          end:    "</div>",
                          trade:  TOKEN_HTML.trade,
                          arrow:  TOKEN_HTML.arrow, 
@@ -2079,7 +2150,7 @@ function (dojo, declare) {
             if (this.prefs[USE_ART_USER_PREF].value == ENABLED_USER_PREF){ // use art (default case)
                 dojo.place(this.format_block( 'jstpl_buildings', {key: b_key, id: b_id}), destination);
                 this.addTooltipHtml( `${TPL_BLD_TILE}_${b_key}`, this.formatTooltipBuilding(b_id, b_key));
-                this.addBuildingWorkerSlots(b_id, b_key);
+                this.addBuildingTradeActionsAndWorkerSlots(b_id, b_key);
                 this.setupBuildingWorkerSlots(b_id, b_key);
             } else { // use text instead of art.
                 let text_building_html = this.formatTooltipBuilding(b_id, b_key);
@@ -2255,14 +2326,14 @@ function (dojo, declare) {
         /***** COMMON ACTIONS (multiple states) *****/
         addPaymentButtons: function( bypass= false ){
             if (!bypass && !this.showPay) return;
-            this.addActionButton( BTN_ID_PAY_DONE, dojo.string.substitute(_("Pay: ${amt}"), {amt:this.format_block("jstpl_pay_button", {})}), METHOD_DONE_PAY);
+            this.addActionButton( BTN_ID_PAY_DONE, dojo.string.substitute(_(MESSAGE_DONE_PAY), {amt:this.format_block("jstpl_pay_button", {})}), METHOD_DONE_PAY);
 
             this.SILVER_COUNTER.create(PAY_SILVER_TEXT);
             this.SILVER_COUNTER.setValue(this.silverCost);
             this.GOLD_COUNTER.create(PAY_GOLD_TEXT);
             this.GOLD_COUNTER.setValue(this.goldCost);
-            this.addActionButton( BTN_ID_MORE_GOLD, this.replaceTooltipStrings( _("Use More ${gold}")), METHOD_MORE_GOLD, null, false, 'gray');
-            this.addActionButton( BTN_ID_LESS_GOLD, this.replaceTooltipStrings( _("Use Less ${gold}")), METHOD_LESS_GOLD, null, false, 'gray');
+            this.addActionButton( BTN_ID_MORE_GOLD, this.replaceTooltipStrings( _(MESSAGE_MORE_GOLD)), METHOD_MORE_GOLD, null, false, 'gray');
+            this.addActionButton( BTN_ID_LESS_GOLD, this.replaceTooltipStrings( _(MESSAGE_LESS_GOLD)), METHOD_LESS_GOLD, null, false, 'gray');
             dojo.style( $( BTN_ID_LESS_GOLD ), 'display', 'none');
         },
         //METHOD_LESS_GOLD
@@ -2627,9 +2698,9 @@ function (dojo, declare) {
                     switch (button_id){
                         case BTN_ID_PAY_DONE:
                             if (noTrade) {
-                                var button_text = dojo.string.substitute(_("Pay: ${amt}"), {amt:this.format_block("jstpl_pay_button", {})});
+                                var button_text = dojo.string.substitute(_(MESSAGE_DONE_PAY), {amt:this.format_block("jstpl_pay_button", {})});
                             } else {
-                                var button_text = dojo.string.substitute(_("Confirm Trade(s) & Pay: ${amt}"), {amt:this.format_block("jstpl_pay_button", {})});
+                                var button_text = dojo.string.substitute(_(MESSAGE_DONE_PAY_CONFIRM), {amt:this.format_block("jstpl_pay_button", {})});
                             }
                             var button_method = METHOD_DONE_PAY;
                             dojo.query(`#${button_id}`).forEach(dojo.destroy);
@@ -2650,51 +2721,51 @@ function (dojo, declare) {
                                 dojo.style( $(BTN_ID_LESS_GOLD), 'display', 'inline-block');
                             }
                             return;
-                        case BTN_ID_DONE:
-                            if (noTrade) {
-                                var button_text = _("Pass");
-                            } else {
-                                var button_text = _("Confirm Trade(s) and Pass");
-                            }
-                            var button_method = METHOD_ENDGAME_DONE;
-                        break;
                         case BTN_ID_ON_PASS_EVENT_DONE:
                             if (noTrade) {
-                                var button_text = _("Done");
+                                var button_text = _(MESSAGE_DONE);
                             } else {
-                                var button_text = _("Confirm Trade(s) and Done");
+                                var button_text = _(MESSAGE_DONE_CONFIRM);
                             }
                             var button_method = METHOD_ON_PASS_EVENT_DONE;
                         break;
+                        case BTN_ID_DONE:
+                            if (noTrade) {
+                                var button_text = _(MESSAGE_PASS);
+                            } else {
+                                var button_text = _(MESSAGE_PASS_CONFIRM);
+                            }
+                            var button_method = METHOD_ENDGAME_DONE;
+                        break;
                         case BTN_ID_EVENT_DONE_TRADING:
                             if (noTrade) {
-                                var button_text = _("Pass");
+                                var button_text = _(MESSAGE_PASS);
                             } else {
-                                var button_text = _("Confirm Trade(s) and Pass");
+                                var button_text = _(MESSAGE_PASS_CONFIRM);
                             }
                             var button_method = METHOD_EVENT_DONE_TRADING;
                         break;
                         case BTN_ID_AUCTION_DONE_TRADING:
                             if (noTrade) {
-                                var button_text = _("Pass");
+                                var button_text = _(MESSAGE_PASS);
                             } else {
-                                var button_text = _("Confirm Trade(s) and Pass");
+                                var button_text = _(MESSAGE_PASS_CONFIRM);
                             }
                             var button_method = METHOD_AUCTION_DONE_TRADING;
                         break;
                         case BTN_ID_EVENT_DONE_HIDDEN_TRADING:
                             if (noTrade) {
-                                var button_text = _("Pass");
+                                var button_text = _(MESSAGE_PASS);
                             } else {
-                                var button_text = _("Confirm Trade(s) and Pass");
+                                var button_text = _(MESSAGE_PASS_CONFIRM);
                             }
                             var button_method = METHOD_EVENT_DONE_HIDDEN;
                         break;
                         case BTN_ID_CONFIRM_WORKERS:
                             if (noTrade) {
-                                var button_text = this.replaceTooltipStrings(_("Confirm ${worker} Placement"));
+                                var button_text = this.replaceTooltipStrings(_(MESSAGE_CONFIRM_WORKERS));
                             } else {
-                                var button_text = this.replaceTooltipStrings(_("Confirm Trade(s) & ${worker} Placement"));
+                                var button_text = this.replaceTooltipStrings(_(MESSAGE_CONFIRM_WORKERS_TRADES));
                             }
                             var button_method = METHOD_CONFIRM_WORKERS;
                         break;
@@ -2705,57 +2776,57 @@ function (dojo, declare) {
                                 b_name = _(BUILDING_INFO[b_id].name); 
                             }
                             if (noTrade) {
-                                var button_text = dojo.string.substitute(_("Build ${building_name}"), {building_name:`<span id="${BUILDING_NAME_ID}">${b_name}</span>`});
+                                var button_text = dojo.string.substitute(_(MESSAGE_BUILDING_NAME), {building_name:`<span id="${BUILDING_NAME_ID}">${b_name}</span>`});
                             } else {
-                                var button_text = dojo.string.substitute(_("Confirm Trade(s) & Build ${building_name}"), {building_name:`<span id="${BUILDING_NAME_ID}">${b_name}</span>`});
+                                var button_text = dojo.string.substitute(_(MESSAGE_BUILDING_NAME_CONFIRM), {building_name:`<span id="${BUILDING_NAME_ID}">${b_name}</span>`});
                             }
                             var button_method = METHOD_BUILD_BUILDING;
                         break;
                         case BTN_ID_EVENT_STEEL_BUILD:
                             if (noTrade) {
-                                var button_text = this.replaceTooltipStrings(_('Pay ${steel} to build ${any}'));
+                                var button_text = this.replaceTooltipStrings(_(MESSAGE_EVENT_STEEL_BUILD));
                             } else {
-                                var button_text = this.replaceTooltipStrings(_('Confirm Trade(s) & Pay ${steel} to build ${any}'));
+                                var button_text = this.replaceTooltipStrings(_(MESSAGE_EVENT_STEEL_BUILD_CONFIRM));
                             }
                             var button_method = METHOD_EVENT_STEEL_BUILD;
                         break;
                         case BTN_ID_FOOD_VP:
                             if (noTrade) {
-                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), ARR_FOOD_VP));
+                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_(MESSAGE_X_FOR_Y), ARR_FOOD_VP));
                             } else {
-                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("Confirm Trade(s) & ${resource1} ${arrow} ${resource2}"), ARR_FOOD_VP));
+                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_(MESSAGE_X_FOR_Y_CONFIRM), ARR_FOOD_VP));
                             }
                             var button_method = METHOD_FOOD_VP;
                         break;
                         case  BTN_ID_GOLD_VP:
                             if (noTrade){
-                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), ARR_GOLD_VP));
+                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_(MESSAGE_X_FOR_Y), ARR_GOLD_VP));
                             } else {
-                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("Confirm Trade(s) & ${resource1} ${arrow} ${resource2}"), ARR_GOLD_VP));
+                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_(MESSAGE_X_FOR_Y_CONFIRM), ARR_GOLD_VP));
                             }
                             var button_method = METHOD_GOLD_VP;
                         break;
                         case BTN_ID_COW_VP:
                             if (noTrade){
-                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), ARR_COW_VP));
+                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_(MESSAGE_X_FOR_Y), ARR_COW_VP));
                             } else {
-                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("Confirm Trade(s) & ${resource1} ${arrow} ${resource2}"), ARR_COW_VP));
+                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_(MESSAGE_X_FOR_Y_CONFIRM), ARR_COW_VP));
                             }
                             var button_method = METHOD_COW_VP;
                         break;
                         case BTN_ID_COPPER_VP:
                             if (noTrade){
-                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), ARR_COPPER_VP));
+                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_(MESSAGE_X_FOR_Y), ARR_COPPER_VP));
                             } else {
-                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("Confirm Trade(s) & ${resource1} ${arrow} ${resource2}"), ARR_COPPER_VP));
+                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_(MESSAGE_X_FOR_Y_CONFIRM), ARR_COPPER_VP));
                             }
                             var button_method = METHOD_COPPER_VP;
                         break;
                         case BTN_ID_WOOD_TRACK:
                             if (noTrade){
-                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("${resource1} ${arrow} ${resource2}"), ARR_WOOD_TRACK));
+                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_(MESSAGE_X_FOR_Y), ARR_WOOD_TRACK));
                             } else {
-                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_("Confirm Trade(s) & ${resource1} ${arrow} ${resource2}"), ARR_WOOD_TRACK));
+                                var button_text = this.replaceTooltipStrings(dojo.string.substitute(_(MESSAGE_X_FOR_Y_CONFIRM), ARR_WOOD_TRACK));
                             }
                             var button_method = METHOD_WOOD_TRACK;
                         break;
@@ -2771,10 +2842,10 @@ function (dojo, declare) {
             if (addBreak){
                 dojo.place(dojo.create('br'),'generalactions','last');
             }
-            this.addActionButton( BTN_ID_TRADE,      _("Show Trade"), 'tradeActionButton', null, false, 'gray' );
-            this.addActionButton( BTN_ID_TAKE_LOAN,  _("Take Debt"),  'onMoreLoan', null, false, 'gray' );
-            this.addActionButton( BTN_ID_UNDO_TRADE, _("Undo All Trade(s) & Debt"), METHOD_UNDO_TRADE, null, false, 'red' );
-            this.addActionButton( BTN_ID_CONFIRM_TRADE, _("Confirm Trade(s)"), METHOD_CONFIRM_TRADE, null, false, 'blue' );
+            this.addActionButton( BTN_ID_TRADE_TOGGLE, _(MESSAGE_TRADE_TOGGLE_OFF), METHOD_TRADE_TOGGLE, null, false, 'gray' );
+            this.addActionButton( BTN_ID_TAKE_LOAN,    _(MESSAGE_TAKE_LOAN),  METHOD_TAKE_LOAN,  null, false, 'gray' );
+            this.addActionButton( BTN_ID_UNDO_TRADE,   _(MESSAGE_UNDO_TRADE), METHOD_UNDO_TRADE, null, false, 'red'  );
+            this.addActionButton( BTN_ID_CONFIRM_TRADE, _(MESSAGE_CONFIRM_TRADE), METHOD_CONFIRM_TRADE, null, false, 'blue' );
             this.updateConfirmAndUndoTradeButtons();
 
             dojo.style(TRADE_BOARD_ID, 'order', 2);
@@ -2794,6 +2865,7 @@ function (dojo, declare) {
         },
 
         /**
+         * METHOD_TRADE_TOGGLE
          *  primary trade button (can be in 2 states)
          * show trade 
          *  - if have at least 1 trade token, on trade enabled state
@@ -2875,7 +2947,7 @@ function (dojo, declare) {
                     bank_text.innerText = translatedString;
                     var tradeAwayTokens = this.getResourceArrayHtml({'trade':-1});
                     var tradeForTokens = this.getResourceArrayHtml({'silver':1});
-                    this.addActionButton( BTN_ID_TRADE_BANK, `${tradeAwayTokens} ${TOKEN_HTML.arrow} ${tradeForTokens}`, `onClickOnBankTrade`, null, false, 'blue');
+                    this.addActionButton( BTN_ID_TRADE_BANK, `${tradeAwayTokens} ${TOKEN_HTML.arrow} ${tradeForTokens}`, METHOD_TRADE_BANK, null, false, 'blue');
                     dojo.place(BTN_ID_TRADE_BANK, SPECIAL_ZONE_ID, 'last');
                 }
             }
@@ -2919,11 +2991,11 @@ function (dojo, declare) {
             this.tradeEnabled=false;
             this.pendingSpecialTradeAmount = TRANSACTION_LOG.length;
             if (this.pendingSpecialTradeAmount>0){ // at least 1 transaction queued.
-                this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _("Confirm Trade(s) and Pass"), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
+                this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _(MESSAGE_PASS_CONFIRM), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
             } else {  // no transactions queued.
-                this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _('Pass'), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
+                this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _(MESSAGE_PASS), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
             }
-            this.addActionButton( BTN_ID_BACK_SELL_EVENT, _("Cancel"), METHOD_BACK_SELL_EVENT, null, false, 'red' );
+            this.addActionButton( BTN_ID_BACK_SELL_EVENT, _(MESSAGE_CANCEL_TURN), METHOD_BACK_SELL_EVENT, null, false, 'red' );
             dojo.place(dojo.create('br'),'generalactions','last');
             
             let zone_style = 'display: flex; justify-content: center; flex-wrap: wrap;';
@@ -2954,11 +3026,11 @@ function (dojo, declare) {
             this.tradeEnabled=false;
             this.pendingSpecialTradeAmount = TRANSACTION_LOG.length;
             if (this.pendingSpecialTradeAmount>0){ // at least 1 transaction queued.
-                this.addActionButton( BTN_ID_AUCTION_DONE_TRADING, _("Confirm Trade(s) and Pass"), METHOD_AUCTION_DONE_TRADING, null, false, 'blue');
+                this.addActionButton( BTN_ID_AUCTION_DONE_TRADING, _(MESSAGE_PASS_CONFIRM), METHOD_AUCTION_DONE_TRADING, null, false, 'blue');
             } else {  // no transactions queued.
-                this.addActionButton( BTN_ID_AUCTION_DONE_TRADING, _('Pass'), METHOD_AUCTION_DONE_TRADING, null, false, 'blue');
+                this.addActionButton( BTN_ID_AUCTION_DONE_TRADING, _(MESSAGE_PASS), METHOD_AUCTION_DONE_TRADING, null, false, 'blue');
             }
-            this.addActionButton( BTN_ID_REDO_AUCTION, _('Cancel'), METHOD_CANCEL_TURN, null, false, 'red');
+            this.addActionButton( BTN_ID_REDO_AUCTION, _(MESSAGE_CANCEL_TURN), METHOD_CANCEL_TURN, null, false, 'red');
             dojo.place(dojo.create('br'),'generalactions','last');
             
             let zone_style = 'display: flex; justify-content: center; flex-wrap: wrap;';
@@ -3245,7 +3317,7 @@ function (dojo, declare) {
                 break;
                 case BANK:
                     transactions = {name:_('Bank'), map:TRADE_MAP.bank,
-                            away:{'trade':-1}, for:{'silver':1}, change:BANK_CHANGE_ARR};
+                            away:{'trade':-1}, for:{'silver':1}, change:TRADE_BANK_CHANGE_ARR};
                 break;
                 case TAKE_LOAN:
                     transactions = {name:_("Take Dept"), map:TRADE_MAP.loan,
@@ -3412,7 +3484,8 @@ function (dojo, declare) {
             return tradeChange;
         },
 
-        /** OnClick Handler Take Loan/debt action buttons
+        /** METHOD_TAKE_LOAN
+         * OnClick Handler Take Loan/debt action buttons
          * will add takeLoan transaction to transactionLog (and update offset/breadcrumbs)
          */
         onMoreLoan: function ( evt ){
@@ -3432,7 +3505,8 @@ function (dojo, declare) {
             this.addTransaction(MARKET, 'steel'); 
         },
         
-        /** OnClick Handler Market Trade Actions 
+        /** BLD_METHOD_MARKET
+         * OnClick Handler Market Trade Actions 
          * will add takeLoan transaction to transactionLog (and update offset/breadcrumbs)
          */
         onClickOnMarketTrade: function ( evt){
@@ -3465,7 +3539,8 @@ function (dojo, declare) {
             return tradeChange;
         },
         
-        /** OnClick Handler Bank Trade Action
+        /** BLD_METHOD_TRADE_BANK 
+         * OnClick Handler Bank Trade Action
          * will add BankTrade actions to transactionLog (trade -> silver)
          */
         onClickOnBankTrade: function ( evt ){
@@ -3761,11 +3836,11 @@ function (dojo, declare) {
         // update text for Show/Hide trade Button
         setTradeButtonToShow: function( show ){
             if (show){
-                var translatedString = _("Show Trade");
+                var translatedString = _(MESSAGE_TRADE_TOGGLE_OFF);
             } else {
-                var translatedString = _("Hide Trade");                    
+                var translatedString = _(MESSAGE_TRADE_TOGGLE_ON);                    
             }
-            dojo.query(`#${BTN_ID_TRADE}`).forEach(element => element.innerText= translatedString);
+            dojo.query(`#${BTN_ID_TRADE_TOGGLE}`).forEach(element => element.innerText= translatedString);
         },
 
         // set enabled/disabled states for confirm/undo trades buttons
@@ -4289,6 +4364,8 @@ function (dojo, declare) {
                     this.updateAffordability(node_loc, UNAFFORDABLE);
                     this.updateButtonAffordability(btn_id, UNAFFORDABLE);
                 }
+                this.updateAffordabilityGroup(TRADE_MARKET_FOOD_GROUP);
+                this.updateAffordabilityGroup(TRADE_MARKET_STEEL_GROUP);
                 // steel
                 node_loc = `#${PLAYER_BUILDING_ZONE_ID[this.player_id]} .market_steel`;
                 btn_id = `#btn_market_steel`;
@@ -4302,14 +4379,28 @@ function (dojo, declare) {
             }
             // bank 
             if (HAS_BUILDING[this.player_id][BLD_BANK]){
-                var node_loc =  `#${BANK_ID}`;
-                var btn_id   = `#${BTN_ID_TRADE_BANK}`;
-                if (this.canAddTrade(BANK_CHANGE_ARR)){ // can afford
-                    this.updateAffordability(node_loc, AFFORDABLE);
-                    this.updateButtonAffordability(btn_id, AFFORDABLE);
-                } else {// can not afford
-                    this.updateAffordability(node_loc, UNAFFORDABLE);
-                    this.updateButtonAffordability(btn_id, UNAFFORDABLE);
+                this.updateAffordabilityGroup(TRADE_BANK_GROUP);
+            }
+            
+            this.updateAffordabilityGroup(PAY_LOAN_SILVER_GROUP);
+            this.updateAffordabilityGroup(PAY_LOAN_GOLD_GROUP);
+            this.updateAffordabilityGroup(PAY_LOAN_3_SILVER_GROUP);
+            this.updateAffordabilityGroup(HIRE_WORKER_GROUP);
+        },
+        
+        /** method for updating trade/loan/hireWorker buttons affordability*/
+        updateAffordabilityGroup: function (group){
+            var afford = this.canAddTrade(group.change)?AFFORDABLE:UNAFFORDABLE;
+            if (group.id){
+                var node_loc = `#${group.id}`;
+                if (dojo.query(node_loc).length ==1){
+                    this.updateAffordability(node_loc, afford);
+                }
+            }
+            if (group.btn){
+                var node_loc = `#${group.btn}`;
+                if (dojo.query(node_loc).length ==1){
+                    this.updateButtonAffordability(node_loc, afford);
                 }
             }
         },
@@ -4491,7 +4582,7 @@ function (dojo, declare) {
                 return this.onClickOnWorker( evt ); 
             } else if (target_id.startsWith('slot_')){
                 return this.onClickOnWorkerSlot( evt );
-            } else if (target_id.endsWith('trade_market_food_steel') || target_id.endsWith('trade_market_wood_food')){
+            } else if (target_id.endsWith(BLD_ID_MARKET_STEEL) || target_id.endsWith(BLD_ID_MARKET_FOOD)){
                 return this.onClickOnMarketTrade( evt ); 
             } else if (target_id.startsWith('trade_')){
                 return this.onSelectTradeAction( evt ); 

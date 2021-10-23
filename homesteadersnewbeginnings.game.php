@@ -759,12 +759,6 @@ class homesteadersnewbeginnings extends Table
     }
 
     // endGame Actions
-    public function playerPayLoan($gold) {
-        $this->checkAction('payLoan');
-        $cur_p_id = $this->getCurrentPlayerId();    
-        $this->Resource->payOffLoan($cur_p_id, $gold);
-    }
-
     public function playerDoneEndgame() {
         $this->checkAction('done');
         $cur_p_id = $this->getCurrentPlayerId();

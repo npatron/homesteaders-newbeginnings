@@ -136,7 +136,9 @@ class HSDLog extends APP_GameClass
       $stats[] = [$player_id, 'auctions_won'];
       $stats[] = [$player_id, "win_auction_$piece_id"];
       $stats[] = [$player_id, 'spent_on_auctions', $args['cost']];
-    } 
+    } else if ($action === 'loanPaid') {
+      $stats[] = [$player_id, 'loans_paid_end'];
+    }
     if (!empty($stats)) {
       $this->incrementStats($stats);
       $args['stats'] = $stats;
@@ -229,7 +231,11 @@ class HSDLog extends APP_GameClass
     } else {
       $this->insert($p_id, 0, 'loanPaid', array($type=>$amt));
     }
-    
+  }
+
+  public function getLoansPaidAmount($p_id){
+    $loans = $this->getLastActions($p_id, ['loanPaid'], 'allowTrades');
+    return count($loans);
   }
 
   public function updateBuildingState($p_id, $b_key, $oldState, $newState)
