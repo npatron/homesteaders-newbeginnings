@@ -233,6 +233,15 @@ class HSDLog extends APP_GameClass
     }
   }
 
+  public function getLoansPaid()
+  {
+    $loans_paid = array();
+    $players = $this->game->loadPlayersBasicInfos();
+    foreach($players as $p_id=>$player){
+      $loans_paid[$p_id] = $this->getLoansPaidAmount($p_id);
+    }
+  }
+
   public function getLoansPaidAmount($p_id){
     $loans = $this->getLastActions($p_id, ['loanPaid'], 'allowTrades');
     return count($loans);

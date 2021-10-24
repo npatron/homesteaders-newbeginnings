@@ -190,6 +190,7 @@ class homesteadersnewbeginnings extends Table
             'events' => $this->Event->getEvents(),
             'event_info' => $this->event_info,
             'first_player' => $this->getGameStateValue( 'first_player'),
+            'loans_paid' => $this->Log->getLoansPaid(),
             'number_auctions' => $this->getGameStateValue( 'number_auctions' ),
             'player_order' => $this->getNextPlayerTable(),
             'player_resources' => $this->getObjectFromDb( "SELECT `player_id` p_id, `silver`, `wood`, `food`, `steel`, `gold`, `copper`, `cow`, `loan`, `trade`, `vp` FROM `resources` WHERE player_id = '$cur_p_id'" ),
