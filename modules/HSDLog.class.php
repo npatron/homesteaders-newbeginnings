@@ -229,7 +229,7 @@ class HSDLog extends APP_GameClass
     if ($type === ""){
       $this->insert($p_id, 0, 'loanPaid');
     } else {
-      $this->insert($p_id, 0, 'loanPaid', array($type=>$amt));
+      $this->insert($p_id, 0, 'loanPaid', array('cost'=>array($type=>$amt)));
     }
   }
 
@@ -238,13 +238,9 @@ class HSDLog extends APP_GameClass
     $loans_paid = array();
     $players = $this->game->loadPlayersBasicInfos();
     foreach($players as $p_id=>$player){
-      $loans_paid[$p_id] = $this->getLoansPaidAmount($p_id);
+      $loans_paid[$p_id] = count($this->getLastActions($p_id, ['loanPaid'], 'allowTrades'));
     }
-  }
-
-  public function getLoansPaidAmount($p_id){
-    $loans = $this->getLastActions($p_id, ['loanPaid'], 'allowTrades');
-    return count($loans);
+    return $loans_paid;
   }
 
   public function updateBuildingState($p_id, $b_key, $oldState, $newState)
@@ -464,10 +460,11 @@ class HSDLog extends APP_GameClass
         case 'loanPaid':
           $this->game->Resource->updateResource($p_id, 'loan', 1);
 
-          if (count($args) != 0){
-            $type = array_keys($args)[0];
-            $this->game->Resource->updateResource($p_id, $type, $args[$type]);
-            $js_update_arr[] = array('action'=>'loanPaid','type'=>$type,'amt'=> $args[$type]);
+          if (array_key_exists('cost', $args)){
+            $type = array_keys($args['cost'])[0];
+            $amt = $args['cost'][$type];
+            $this->game->Resource->updateResource($p_id, $type, $amt);
+            $js_update_arr[] = array('action'=>'loanPaid','type'=>$type, 'amt'=> $amt);
           } else {
             $js_update_arr[] = array('action'=>'loanPaid');
           }

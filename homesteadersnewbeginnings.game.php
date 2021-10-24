@@ -286,7 +286,7 @@ class homesteadersnewbeginnings extends Table
         $cur_p_id = $this->getCurrentPlayerId();
         $worker_cost = array('trade'=>1,'food'=>1);
         if (!$this->Resource->canPlayerAfford($cur_p_id, $worker_cost))
-            throw new BgaUserException( clienttranslate("You cannot afford to hire a worker"));
+            throw new BgaUserException( clienttranslate("You cannot afford to hire a worker, you may need to Confirm Trades first."));
         $this->Resource->updateAndNotifyPaymentGroup($cur_p_id, $worker_cost, clienttranslate('Hire Worker'));
         $this->Resource->addWorkerAndNotify($cur_p_id, 'hire');
     }
