@@ -1381,6 +1381,9 @@ div#sell_board{
 .bgabutton .log_cow, .bgabutton .log_copper{
    transform: scale(1);
 }
+.bgabutton span.token_inline{
+   top: 15%;
+}
 /***   ***/
 .tt_loan{
    background-image: url('img/rail_debt_85x102.png');

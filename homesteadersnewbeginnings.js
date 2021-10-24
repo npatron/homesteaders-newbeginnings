@@ -281,15 +281,9 @@ function (dojo, declare) {
     const BTN_ID_PAY_LOAN_SILVER  = 'btn_pay_loan_silver';
     const METHOD_PAY_LOAN_SILVER  = 'payLoanSilver'; 
     const PAY_LOAN_SILVER_ARR     = {'silver':-5,'loan':-1};
-    const PAY_LOAN_SILVER_GROUP   = {'btn'   : BTN_ID_PAY_LOAN_SILVER,
-                                     'method': METHOD_PAY_LOAN_SILVER,
-                                     'change': PAY_LOAN_SILVER_ARR,};
     const BTN_ID_PAY_LOAN_GOLD    = 'btn_pay_loan_gold';
     const METHOD_PAY_LOAN_GOLD    = 'payLoanGold';
     const PAY_LOAN_GOLD_ARR       = {'gold':-1,'loan':-1};
-    const PAY_LOAN_GOLD_GROUP     = {'btn'    : BTN_ID_PAY_LOAN_GOLD,
-                                     'method': METHOD_PAY_LOAN_GOLD,
-                                     'change': PAY_LOAN_GOLD_ARR,};
 
     /** Event Bonus Buttons **/ 
     /* EVT_SELL_NO_TRADE -> 'Wartime Demand' */
@@ -308,9 +302,6 @@ function (dojo, declare) {
     const BTN_ID_PAY_LOAN_3_SILVER = 'btn_loan_3_silver';
     const METHOD_PAY_LOAN_3_SILVER = 'payLoan3Silver';
     const PAY_LOAN_3_SILVER_ARR    = {'silver':-5,'loan':-1};
-    const PAY_LOAN_3_SILVER_GROUP = {'btn'   :BTN_ID_PAY_LOAN_3_SILVER, 
-                                     'method':METHOD_PAY_LOAN_3_SILVER,
-                                     'change':PAY_LOAN_3_SILVER_ARR};
 
     // transaction constants
     const BUY               = 1;
@@ -4345,17 +4336,17 @@ function (dojo, declare) {
             if (HAS_BUILDING[this.player_id][BLD_BANK]){
                 var afford = this.canAddTrade(TRADE_BANK_CHANGE_ARR)?AFFORDABLE:UNAFFORDABLE;
                 this.updateAffordability(`#${PLAYER_BUILDING_ZONE_ID[this.player_id]} .bank`, afford);
-                this.updateButtonAffordability(BTN_ID_TRADE_BANK, afford);
+                this.updateButtonAffordability(`#${BTN_ID_TRADE_BANK}`, afford);
             }
 
             var afford = this.canAddTrade(PAY_LOAN_SILVER_ARR)?AFFORDABLE:UNAFFORDABLE;
-            this.updateButtonAffordability(BTN_ID_PAY_LOAN_SILVER, afford);
+            this.updateButtonAffordability(`#${BTN_ID_PAY_LOAN_SILVER}`, afford);
             afford = this.canAddTrade(PAY_LOAN_GOLD_ARR)?AFFORDABLE:UNAFFORDABLE;
-            this.updateButtonAffordability(BTN_ID_PAY_LOAN_GOLD, afford);
-            afford = this.canAddTrade({'silver':-3,'loan':-1})?AFFORDABLE:UNAFFORDABLE;
-            this.updateButtonAffordability(BTN_ID_PAY_LOAN_3_SILVER, afford);
+            this.updateButtonAffordability(`#${BTN_ID_PAY_LOAN_GOLD}`, afford);
+            afford = this.canAddTrade(PAY_LOAN_3_SILVER_ARR)?AFFORDABLE:UNAFFORDABLE;
+            this.updateButtonAffordability(`#${BTN_ID_PAY_LOAN_3_SILVER}`, afford);
             afford = this.canAddTrade({'trade':-1,'food':-1})?AFFORDABLE:UNAFFORDABLE;
-            this.updateButtonAffordability(BTN_ID_HIRE_WORKER, afford);
+            this.updateButtonAffordability(`#${BTN_ID_HIRE_WORKER}`, afford);
         },
 
         /**
@@ -5074,11 +5065,13 @@ function (dojo, declare) {
         },
 
         /***** END game actions *****/
+        // METHOD_PAY_LOAN_SILVER
         payLoanSilver: function( evt ) {
             if (!this.checkAction( 'payLoan' )){return;}
             this.addTransaction(PAY_LOAN_SILVER);
         },
 
+        // METHOD_PAY_LOAN_GOLD
         payLoanGold: function () {
             if (!this.checkAction( 'payLoan' )){return;}
             this.addTransaction(PAY_LOAN_GOLD);
