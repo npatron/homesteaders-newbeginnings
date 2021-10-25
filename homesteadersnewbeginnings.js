@@ -253,6 +253,7 @@ function (dojo, declare) {
     const BTN_ID_DO_NOT_BUILD = 'btn_do_not_build'; 
        // 'doNotBuild'
     const MESSAGE_DO_NOT_BUILD = "Do Not Build";
+    const MESSAGE_DO_NOT_BUILD_ALT = "Do Not Build (Get ${track} instead)";
     /**  build building cost replacement **/
     const REPLACER_ZONE_ID   = 'replacers';
     const BTN_ID_GOLD_COW    = 'btn_gold_cow';      // riverport
@@ -1800,7 +1801,8 @@ function (dojo, declare) {
             this.makeBuildingsSelectable(this.allowed_buildings);
             this.addActionButton( BTN_ID_BUILD_BUILDING, dojo.string.substitute(_("Build ${building_name}"), {building_name:`<span id="${BUILDING_NAME_ID}"></span>`}), METHOD_BUILD_BUILDING);
             dojo.addClass(BTN_ID_BUILD_BUILDING ,'disabled');
-            this.addActionButton( BTN_ID_DO_NOT_BUILD, _(MESSAGE_DO_NOT_BUILD), 'doNotBuild', null, false, 'red');
+            let buildMessage = this.rail_no_build?MESSAGE_DO_NOT_BUILD_ALT:MESSAGE_DO_NOT_BUILD;
+            this.addActionButton( BTN_ID_DO_NOT_BUILD, this.replaceTooltipStrings(_(buildMessage)), 'doNotBuild', null, false, 'red');
             this.addActionButton( BTN_ID_REDO_AUCTION, _(MESSAGE_CANCEL_TURN), METHOD_CANCEL_TURN, null, false, 'red');
             this.can_cancel = true;
             this.addTradeActionButton();
