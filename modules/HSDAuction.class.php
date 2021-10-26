@@ -106,6 +106,10 @@ class HSDAuction extends APP_GameClass
         return array_key_exists('build', $this->game->auction_info[$this->getCurrentAuctionId()]);
     }
 
+    function doesCurrentAuctionHaveAuctionBonus() {
+        return ($this->getCurrentAuctionBonus() !=AUC_BONUS_NONE);
+    }
+
     /**
      * returns an array of valid build types for current auction Tile.
      */
@@ -135,10 +139,7 @@ class HSDAuction extends APP_GameClass
                 $this->game->Resource->updateAndNotifyIncome($this->game->getActivePlayerId(), 'vp6', 1, clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
             break;
             case AUC_BONUS_4DEPT_FREE:
-                $this->game->Resource->payLoanOrReceiveSilver($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
-                $this->game->Resource->payLoanOrReceiveSilver($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
-                $this->game->Resource->payLoanOrReceiveSilver($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
-                $this->game->Resource->payLoanOrReceiveSilver($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
+                $this->game->Resource->pay4Loans($this->game->getActivePlayerId(), clienttranslate('Auction Reward'), 'auction', $this->game->getGameStateValue('current_auction'));
                 $next_state = 'done';
             break;
             default:

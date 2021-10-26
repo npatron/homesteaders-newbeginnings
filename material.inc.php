@@ -70,13 +70,13 @@ $this->trade_map = array(
   20=>'sellfree_wood', 21=>'sellfree_food', 22=>'sellfree_steel', 23=>'sellfree_gold', 24=>'sellfree_copper', 25=>'sellfree_cow',);
 
 $this->translation_strings = array(
-  0=> clienttranslate('Residential'), 
-  1=> clienttranslate('Commercial'), 
-  2=> clienttranslate('Industrial'), 
-  3=> clienttranslate('Special'), 
+  TYPE_RESIDENTIAL=> clienttranslate('Residential'), 
+  TYPE_COMMERCIAL=> clienttranslate('Commercial'), 
+  TYPE_INDUSTRIAL=> clienttranslate('Industrial'), 
+  TYPE_SPECIAL=> clienttranslate('Special'), 
   4=> clienttranslate('Any'), 
   6=> clienttranslate('Building'), 
-  7=> clienttranslate('Advance the Railroad track'),
+  7=> clienttranslate('Advance on Railroad track'),
   9=> clienttranslate('You have already built this building'),
   10=> clienttranslate('You can not afford to build this building'),
   11=> clienttranslate('You can afford to build this building (trades required)'),
@@ -537,7 +537,7 @@ $this->building_info = array_merge(
     'name' => clienttranslate("Post Office"),
     'stage'=> STAGE_CITY,
     'type' => TYPE_SPECIAL,
-    'cost' => array('cow'=>1,'steel'=>1,'wood'=>2),
+    'cost' => array('cow'=>1,'steel'=>1,'wood'=>1),
     'vp'   => 8,
     'vp_b' => VP_B_PAID_LOAN,
     'amt'  => 1,
@@ -688,7 +688,7 @@ $this->event_info = array(
     'stage' => STAGE_SETTLEMENT,
     'tt'    => clienttranslate('The winner of ${a1} builds for one resource less (their choice)'),
     'auc'   => AUC_EVT_ONE,
-    'auc_b' => EVT_AUC_DISCOUNT_1_RES,
+    'auc_d' => EVT_AUC_DISCOUNT_1_RES,
   ),
   EVENT_BUREAUCRATIC_ERROR => array(
     'name'  => clienttranslate('Bureaucratic Error'),

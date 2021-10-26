@@ -90,6 +90,15 @@ class HSDEvents extends APP_GameClass
         return $this->getEventAttribute('auc_b', $round_number);
     }
 
+    /**
+     * Is the current event in event phase?
+     * bool true on yes, false on no.
+     * material event_info `all_b`
+     */
+    function eventAucBonus(){
+        return $this->eventHaskey('auc_b');
+    }
+
     // get id for event phase id 'all_b'
     function getEventAllB($round_number = null){
         return $this->getEventAttribute('all_b', $round_number);
@@ -110,6 +119,15 @@ class HSDEvents extends APP_GameClass
     }
 
     /**
+     * Is the current event build_discount?
+     * bool true on yes, false on no.
+     * material event_info `all_d`
+     */
+    function eventDiscount(){
+        return $this->eventHaskey('auc_d');
+    }
+
+    /**
      * does the current event affect auction?
      * bool true on yes, false on no.
      */
@@ -119,7 +137,7 @@ class HSDEvents extends APP_GameClass
     }
 
     function isAuctionAffected($auction = null) {
-        if (!$this->auctionPhase()) return false;
+        if (!$this->getEventAucB()) return false;
         $auction = (is_null($auction)?$this->game->getGameStateValue('current_auction'):$auction);
         if ($auction ==1) { 
             return true;
@@ -246,6 +264,7 @@ class HSDEvents extends APP_GameClass
     function setupEventBonus(){
         $bonus_id = $this->getEventAllB();
         $pending_players = array();
+        $change_state = false;
         switch($bonus_id){
             case EVT_LOAN_TRACK:
                 $pending_players = $this->getPlayersWithLeastResource('loan');
@@ -253,6 +272,7 @@ class HSDEvents extends APP_GameClass
                     $this->game->Resource->getRailAdv($p_id, $this->getEventName());
                     $this->game->Log->allowTrades($p_id);
                 } 
+                $change_state = true;
             break;
             case EVT_LEAST_WORKER:
                 $pending_players = $this->getPlayersWithLeastResource('workers');
@@ -265,13 +285,17 @@ class HSDEvents extends APP_GameClass
                 foreach ($pending_players as $p_id=>$player){
                     $this->game->Resource->getRailAdv($p_id, clienttranslate('Residential Dominance'));
                     $this->game->Log->allowTrades($p_id);
-                }             
+                }
+                $change_state = true;
             break;
         }
         if (count($pending_players) == 0){
             $this->game->gamestate->nextState("done");
         } else {
             $this->game->gamestate->setPlayersMultiactive($pending_players, 'done');
+            if ($change_state){
+                $this->game->gamestate->nextState("rail_bonus");
+            }
         }
     }
 
@@ -359,8 +383,6 @@ class HSDEvents extends APP_GameClass
         if ($this->isAuctionAffected()) {
             $event = $this->getEventAucB();
             switch($event){
-                case EVT_AUC_DISCOUNT_1_RES:
-                case EVT_AUC_NO_AUCTION:
                 case EVT_AUC_COM_DISCOUNT:
                     break;
                 case EVT_AUC_SECOND_BUILD:// build again (same types)
@@ -372,13 +394,13 @@ class HSDEvents extends APP_GameClass
                     $this->game->setGameStateValue('build_type_int', 15);//all
                 break;
                 case EVT_AUC_STEEL_ANY:// player may pay a steel to build any building
-                    $next_state = "bonus";
+                    $next_state = "evt_bonus";
                     $this->game->setGameStateValue('build_type_int', 15);//all
 
                 break;
                 case EVT_AUC_BONUS_WORKER:// can recieve worker
                 case EVT_AUC_2SILVER_TRACK:// pay 2 silver for track advancement
-                    $next_state = "bonus";
+                    $next_state = "evt_bonus";
                 break;
                 case EVT_AUC_TRACK:
                     // gains a rail track
@@ -392,28 +414,26 @@ class HSDEvents extends APP_GameClass
 
     //// BEGIN pass Bid ////
     /**
-     * does any bonuses for passing from events, returns next_state
+     * does any bonuses for passing from events & navigates to next_state
+     * 'rail' for choose bonus
+     * 'event' for pay dept on pass event.
      */
-    function passBid(){
-        if(!$this->passPhase()){ return "rail"; }
-        $pass_evt = $this->getEventPass();
-        switch($pass_evt){
-            case EVT_PASS_TRACK: //Players who pass, get a ${track}
-                $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), _("event"));
-                return "rail";
-            case EVT_PASS_DEPT_SILVER: //Players who pass may pay off debt for 3-{silver} apiece
-                return "event";
+    function passBidNextState(){
+        $next_state = 'rail';
+        if($this->passPhase()){
+            $pass_evt = $this->getEventPass();
+            switch($pass_evt){
+                case EVT_PASS_TRACK: //Players who pass, get a ${track}
+                    $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), _("event"));
+                break;
+                case EVT_PASS_DEPT_SILVER: //Players who pass may pay off debt for 3-{silver} apiece
+                    $next_state = "event";
+                break;
+            }
         }
+        $this->game->gamestate->nextState( $next_state );
     }
 
-
-    function postEventBonusNav(){
-        $next_state = 'done';
-        if ($this->game->Auction->getCurrentAuctionBonus() != AUC_BONUS_NONE){
-            $next_state = 'auction_bonus';
-        }
-        $this->game->gamestate->nextState($next_state);
-    }
     //// END setup Auction ////
 
 

@@ -86,6 +86,9 @@
 .player_score_value_loan:after{
    content: ")";
 }
+.player_score{
+   cursor: help;
+}
 .gamerank {
    z-index: 1;
 }
@@ -114,6 +117,11 @@
    text-decoration: underline 3px;
    -webkit-text-decoration-color: gray;
    text-decoration-color: gray;
+}
+.adv_track{
+   text-decoration: underline 3px;
+   -webkit-text-decoration-color: red;
+   text-decoration-color: red;
 }
 .a1 {
    color: lightseagreen;
@@ -251,16 +259,6 @@
  * Button css *
  *============*/
  
-#undo_last_trade_btn{
-   height: 17px;
-   width: 180px;
-   order: 8;
-}
-#undo_trades_btn{
-   height: 17px;
-   width: 180px;
-   order: 8;
-}
 a#tgl_main_bld{
    height: 17px;
    width: 180px;
@@ -886,6 +884,8 @@ div#sell_board{
    border-style: dotted;
    border-color: blue;
    border-width: 3px;
+   -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
    box-sizing: border-box;
    cursor:pointer;
 }
@@ -945,11 +945,7 @@ div#sell_board{
    border-style: dotted;
    border-width: 4px;
 }
-.building_tile.selected {
-   border-style: solid;
-   border-color:red;
-   border-width: 2px;
-}
+
 /** Player Borders */
 .border_yellow {
    border-color:yellow;
@@ -1014,6 +1010,11 @@ div#sell_board{
    border-style: solid;
 }
 
+.building_tile.selected {
+   border-style: solid;
+   border-color:red;
+   border-width: 2px;
+}
 .tile_tip {
    border-radius: 6px;
    width:200px;
@@ -1370,6 +1371,14 @@ div#sell_board{
 .bgabutton .log_cow, .bgabutton .log_copper{
    transform: scale(1);
 }
+.bgabutton span.token_inline{
+   margin: -1px;
+}
+#page-title .action-button.bgabutton, #page-title .bgabutton{
+   display: inline-flex;
+   align-items: center;
+   gap: 4px;
+}
 /***   ***/
 .tt_loan{
    background-image: url('img/rail_debt_85x102.png');
@@ -1578,7 +1587,6 @@ div#sell_board{
    background-position: -124.8px -40px;
    width: 11px;
    height: 10px;
-   bottom: 4px;
 }
 .log_inc_arrow{
    background-size: 517px 155px;
@@ -1735,8 +1743,8 @@ div#sell_board{
    width: 29px;
    max-width: 30px;
 }
-.worker_slot:not(.selectable){
-   pointer-events: none;
+.tt_container .selectable{
+   pointer-events: auto;
 }
 .w_slot {
    display: flex;

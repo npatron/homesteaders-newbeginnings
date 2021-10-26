@@ -323,6 +323,30 @@ class HSDResource extends APP_GameClass
         array( 'resources' => $this->getResources()));
     }
 
+    function pay4Loans($p_id, $reason, $origin='', $key=0){
+        $playerLoan = $this->game->getUniqueValueFromDb("SELECT `loan` FROM `resources` WHERE `player_id`='".$p_id."'");
+        $amtPaidOff = min(4, $playerLoan);
+        $amtSilverGain = (int) (4-$amtPaidOff) * 2;
+        for ($i = 1; $i <= $playerLoan; $i++) {
+            $this->game->Log->payOffLoan($p_id);
+            $this->updateResource ($p_id, 'loan', -1);
+        }
+        if ($amtSilverGain>0){
+            $this->updateResource ($p_id, 'silver', $amtSilverGain);
+            $this->game->Log->updateResource($p_id, 'silver', $amtSilverGain);
+        }
+        $changeArr = array('silver'=>$amtSilverGain, 'loan'=>-$amtPaidOff);
+        $values = array('player_id' => $p_id,
+                        'player_name' => $this->game->getPlayerName($p_id),
+                        'resources' =>clienttranslate('resources'),
+                        'resource_arr' => $changeArr,
+                        'reason_string' => $reason,
+                        'preserve' => array( 2=> 'resource_arr' ),);
+        $values = $this->updateArrForNotify($values, $origin, $key);
+        $this->game->notifyAllPlayers( "auctionLoanPaid", clienttranslate( '${reason_string} paid ${player_name} ${resources}' ), $values);
+        $this->game->Score->updatePlayerScore($p_id);
+    }
+
     /** 
      * Helper method to allow automating income of payLoan
      * to force player to get 2 silver if have no loan to payoff
@@ -620,7 +644,7 @@ class HSDResource extends APP_GameClass
                 $tradeAway[$type] = 1;
                 $tradeFor = $this->game->resource_info[$type]['trade_val'];
                 $tradeFor['vp'] = 1;
-                $tradeType= $type;
+                $tradeType = $type;
                 $sell = true;
             break;
             case 'sellfree':
@@ -628,7 +652,7 @@ class HSDResource extends APP_GameClass
                 $tradeAway = array($type=>1);
                 $tradeFor = $this->game->resource_info[$type]['trade_val'];
                 $tradeFor['vp'] = 1;
-                $tradeType= $type;
+                $tradeType = $type;
                 $sell = true;
             break;
             case 'market':
@@ -636,12 +660,12 @@ class HSDResource extends APP_GameClass
                 $b_id = BLD_MARKET;
                 $tradeAway = array_merge($tradeAway, $this->game->resource_info[$type]['market']);
                 $tradeFor[$type] = 1;
-                $tradeType= $type;
+                $tradeType = $type;
             break;
             case 'bank':
                 $b_id = BLD_BANK;
                 $tradeFor['silver'] = 1;
-                $tradeType= 'silver';
+                $tradeType = 'silver';
             break;
             case 'loan':
                 return (array(
@@ -690,8 +714,8 @@ class HSDResource extends APP_GameClass
                                     'type' => $type, 
                                     'amount'=>$amt,
                                     'preserve' => [2=>'amount']),
-                        'tradeFor'=>array('loan'=>-1), 
-                        'tradeAway'=>array($type=>$amt)));
+                        'tradeFor'=>array('loan'=> -1), 
+                        'tradeAway'=>array($type=> $amt)));
             default: 
             throw new BgaVisibleSystemException ( sprintf(clienttranslate('Invalid TradeAction: %s'),$tradeAction));
         }
@@ -719,9 +743,9 @@ class HSDResource extends APP_GameClass
         }
         return array('transaction'=> 'trade', 
                     'message'=> $message, 
-                    'args'=>$args, 
-                    'tradeFor'=>$tradeFor,
-                    'tradeAway'=>$tradeAway);
+                    'args'=> $args, 
+                    'tradeFor'=> $tradeFor,
+                    'tradeAway'=> $tradeAway);
     }
 
     /**

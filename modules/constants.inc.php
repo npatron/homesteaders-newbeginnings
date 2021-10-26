@@ -25,6 +25,7 @@
   define("STATE_EVT_BONUS",          32);
   define("STATE_EVT_PAY",            33);
   define("STATE_EVT_POST_TRADE",     34);
+  define("STATE_EVT_BONUS_RAIL",     35);
   
   // Bidding phase
   define("STATE_BEGIN_AUCTION",      40);
@@ -37,20 +38,25 @@
   // resolve Auction Lots
   define("STATE_NEXT_LOT", 50);
   define("STATE_PAY_LOT",  51);/* <- undoTurn goes here*/
-  define("STATE_CHOOSE_BUILDING",    52);
+  define("STATE_CHOOSE_LOT_ACTION",  52);
+  // lot_build building_build 
+  define("STATE_CHOOSE_BUILDING",    54);
+  define("STATE_TRAIN_STATION_BUILD",55);
   // 1) resolve build bonuses
-  define("STATE_RESOLVE_BUILD",      53);
-  define("STATE_BUILD_BONUS",        54);
-  define("STATE_BUILD_RAIL_BONUS",   55);
-  define("STATE_TRAIN_STATION_BUILD",56);
+  define("STATE_RESOLVE_BUILD",      56);
+  define("STATE_BUILD_BONUS",        57);
+  define("STATE_BUILD_RAIL_BONUS",   58);
+  
   // 2) event specific bonus or builds 
-  //note: no additional builds from events in age with train station.
   define("STATE_EVT_SETUP_BONUS",   60);
-  define("STATE_EVT_CHOICE",        61);
-  define("STATE_EVT_BUILD_AGAIN",   62);
-  define("STATE_EVT_RESOLVE_BUILD", 63);
-  define("STATE_EVT_BUILD_BONUS",   64);
-  define("STATE_EVT_RAIL_BONUS",    65);
+  // 2a) event on build
+  define("STATE_EVT_CHOICE",        62);
+  define("STATE_EVT_BUILD_AGAIN",   63);//note: no additional builds from events in stage with train station.
+  // 2b) resolve build bonuses
+  define("STATE_EVT_RESOLVE_BUILD", 64);
+  define("STATE_EVT_BUILD_BONUS",   65);
+  define("STATE_EVT_RAIL_BONUS",    66);
+  
   // 3) auction bonuses (not tied to build)
   define("STATE_AUC_SETUP_BONUS", 70);
   define("STATE_AUC_RAIL_BONUS",  71);
@@ -64,18 +70,17 @@
   define("STATE_UPDATE_SCORES",      91);
 
   define("STATE_END_GAME",           99);
+  // END OF STATES
 
+  // dummy (2 player) token
   define('DUMMY_BID', 0);
   define('DUMMY_OPT', -1);
-
+  // auction Location states
   define("AUC_LOC_DISCARD", 0);
   define("AUC_LOC_1",   1);
   define("AUC_LOC_2",   2);
   define("AUC_LOC_3",   3);
   define("AUC_LOC_4",   4);
-
-  define("AUC_EVT_ONE", 1);
-  define("AUC_EVT_ALL", 2);
   
   // Building IDs
   define("BLD_HOMESTEAD_YELLOW", 1);
@@ -195,36 +200,13 @@
   define("AUC_BONUS_4DEPT_FREE",     10);
   define("AUC_BONUS_3VP_SELL_FREE",  11);
 
-  // Events
-  // all_b (bonus for all players) after income, before bids
-  define("EVT_VP_4SILVER",         1);
-  define("EVT_TRADE",              2);
-  define("EVT_LOAN_TRACK",         3);
-  define("EVT_LEAST_WORKER",       4);
-  define("EVT_INTEREST",           5);
-  define("EVT_PAY_LOAN_FOOD",      6);
-  define("EVT_COPPER_COW_GET_GOLD",7);
-  define("EVT_DEV_TRACK_VP3",      8);
-  define("EVT_VP_FOR_WOOD",        9);
-  define("EVT_SELL_NO_TRADE",     10);
-  define("EVT_LEAST_BLD_TRACK",   11);
-  define("EVT_IND_VP",            12);
-  define("EVT_BLD_TAX_SILVER",    13);
-  define("EVT_RES_ADV_TRACK",     14);
-  // auc_b (auction bonus)
-  define("EVT_AUC_DISCOUNT_1_RES",15);
-  define("EVT_AUC_NO_AUCTION",    16);
-  define("EVT_AUC_BUILD_AGAIN",   17);
-  define("EVT_AUC_BONUS_WORKER",  18);
-  define("EVT_AUC_2SILVER_TRACK", 19);
-  define("EVT_AUC_SECOND_BUILD",  20);
-  define("EVT_AUC_TRACK",         21);
-  define("EVT_AUC_STEEL_ANY",     22);
-  define("EVT_AUC_COM_DISCOUNT",  23);
-  // pass_b (bonus when passing)
-  define("EVT_PASS_TRACK",        24);
-  define("EVT_PASS_DEPT_SILVER",  25);
+  // 'lot_state' bit flags
+  define("LOT_STATE_BUILD",     1);// lot has build
+  define("LOT_STATE_AUC_BONUS", 2);// lot has auction bonus
+  define("LOT_STATE_EVT_BONUS", 4);// lot has event bonus
 
+  //////////// Events ////////////
+  /// BEGIN SQL `events`->`event_id` List ///
   // Settlement Events #1-10
   define("EVENT_ABANDONED_STOCKPILE",   1);
   define("EVENT_BUREAUCRATIC_ERROR",    2);
@@ -253,6 +235,45 @@
   define("EVENT_NELSON_ACT",           23);
   define("EVENT_PROPERTY_TAXES",       24);
   define("EVENT_RESIDENTIAL_DOMINANCE",25);
+  /// END SQL `events`->`event_id` List ///
+  
+  /// BEGIN event_info constants ///
+  // 'name' & 'tt' are not constants
+  // 'stage' use STAGE_SETTLEMENT, STAGE_TOWN, STAGE_CITY
+  // 'all_b' (bonus for all players) after income, before bids
+  define("EVT_VP_4SILVER",         1);
+  define("EVT_TRADE",              2);
+  define("EVT_LOAN_TRACK",         3);
+  define("EVT_LEAST_WORKER",       4);
+  define("EVT_INTEREST",           5);
+  define("EVT_PAY_LOAN_FOOD",      6);
+  define("EVT_COPPER_COW_GET_GOLD",7);
+  define("EVT_DEV_TRACK_VP3",      8);
+  define("EVT_VP_FOR_WOOD",        9);
+  define("EVT_SELL_NO_TRADE",     10);
+  define("EVT_LEAST_BLD_TRACK",   11);
+  define("EVT_IND_VP",            12);
+  define("EVT_BLD_TAX_SILVER",    13);
+  define("EVT_RES_ADV_TRACK",     14);
+  // 'auc_d' (auction discount)
+  define("EVT_AUC_DISCOUNT_1_RES",15);
+  // 'auc_n' (auction disabled)
+  define("EVT_AUC_NO_AUCTION",    16);
+  // 'auc_b' (auction bonus)
+  define("EVT_AUC_BUILD_AGAIN",   17);
+  define("EVT_AUC_BONUS_WORKER",  18);
+  define("EVT_AUC_2SILVER_TRACK", 19);
+  define("EVT_AUC_SECOND_BUILD",  20);
+  define("EVT_AUC_TRACK",         21);
+  define("EVT_AUC_STEEL_ANY",     22);
+  define("EVT_AUC_COM_DISCOUNT",  23);
+  // 'auc' (all auctions or 1st only)
+  define("AUC_EVT_ONE", 1);
+  define("AUC_EVT_ALL", 2);
+  // 'pass_b' (bonus when passing)
+  define("EVT_PASS_TRACK",        24);
+  define("EVT_PASS_DEPT_SILVER",  25);
+  /// END event_info constants ///
 
   // Bid location mapping
   define("NO_BID",     0);
