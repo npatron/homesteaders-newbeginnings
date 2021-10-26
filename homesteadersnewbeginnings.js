@@ -1391,11 +1391,7 @@ function (dojo, declare) {
         },
         onUpdateActionButtons_chooseBuildingToBuild: function(args){
             this.allowed_buildings = args.allowed_buildings;
-            if (Number(args.current_event)== 1){
-                this.building_discount = true;
-            } else {
-                this.building_discount = false;
-            }
+            this.building_discount = args.event_discount;
             this.genericSetupBuildBuildings();
         },
         onUpdateActionButtons_trainStationBuild: function(args){
@@ -1807,7 +1803,7 @@ function (dojo, declare) {
             this.can_cancel = true;
             this.addTradeActionButton();
 
-            replacers = dojo.create('div', {id:REPLACER_ZONE_ID, style:'display:inline-block;'});
+            replacers = dojo.create('div', {id:REPLACER_ZONE_ID, style:'display:inline-flex;'});
             dojo.place(replacers, 'generalactions', 'last');
             if (HAS_BUILDING[this.player_id][BLD_RIVER_PORT]){
                 let goldAsString = _("${begin}${gold} As ${type}${end}"); 
@@ -2324,9 +2320,9 @@ function (dojo, declare) {
             this.GOLD_COUNTER.setValue(this.goldCost);
             this.silverCost +=5;
             if (this.silverCost >0){
-                dojo.style( $(PAY_SILVER_TEXT), 'display', 'inline-block');
-                dojo.style( $(PAY_SILVER_TOKEN), 'display', 'inline-block');
-                dojo.style( $(BTN_ID_MORE_GOLD), 'display', 'inline-block');
+                dojo.style( $(PAY_SILVER_TEXT), 'display', 'inline-flex');
+                dojo.style( $(PAY_SILVER_TOKEN), 'display', 'inline-flex');
+                dojo.style( $(BTN_ID_MORE_GOLD), 'display', 'inline-flex');
                 this.SILVER_COUNTER.setValue(this.silverCost);
             }
             if(this.goldCost == 0){
@@ -2339,9 +2335,9 @@ function (dojo, declare) {
         //METHOD_MORE_GOLD
         raiseGold: function(){
             if (this.silverCost <0) return;
-            dojo.style( $(PAY_GOLD_TEXT), 'display', 'inline-block');
-            dojo.style( $(PAY_GOLD_TOKEN), 'display', 'inline-block');
-            dojo.style( $(BTN_ID_LESS_GOLD), 'display', 'inline-block');
+            dojo.style( $(PAY_GOLD_TEXT), 'display', 'inline-flex');
+            dojo.style( $(PAY_GOLD_TOKEN), 'display', 'inline-flex');
+            dojo.style( $(BTN_ID_LESS_GOLD), 'display', 'inline-flex');
 
             this.goldCost++;
             this.GOLD_COUNTER.setValue(this.goldCost);
@@ -2377,7 +2373,7 @@ function (dojo, declare) {
 
         raiseCostReplace: function (type) {
             if (!(type in this.buildingCost) || this.buildingCost[type] >= 0) return;
-            dojo.style( $(`btn_less_${type}`), 'display', 'inline-block');
+            dojo.style( $(`btn_less_${type}`), 'display', 'inline-flex');
 
             this.addOrSetArrayKey(this.cost_replace, type, 1);
             this.createBuildingBreadcrumb();
@@ -2389,7 +2385,7 @@ function (dojo, declare) {
         lowerCostReplace: function (type) {
             if (!(type in this.buildingCost) || !(type in this.cost_replace) || this.cost_replace[type]<=0 ) return;
             
-            dojo.style( $(`btn_more_${type}`), 'display', 'inline-block');
+            dojo.style( $(`btn_more_${type}`), 'display', 'inline-flex');
 
             this.addOrSetArrayKey(this.cost_replace, type, -1);
             if (this.cost_replace[type] == 0){//can't replace any less.
@@ -2697,9 +2693,9 @@ function (dojo, declare) {
                             this.GOLD_COUNTER.create(PAY_GOLD_TEXT);
                             this.GOLD_COUNTER.setValue(this.goldCost);
                             if(this.goldCost > 0){
-                                dojo.style( $(PAY_GOLD_TEXT), 'display', 'inline-block');
-                                dojo.style( $(PAY_GOLD_TOKEN), 'display', 'inline-block');
-                                dojo.style( $(BTN_ID_LESS_GOLD), 'display', 'inline-block');
+                                dojo.style( $(PAY_GOLD_TEXT), 'display', 'inline-flex');
+                                dojo.style( $(PAY_GOLD_TOKEN), 'display', 'inline-flex');
+                                dojo.style( $(BTN_ID_LESS_GOLD), 'display', 'inline-flex');
                             }
                             return;
                         case BTN_ID_ON_PASS_EVENT_DONE:
@@ -3556,19 +3552,19 @@ function (dojo, declare) {
             //console.log("showHideBuildingOffsetButtons", cost);
             if (HAS_BUILDING[this.player_id][BLD_RIVER_PORT]){
                 if (cost.cow<0){
-                    dojo.style(BTN_ID_GOLD_COW, 'display', 'inline-block');
+                    dojo.style(BTN_ID_GOLD_COW, 'display', 'inline-flex');
                 } else {
                     dojo.style(BTN_ID_GOLD_COW, 'display', 'none');
                 }
                 if (cost.copper<0){
-                    dojo.style(BTN_ID_GOLD_COPPER, 'display', 'inline-block');
+                    dojo.style(BTN_ID_GOLD_COPPER, 'display', 'inline-flex');
                 } else {
                     dojo.style(BTN_ID_GOLD_COPPER, 'display', 'none');
                 }
             }
             if (HAS_BUILDING[this.player_id][BLD_LUMBER_MILL]){
                 if (cost.steel<0){
-                    dojo.style(BTN_ID_MORE_STEEL, 'display', 'inline-block');
+                    dojo.style(BTN_ID_MORE_STEEL, 'display', 'inline-flex');
                     dojo.style(BTN_ID_LESS_STEEL, 'display', 'none');
                 } else {
                     dojo.style(BTN_ID_MORE_STEEL, 'display', 'none');

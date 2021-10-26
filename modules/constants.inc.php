@@ -255,9 +255,11 @@
   define("EVT_IND_VP",            12);
   define("EVT_BLD_TAX_SILVER",    13);
   define("EVT_RES_ADV_TRACK",     14);
-  // 'auc_b' (auction bonus)
+  // 'auc_d' (auction discount)
   define("EVT_AUC_DISCOUNT_1_RES",15);
+  // 'auc_n' (auction disabled)
   define("EVT_AUC_NO_AUCTION",    16);
+  // 'auc_b' (auction bonus)
   define("EVT_AUC_BUILD_AGAIN",   17);
   define("EVT_AUC_BONUS_WORKER",  18);
   define("EVT_AUC_2SILVER_TRACK", 19);

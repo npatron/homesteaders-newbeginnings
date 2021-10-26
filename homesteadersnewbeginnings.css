@@ -259,16 +259,6 @@
  * Button css *
  *============*/
  
-#undo_last_trade_btn{
-   height: 17px;
-   width: 180px;
-   order: 8;
-}
-#undo_trades_btn{
-   height: 17px;
-   width: 180px;
-   order: 8;
-}
 a#tgl_main_bld{
    height: 17px;
    width: 180px;
@@ -1382,7 +1372,12 @@ div#sell_board{
    transform: scale(1);
 }
 .bgabutton span.token_inline{
-   top: 15%;
+   margin: -1px;
+}
+#page-title .action-button.bgabutton, #page-title .bgabutton{
+   display: inline-flex;
+   align-items: center;
+   gap: 4px;
 }
 /***   ***/
 .tt_loan{
@@ -1592,7 +1587,6 @@ div#sell_board{
    background-position: -124.8px -40px;
    width: 11px;
    height: 10px;
-   bottom: 4px;
 }
 .log_inc_arrow{
    background-size: 517px 155px;

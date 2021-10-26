@@ -339,8 +339,7 @@ class homesteadersnewbeginnings extends Table
     public function playerPassBid(){
         $this->checkAction( "pass" );
         $this->Bid->passBid();
-        $next_state = $this->Event->passBid();
-        $this->gamestate->nextState( $next_state );
+        $this->Event->passBidNextState();
     }
 
     public function playerDonePassEvent(){
@@ -565,7 +564,7 @@ class homesteadersnewbeginnings extends Table
             case EVT_AUC_BONUS_WORKER:
                 $act_p_id = $this->getActivePlayerId();
                 $this->Resource->addWorkerAndNotify($act_p_id, $this->event_info[$event]['name']);
-                $this->Event->postEventBonusNav();
+                $this->game->nextState('done');
             break;
             case EVT_LEAST_WORKER:
                 $cur_p_id = $this->getCurrentPlayerId();
@@ -583,11 +582,12 @@ class homesteadersnewbeginnings extends Table
         if (!$this->Event->isAuctionAffected()){
             throw new BgaVisibleSystemException ( clienttranslate("trade 2 Silver for track called, but there is no event bonus"));
         }
-        if ($this->Event->getEventAucB() != EVT_AUC_2SILVER_TRACK) {
-            throw new BgaVisibleSystemException ( sprintf(clienttranslate("trade 2 Silver for track called, but event bonus is %s"), $this->Event->getEventAucB()));
+        $evt_b = $this->Event->getEventAucB();
+        if ($evt_b != EVT_AUC_2SILVER_TRACK) {
+            throw new BgaVisibleSystemException ( sprintf(clienttranslate("trade 2 Silver for track called, but event bonus is %s"), $evt_b));
         }
         $this->Resource->specialTrade($this->getActivePlayerId(), array('silver'=>2), array('track'=>1), clienttranslate('Event Reward'), 'event');
-        $this->Event->postEventBonusNav();
+        $this->gamestate->nextState('done');
     }
 
     public function playerPassBonusLotEvent() {
@@ -596,7 +596,7 @@ class homesteadersnewbeginnings extends Table
         $this->notifyAllPlayers( "passBonus", clienttranslate( '${player_name} passes on Event Bonus' ), array(
             'player_id' => $act_p_id,
             'player_name' => $this->getActivePlayerName()));
-        $this->Event->postEventBonusNav();
+        $this->gamestate->nextState('done');
     }
 
     public function playerTradeHidden($tradeAction_csv){
@@ -846,8 +846,10 @@ class homesteadersnewbeginnings extends Table
     }
 
     function argLotChooseAction() {
-        $lot_state = $this->getGameStateValue("lot_state");
-        return array("lot_state"=>$lot_state);
+        return array("lot_state"=>$this->getGameStateValue("lot_state"),
+                     "event_bonus"=> $this->Event->getEventAucB(),
+                     "build_type_int"=>$this->getGameStateValue('build_type_int'),
+                     "auction_bonus"=>$this->Auction->getCurrentAuctionBonus(),);
     }
 
     function argAllowedBuildings() {
@@ -855,7 +857,7 @@ class homesteadersnewbeginnings extends Table
         $build_type_options = $this->Building->buildTypeIntIntoArray($build_type_int);      
         $buildings = $this->Building->getAllowedBuildings($build_type_options);
         return(array("allowed_buildings"=> $buildings,
-                    "current_event" => $this->Event->getEvent()));
+                     "event_discount" => $this->Event->eventDiscount()));
     }
 
     function argTrainStationBuildings() {

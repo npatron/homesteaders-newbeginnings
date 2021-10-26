@@ -688,7 +688,7 @@ $this->event_info = array(
     'stage' => STAGE_SETTLEMENT,
     'tt'    => clienttranslate('The winner of ${a1} builds for one resource less (their choice)'),
     'auc'   => AUC_EVT_ONE,
-    'auc_b' => EVT_AUC_DISCOUNT_1_RES,
+    'auc_d' => EVT_AUC_DISCOUNT_1_RES,
   ),
   EVENT_BUREAUCRATIC_ERROR => array(
     'name'  => clienttranslate('Bureaucratic Error'),
