@@ -1831,6 +1831,21 @@ function (dojo, declare) {
                 dojo.place(BTN_ID_LESS_STEEL, REPLACER_ZONE_ID, 'last');
                 dojo.style( $(BTN_ID_LESS_STEEL), 'display', 'none');
             }
+            if (building_discount){
+                let discount_zone = dojo.create('div', {id:DISCOUNT_ZONE_ID, style:zone_style});
+                dojo.place(discount_zone, REPLACER_ZONE_ID, 'first');
+                let discount_text = dojo.create('span', {class:"biggerfont", id:DISCOUNT_TEXT_ID});
+                dojo.place(discount_text, DISCOUNT_ZONE_ID, 'first');
+                var translatedString = _("Discount: ");
+                discount_text.innerText = translatedString;
+                let types= ['wood','food','steel','gold'];
+                types.forEach(type=> {
+                    let btn_id = `discount_${type}`;
+                    this.addActionButton( btn_id , this.getOneResourceHtml(type), 'selectBuildingDiscountResource', null, false, 'gray');
+                    dojo.place(btn_id, DISCOUNT_ZONE_ID, 'last');
+                    dojo.style($(btn_id), 'display', 'none');
+                });
+            }
         },
 
         addBuildingToOffer: function(building){
