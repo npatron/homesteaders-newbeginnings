@@ -242,6 +242,11 @@ class action_homesteadersnewbeginnings extends APP_GameAction
 
   public function buildBuildingDiscount(){
     self::setAjaxMode( );
+
+    // resolve pending trades
+    $trade_action = self::getArg( "trade_action", AT_numberlist, true );
+    $this->game->playerTrade($trade_action, false);
+    
     $building_key = self::getArg( "building_key", AT_posint, true);
     $costReplaceArgs = array();
     $goldAsCow = self::getArg( "goldAsCow", AT_posint, false);

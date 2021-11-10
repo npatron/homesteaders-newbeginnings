@@ -1795,10 +1795,11 @@ function (dojo, declare) {
             LAST_SELECTED['building']="";
             this.createBuildingBreadcrumb();
             this.makeBuildingsSelectable(this.allowed_buildings);
-            this.addActionButton( BTN_ID_BUILD_BUILDING, dojo.string.substitute(_("Build ${building_name}"), {building_name:`<span id="${BUILDING_NAME_ID}"></span>`}), METHOD_BUILD_BUILDING);
+            this.addActionButton( BTN_ID_BUILD_BUILDING, dojo.string.substitute(_("Build ${building_name}"), 
+                {building_name:`<span id="${BUILDING_NAME_ID}"></span>`}), METHOD_BUILD_BUILDING);
             dojo.addClass(BTN_ID_BUILD_BUILDING ,'disabled');
-            let buildMessage = this.rail_no_build?MESSAGE_DO_NOT_BUILD_ALT:MESSAGE_DO_NOT_BUILD;
-            this.addActionButton( BTN_ID_DO_NOT_BUILD, this.replaceTooltipStrings(_(buildMessage)), 'doNotBuild', null, false, 'red');
+            let buildMessage = this.rail_no_build?this.replaceTooltipStrings(_(MESSAGE_DO_NOT_BUILD_ALT)):_(MESSAGE_DO_NOT_BUILD);
+            this.addActionButton( BTN_ID_DO_NOT_BUILD, buildMessage, 'doNotBuild', null, false, 'red');
             this.addActionButton( BTN_ID_REDO_AUCTION, _(MESSAGE_CANCEL_TURN), METHOD_CANCEL_TURN, null, false, 'red');
             this.can_cancel = true;
             this.addTradeActionButton();
@@ -2506,7 +2507,7 @@ function (dojo, declare) {
             let b_name=_("???"); 
             let b_type=4; 
             let cost={};
-            if (LAST_SELECTED.building!=''){
+            if (LAST_SELECTED.building != ''){
                 b_id = $(LAST_SELECTED.building).className.split(' ')[1].split('_')[2];
                 b_name = _(BUILDING_INFO[b_id].name);
                 b_type = BUILDING_INFO[b_id].type;
@@ -3545,7 +3546,7 @@ function (dojo, declare) {
          */
         showHideBuildingOffsetButtons: function () {
             let b_id = 0;
-            if (LAST_SELECTED.building!=''){
+            if (LAST_SELECTED.building != ''){
                 b_id= $(LAST_SELECTED.building).className.split(' ')[1].split('_')[2]??0;
             }
             let cost = this.invertArray(BUILDING_INFO[b_id].cost??{});
@@ -3582,7 +3583,7 @@ function (dojo, declare) {
          */
         getBuildingCost: function( b_id =0) {
             if (b_id == 0){// if b_id not set use last_selected.building
-                if (LAST_SELECTED.building!=''){
+                if (LAST_SELECTED.building != ''){
                     b_id = $(LAST_SELECTED.building).className.split(' ')[1].split('_')[2];
                 }
             }
@@ -4536,8 +4537,7 @@ function (dojo, declare) {
                     this.showHideBuildingOffsetButtons();
                 } else {
                     dojo.removeClass(BTN_ID_BUILD_BUILDING, 'disabled');
-                    var translatedString = _(BUILDING_INFO[b_id].name);
-                    $(BUILDING_NAME_ID).innerText = translatedString;
+                    this.setBuildingName(b_id);
                     if (BUILDING_INFO[b_id].cost != null) {
                         this.createBuildingBreadcrumb();
                         this.showHideBuildingOffsetButtons();
@@ -4548,7 +4548,7 @@ function (dojo, declare) {
 
         // METHOD_BUILD_BUILDING
         chooseBuilding: function () {
-            //console.log('chooseBuilding');
+            console.log('chooseBuilding');
             if (this.checkAction( 'buildBuilding')){
                 const building_divId = LAST_SELECTED['building'];
                 if (building_divId == "") {
@@ -4578,7 +4578,7 @@ function (dojo, declare) {
         },
 
         chooseBuildingWithDiscount: function(){
-            //console.log('chooseBuildingWithDiscount');
+            console.log('chooseBuildingWithDiscount');
             let building_cost = this.getBuildingCost();
             if (Object.keys(building_cost).length == 0){
                 // building has no cost, so just use normal build.
@@ -4602,48 +4602,77 @@ function (dojo, declare) {
                         LAST_SELECTED.building_discount="";
                         this.building_discount = false;
                         this.changeStateCleanup();
-                        this.updateAffordability(`#${TPL_BLD_TILE}_${args.building_key}`, 0);
+                        this.updateAffordability(`#${TPL_BLD_TILE}_${building_key}`, 0);
                     }, function( is_error) { } );
             } else {
+                // update buttons for clientstate - choose discount.
+                let last_building = LAST_SELECTED.building;
+                this.gamedatas.gamestate.descriptionmyturn = _("You must choose a discount resource");
+                this.updatePageTitle();
                 this.removeButtons();
-                this.updatePageTitle(_("You must choose a discount resource"));
-                LAST_SELECTED.building_discount ="";
+                LAST_SELECTED.building = last_building;
+                this.createBuildingBreadcrumb();
+                LAST_SELECTED.building_discount = "";
                 for(let type in building_cost){
                     this.addActionButton( `btn_resource_${type}`, TOKEN_HTML[type], 'selectBuildingDiscountResource', null, false, 'gray');
                 }
-                this.addActionButton( 'btn_choose_resource', dojo.string.substitute(_('Choose ${resource}'),{'resource':"<div id='build_discount_icon'></div>"}), 'doneSelectingBuildingDiscount');   
+                this.addActionButton( 'btn_choose_resource', dojo.string.substitute(_('Build ${building_name} with discount ${resource}'),
+                    {'building_name': `<span id="${BUILDING_NAME_ID}"></span>`,'resource':"<span id='build_discount_icon'></span>"}), 'doneSelectingBuildingDiscount');
+                dojo.addClass('btn_choose_resource' ,'disabled');
+                let b_id = $(last_building).className.split(' ')[1].split('_')[2];
+                this.setBuildingName(b_id);
+                this.addActionButton( 'btn_choose_again', _("Choose different building"), 'undoChooseBuilding', null, false, 'red');
+                this.addActionButton( BTN_ID_REDO_AUCTION, _(MESSAGE_CANCEL_TURN), METHOD_CANCEL_TURN, null, false, 'red');
             }
         },
 
+        undoChooseBuilding: function( evt){
+            dojo.removeClass(LAST_SELECTED.building, 'selected');
+            this.gamedatas.gamestate.descriptionmyturn = _('${you} may choose a building to build');
+            this.updatePageTitle();
+        },
+
+        setBuildingName: function(b_id){
+            var translatedString = _(BUILDING_INFO[b_id].name);
+            $(BUILDING_NAME_ID).innerText = translatedString;
+            var bld_type = BUILDING_INFO[b_id].type;
+            dojo.replaceClass(BUILDING_NAME_ID, `font caps ${ASSET_COLORS[bld_type]}`);
+        },
+
         selectBuildingDiscountResource: function( evt ) {
-            //console.log('selectBuildingDiscountResource', evt);
-            let target_id = (evt.target.id?evt.target.id:evt.target.parentNode.id);
-            let type = target_id.split("_")[2];
-            let btn_id = `btn_resource_${type}`;
+            console.log('selectBuildingDiscountResource', evt);
+            let btn_id = (evt.target.id?evt.target.id:evt.target.parentNode.id);
+            // handles click events on sub-elements (tokens)
+            let type = btn_id.split("_")[2];
 
             if (LAST_SELECTED.building_discount ==''){ //nothing was selected
                 dojo.addClass(btn_id, 'bgabutton_blue');
-                dojo.removeClass(btn_id, 'disabled');
+                dojo.removeClass('btn_choose_resource', 'disabled');
                 LAST_SELECTED.building_discount = type;
                 dojo.place(TOKEN_HTML[type], 'build_discount_icon');
-            } else if (LAST_SELECTED.building_discount == option_id) { //this was selected
+            } else if (LAST_SELECTED.building_discount == type) { //this was selected
                 dojo.removeClass(btn_id, 'bgabutton_blue');
-                dojo.addClass(btn_id, 'disabled');
-                dojo.place(TOKEN_HTML[type], 'build_discount_icon');
+                dojo.addClass('btn_choose_resource', 'disabled');
+                dojo.query(`#build_discount_icon .token_inline`).forEach(dojo.destroy);
                 LAST_SELECTED.building_discount = '';
             } else { //other thing was selected.
                 let lastSelected_id =  `btn_resource_${LAST_SELECTED.building_discount}`;
                 dojo.removeClass(lastSelected_id, 'bgabutton_blue');
-                dojo.addClass(lastSelected_id, 'disabled');
                 dojo.addClass(btn_id, 'bgabutton_blue');
-                dojo.removeClass(btn_id, 'disabled');
+                dojo.query(`#build_discount_icon .token_inline`).forEach(dojo.destroy);
+                dojo.place(TOKEN_HTML[type], 'build_discount_icon');
                 LAST_SELECTED.building_discount = type;
             }        
         },
 
         doneSelectingBuildingDiscount: function( evt ){
             if (LAST_SELECTED.building_discount === ''){
-                console.error("doneSelectingBuildingDiscount");
+                console.error("ERROR in: doneSelectingBuildingDiscount, no discount selected");
+                return;
+            }
+            if (LAST_SELECTED.building === ''){
+                console.error("ERROR in: doneSelectingBuildingDiscount, no building selected");
+                return;
             }
             const building_key = Number(LAST_SELECTED.building.split("_")[2]);
             this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/buildBuildingDiscount.html", 
@@ -4660,7 +4689,7 @@ function (dojo, declare) {
                 LAST_SELECTED.building_discount="";
                 this.building_discount = false;
                 this.changeStateCleanup();
-                this.updateAffordability(`#${TPL_BLD_TILE}_${args.building_key}`, 0);
+                this.updateAffordability(`#${TPL_BLD_TILE}_${building_key}`, 0);
             }, function( is_error) { } );
         },
 
