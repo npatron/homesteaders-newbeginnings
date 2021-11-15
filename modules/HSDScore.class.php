@@ -52,7 +52,7 @@ class HSDScore extends APP_GameClass
         $row7 = array(sprintf(clienttranslate('# of %s from %s'), $vp_html,$copper_html));
         $row8 = array(sprintf(clienttranslate('# of %s from %s'), $vp_html,$loan_html));
         $row9 = array(sprintf(clienttranslate('Total # of %s'), $vp_html,$cow_html));
-        foreach($players as $p_id=>$player){
+        foreach($players as $p_id=> $player){
             $p_score = $this->calculateEndgameScore($p_id);
             $row1[] = array( 'str' => '${player_name}',
                              'args' => array( 'player_name' => $player['player_name'] ),
@@ -117,7 +117,7 @@ class HSDScore extends APP_GameClass
             'loan'  => $loans,
         );
         $total = 0;
-        foreach ($allScores as $type =>$val){
+        foreach ($allScores as $type => $val){
             $total += $val;
         }
         $allScores['total'] = $total;
@@ -143,7 +143,7 @@ class HSDScore extends APP_GameClass
     {
         $resources = $this->game->getObjectFromDB("SELECT `gold`, `copper`, `cow` from `resources` WHERE `player_id` = '$p_id'");
         $vp = array();
-        foreach($resources as $type=>$amt){
+        foreach($resources as $type=> $amt){
             $vp[$type] = ($amt * 2);
         }
         return $vp;

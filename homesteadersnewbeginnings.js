@@ -99,137 +99,156 @@ function (dojo, declare) {
     const BLD_WAREHOUSE = 40;
     const BLD_POST_OFFICE = 41;
 
-    // string templates for dynamic assets
-    const TPL_BLD_TILE  = "building_tile";
-    const TPL_BLD_STACK = "building_stack_";
-    const TPL_BLD_ZONE  = "building_zone_";
-    const TPL_BLD_CLASS = "build_tile_";
-    const TPL_AUC_TILE  = "auction_tile";
-    const TPL_AUC_ZONE  = "auction_tile_zone_";
-    const FIRST_PLAYER_ID = 'first_player_tile';
+    /* ***** string templates for dynamic assets ***** */
+        const TPL_BLD_TILE  = "building_tile";
+        const TPL_BLD_STACK = "building_stack_";
+        const TPL_BLD_ZONE  = "building_zone_";
+        const TPL_BLD_CLASS = "build_tile_";
+        const TPL_AUC_TILE  = "auction_tile";
+        const TPL_AUC_ZONE  = "auction_tile_zone_";
+        const FIRST_PLAYER_ID = 'first_player_tile';
 
-    const BTN_ID_CONFIRM_TRADE = 'confirm_trade_btn';
-    const MESSAGE_CONFIRM_TRADE= "Confirm Trade(s)";
-    const METHOD_CONFIRM_TRADE = 'confirmTradeButton';
-    const BTN_ID_UNDO_TRADE    = 'undo_trades_btn';
-    const MESSAGE_UNDO_TRADE   = "Undo All Trade(s) & Debt";
-    const METHOD_UNDO_TRADE    = 'undoTransactionsButton';
-    const BTN_ID_CONFIRM_WORKERS = 'btn_confirm_workers'; // allocate workers
+    // allocate workers
+    const BTN_ID_CONFIRM_WORKERS = 'btn_confirm_workers'; 
     const METHOD_CONFIRM_WORKERS = 'donePlacingWorkers';
     const MESSAGE_CONFIRM_WORKERS = "Confirm ${worker} Placement";
     const MESSAGE_CONFIRM_WORKERS_TRADES = "Confirm Trade(s) & ${worker} Placement";
-    /** Bid Buttons **/
-    const BTN_ID_CONFIRM_BID = 'btn_confirm_bid';
-       // confirmBidButton
-    const MESSAGE_CONFIRM_BID = "Confirm Bid";
-    const BTN_ID_CONFIRM_DUMMY_BID = 'btn_confirm_dummy_bid';
-       // confirmDummyBidButton
-    const MESSAGE_CONFIRM_DUMMY_BID = "Confirm Dummy Bid";
-    const BTN_ID_PASS_BID     = 'btn_pass';
-       // passBidButton
-    const MESSAGE_PASS = "Pass";
-    const MESSAGE_PASS_CONFIRM = "Confirm Trade(s) and Pass";
-    /** Confirm Lot Actions **/
-    const BTN_ID_CONFIRM_ACTIONS = 'btn_confirm';
-       // confirmBuildPhase
-    const MESSAGE_CONFIRM = "Confirm";
-    /*** trade buttons ***/
-    const BTN_ID_TRADE_TOGGLE     = 'btn_trade';
-    const MESSAGE_TRADE_TOGGLE_ON = "Hide Trade";
-    const MESSAGE_TRADE_TOGGLE_OFF= "Show Trade";
-    const METHOD_TRADE_TOGGLE     = "tradeActionButton";
+    /* ***** common buttons ***** */
+        const BTN_ID_UNDO_PASS    = 'btn_undo_pass';
+        // 'onUnPass_preEventTrade', 'onUndoBidPass', 'onUnPass_endGameActions' 
+        const MESSAGE_UNDO_PASS   = "Undo Pass";
+        const MESSAGE_UNDO_INCOME = "Undo Worker Placement";
 
-    const BLD_ID_MARKET_FOOD  = 'trade_market_wood_food';
-    const BLD_ID_MARKET_STEEL = 'trade_market_food_steel';
-    const BLD_METHOD_MARKET   = 'onClickOnMarketTrade';
+        const BTN_ID_ON_PASS_EVENT_DONE = 'btn_done_pass_event';
+        const METHOD_ON_PASS_EVENT_DONE = 'donePassEvent';
+        const MESSAGE_DONE = 'Done';
+        const MESSAGE_DONE_CONFIRM = 'Confirm Trade(s) and Done';
+        const BTN_ID_CANCEL       = 'btn_cancel_button';
+        // 'cancelUndoTransactions', 'cancelEventTransactions', 'cancelHiddenUndoTransactions',
+        const BTN_ID_REDO_AUCTION = 'btn_redo_build_phase';
+        const METHOD_CANCEL_TURN = 'cancelTurn';
+        const MESSAGE_CANCEL_TURN = "Cancel";
+    /* ***** Bid Buttons ***** */
+        const BTN_ID_CONFIRM_BID = 'btn_confirm_bid';
+        // confirmBidButton
+        const MESSAGE_CONFIRM_BID = "Confirm Bid";
+        const BTN_ID_CONFIRM_DUMMY_BID = 'btn_confirm_dummy_bid';
+        // confirmDummyBidButton
+        const MESSAGE_CONFIRM_DUMMY_BID = "Confirm Dummy Bid";
+        const BTN_ID_PASS_BID     = 'btn_pass';
+        // passBidButton
+        const MESSAGE_PASS = "Pass";
+        const MESSAGE_PASS_CONFIRM = "Confirm Trade(s) and Pass";
+        /** Confirm Lot Actions **/
+        const BTN_ID_CONFIRM_ACTIONS = 'btn_confirm';
+        // confirmBuildPhase
+        const MESSAGE_CONFIRM = "Confirm";
+    /* ***** trade buttons ***** */
+        const BTN_ID_TRADE_TOGGLE     = 'btn_trade';
+        const MESSAGE_TRADE_TOGGLE_ON = "Hide Trade";
+        const MESSAGE_TRADE_TOGGLE_OFF= "Show Trade";
+        const METHOD_TRADE_TOGGLE     = "tradeActionButton";
 
-    const BLD_ID_TRADE_BANK     = 'trade_bank_trade_silver';
-    const BLD_METHOD_TRADE_BANK = 'onClickOnBankTrade';
-    const BTN_ID_TRADE_BANK     = 'btn_trade_bank';
-    const METHOD_TRADE_BANK     = 'onClickOnBankTrade';
-    const TRADE_BANK_CHANGE_ARR = {'trade':-1,'silver':1};
-    const TRADE_BANK_GROUP      = {'id'    : BLD_ID_TRADE_BANK,
-                                   'btn'   : BTN_ID_TRADE_BANK,
-                                   'change': TRADE_BANK_CHANGE_ARR,};
-    /** Auction Bonus buttons */
-    const BTN_ID_FOOD_VP = 'btn_food_vp';
-    const METHOD_FOOD_VP = 'foodFor2VP';
-    const ARR_FOOD_VP    = {resource1:'${food}', resource2:'${vp2}', arrow:'${arrow}'};
-    const BTN_ID_COW_VP  = 'btn_cow_vp';
-    const METHOD_COW_VP  = 'cowFor4VP';
-    const ARR_COW_VP     = {resource1:'${cow}', resource2:'${vp4}', arrow:'${arrow}'};
-    const BTN_ID_COPPER_VP = 'btn_copper_vp';
-    const METHOD_COPPER_VP = 'copperFor4VP';
-    const ARR_COPPER_VP    = {resource1:'${copper}', resource2:'${vp4}', arrow:'${arrow}'};
-    const BTN_ID_GOLD_VP = 'btn_gold_vp';
-    const METHOD_GOLD_VP = 'goldFor4VP'; 
-    const ARR_GOLD_VP    = {resource1:'${gold}', resource2:'${vp4}', arrow:'${arrow}'};
-    const BTN_ID_WOOD_TRACK = 'btn_wood_track';
-    const METHOD_WOOD_TRACK = 'woodForTrack';
-    const ARR_WOOD_TRACK    = {resource1:'${wood}', resource2:'${track}', arrow:'${arrow}'};
+        const BTN_ID_CONFIRM_TRADE = 'confirm_trade_btn';
+        const MESSAGE_CONFIRM_TRADE= "Confirm Trade(s)";
+        const METHOD_CONFIRM_TRADE = 'confirmTradeButton';
 
-    const MESSAGE_X_FOR_Y = "${resource1} ${arrow} ${resource2}";
-    const MESSAGE_X_FOR_Y_CONFIRM = "Confirm Trade(s) & ${resource1} ${arrow} ${resource2}";
-    const BTN_ID_BONUS_WORKER = 'btn_bonus_worker'; 
-       // 'workerForFreeBuilding', 'workerForFreeAuction', 'workerForFreeEvent', 'workerForFreeLotEvent
-    const MESSAGE_BONUS_WORKER = '(FREE) Hire ${worker}';
+        const BTN_ID_UNDO_TRADE    = 'undo_trades_btn';
+        const MESSAGE_UNDO_TRADE   = "Undo All Trade(s) & Debt";
+        const METHOD_UNDO_TRADE    = 'undoTransactionsButton';
+        
+        const BTN_ID_HIRE_WORKER  = 'btn_hire_worker';
+        const METHOD_HIRE_WORKER  = 'hireWorkerButton';
+        const HIRE_WORKER_ARR     = {'food':-1,'trade':-1};
+
+        const BTN_ID_TAKE_LOAN    = 'btn_take_loan';
+        const METHOD_TAKE_LOAN    = 'onMoreLoan';
+        const MESSAGE_TAKE_LOAN   = "Take Debt";
+        const TAKE_LOAN_ARR       = {'silver':2,'loan':1};
+        
+        const BLD_ID_MARKET_FOOD  = 'trade_market_wood_food';
+        const BLD_ID_MARKET_STEEL = 'trade_market_food_steel';
+        const BLD_METHOD_MARKET   = 'onClickOnMarketTrade';
+
+        const BLD_ID_TRADE_BANK     = 'trade_bank_trade_silver';
+        const BLD_METHOD_TRADE_BANK = 'onClickOnBankTrade';
+        const BTN_ID_TRADE_BANK     = 'btn_trade_bank';
+        const METHOD_TRADE_BANK     = 'onClickOnBankTrade';
+        const TRADE_BANK_CHANGE_ARR = {'trade':-1,'silver':1};
+    /* ***** Auction Bonus buttons ***** */
+        const BTN_ID_FOOD_VP = 'btn_food_vp';
+        const METHOD_FOOD_VP = 'foodFor2VP';
+        const ARR_FOOD_VP    = {resource1:'${food}', resource2:'${vp2}', arrow:'${arrow}'};
+        const BTN_ID_COW_VP  = 'btn_cow_vp';
+        const METHOD_COW_VP  = 'cowFor4VP';
+        const ARR_COW_VP     = {resource1:'${cow}', resource2:'${vp4}', arrow:'${arrow}'};
+        const BTN_ID_COPPER_VP = 'btn_copper_vp';
+        const METHOD_COPPER_VP = 'copperFor4VP';
+        const ARR_COPPER_VP    = {resource1:'${copper}', resource2:'${vp4}', arrow:'${arrow}'};
+        const BTN_ID_GOLD_VP = 'btn_gold_vp';
+        const METHOD_GOLD_VP = 'goldFor4VP'; 
+        const ARR_GOLD_VP    = {resource1:'${gold}', resource2:'${vp4}', arrow:'${arrow}'};
+        const BTN_ID_WOOD_TRACK = 'btn_wood_track';
+        const METHOD_WOOD_TRACK = 'woodForTrack';
+        const ARR_WOOD_TRACK    = {resource1:'${wood}', resource2:'${track}', arrow:'${arrow}'};
+
+        const MESSAGE_X_FOR_Y = "${resource1} ${arrow} ${resource2}";
+        const MESSAGE_X_FOR_Y_CONFIRM = "Confirm Trade(s) & ${resource1} ${arrow} ${resource2}";
+        const BTN_ID_BONUS_WORKER = 'btn_bonus_worker'; 
+        // 'workerForFreeBuilding', 'workerForFreeAuction', 'workerForFreeEvent', 'workerForFreeLotEvent
+        const MESSAGE_BONUS_WORKER = '(FREE) Hire ${worker}';
+        
+        const BTN_ID_PASS_BONUS   = 'btn_pass_bonus';   
+        // 'passBonusBuilding', 'passBonusAuction', 'passBonusLotEvent'
+        const METHOD_PASS_BONUS   = 'passBonusEvent';
+        const MESSAGE_PASS_BONUS = "Do Not Get Bonus";
     
-    const BTN_ID_PASS_BONUS   = 'btn_pass_bonus';   
-       // 'passBonusBuilding', 'passBonusAuction', 'passBonusLotEvent'
-    const METHOD_PASS_BONUS   = 'passBonusEvent';
-    const MESSAGE_PASS_BONUS = "Do Not Get Bonus";
-    /** Rail Bonus **/
+    /* ***** Rail Bonus ***** */
+        const METHOD_BOARD_SELECT_BONUS = 'onSelectBonusOption'
+        // BTN_ID_SELECT_BONUS = `btn_bonus_${type}`; // DYNAMIC
+        const METHOD_SELECT_BONUS = 'selectBonusButton';
+        const BTN_ID_CHOOSE_BONUS = 'btn_choose_bonus'; 
+        const METHOD_CHOOSE_BONUS = 'doneSelectingRailBonus';
+        const METHOD_CHOOSE_BONUS_EVENT = 'doneSelectingRailBonusEvent';
+        const MESSAGE_CHOOSE_BONUS = "Choose Bonus";
+    /* ***** Event Bonus buttons ***** */
+        /* *** Event Lot buttons *** */
+            /* * EVENT_RAILROAD_CONTRACTS * */
+            const BTN_ID_EVENT_SILVER_TRACK = 'btn_silver_track';
+            const METHOD_EVENT_SILVER_TRACK = 'silver2ForTrack';
+            /* * EVENT_INDUSTRIALIZATION * */
+            const BTN_ID_EVENT_STEEL_BUILD = 'btn_steel_build';
+            const METHOD_EVENT_STEEL_BUILD = 'steelBuildBuilding';
+            const MESSAGE_EVENT_STEEL_BUILD = "Pay ${steel} to build ${any}";
+            const MESSAGE_EVENT_STEEL_BUILD_CONFIRM = "Confirm Trade(s) & Pay ${steel} to build ${any}";
+    
+        /* ***  PRE-EVENT TRADE PHASE *** */
+        const BTN_ID_EVENT_DONE_TRADING = 'btn_done_trading';
+        const METHOD_EVENT_DONE_TRADING = 'doneTradingEvent';
+        const MESSAGE_EVENT_DONE  = "Pass on Event";
+            /* * EVENT_STATE_FAIR * */
+            const BTN_ID_EVENT_DONE_HIDDEN_TRADING = 'btn_done_hidden_trading';
+            const METHOD_EVENT_DONE_HIDDEN = 'doneHiddenTradingEvent';
+            const BTN_ID_CONFIRM_TRADE_HIDDEN = 'confirm_trade_btn_hidden';
+            const METHOD_CONFIRM_TRADE_HIDDEN = 'confirmHiddenTradeButton';
+            /* * EVENT_WARTIME_DEMAND * */
+            const BTN_ID_EVENT_START_SELL = 'btn_start_sell';
+            const MESSAGE_START_SELL = "Start Sell Event"
+            const BTN_ID_UNDO_SELL_EVENT = 'btn_undo_sell_event';
+            const METHOD_UNDO_SELL_EVENT = 'undoTransactionsButton_sellEvent';
+            const BTN_ID_BACK_SELL_EVENT = 'btn_back_sell_event';
+            const METHOD_BACK_SELL_EVENT = 'backToTradesButton_sellEvent';
+            /* * EVENT_SHARECROPPING * */
+            const BTN_ID_PAY_LOAN_FOOD = 'btn_pay_loan_food';
+            const METHOD_PAY_LOAN_FOOD = 'payLoanWithFood';
+            const PAY_LOAN_FOOD_ARR    = {'food':-1,'loan':-1};
+        /* *** on Pass Event button *** */
+            /** EVENT_NELSON_ACT **/
+            const BTN_ID_PAY_LOAN_3_SILVER = 'btn_loan_3_silver';
+            const METHOD_PAY_LOAN_3_SILVER = 'payLoan3Silver';
+            const PAY_LOAN_3_SILVER_ARR    = {'silver':-5,'loan':-1};
 
-    const METHOD_BOARD_SELECT_BONUS = 'onSelectBonusOption'
-    // BTN_ID_SELECT_BONUS = `btn_bonus_${type}`; // DYNAMIC
-    const METHOD_SELECT_BONUS = 'selectBonusButton';
-    const BTN_ID_CHOOSE_BONUS = 'btn_choose_bonus'; 
-    const METHOD_CHOOSE_BONUS = 'doneSelectingRailBonus';
-    const METHOD_CHOOSE_BONUS_EVENT = 'doneSelectingRailBonusEvent';
-    const MESSAGE_CHOOSE_BONUS = "Choose Bonus";
-    /** Event Bonus buttons */
-    const BTN_ID_EVENT_SILVER_TRACK = 'btn_silver_track';
-    const METHOD_EVENT_SILVER_TRACK = 'silver2ForTrack';
-    const BTN_ID_EVENT_STEEL_BUILD = 'btn_steel_build';
-    const METHOD_EVENT_STEEL_BUILD = 'steelBuildBuilding';
-    const MESSAGE_EVENT_STEEL_BUILD = "Pay ${steel} to build ${any}";
-    const MESSAGE_EVENT_STEEL_BUILD_CONFIRM = "Confirm Trade(s) & Pay ${steel} to build ${any}";
-    /***  PRE-EVENT TRADE PHASE ***/
-    const BTN_ID_EVENT_DONE_TRADING = 'btn_done_trading';
-    const METHOD_EVENT_DONE_TRADING = 'doneTradingEvent';
-    const MESSAGE_EVENT_DONE  = "Pass on Event";
-    /** EVENT_STATE_FAIR -> State Fair **/
-    const BTN_ID_EVENT_DONE_HIDDEN_TRADING = 'btn_done_hidden_trading';
-    const METHOD_EVENT_DONE_HIDDEN = 'doneHiddenTradingEvent';
-    const BTN_ID_CONFIRM_TRADE_HIDDEN = 'confirm_trade_btn_hidden';
-    const METHOD_CONFIRM_TRADE_HIDDEN = 'confirmHiddenTradeButton';
-    /*** common buttons ***/
-    const BTN_ID_UNDO_PASS    = 'btn_undo_pass';
-       // 'onUnPass_allocateWorkers', 'onUndoBidPass', 'onUnPass_endGameActions' 
-    const MESSAGE_UNDO_PASS   = "Undo Pass";
-
-    const BTN_ID_ON_PASS_EVENT_DONE = 'btn_done_pass_event';
-    const METHOD_ON_PASS_EVENT_DONE = 'donePassEvent';
-    const MESSAGE_DONE = 'Done';
-    const MESSAGE_DONE_CONFIRM = 'Confirm Trade(s) and Done';
-    const BTN_ID_CANCEL       = 'btn_cancel_button';
-       // 'cancelUndoTransactions', 'cancelEventTransactions', 'cancelHiddenUndoTransactions',
-    const BTN_ID_REDO_AUCTION = 'btn_redo_build_phase';
-    const METHOD_CANCEL_TURN = 'cancelTurn';
-    const MESSAGE_CANCEL_TURN = "Cancel";
-
-    const BTN_ID_HIRE_WORKER  = 'btn_hire_worker';
-    const METHOD_HIRE_WORKER  = 'hireWorkerButton';
-    const MESSAGE_HIRE_WORKER = "Hire New ${worker}";
-    const HIRE_WORKER_ARR     = {'food':-1,'trade':-1};
-    const HIRE_WORKER_GROUP   = {'button' : BTN_ID_HIRE_WORKER,
-                                 'method' : METHOD_HIRE_WORKER,
-                                 'message': MESSAGE_HIRE_WORKER,
-                                 'change' : HIRE_WORKER_ARR,};
-    const BTN_ID_TAKE_LOAN    = 'btn_take_loan';
-    const METHOD_TAKE_LOAN    = 'onMoreLoan';
-    const MESSAGE_TAKE_LOAN   = "Take Debt";
-    const TAKE_LOAN_ARR       = {'silver':2,'loan':1};
+    
 
     /*** Choose Lot Action ***/
     const BTN_LOT_ACTION_BUILD  = 'btn_build';
@@ -286,23 +305,6 @@ function (dojo, declare) {
     const METHOD_PAY_LOAN_GOLD    = 'payLoanGold';
     const PAY_LOAN_GOLD_ARR       = {'gold':-1,'loan':-1};
 
-    /** Event Bonus Buttons **/ 
-    /* EVT_SELL_NO_TRADE -> 'Wartime Demand' */
-    const BTN_ID_EVENT_START_SELL = 'btn_start_sell';
-    const MESSAGE_START_SELL = "Start Sell Event"
-    const BTN_ID_UNDO_SELL_EVENT = 'btn_undo_sell_event';
-    const METHOD_UNDO_SELL_EVENT = 'undoTransactionsButton_sellEvent';
-    const BTN_ID_BACK_SELL_EVENT = 'btn_back_sell_event';
-    const METHOD_BACK_SELL_EVENT = 'backToTradesButton_sellEvent';
-    /* EVT_PAY_LOAN_FOOD -> 'Sharecropping' */
-    const BTN_ID_PAY_LOAN_FOOD = 'btn_pay_loan_food';
-    const METHOD_PAY_LOAN_FOOD = 'payLoanWithFood';
-    const PAY_LOAN_FOOD_ARR    = {'food':-1,'loan':-1};
-    /*** on Pass Event button ***/
-    /** EVT_PASS_DEPT_SILVER -> 'Nelson Act' **/
-    const BTN_ID_PAY_LOAN_3_SILVER = 'btn_loan_3_silver';
-    const METHOD_PAY_LOAN_3_SILVER = 'payLoan3Silver';
-    const PAY_LOAN_3_SILVER_ARR    = {'silver':-5,'loan':-1};
 
     // transaction constants
     const BUY               = 1;
@@ -367,33 +369,15 @@ function (dojo, declare) {
     const AUC_BONUS_4DEPT_FREE     = 10;
     const AUC_BONUS_3VP_SELL_FREE  = 11;
 
-    const EVT_VP_4SILVER          = 1;
-    const EVT_TRADE               = 2;
-    const EVT_LOAN_TRACK          = 3;
-    const EVT_LEAST_WORKER        = 4;
-    const EVT_INTEREST            = 5;
-    const EVT_PAY_LOAN_FOOD       = 6;
-    const EVT_COPPER_COW_GET_GOLD = 7;
-    const EVT_DEV_TRACK_VP3       = 8;
-    const EVT_VP_FOR_WOOD         = 9;
-    const EVT_SELL_NO_TRADE       = 10;
-    const EVT_LEAST_BLD_TRACK     = 11;
-    const EVT_IND_VP              = 12;
-    const EVT_BLD_TAX_SILVER      = 13;
-    const EVT_RES_ADV_TRACK       = 14;
-    // auc_b (auction bonus)
-    const EVT_AUC_DISCOUNT_1_RES  = 15;
-    const EVT_AUC_NO_AUCTION      = 16;
-    const EVT_AUC_BUILD_AGAIN     = 17;
-    const EVT_AUC_BONUS_WORKER    = 18;
-    const EVT_AUC_2SILVER_TRACK   = 19;
-    const EVT_AUC_SECOND_BUILD    = 20;
-    const EVT_AUC_TRACK           = 21;
-    const EVT_AUC_STEEL_ANY       = 22;
-    const EVT_AUC_COM_DISCOUNT    = 23;
-    // pass_b (bonus when passing)
-    const EVT_PASS_TRACK          = 24;
-    const EVT_PASS_DEPT_SILVER    = 25;
+    const EVENT_EAGER_INVESTORS    = 4;
+    const EVENT_SHARECROPPING      = 6;
+    const EVENT_STATE_FAIR         = 7;
+    const EVENT_TIMBER_CULTURE_ACT = 9;
+    const EVENT_WARTIME_DEMAND     = 10;
+    const EVENT_MIGRANT_WORKERS    = 18;
+    const EVENT_RAILROAD_CONTRACTS = 19;
+    const EVENT_INDUSTRIALIZATION  = 22;
+    const EVENT_NELSON_ACT         = 25;
 
     const ALREADY_BUILT = 9;
     const UNAFFORDABLE = 10;
@@ -1297,7 +1281,7 @@ function (dojo, declare) {
                 this.setOffsetForPaymentButtons();
             } 
             if (dojo.query(`#${BTN_ID_UNDO_PASS}`).length !=1){
-                this.addActionButton(BTN_ID_UNDO_PASS, _(MESSAGE_UNDO_PASS), 'onUnPass_allocateWorkers', null, false, 'red');
+                this.addActionButton(BTN_ID_UNDO_PASS, _(MESSAGE_UNDO_INCOME), 'onUnPass_allocateWorkers', null, false, 'red');
                 dojo.place(BTN_ID_UNDO_PASS, 'generalactions', 'first');
             }
         },
@@ -1331,7 +1315,7 @@ function (dojo, declare) {
             // state for pass bid event triggers.
             this.addActionButton( BTN_ID_ON_PASS_EVENT_DONE, _(MESSAGE_DONE_PASS), METHOD_ON_PASS_EVENT_DONE, null, false, 'blue');
             this.addActionButton( BTN_ID_UNDO_PASS, _(MESSAGE_UNDO_PASS), 'onUndoBidPass', null, false, 'red');
-            if (args.event_pass == EVT_PASS_DEPT_SILVER){
+            if (args.event_pass == EVENT_NELSON_ACT){
                 this.addActionButton( BTN_ID_PAY_LOAN_3_SILVER, this.replaceTooltipStrings(_('pay off ${loan} for ${silver}${silver}${silver}')), METHOD_PAY_LOAN_3_SILVER, null, false, 'blue');
             }
             this.addTradeActionButton();
@@ -1479,7 +1463,7 @@ function (dojo, declare) {
             let bonus_id = args.bonus_id;
             this.current_args = args;
             switch(bonus_id){
-                case EVT_SELL_NO_TRADE:
+                case EVENT_WARTIME_DEMAND:
                     console.log(args);
                     this.gamedatas.gamestate.descriptionmyturn = this.gamedatas.gamestate.descriptionmyturntrade;
                     this.addActionButton( BTN_ID_EVENT_START_SELL, _(MESSAGE_START_SELL), 'clientState_sellEvent', null, false, 'blue');
@@ -1493,13 +1477,13 @@ function (dojo, declare) {
                     this.resetTradeValues();
                     this.enableTradeBoardActions();
                 break;
-                case EVT_PAY_LOAN_FOOD:
+                case EVENT_SHARECROPPING:
                     this.addActionButton( BTN_ID_PAY_LOAN_FOOD, this.replaceTooltipStrings(_('pay ${loan} with ${food}')), METHOD_PAY_LOAN_FOOD, null, false, 'blue' );
                     this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _(MESSAGE_PASS), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
                     this.addTradeActionButton();
                     this.addActionButton( BTN_ID_CANCEL, _(MESSAGE_CANCEL_TURN), 'cancelEventTransactions', null, false, 'red');
                     break;
-                case EVT_COPPER_COW_GET_GOLD:
+                case EVENT_STATE_FAIR:
                     console.log(args);
                     this.addActionButton( BTN_ID_EVENT_DONE_HIDDEN_TRADING, _(MESSAGE_PASS), METHOD_EVENT_DONE_HIDDEN, null, false, 'blue');
                     dojo.place(dojo.create('br'),'generalactions','last');
@@ -1519,8 +1503,8 @@ function (dojo, declare) {
                     // then reveal amount of Copper+Cow
                     // the player(s) with the most (at least 1) get a gold.
                     break;
-                case EVT_VP_4SILVER:
-                case EVT_VP_FOR_WOOD:
+                case EVENT_EAGER_INVESTORS:
+                case EVENT_TIMBER_CULTURE_ACT:
                     this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _(MESSAGE_PASS), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
                     this.addTradeActionButton();
                     this.addActionButton( BTN_ID_CANCEL, _(MESSAGE_CANCEL_TURN), 'cancelEventTransactions', null, false, 'red');
@@ -1535,10 +1519,10 @@ function (dojo, declare) {
             let bonus_id = args.bonus_id;
             this.current_args = args;
             switch(bonus_id){
-                case EVT_SELL_NO_TRADE:
+                case EVENT_WARTIME_DEMAND:
                     this.addActionButton( BTN_ID_UNDO_PASS, _(MESSAGE_UNDO_PASS), 'onUnPass_preEventTrade', null, false, 'red');
                     break;
-                case EVT_COPPER_COW_GET_GOLD:
+                case EVENT_STATE_FAIR:
                     this.addActionButton( BTN_ID_UNDO_PASS, _(MESSAGE_UNDO_PASS), 'onUnPass_preEventTrade', null, false, 'red');
                     this.resetTradeValues();
                     this.setHiddenTrades(args._private);
@@ -1551,7 +1535,7 @@ function (dojo, declare) {
         },
 
         onUpdateActionButtons_bonusChoice_eventRail: function (args) {
-            // 'EVT_LOAN_TRACK' & 'EVT_RES_ADV_TRACK' get track adv
+            // 'EVENT_BANK_FAVORS' & 'EVENT_RESIDENTIAL_DOMINANCE' get track adv
             this.setupButtonsForRailBonus(args.args[this.player_id]);
             dojo.destroy(BTN_ID_CHOOSE_BONUS);
             this.addActionButton( BTN_ID_CHOOSE_BONUS, _(MESSAGE_CHOOSE_BONUS), METHOD_CHOOSE_BONUS_EVENT);
@@ -1582,13 +1566,13 @@ function (dojo, declare) {
             console.log(args);
             let option = Number(args.event_bonus);
             switch (option){
-                case EVT_AUC_2SILVER_TRACK: // auction winners can pay 2 silver for track
+                case EVENT_RAILROAD_CONTRACTS: // auction winners can pay 2 silver for track
                     this.addActionButton( BTN_ID_EVENT_SILVER_TRACK, `${TOKEN_HTML.silver}${TOKEN_HTML.silver} ${TOKEN_HTML.arrow} ${TOKEN_HTML.track}`, METHOD_EVENT_SILVER_TRACK);
                 break;
-                case EVT_AUC_BONUS_WORKER: // Auc 1 also gives worker
+                case EVENT_MIGRANT_WORKERS: // Auc 1 also gives worker
                     this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_(MESSAGE_BONUS_WORKER)), 'workerForFreeLotEvent');
                 break;
-                case EVT_AUC_STEEL_ANY:
+                case EVENT_INDUSTRIALIZATION:
                     this.addActionButton( BTN_ID_EVENT_STEEL_BUILD, this.replaceTooltipStrings(_(MESSAGE_EVENT_STEEL_BUILD)) , METHOD_EVENT_STEEL_BUILD);
                 break;
             }
@@ -3178,11 +3162,13 @@ function (dojo, declare) {
                  this.clearTransactionLog();
                  this.resetTradeValues();
                  this.can_cancel = true;
+                 dojo.query(`#${BTN_ID_CANCEL}`).removeClass('disabled');
+                 this.calculateAndUpdateScore(this.player_id);
+                 
                  if (this.currentState == 'allocateWorkers' && !notActive){
                     this.setOffsetForIncome();
                  }
-                 dojo.query(`#${BTN_ID_CANCEL}`).removeClass('disabled');
-                 this.calculateAndUpdateScore(this.player_id);
+                 this.updateTradeAffordability();
              }, function( is_error) {});
         },
 

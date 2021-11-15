@@ -1371,8 +1371,9 @@ div#sell_board{
 .bgabutton .log_cow, .bgabutton .log_copper{
    transform: scale(1);
 }
-.bgabutton span.token_inline{
-   margin: -1px;
+.bgabutton span{
+   margin-bottom: -1px;
+   margin-top: -1px;
 }
 #page-title .action-button.bgabutton, #page-title .bgabutton{
    display: inline-flex;
