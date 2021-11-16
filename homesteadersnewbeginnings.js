@@ -370,14 +370,14 @@ function (dojo, declare) {
     const AUC_BONUS_3VP_SELL_FREE  = 11;
 
     const EVENT_EAGER_INVESTORS    = 4;
-    const EVENT_SHARECROPPING      = 6;
-    const EVENT_STATE_FAIR         = 7;
-    const EVENT_TIMBER_CULTURE_ACT = 9;
-    const EVENT_WARTIME_DEMAND     = 10;
-    const EVENT_MIGRANT_WORKERS    = 18;
-    const EVENT_RAILROAD_CONTRACTS = 19;
-    const EVENT_INDUSTRIALIZATION  = 22;
-    const EVENT_NELSON_ACT         = 25;
+    const EVENT_MIGRANT_WORKERS    = 6;
+    const EVENT_RAILROAD_CONTRACTS = 7;
+    const EVENT_INDUSTRIALIZATION  = 13;
+    const EVENT_SHARECROPPING      = 15;
+    const EVENT_STATE_FAIR         = 16;
+    const EVENT_TIMBER_CULTURE_ACT = 18;
+    const EVENT_WARTIME_DEMAND     = 19;
+    const EVENT_NELSON_ACT         = 23;
 
     const ALREADY_BUILT = 9;
     const UNAFFORDABLE = 10;
