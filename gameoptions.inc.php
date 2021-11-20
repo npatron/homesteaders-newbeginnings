@@ -26,13 +26,13 @@
 
 $game_options = array(
 
-    SHOW_PLAYER_INFO => array(
+    100 => array(
         'name' => totranslate('show or hide resources'),
         'values' => array(
-            SHOW_ALL_RESOURCES => array(
+            0 => array(
                 'name' => totranslate('show all player resources'),
             ),
-            HIDE_ALL_RESOURCES => array(
+            1 => array(
                 'name' => totranslate('hide resources from other players'),
                 'description' => totranslate('hide player resources from other players'),
                 'tmdisplay' => totranslate('hide other player resources'),
@@ -41,46 +41,48 @@ $game_options = array(
         ),
     ),
 
-    RAIL_NO_BUILD => array(
+    101 => array(
         'name' => totranslate('Receive Rail Line if No Build'),
         'values' => array(
-            DISABLED => array(
-                'name' => totranslate('normal no-build rule')),
-            ENABLED => array(
-                'name' => totranslate('Recieve a rail line when passing on build building (recommended for 5 player)'),
-                'tmdisplay' => totranslate('Rail line on no-build'),
+            0 => array(
+                'name' => totranslate('Receive Nothing If Do Not Build'),
+                'tmdisplay' => totranslate('Nothing on No-Build')),
+            1 => array(
+                'name' => totranslate('Receive a Rail Line When Do Not bBuild (Recommended for 5 player)'),
+                'tmdisplay' => totranslate('Rail Line on no-build'),
             ),
         ),
     ),
 
-    NEW_BEGINNING_BLD => array(
+    110 => array(
         'name' => totranslate('New Beginnings Buildings'),
         'values' => array(
-            DISABLED => array(
-                'name' => totranslate('do not use expansion buildings')),
-            ENABLED => array(//ENABLED
-                'name' => totranslate('use expansion buildings (required for 5 players)'),
+            0 => array(
+                'name' => totranslate('Disable Expansion Buildings')),
+            1 => array(//ENABLED
+                'name' => totranslate('Enable Expansion Buildings (required for 5 players)'),
                 'tmdisplay' => totranslate('New Beginnings Buildings'),
             ),
         ),
         'startcondition' => [
-            DISABLED=>[
+            0=>[
                 [
-                    'type' => 'minplayers',
-                    'value' => 5,
+                    'type' => 'maxplayers',
+                    'value' => 4,
                     'message' => totranslate('New Beginnings Buildings are required for 5 player')
                 ],
             ],
         ],
     ),
     
-    NEW_BEGINNING_EVT => array(
+    111 => array(
         'name' => totranslate('Expansion Events'),
         'values' => array(
-            DISABLED => array(
-                'name' => totranslate('do not use Events')),
-            ENABLED => array(
-                'name' => totranslate('Use New Beginnings Events'),
+            0 => array(
+                'name' => totranslate('Disable New Beginnings Events'),
+                'tmdisplay' => totranslate('No Events')),
+            1 => array(
+                'name' => totranslate('Enable New Beginnings Events'),
                 'tmdisplay' => totranslate('Use New Beginnings Events'),
             ),
         ),
@@ -93,8 +95,13 @@ $game_preferences = array(
 			'name' => totranslate('Show Tile Art'),
 			'needReload' => true, // after user changes this preference game interface would auto-reload
 			'values' => array(
-					0 => array( 'name' => totranslate( 'Show Art' ), 'cssPref' => 'Show Tile Art' ),
-					1 => array( 'name' => totranslate( 'Show Text instead' ), 'cssPref' => 'Show Text Instead' )
+					0 => array( 
+                        'name' => totranslate( 'Show Art' ), 
+                        'cssPref' => totranslate('Show Tile Art') ),
+					1 => array( 
+                        'name' => totranslate( 'Show Text instead' ), 
+                        'cssPref' => totranslate('Show Text Instead') 
+                    ),
 			)
 	)
 );
