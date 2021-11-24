@@ -132,7 +132,7 @@ class HSDEvents extends APP_GameClass
     }
 
     function isAuctionAffected($auction = null) {
-        if (!$this->getEventAucB()) return false;
+        if (!$this->eventAucBonus()) return false;
         $auction = (is_null($auction)?$this->game->getGameStateValue('current_auction'):$auction);
         if ($auction ==1) { 
             return true;
@@ -376,7 +376,7 @@ class HSDEvents extends APP_GameClass
     function setupEventLotBonus(){
         $next_state = "done";
         if ($this->isAuctionAffected()) {
-            $event = $this->getEventAucB();
+            $event = $this->getEvent();
             switch($event){
                 case EVENT_WESTERN_PACIFIC_RR:
                     break;

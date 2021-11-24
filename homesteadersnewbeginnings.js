@@ -5031,14 +5031,14 @@ function (dojo, declare) {
 
         workerForFreeEvent: function() {
             if (this.checkAction( 'eventBonus' )){
-                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/freeHireWorkerEvent.html", {lock: true, lot:false}, this, 
+                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/freeHireWorkerEvent.html", {lock: true}, this, 
                 function( result) {this.changeStateCleanup();}, function( is_error) { } );
             }
         },
 
         workerForFreeLotEvent: function() {
             if (this.checkAction( 'eventLotBonus' )){
-                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/freeHireWorkerEvent.html", {lock: true, lot:true}, this, 
+                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/freeHireWorkerEvent.html", {lock: true}, this, 
                 function( result) {this.changeStateCleanup();}, function( is_error) { } );
             }
         },

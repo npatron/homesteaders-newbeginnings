@@ -330,12 +330,7 @@ class action_homesteadersnewbeginnings extends APP_GameAction
 
   public function freeHireWorkerEvent (){
     self::setAjaxMode( );
-    $lot = self::getArg( "lot", AT_bool, true);
-    if ($lot){//active player
-      $this->game->playerFreeHireWorkerEvent();
-    } else {//current player
-      $this->game->playerFreeHireWorkerEvent();
-    }
+    $this->game->playerFreeHireWorkerEvent();
     self::ajaxResponse( );
   }
 

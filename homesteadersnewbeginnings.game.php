@@ -554,19 +554,19 @@ class homesteadersnewbeginnings extends Table
     /***** Event Bonus *****/
     public function playerFreeHireWorkerEvent ( ) 
     {
-        $this->checkAction( "eventBonus" );
-        
-        if (!$this->Event->isAuctionAffected()){
-            throw new BgaVisibleSystemException ( clienttranslate("Free Hire Worker called, but there is no event bonus"));
-        }
         $event = $this->Event->getEvent();
         switch ($event){
             case EVENT_MIGRANT_WORKERS:
+                $this->checkAction( "eventLotBonus" );
+                if (!$this->Event->isAuctionAffected()){
+                    throw new BgaVisibleSystemException ( clienttranslate("Free Hire Worker called, but there is no event bonus"));
+                }
                 $act_p_id = $this->getActivePlayerId();
                 $this->Resource->addWorkerAndNotify($act_p_id, $this->event_info[$event]['name']);
-                $this->game->nextState('done');
+                $this->gamestate->nextState('done');
             break;
             case EVENT_BANK_FAVORS:
+                $this->checkAction( "eventBonus" );
                 $cur_p_id = $this->getCurrentPlayerId();
                 $this->Resource->addWorkerAndNotify($cur_p_id, $this->event_info[$event]['name']);
                 $this->gamestate->setPlayerNonMultiactive($cur_p_id, "");
