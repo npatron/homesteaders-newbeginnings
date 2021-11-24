@@ -279,6 +279,11 @@ a#tgl_future_bld{
    width: 180px;
    order: 6;
 }
+a#tgl_discard{
+   height: 17px;
+   width: 180px;
+   order: 7;
+}
 #top_texts {
    order: 0;
 }

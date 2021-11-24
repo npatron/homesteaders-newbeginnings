@@ -146,19 +146,22 @@
         <a href="#" id="undo_last_trade_btn" class="bgabutton bgabutton_red noshow"><span id='undoLastTrade' class="font">{UNDO_LAST_TRADE}</span></a>
         <a href="#" id="undo_trades_btn" class="bgabutton bgabutton_red noshow"><span id='undoTrade' class="font">{UNDO_TRADE}</span></a>
         <a href="#" id="tgl_main_bld" class="bgabutton bgabutton_gray">
-            <span id="bld_main" class="font">{BUILDING_STOCK}</span>
+            <span id="bld_main" class="font">{BUILDING_STOCK_TOGGLE}</span>
         </a>
         <a href="#" id="tgl_events" class="bgabutton bgabutton_gray">
-            <span id="evt_main" class="font">{EVENT_STOCK}</span>
+            <span id="evt_main" class="font">{EVENT_STOCK_TOGGLE}</span>
         </a>
         <a href="#" id="tgl_future_auc" class="bgabutton bgabutton_gray">
-            <span id='auc_future' class="font">{FUTURE_AUCTION}</span>
+            <span id='auc_future' class="font">{FUTURE_AUCTION_TOGGLE}</span>
         </a>
         <a href="#" id="tgl_future_bld" class="bgabutton bgabutton_gray">
-            <span id="bld_future" class="font">{FUTURE_BUILDING}</span>
+            <span id="bld_future" class="font">{FUTURE_BUILDING_TOGGLE}</span>
         </a>
         <a href="#" id="tgl_past_bld" class="bgabutton bgabutton_gray">
-            <span id="bld_discard" class="font">{BUILDING_DISCARD}</span>
+            <span id="bld_discard" class="font">{BUILDING_DISCARD_TOGGLE}</span>
+        </a>
+        <a href="#" id="tgl_discard" class="bgabutton bgabutton_gray">
+            <span id="gen_discard" class="font">{EVENT_DISCARD_TOGGLE}</span>
         </a>
         
     </div>
@@ -217,8 +220,8 @@
         <span class="biggerFont">{EVENTS}</span>
         <div id="events_zone" class="main_event_zone"> </div>
     </div>
-    <div id="discard_container" class="whiteblock event_container border_black">
-        <span class="biggerFont">{DISCARD}</span>
+    <div id="discard_container" class="whiteblock event_container border_black noshow">
+        <span class="biggerFont">{EVENTS_DISCARD}</span>
         <div id="discard_zone" class="main_event_zone"> </div>
     </div>
     <div id="main_building_container" class="whiteblock building_container border_black">

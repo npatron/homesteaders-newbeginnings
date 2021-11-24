@@ -86,11 +86,13 @@ $this->translation_strings = array(
   17=> clienttranslate('Show Upcoming Auctions'), 
   18=> clienttranslate('Show Building Discard'),
   19=> clienttranslate('Show Events'),
-  20=> clienttranslate('Hide Upcoming Buildings'), 
-  21=> clienttranslate('Hide Current Buildings'),
-  22=> clienttranslate('Hide Upcoming Auctions'), 
-  23=> clienttranslate('Hide Building Discard'),
-  24=> clienttranslate('Hide Events'),
+  20=> clienttranslate('Show Events Discard'),
+  25=> clienttranslate('Hide Upcoming Buildings'), 
+  26=> clienttranslate('Hide Current Buildings'),
+  27=> clienttranslate('Hide Upcoming Auctions'), 
+  28=> clienttranslate('Hide Building Discard'),
+  29=> clienttranslate('Hide Events'),
+  30=> clienttranslate('Hide Events Discard'),
 );
 
 $this->resource_info = array(

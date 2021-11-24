@@ -572,7 +572,7 @@ function (dojo, declare) {
             this.setupBuildings(gamedatas.buildings);
             this.setupTracks(gamedatas.tracks);
             if (this.use_events){
-                this.createEventCards();
+                this.createEventCards(gamedatas.round_number);
                 this.updateEventBanner(gamedatas.round_number);
             }
             
@@ -1056,6 +1056,7 @@ function (dojo, declare) {
             dojo.connect($(TOGGLE_BTN_ID[BLD_LOC_DISCARD]),  'onclick', this, 'toggleShowBldDiscard');
             dojo.connect($(TOGGLE_BTN_ID[BLD_LOC_FUTURE]),  'onclick', this, 'toggleShowBldFuture');
             dojo.connect($(TOGGLE_BTN_ID[EVT_LOC_MAIN]),  'onclick', this, 'toggleShowEvents');
+            dojo.connect($(TOGGLE_BTN_ID[GEN_LOC_DISCARD]),  'onclick', this, 'toggleShowDiscard');
             this.showHideButtons();
         },
 
@@ -1727,15 +1728,17 @@ function (dojo, declare) {
         },
 
         /***** events utils ******/
-        createEventCards: function(){
+        createEventCards: function(current_round){
             for (let i in this.events){
                 let event = EVENT_INFO[this.events[i].e_id];
                 //do a thing for each event...
+                
+                let destination_loc = (Number(this.events[i].position) >= current_round)?TILE_ZONE_DIV_ID[EVT_LOC_MAIN]:TILE_ZONE_DIV_ID[GEN_LOC_DISCARD]
                 dojo.place(this.format_block('jptpl_evt_tt', 
                     {'pos': this.events[i].position, 
                     TITLE: _("Round ") + this.events[i].position + ":<br>" + this.replaceTooltipStrings(event.name), 
                     DESC: this.replaceTooltipStrings(event.tt)}), 
-                    TILE_ZONE_DIV_ID[EVT_LOC_MAIN],'last');
+                    destination_loc,'last');
             }
         },
 
@@ -3874,7 +3877,7 @@ function (dojo, declare) {
 
         showTileZone: function(index){
             if(dojo.hasClass(TILE_CONTAINER_ID[index], 'noshow')){
-                var translatedString = _(ASSET_STRINGS[index+20]);
+                var translatedString = _(ASSET_STRINGS[index+25]);
                 $(TOGGLE_BTN_STR_ID[index]).innerText = translatedString;
                 dojo.removeClass(TILE_CONTAINER_ID[index], 'noshow');
             }
@@ -3908,6 +3911,11 @@ function (dojo, declare) {
             evt.preventDefault();
             dojo.stopEvent( evt );
             this.toggleShowButton(EVT_LOC_MAIN);
+        },
+        toggleShowDiscard: function (evt ){
+            evt.preventDefault();
+            dojo.stopEvent( evt );
+            this.toggleShowButton(GEN_LOC_DISCARD);
         },
 
         /***** PLACE WORKERS PHASE *****/
@@ -4415,7 +4423,7 @@ function (dojo, declare) {
         updateBuildingAffordability: function(showIncomeCost = false){
             //console.log('updateBuildingAffordability');
             if (this.isSpectator) return;
-            let buildings = dojo.query(`#${TILE_CONTAINER_ID[0]} .${TPL_BLD_TILE}, #${TILE_CONTAINER_ID[1]} .${TPL_BLD_TILE}`);
+            let buildings = dojo.query(`#${TILE_CONTAINER_ID[BLD_LOC_FUTURE]} .${TPL_BLD_TILE}, #${TILE_CONTAINER_ID[BLD_LOC_OFFER]} .${TPL_BLD_TILE}`);
             for (let i in buildings){
                 let bld_html= buildings[i];
                 if (bld_html.id == null) continue;

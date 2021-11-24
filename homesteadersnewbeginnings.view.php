@@ -48,13 +48,17 @@
         $this->tpl['CONFIRM_TRADE']    = self::_("Confirm Trade");
         $this->tpl['UNDO_TRADE']       = self::_("Undo All Trade/Dept");
         $this->tpl['UNDO_LAST_TRADE']  = self::_("Undo Last Trade/Dept");
-        $this->tpl['FUTURE_AUCTION']   = self::_("Show Upcoming Auctions");
-        $this->tpl['BUILDING_STOCK']   = self::_("Hide Current Buildings");
-        $this->tpl['EVENT_STOCK']      = self::_("Hide Events");
-        $this->tpl['BUILDING_DISCARD'] = self::_("Show Building Discard");
-        $this->tpl['FUTURE_BUILDING']  = self::_('Show Upcoming Buildings');
+        $this->tpl['BUILDING_DISCARD'] = self::_("Building Discard");
+        $this->tpl['FUTURE_BUILDING']  = self::_('Upcoming Buildings');
         $this->tpl['EVENTS']           = self::_("Events");
-        $this->tpl['DISCARD']          = self::_("Discard");
+        $this->tpl['EVENTS_DISCARD']          = self::_("Events Discard");
+        
+        $this->tpl['FUTURE_AUCTION_TOGGLE']   = self::_("Show Upcoming Auctions");
+        $this->tpl['BUILDING_STOCK_TOGGLE']   = self::_("Hide Current Buildings");
+        $this->tpl['EVENT_STOCK_TOGGLE']      = self::_("Hide Events");
+        $this->tpl['BUILDING_DISCARD_TOGGLE'] = self::_("Show Building Discard");
+        $this->tpl['FUTURE_BUILDING_TOGGLE']  = self::_('Show Upcoming Buildings');
+        $this->tpl['EVENT_DISCARD_TOGGLE']   = self::_("Show Events Discard");
 
         $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "this_player_zone" );
         $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "player_zone" );
