@@ -311,8 +311,8 @@ $machinestates = array(
 
     STATE_EVT_CHOICE => array(
         "name" => "bonusChoice_lotEvent",
-        "description" => clienttranslate('${actplayer} may receive a bonus'),
-        "descriptionmyturn" => clienttranslate('${you} may receive a bonus'),
+        "description" => clienttranslate('${actplayer} may receive event bonus'),
+        "descriptionmyturn" => clienttranslate('${you} may receive event bonus'),
         "descriptionalternate" => clienttranslate('${actplayer} may pay to build again'),
         "descriptionmyturnalternate" => clienttranslate('${you} may pay to build again'),
         "type" => "activeplayer",

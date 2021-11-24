@@ -582,7 +582,7 @@ class homesteadersnewbeginnings extends Table
         if (!$this->Event->isAuctionAffected()){
             throw new BgaVisibleSystemException ( clienttranslate("trade 2 Silver for track called, but there is no event bonus"));
         }
-        $evt_b = $this->Event->getEventAucB();
+        $evt_b = $this->Event->getEvent();
         if ($evt_b != EVENT_RAILROAD_CONTRACTS) {
             throw new BgaVisibleSystemException ( sprintf(clienttranslate("trade 2 Silver for track called, but event bonus is %s"), $evt_b));
         }
@@ -803,11 +803,11 @@ class homesteadersnewbeginnings extends Table
     }
 
     function argEventBuildBonus() {
-        $bonus_option = $this->Event->getEventAucB();
+        $bonus_option = $this->Event->getEvent();
         if ($bonus_option == EVENT_INDUSTRIALIZATION){
             return array('event_bonus'=>$bonus_option, 'alternate'=>true);
         }
-        return array('event_bonus'=>$bonus_option);
+        return array('bonus_option'=>$bonus_option);
     }
 
     function argEventPay(){
@@ -847,7 +847,7 @@ class homesteadersnewbeginnings extends Table
 
     function argLotChooseAction() {
         return array("lot_state"=>$this->getGameStateValue("lot_state"),
-                     "event_bonus"=> $this->Event->getEventAucB(),
+                     "event_bonus"=> $this->Event->getEvent(),
                      "build_type_int"=>$this->getGameStateValue('build_type_int'),
                      "auction_bonus"=>$this->Auction->getCurrentAuctionBonus(),);
     }
@@ -868,7 +868,7 @@ class homesteadersnewbeginnings extends Table
     }
 
     function argEventBuildings() {
-        $event_bonus = $this->Event->getEventAucB();
+        $event_bonus = $this->Event->getEvent();
         $build_type_int = $this->getGameStateValue('build_type_int');
         $build_type_options = $this->Building->buildTypeIntIntoArray($build_type_int);      
         $buildings =  $this->Building->getAllowedBuildings($build_type_options);
@@ -879,11 +879,25 @@ class homesteadersnewbeginnings extends Table
     function argsEventPreTrade() {
         $cur_p_id = $this->getCurrentPlayerId();
         $bonus_id = $this->Event->getEvent();
-        if ($bonus_id == EVENT_STATE_FAIR){
-            $hidden = $this->Log->getHiddenTrades($cur_p_id);
+        switch($bonus_id){
+            case EVENT_STATE_FAIR:
+                $hidden = $this->Log->getHiddenTrades($cur_p_id);
+                return array('bonus_id' =>$bonus_id, 
+                             '_private' => $hidden,
+                             'hidden'=> true);
+            case EVENT_EAGER_INVESTORS:
+            case EVENT_TIMBER_CULTURE_ACT:
+                return array('bonus_id' =>$bonus_id, 
+                             '_private' => array(),
+                             'pre_trade'=> true);
+            case EVENT_WARTIME_DEMAND:
+                return array('bonus_id' =>$bonus_id, 
+                             '_private' => array(),
+                             'sell_free'=> true);
+            default:
+                return array('bonus_id' =>$bonus_id, 
+                             '_private' => array());
         }
-        return array('bonus_id' =>$bonus_id, 
-                     '_private' => $hidden??array(),);
     }
 
     function argBuildingBonus() {

@@ -54,6 +54,7 @@
         $this->tpl['BUILDING_DISCARD'] = self::_("Show Building Discard");
         $this->tpl['FUTURE_BUILDING']  = self::_('Show Upcoming Buildings');
         $this->tpl['EVENTS']           = self::_("Events");
+        $this->tpl['DISCARD']          = self::_("Discard");
 
         $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "this_player_zone" );
         $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "player_zone" );

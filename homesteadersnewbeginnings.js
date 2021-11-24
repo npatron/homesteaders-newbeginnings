@@ -74,30 +74,39 @@ function (dojo, declare) {
     const VP_B_SPECIAL = 3; 
     const VP_B_WORKER = 4; 
     const VP_B_TRACK = 5; 
-    const VP_B_BUILDING = 6;
+    const VP_B_BUILDING = 6; // 
     const VP_B_WRK_TRK = 7; //Workers & TRACK Bonus
-    const VP_B_PAID_LOAN = 8;
+    const VP_B_PAID_LOAN = 8; // post office
 
-    const BLD_LOC_FUTURE  = 0;
-    const BLD_LOC_OFFER   = 1;
-    const BLD_LOC_PLAYER  = 2;
-    const BLD_LOC_DISCARD = 3;
-    const AUC_LOC_FUTURE  = 2;
-    const EVT_LOC_MAIN    = 4;
+    // indexes for location (in _ID arrays)
+        // SQL `building` `location` map
+            const BLD_LOC_FUTURE  = 0;
+            const BLD_LOC_OFFER   = 1;
+            const BLD_LOC_PLAYER  = 2; // <-- not used in _ID arrays
+            const BLD_LOC_DISCARD = 3;
+        const AUC_LOC_FUTURE  = 2;
+        const EVT_LOC_MAIN    = 4;
+        const GEN_LOC_DISCARD = 5;
 
-    const LOT_STATE_BUILD     = 1;
-    const LOT_STATE_AUC_BONUS = 2;
-    const LOT_STATE_EVT_BONUS = 4;
+    // arrays for the map between toggle buttons and show/hide zones 
+        const TOGGLE_BTN_ID     = ['tgl_future_bld', 'tgl_main_bld', 'tgl_future_auc', 'tgl_past_bld', 'tgl_events', 'tgl_discard'];
+        const TOGGLE_BTN_STR_ID = ['bld_future', 'bld_main', 'auc_future', 'bld_discard', 'evt_main', 'gen_discard'];
+        const TILE_CONTAINER_ID = ['future_building_container', 'main_building_container', 'future_auction_container', 'past_building_container', 'events_container', 'discard_container'];
+        const TILE_ZONE_DIV_ID  = ['future_building_zone', 'main_building_zone', 'future_auction_1', 'past_building_zone', 'events_zone', 'discard_zone'];
 
-    // building ID's required for trade
-    const BLD_MARKET = 7;
-    const BLD_GENERAL_STORE = 14;
-    const BLD_RIVER_PORT = 17;
-    const BLD_BANK   = 22;
-    const BLD_RODEO  = 26;
-    const BLD_LUMBER_MILL = 36;
-    const BLD_WAREHOUSE = 40;
-    const BLD_POST_OFFICE = 41;
+    /* ***** LOT STATE Bitwise Mapping ***** */
+        const LOT_STATE_BUILD     = 1;
+        const LOT_STATE_AUC_BONUS = 2;
+        const LOT_STATE_EVT_BONUS = 4;
+
+    /* ***** building ID's required for trade ***** */
+        const BLD_MARKET = 7;
+        const BLD_GENERAL_STORE = 14;
+        const BLD_RIVER_PORT = 17;
+        const BLD_BANK   = 22;
+        const BLD_RODEO  = 26;
+        const BLD_LUMBER_MILL = 36;
+        const BLD_WAREHOUSE = 40;
 
     /* ***** string templates for dynamic assets ***** */
         const TPL_BLD_TILE  = "building_tile";
@@ -106,13 +115,16 @@ function (dojo, declare) {
         const TPL_BLD_CLASS = "build_tile_";
         const TPL_AUC_TILE  = "auction_tile";
         const TPL_AUC_ZONE  = "auction_tile_zone_";
+        const TPL_EVT_TILE  = "event_tile";
+        const TPL_EVT_ZONE  = "event_tile_zone_";
         const FIRST_PLAYER_ID = 'first_player_tile';
 
-    // allocate workers
-    const BTN_ID_CONFIRM_WORKERS = 'btn_confirm_workers'; 
-    const METHOD_CONFIRM_WORKERS = 'donePlacingWorkers';
-    const MESSAGE_CONFIRM_WORKERS = "Confirm ${worker} Placement";
-    const MESSAGE_CONFIRM_WORKERS_TRADES = "Confirm Trade(s) & ${worker} Placement";
+    /* ***** allocate workers ***** */
+        const BTN_ID_CONFIRM_WORKERS = 'btn_confirm_workers'; 
+        const METHOD_CONFIRM_WORKERS = 'donePlacingWorkers';
+        const MESSAGE_CONFIRM_WORKERS = "Confirm ${worker} Placement";
+        const MESSAGE_CONFIRM_WORKERS_TRADES = "Confirm Trade(s) & ${worker} Placement";
+
     /* ***** common buttons ***** */
         const BTN_ID_UNDO_PASS    = 'btn_undo_pass';
         // 'onUnPass_preEventTrade', 'onUndoBidPass', 'onUnPass_endGameActions' 
@@ -250,143 +262,138 @@ function (dojo, declare) {
 
     
 
-    /*** Choose Lot Action ***/
-    const BTN_LOT_ACTION_BUILD  = 'btn_build';
-    const METHOD_LOT_ACTION_BUILD  = 'lotGoToBuild';
-    const BTN_LOT_ACTION_EVENT  = 'btn_event';
-    const METHOD_LOT_ACTION_EVENT  = 'lotGoToEvent';
-    const BTN_LOT_ACTION_AUCTION  = 'btn_auction';
-    const METHOD_LOT_ACTION_AUCTION  = 'lotGoToAuction';
-    const BTN_LOT_ACTION_PASS  = 'btn_pass';
-    const METHOD_LOT_ACTION_PASS  = 'lotGoToConfirm';
+    /* ** Choose Lot Action ** */
+        const BTN_LOT_ACTION_BUILD  = 'btn_build';
+        const METHOD_LOT_ACTION_BUILD  = 'lotGoToBuild';
+        const BTN_LOT_ACTION_EVENT  = 'btn_event';
+        const METHOD_LOT_ACTION_EVENT  = 'lotGoToEvent';
+        const BTN_LOT_ACTION_AUCTION  = 'btn_auction';
+        const METHOD_LOT_ACTION_AUCTION  = 'lotGoToAuction';
+        const BTN_LOT_ACTION_PASS  = 'btn_pass';
+        const METHOD_LOT_ACTION_PASS  = 'lotGoToConfirm';
 
-    const BTN_ID_AUCTION_DONE_TRADING = 'btn_done_trading_auction';
-    const METHOD_AUCTION_DONE_TRADING = 'doneTradingAuction';
-    const BTN_ID_UNDO_SELL_AUCTION = 'btn_undo_trades_sell_auction';
-    const METHOD_UNDO_SELL_AUCTION = 'undoTransactionsButton_sellAuction';
+    /* *** Client state - Sell: Action ** */
+        const BTN_ID_AUCTION_DONE_TRADING = 'btn_done_trading_auction';
+        const METHOD_AUCTION_DONE_TRADING = 'doneTradingAuction';
+        const BTN_ID_UNDO_SELL_AUCTION = 'btn_undo_trades_sell_auction';
+        const METHOD_UNDO_SELL_AUCTION = 'undoTransactionsButton_sellAuction';
 
-    /*** Build Building ***/
-    const BTN_ID_BUILD_BUILDING = 'btn_choose_building';
-    const METHOD_BUILD_BUILDING = 'chooseBuilding';
-    const BUILDING_NAME_ID    = 'bld_name';
-    const BTN_ID_DO_NOT_BUILD = 'btn_do_not_build'; 
-       // 'doNotBuild'
-    const MESSAGE_DO_NOT_BUILD = "Do Not Build";
-    const MESSAGE_DO_NOT_BUILD_ALT = "Do Not Build (Get ${track} instead)";
-    /**  build building cost replacement **/
-    const REPLACER_ZONE_ID   = 'replacers';
-    const BTN_ID_GOLD_COW    = 'btn_gold_cow';      // riverport
-    const METHOD_GOLD_COW    = 'toggleGoldAsCow';   // riverport 
-    const BTN_ID_GOLD_COPPER = 'btn_gold_copper';   // riverport
-    const METHOD_GOLD_COPPER = 'toggleGoldAsCopper';// riverport
-    const BTN_ID_MORE_STEEL  = 'btn_more_steel'; // lumbermill
-    const METHOD_MORE_STEEL  = 'raiseWoodSteel'; // lumbermill
-    const BTN_ID_LESS_STEEL  = 'btn_less_steel'; // lumbermill
-    const METHOD_LESS_STEEL  = 'lowerWoodSteel'; // lumbermill
-    /** Pay cost update buttons */
-    const BTN_ID_MORE_GOLD = 'btn_more_gold';
-    const METHOD_MORE_GOLD = 'raiseGold';
-    const PAY_GOLD_TEXT    = 'pay_gold';
-    const PAY_GOLD_TOKEN   = 'pay_gold_tkn';
-    const BTN_ID_LESS_GOLD = 'btn_less_gold';
-    const METHOD_LESS_GOLD = 'lowerGold';
-    const PAY_SILVER_TEXT  = 'pay_silver';
-    const PAY_SILVER_TOKEN = 'pay_silver_tkn';
-    const BTN_ID_PAY_DONE  = 'btn_pay_done';
-    const METHOD_DONE_PAY  = 'donePay';
+    /* ** Build Building ** */
+        const BTN_ID_BUILD_BUILDING = 'btn_choose_building';
+        const METHOD_BUILD_BUILDING = 'chooseBuilding';
+        const BUILDING_NAME_ID    = 'bld_name';
+        const BTN_ID_DO_NOT_BUILD = 'btn_do_not_build'; 
+        // 'doNotBuild'
+        const MESSAGE_DO_NOT_BUILD = "Do Not Build";
+        const MESSAGE_DO_NOT_BUILD_ALT = "Do Not Build (Get ${track} instead)";
+    /* *  build building cost replacement * */
+        const REPLACER_ZONE_ID   = 'replacers';
+        const BTN_ID_GOLD_COW    = 'btn_gold_cow';      // riverport
+        const METHOD_GOLD_COW    = 'toggleGoldAsCow';   // riverport 
+        const BTN_ID_GOLD_COPPER = 'btn_gold_copper';   // riverport
+        const METHOD_GOLD_COPPER = 'toggleGoldAsCopper';// riverport
+        const BTN_ID_MORE_STEEL  = 'btn_more_steel'; // lumbermill
+        const METHOD_MORE_STEEL  = 'raiseWoodSteel'; // lumbermill
+        const BTN_ID_LESS_STEEL  = 'btn_less_steel'; // lumbermill
+        const METHOD_LESS_STEEL  = 'lowerWoodSteel'; // lumbermill
+    /* * Pay cost update buttons * */
+        const BTN_ID_MORE_GOLD = 'btn_more_gold';
+        const METHOD_MORE_GOLD = 'raiseGold';
+        const PAY_GOLD_TEXT    = 'pay_gold';
+        const PAY_GOLD_TOKEN   = 'pay_gold_tkn';
+        const BTN_ID_LESS_GOLD = 'btn_less_gold';
+        const METHOD_LESS_GOLD = 'lowerGold';
+        const PAY_SILVER_TEXT  = 'pay_silver';
+        const PAY_SILVER_TOKEN = 'pay_silver_tkn';
+        const BTN_ID_PAY_DONE  = 'btn_pay_done';
+        const METHOD_DONE_PAY  = 'donePay';
     
-    /*** Endgame buttons ***/
-    const BTN_ID_DONE             = 'btn_done'; // endgame
-    const METHOD_ENDGAME_DONE     = 'doneEndgameActions';
-    const BTN_ID_PAY_LOAN_SILVER  = 'btn_pay_loan_silver';
-    const METHOD_PAY_LOAN_SILVER  = 'payLoanSilver'; 
-    const PAY_LOAN_SILVER_ARR     = {'silver':-5,'loan':-1};
-    const BTN_ID_PAY_LOAN_GOLD    = 'btn_pay_loan_gold';
-    const METHOD_PAY_LOAN_GOLD    = 'payLoanGold';
-    const PAY_LOAN_GOLD_ARR       = {'gold':-1,'loan':-1};
+    /* ** Endgame buttons ** */
+        const BTN_ID_DONE             = 'btn_done';
+        const METHOD_ENDGAME_DONE     = 'doneEndgameActions';
+        const BTN_ID_PAY_LOAN_SILVER  = 'btn_pay_loan_silver';
+        const METHOD_PAY_LOAN_SILVER  = 'payLoanSilver'; 
+        const PAY_LOAN_SILVER_ARR     = {'silver':-5,'loan':-1};
+        const BTN_ID_PAY_LOAN_GOLD    = 'btn_pay_loan_gold';
+        const METHOD_PAY_LOAN_GOLD    = 'payLoanGold';
+        const PAY_LOAN_GOLD_ARR       = {'gold':-1,'loan':-1};
 
 
-    // transaction constants
-    const BUY               = 1;
-    const SELL              = 2;
-    const MARKET            = 3;
-    const BANK              = 4;
-    const TAKE_LOAN         = 5;
-    const PAY_LOAN_GOLD     = 6;
-    const PAY_LOAN_SILVER   = 7;
-    const PAY_LOAN_SILVER_3 = 8;
-    const PAY_LOAN_FOOD     = 9;
-
-    // arrays for the map between toggle buttons and show/hide zones 
-    const TOGGLE_BTN_ID     = ['tgl_future_bld', 'tgl_main_bld', 'tgl_future_auc', 'tgl_past_bld', 'tgl_events'];
-    const TOGGLE_BTN_STR_ID = ['bld_future', 'bld_main', 'auc_future', 'bld_discard', 'evt_main'];
-    const TILE_CONTAINER_ID = ['future_building_container', 'main_building_container', 'future_auction_container', 'past_building_container', 'events_container'];
-    const TILE_ZONE_DIVID   = ['future_building_zone', 'main_building_zone', 'future_auction_1', 'past_building_zone', 'events_zone'];
-
-    const TRADE_MAP = {'buy_wood':0,  'buy_food':1,  'buy_steel':2, 'buy_gold':3, 'buy_copper':4, 'buy_cow':5,
-                        'sell_wood':6, 'sell_food':7, 'sell_steel':8, 'sell_gold':9, 'sell_copper':10, 'sell_cow':11, 
-                        'market_food':12, 'market_steel':13, 'bank':14, 'loan':15, 
-                        'payLoan_silver':16, 'payLoan_gold':17,'payLoan_3silver':18, 'payLoan_food':19,
-                        'sellfree_wood':20, 'sellfree_food':21, 'sellfree_steel':22, 'sellfree_gold':23, 'sellfree_copper':24, 'sellfree_cow':25, };
-
+    /* ** transaction constants ** */
+        const BUY               = 1;
+        const SELL              = 2;
+        const MARKET            = 3;
+        const BANK              = 4;
+        const TAKE_LOAN         = 5;
+        const PAY_LOAN_GOLD     = 6;
+        const PAY_LOAN_SILVER   = 7;
+        const PAY_LOAN_SILVER_3 = 8;
+        const PAY_LOAN_FOOD     = 9;
     
-    const WAREHOUSE_RES_ID = 'warehouse_resources';
-    const WAREHOUSE_DESCRIPTION_ID = 'warehouse_description';
-    const BONUS_OPTIONS = { 7:'train_bonus_1_trade', 8:'train_bonus_2_track', 9:'train_bonus_3_worker',
-        1:'train_bonus_4_wood', 5:'train_bonus_4_food', 2:'train_bonus_4_steel', 3:'train_bonus_4_gold',
-        4:'train_bonus_4_copper', 6:'train_bonus_4_cow', 10:'train_bonus_5_vp'};
+        const TRADE_MAP = {'buy_wood':0,  'buy_food':1,  'buy_steel':2, 'buy_gold':3, 'buy_copper':4, 'buy_cow':5,
+                           'sell_wood':6, 'sell_food':7, 'sell_steel':8, 'sell_gold':9, 'sell_copper':10, 'sell_cow':11, 
+                           'market_food':12, 'market_steel':13, 'bank':14, 'loan':15, 
+                           'payLoan_silver':16, 'payLoan_gold':17,'payLoan_3silver':18, 'payLoan_food':19,
+                           'sellfree_wood':20, 'sellfree_food':21, 'sellfree_steel':22, 'sellfree_gold':23, 'sellfree_copper':24, 'sellfree_cow':25, };
 
-        // trade id's (for "show trade")
-    const TRADE_BOARD_ID = 'trade_top';
-    const TRADE_ZONE_ID  = 'trades_zone';
-    const BUY_ZONE_ID    = 'buy_zone';
-    const BUY_TEXT_ID    = 'buy_text';
-    const SELL_ZONE_ID   = 'sell_zone';
-    const SELL_TEXT_ID   = 'sell_text';
-    const SPECIAL_ZONE_ID= 'special_zone';// market + bank
-    const MARKET_TEXT_ID = 'market_text';
-    const BANK_TEXT_ID   = 'bank_text';
+    /* ** warehouse buttons ** */
+        const WAREHOUSE_RES_ID = 'warehouse_resources';
+        const WAREHOUSE_DESCRIPTION_ID = 'warehouse_description';
+    /* ** bonus options mapping ** */
+        const BONUS_OPTIONS = { 7:'train_bonus_1_trade', 8:'train_bonus_2_track', 9:'train_bonus_3_worker',
+                                1:'train_bonus_4_wood', 5:'train_bonus_4_food', 2:'train_bonus_4_steel', 3:'train_bonus_4_gold',
+                                4:'train_bonus_4_copper', 6:'train_bonus_4_cow', 10:'train_bonus_5_vp'};
+
+    /* * trade id's (for "show trade") * */
+        const TRADE_BOARD_ID = 'trade_top';
+        const TRADE_ZONE_ID  = 'trades_zone';
+        const BUY_ZONE_ID    = 'buy_zone';
+        const BUY_TEXT_ID    = 'buy_text';
+        const SELL_ZONE_ID   = 'sell_zone';
+        const SELL_TEXT_ID   = 'sell_text';
+        const SPECIAL_ZONE_ID= 'special_zone';// market + bank
+        const MARKET_TEXT_ID = 'market_text';
+        const BANK_TEXT_ID   = 'bank_text';
 
     const TRADE_BOARD_ACTION_SELECTOR = `#${TRADE_BOARD_ID} .trade_option`;
     const TYPE_SELECTOR = {'bid':'.bid_slot', 'bonus':'.train_bonus', 'worker_slot':'.worker_slot',
-    'building':'.building_tile', 'worker':'.token_worker', 'trade':'.trade_option',
-    'track':'.token_track'};
+                           'building':'.building_tile', 'worker':'.token_worker', 
+                           'trade':'.trade_option', 'track':'.token_track'};
 
-    // other Auction Locations are the auction number (1-3).
-    const AUC_LOC_DISCARD = 0;
+    /* ** auction bonus map to constants ** */
+        const AUC_BONUS_NONE            = 0;
+        const AUC_BONUS_WORKER          = 1;
+        const AUC_BONUS_WORKER_RAIL_ADV = 2;
+        const AUC_BONUS_WOOD_FOR_TRACK  = 3;
+        const AUC_BONUS_COPPER_FOR_VP   = 4;
+        const AUC_BONUS_COW_FOR_VP      = 5;
+        const AUC_BONUS_6VP_AND_FOOD_VP = 6;
+        const AUC_BONUS_FOOD_FOR_VP     = 7;
+        // auc 4 events (expansion)
+        const AUC_BONUS_NO_AUCTION     = 8;
+        const AUC_BONUS_TRACK_RAIL_ADV = 9;
+        const AUC_BONUS_4DEPT_FREE     = 10;
+        const AUC_BONUS_3VP_SELL_FREE  = 11;
+    /* ** event id mapping ** */
+        const EVENT_EAGER_INVESTORS    = 4;
+        const EVENT_MIGRANT_WORKERS    = 6;
+        const EVENT_RAILROAD_CONTRACTS = 7;
+        const EVENT_INDUSTRIALIZATION  = 13;
+        const EVENT_SHARECROPPING      = 15;
+        const EVENT_STATE_FAIR         = 16;
+        const EVENT_TIMBER_CULTURE_ACT = 18;
+        const EVENT_WARTIME_DEMAND     = 19;
+        const EVENT_NELSON_ACT         = 23;
 
-    const AUC_BONUS_NONE            = 0;
-    const AUC_BONUS_WORKER          = 1;
-    const AUC_BONUS_WORKER_RAIL_ADV = 2;
-    const AUC_BONUS_WOOD_FOR_TRACK  = 3;
-    const AUC_BONUS_COPPER_FOR_VP   = 4;
-    const AUC_BONUS_COW_FOR_VP      = 5;
-    const AUC_BONUS_6VP_AND_FOOD_VP = 6;
-    const AUC_BONUS_FOOD_FOR_VP     = 7;
-    // auc 4 events (expansion)
-    const AUC_BONUS_NO_AUCTION     = 8;
-    const AUC_BONUS_TRACK_RAIL_ADV = 9;
-    const AUC_BONUS_4DEPT_FREE     = 10;
-    const AUC_BONUS_3VP_SELL_FREE  = 11;
+    /* ** notif and color variables ** */
+        const ALREADY_BUILT = 9;
+        const UNAFFORDABLE = 10;
+        const TRADEABLE    = 11;
+        const AFFORDABLE   = 12;
+        const COLOR_MAP = {9:'black', 10:'black', 11:'blue', 12:'darkgreen'};
+        const AFFORDABILITY_CLASSES = {9:'unaffordable', 10:'unaffordable', 11:'tradeable', 12:'affordable'}
 
-    const EVENT_EAGER_INVESTORS    = 4;
-    const EVENT_MIGRANT_WORKERS    = 6;
-    const EVENT_RAILROAD_CONTRACTS = 7;
-    const EVENT_INDUSTRIALIZATION  = 13;
-    const EVENT_SHARECROPPING      = 15;
-    const EVENT_STATE_FAIR         = 16;
-    const EVENT_TIMBER_CULTURE_ACT = 18;
-    const EVENT_WARTIME_DEMAND     = 19;
-    const EVENT_NELSON_ACT         = 23;
-
-    const ALREADY_BUILT = 9;
-    const UNAFFORDABLE = 10;
-    const TRADEABLE    = 11;
-    const AFFORDABLE   = 12;
-    const COLOR_MAP = {9:'black', 10:'black', 11:'blue', 12:'darkgreen'};
-    const AFFORDABILITY_CLASSES = {9:'unaffordable', 10:'unaffordable', 11:'tradeable', 12:'affordable'}
-
-    // only one with player action required
+    // only Build bonus with player action required
     const BUILD_BONUS_WORKER = 3; 
 
     const BID_VAL_ARR = [3,4,5,6,7,9,12,16,21];//note: starts at 0.
@@ -400,48 +407,55 @@ function (dojo, declare) {
     // map of tpl id's  used to place the player_zones in turn order.
     const PLAYER_ORDER = ['currentPlayer','First', 'Second', 'Third', 'Fourth',];
 
-    const TOKEN_HTML = [];
-    // zone control
-    const TRACK_TOKEN_ZONE  = [];
-    const WORKER_TOKEN_ZONE = [];
-    const TRAIN_TOKEN_ID = [];//indexed by p_id
-    const BID_TOKEN_ID = [];
+    /* *** TOKEN ARRAYS *** */
+        
+        /* *** html tokens *** */
+            const TOKEN_HTML = [];
 
-    // player_info
-    const PLAYER_COLOR            = [];
-    const PLAYER_SCORE_ZONE_ID    = [];
-    const PLAYER_BUILDING_ZONE_ID = [];
-    // PLAYER resources and score counters
-    const BOARD_RESOURCE_COUNTERS = [];
-    const POSITIVE_RESOURCE_COUNTERS = [];
-    const NEGATIVE_RESOURCE_COUNTERS = [];
-    const NEW_RESOURCE_COUNTERS = [];
-    const INCOME_ARRAY = []; // current round income (for updating breadcrumbs/offset).
+        /* zone control */
+            const TRACK_TOKEN_ZONE  = [];
+            const WORKER_TOKEN_ZONE = [];
+            const TRAIN_TOKEN_ID = [];//indexed by p_id
+            const BID_TOKEN_ID = [];
 
-    const SCORE_RESOURCE_COUNTERS = [];
-    const SCORE_LEFT_COUNTER = [];
-    const SCORE_RIGHT_COUNTER = [];
-    const BUILDING_CONNECT_HANDLER = [];
-    const TRADE_CONNECT_HANDLER = [];
+        /* player_info */
+            const PLAYER_COLOR            = [];
+            const PLAYER_SCORE_ZONE_ID    = [];
+            const PLAYER_BUILDING_ZONE_ID = [];
+        /* PLAYER resources and score counters */
+            const BOARD_RESOURCE_COUNTERS = [];
+            const POSITIVE_RESOURCE_COUNTERS = [];
+            const NEGATIVE_RESOURCE_COUNTERS = [];
+            const NEW_RESOURCE_COUNTERS = [];
+            const INCOME_ARRAY = []; // current round income (for updating breadcrumbs/offset).
 
-    const LAST_SELECTED = [];
+        /* ** Score counters ** */
+            const SCORE_RESOURCE_COUNTERS = [];
+            const SCORE_LEFT_COUNTER = [];
+            const SCORE_RIGHT_COUNTER = [];
+        /* ** onClick Connect Handlers ** */
+            const BUILDING_CONNECT_HANDLER = [];
+            const TRADE_CONNECT_HANDLER = [];
 
-    // queues for pending trades
-    const TRANSACTION_LOG  = [];
-    const TRANSACTION_COST = [];
-    const HIDDEN_AWAY_COST = [];
-    const HIDDEN_FOR_COST = [];
+        /* **last selected client values ** */
+            const LAST_SELECTED = [];
 
-    // storage for buildings
-    const MAIN_BUILDING_COUNTS = []; // counts of each building_id in main zone. for use by update Buildings methods.
-    const BUILDING_WORKER_IDS  = [];
-    const HAS_BUILDING         = [];
+        /* ** queues for pending trades ** */
+            const TRANSACTION_LOG  = [];
+            const TRANSACTION_COST = [];
+            const HIDDEN_AWAY_COST = [];
+            const HIDDEN_FOR_COST = [];
 
-    // from backend (material.inc)
-    const RESOURCE_INFO = [];
-    const EVENT_INFO    = [];
-    const BUILDING_INFO = [];
-    const ASSET_STRINGS = [];
+        /* ** storage for buildings ** */
+            const MAIN_BUILDING_COUNTS = []; // counts of each building_id in main zone. for use by update Buildings methods.
+            const BUILDING_WORKER_IDS  = [];
+            const HAS_BUILDING         = [];
+
+        /* ** from backend (material.inc) ** */
+            const RESOURCE_INFO = [];
+            const EVENT_INFO    = [];
+            const BUILDING_INFO = [];
+            const ASSET_STRINGS = [];
 
     return declare("bgagame.homesteadersnewbeginnings", ebg.core.gamegui, {
         addMoveToLog: override_addMoveToLog,
@@ -986,6 +1000,9 @@ function (dojo, declare) {
             }
         },
 
+        /**
+         * Create the HTML tokens and put them in TOKEN_HTML
+         */
         setupResourceTokens(){
             for(let type in RESOURCES){
                 TOKEN_HTML[type] = this.format_block( 'jstpl_resource_inline', {type:type}, );
@@ -1043,7 +1060,7 @@ function (dojo, declare) {
         },
 
         showHideToggleButton: function(index, tileId = TPL_BLD_TILE){
-            let tile_count = dojo.query(`#${TILE_ZONE_DIVID[index]} .${tileId}`).length;
+            let tile_count = dojo.query(`#${TILE_ZONE_DIV_ID[index]} .${tileId}`).length;
             if (tile_count == 0){
                 dojo.addClass(TOGGLE_BTN_ID[index], 'noshow');
                 dojo.query(`#${TILE_CONTAINER_ID[index]}`).addClass('noshow');
@@ -1076,15 +1093,23 @@ function (dojo, declare) {
         //
         onEnteringState: function( stateName, args )
         {
-            if (args && args.args && args.args.hidden) {
-                this.gamedatas.gamestate.description = this.gamedatas.gamestate.descriptionhidden;
-                this.gamedatas.gamestate.descriptionmyturn = this.gamedatas.gamestate.descriptionmyturnhidden;
-                this.updatePageTitle();
-            }
-            if (args && args.args && args.args.alternate) {
-                this.gamedatas.gamestate.description = this.gamedatas.gamestate.descriptionalternate;
-                this.gamedatas.gamestate.descriptionmyturn = this.gamedatas.gamestate.descriptionmyturnalternate;
-                this.updatePageTitle();
+            if (args && args.args) {
+                if (args.args.hidden){
+                    this.gamedatas.gamestate.description = this.gamedatas.gamestate.descriptionhidden;
+                    this.gamedatas.gamestate.descriptionmyturn = this.gamedatas.gamestate.descriptionmyturnhidden;
+                    this.updatePageTitle();
+                } else if (args.args.pre_trade) {
+                    this.gamedatas.gamestate.description = this.gamedatas.gamestate.descriptiontrade;
+                    this.gamedatas.gamestate.descriptionmyturn = this.gamedatas.gamestate.descriptionmyturntrade;
+                    this.updatePageTitle();
+                } else if (args.args.alternate) {
+                    this.gamedatas.gamestate.description = this.gamedatas.gamestate.descriptionalternate;
+                    this.gamedatas.gamestate.descriptionmyturn = this.gamedatas.gamestate.descriptionmyturnalternate;
+                    this.updatePageTitle();
+                } else if (args.args.sell_free) {
+                    this.gamedatas.gamestate.descriptionmyturn = this.gamedatas.gamestate.descriptionmyturnsellfree;
+                    this.updatePageTitle();
+                }
             }
             this.currentState = stateName;
             //console.log('onEnteringState', stateName);
@@ -1476,7 +1501,7 @@ function (dojo, declare) {
                     this.updateTradeAffordability();
                     this.resetTradeValues();
                     this.enableTradeBoardActions();
-                break;
+                    break;
                 case EVENT_SHARECROPPING:
                     this.addActionButton( BTN_ID_PAY_LOAN_FOOD, this.replaceTooltipStrings(_('pay ${loan} with ${food}')), METHOD_PAY_LOAN_FOOD, null, false, 'blue' );
                     this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _(MESSAGE_PASS), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
@@ -1561,10 +1586,8 @@ function (dojo, declare) {
             this.addTradeActionButton();
             this.setOffsetForPaymentButtons();
         },
-        onUpdateActionButtons_bonusChoice_lotEvent: function (args){
-            console.log('onUpdateActionButtons_bonusChoice_lotEvent');
-            console.log(args);
-            let option = Number(args.event_bonus);
+        onUpdateActionButtons_bonusChoice_lotEvent: function (args){ 
+            let option = Number(args.bonus_option);
             switch (option){
                 case EVENT_RAILROAD_CONTRACTS: // auction winners can pay 2 silver for track
                     this.addActionButton( BTN_ID_EVENT_SILVER_TRACK, `${TOKEN_HTML.silver}${TOKEN_HTML.silver} ${TOKEN_HTML.arrow} ${TOKEN_HTML.track}`, METHOD_EVENT_SILVER_TRACK);
@@ -1609,6 +1632,7 @@ function (dojo, declare) {
             this.showCurrentAuctions(auction_tiles, round_number);
             if (this.use_events){
                 this.updateEventBanner(round_number);
+                this.updateEventCards(round_number);
             }
         },
 
@@ -1630,7 +1654,7 @@ function (dojo, declare) {
         setupAuctionTiles: function (auctions, info){
             for (let a_id in auctions){
                 const auction = auctions[a_id];
-                if (auction.location != AUC_LOC_DISCARD) {
+                if (auction.location != 0) {
                     this.createAuctionTile(a_id, auction.location, info);
                 }
             }
@@ -1664,6 +1688,7 @@ function (dojo, declare) {
                     return;
                 }
             }
+            // determine current auction (if in middle of build phase)
             let first_avail_auction = 4;
             for (let i in auctions){
                 const auction = auctions[i];
@@ -1709,7 +1734,8 @@ function (dojo, declare) {
                 dojo.place(this.format_block('jptpl_evt_tt', 
                     {'pos': this.events[i].position, 
                     TITLE: _("Round ") + this.events[i].position + ":<br>" + this.replaceTooltipStrings(event.name), 
-                    DESC: this.replaceTooltipStrings(event.tt)}), TILE_ZONE_DIVID[EVT_LOC_MAIN],'last');
+                    DESC: this.replaceTooltipStrings(event.tt)}), 
+                    TILE_ZONE_DIV_ID[EVT_LOC_MAIN],'last');
             }
         },
 
@@ -1735,6 +1761,14 @@ function (dojo, declare) {
                 dojo.style(`eventsBar`,'display', 'none');
             }
         },
+
+        updateEventCards: function (current_round){
+            for(var i in this.events){
+                if (Number(this.events[i].position) < current_round){
+                    this.moveObject(`${TPL_EVT_TILE}_${current_round}`, `${TILE_ZONE_DIV_ID[GEN_LOC_DISCARD]}`);
+                }
+            }
+        },
         
         /***** building utils *****/
         addBuildingToPlayer: function(building){
@@ -1745,7 +1779,7 @@ function (dojo, declare) {
                 return;
             }
             if ($(b_divId)){ // if element already exists, just move it.
-                const wasInMain = (dojo.query( `#${TILE_ZONE_DIVID[BLD_LOC_OFFER]} #${b_divId}`).length == 1);
+                const wasInMain = (dojo.query( `#${TILE_ZONE_DIV_ID[BLD_LOC_OFFER]} #${b_divId}`).length == 1);
                 if (wasInMain){
                     this.moveObject(`${b_divId}`, PLAYER_BUILDING_ZONE_ID[building.p_id]);
                     dojo.disconnect(BUILDING_CONNECT_HANDLER[b_key]);
@@ -1820,7 +1854,7 @@ function (dojo, declare) {
 
         addBuildingToOffer: function(building){
             const b_divId = `${TPL_BLD_TILE}_${building.b_key}`;
-            const b_loc = TILE_ZONE_DIVID[building.location];
+            const b_loc = TILE_ZONE_DIV_ID[building.location];
             if (document.querySelector(`#${b_loc} #${b_divId}`)){ 
                 return; //if already correct, do nothing.
             }
@@ -2126,7 +2160,7 @@ function (dojo, declare) {
             if (MAIN_BUILDING_COUNTS[b_id] == 0 || !(b_id in MAIN_BUILDING_COUNTS)){ // make the zone if missing
                 const b_order = (30*Number(building.b_type)) + Number(b_id);
                 dojo.place(this.format_block( 'jstpl_building_stack', 
-                {id: b_id, order: b_order}), TILE_ZONE_DIVID[building.location]);
+                {id: b_id, order: b_order}), TILE_ZONE_DIV_ID[building.location]);
                 MAIN_BUILDING_COUNTS[b_id] = 0;
             }
         },
