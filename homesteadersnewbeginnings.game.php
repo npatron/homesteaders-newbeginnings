@@ -419,7 +419,7 @@ class homesteadersnewbeginnings extends Table
             $cost = max($workers - (5*$gold), 0);
             $this->Resource->pay($cur_p_id, $cost, $gold, "worker");
         }
-        $next_state = ($this->Event->eventPhase()?"event":"auction");
+        $next_state = ($this->Event->eventPhase()==1?"event":"auction");
         if (!$early){
             $this->gamestate->setPlayerNonMultiactive($cur_p_id, $next_state );
         } else {
@@ -565,11 +565,11 @@ class homesteadersnewbeginnings extends Table
                 $this->Resource->addWorkerAndNotify($act_p_id, $this->event_info[$event]['name']);
                 $this->gamestate->nextState('done');
             break;
-            case EVENT_BANK_FAVORS:
+            case EVENT_FORTUNE_SEEKER:
                 $this->checkAction( "eventBonus" );
                 $cur_p_id = $this->getCurrentPlayerId();
                 $this->Resource->addWorkerAndNotify($cur_p_id, $this->event_info[$event]['name']);
-                $this->gamestate->setPlayerNonMultiactive($cur_p_id, "");
+                $this->gamestate->setPlayerNonMultiactive($cur_p_id, "done");
             break;
             default:
                 throw new BgaVisibleSystemException ( sprintf(clienttranslate("Free Hire Worker called, but event is %s"),$this->event_info[$event]['name']));

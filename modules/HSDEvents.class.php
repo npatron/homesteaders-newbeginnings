@@ -233,7 +233,7 @@ class HSDEvents extends APP_GameClass
                 //The player(s) who is farthest advanced on the Railroad Development Track gets ${vp3}
                 $players = $this->getPlayersFurthestOnDevelopmentTrack();
                 foreach($players as $p_id => $p){
-                    $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', 3, $this->getEventName(), 'event');
+                    $this->game->Resource->updateAndNotifyIncome($p_id, 'vp3', 1, $this->getEventName(), 'event');
                 }
                 break;
             case EVENT_WESTERN_PACIFIC_RR: // players with least buildings get track (not adv)
@@ -253,6 +253,7 @@ class HSDEvents extends APP_GameClass
                 }
                 break;
         }
+        self::dump('event next_state', $next_state);
         $this->game->gamestate->nextState($next_state);
     }
 
@@ -307,12 +308,14 @@ class HSDEvents extends APP_GameClass
         $event_id = $this->getEvent();
         switch($event_id){
             case EVENT_INTEREST:
-                $players = $this->getPlayersWithAtLeastOneResource('loan');
                 // send to new multi-active pay state, with cost based upon amount of loans
-                if (count($players) == 0){
-                    $this->game->gamestate->nextState("done");
-                } else {
-                    $this->game->gamestate->setPlayersMultiactive($players, 'done');
+                $this->game->Log->allowTradesAllPlayers();
+                $this->game->gamestate->setAllPlayersMultiactive();
+                $players = $this->game->loadPlayersBasicInfos();
+                foreach($players as $p_id=> $player){
+                    if ($this->game->Resource->getCost($p_id) == 0) {
+                        $this->game->gamestate->setPlayerNonMultiactive($p_id,'done');
+                    }
                 }
             break;
             case EVENT_PROPERTY_TAXES:
@@ -461,7 +464,7 @@ class HSDEvents extends APP_GameClass
 
     // could also do in sql with: "SELECT player_id, $type FROM resources WHERE $type = (SELECT MIN($type) FROM resources)";
     private function getPlayersWithLeastResource($type){
-        $resources = $this->game->getCollectionFromDB( "SELECT `player_id`, `$type` FROM `resources` ", true);
+        $resources = $this->game->getCollectionFromDB( "SELECT `player_id`, `$type` FROM `resources` WHERE `$type` = (SELECT MIN(`$type`) FROM `resources`) ");
         return $this->getLeast($resources, $type);
     }
 

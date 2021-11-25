@@ -367,7 +367,7 @@ var jptpl_bld_tt = '<div class="tt_container">${msg}<span class="font bold ${typ
     <p class="font tt_center">${desc}</p>${hr}\
     <p class="income tt_center">${INCOME}</p>\
     <p class="font tt_center">${inc_vals}</p></div>';
-var jptpl_evt_tt = '<div id="event_${pos}" class="tt_container event_card" style="order:${pos}">\<div class="font bold" style="text-align:center;">${TITLE}</div><hr>\
+var jptpl_evt_tt = '<div id="event_tile_${pos}" class="tt_container event_card" style="order:${pos}">\<div class="font bold" style="text-align:center;">${TITLE}</div><hr>\
     <div style="text-align:center;"><span class="font" style="max-width:200px;display:inline-block;margin: 1px 3px 1px 3px">${DESC}</span>';
 </script>  
 

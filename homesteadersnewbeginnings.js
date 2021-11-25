@@ -1767,8 +1767,10 @@ function (dojo, declare) {
 
         updateEventCards: function (current_round){
             for(var i in this.events){
-                if (Number(this.events[i].position) < current_round){
-                    this.moveObject(`${TPL_EVT_TILE}_${current_round}`, `${TILE_ZONE_DIV_ID[GEN_LOC_DISCARD]}`);
+                let position = Number(this.events[i].position);
+                if (position < current_round){
+                    console.log(`${TPL_EVT_TILE}_${position}`, `${TILE_ZONE_DIV_ID[GEN_LOC_DISCARD]}`);
+                    this.moveObject(`${TPL_EVT_TILE}_${position}`, `${TILE_ZONE_DIV_ID[GEN_LOC_DISCARD]}`, 'last');
                 }
             }
         },
@@ -4953,9 +4955,9 @@ function (dojo, declare) {
             }
         },
 
-        moveObjectAndUpdateValues: function(mobile_obj, target_obj){
+        moveObjectAndUpdateValues: function(mobile_obj, target_obj, position="last"){
             var animation_id = this.slideToObject( mobile_obj, target_obj, 500, 0);
-            dojo.connect(animation_id, 'onEnd', dojo.hitch(this, 'callback_update', {target_obj:target_obj, mobile_obj:mobile_obj, position:"last"}));
+            dojo.connect(animation_id, 'onEnd', dojo.hitch(this, 'callback_update', {target_obj:target_obj, mobile_obj:mobile_obj, position:position}));
             animation_id.play();
         },
 
@@ -4968,9 +4970,9 @@ function (dojo, declare) {
             this.setOffsetForIncome();
         },
 
-        moveObject: function(mobile_obj, target_obj){
+        moveObject: function(mobile_obj, target_obj, position="last"){
             var animation_id = this.slideToObject( mobile_obj, target_obj, 500, 0 );
-            dojo.connect(animation_id, 'onEnd', dojo.hitch(this, 'callback_function', {target_obj:target_obj, mobile_obj:mobile_obj, position:"last"}));
+            dojo.connect(animation_id, 'onEnd', dojo.hitch(this, 'callback_function', {target_obj:target_obj, mobile_obj:mobile_obj, position:position}));
             animation_id.play();
         },
 

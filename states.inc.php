@@ -89,8 +89,8 @@ $machinestates = array(
 
     STATE_EVT_BONUS => array(
         "name" => "bonusChoice_event",
-        "description" => clienttranslate('Some players may choose to receive bonus'),
-        "descriptionmyturn" => clienttranslate('${you} may choose to receive bonus'),
+        "description" => clienttranslate('Some players may choose to receive event bonus'),
+        "descriptionmyturn" => clienttranslate('${you} may choose to receive event bonus'),
         "type" => "multipleactiveplayer",
         "action" => "stEventSetupBonus",
         "possibleactions" => array( "eventBonus" ),
