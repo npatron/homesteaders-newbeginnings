@@ -1486,11 +1486,12 @@ function (dojo, declare) {
         },
 
         onUpdateActionButtons_preEventTrade: function (args) {
-            let bonus_id = args.bonus_id;
+            let bonus_id = Number(args.bonus_id);
             this.current_args = args;
+            console.log(args, bonus_id);
             switch(bonus_id){
                 case EVENT_WARTIME_DEMAND:
-                    console.log(args);
+                    console.log('wartime_demand');
                     this.gamedatas.gamestate.descriptionmyturn = this.gamedatas.gamestate.descriptionmyturntrade;
                     this.addActionButton( BTN_ID_EVENT_START_SELL, _(MESSAGE_START_SELL), 'clientState_sellEvent', null, false, 'blue');
                     this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _(MESSAGE_EVENT_DONE), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
@@ -1504,20 +1505,21 @@ function (dojo, declare) {
                     this.enableTradeBoardActions();
                     break;
                 case EVENT_SHARECROPPING:
+                    console.log('sharecropping');
                     this.addActionButton( BTN_ID_PAY_LOAN_FOOD, this.replaceTooltipStrings(_('pay ${loan} with ${food}')), METHOD_PAY_LOAN_FOOD, null, false, 'blue' );
                     this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _(MESSAGE_PASS), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
                     this.addTradeActionButton();
                     this.addActionButton( BTN_ID_CANCEL, _(MESSAGE_CANCEL_TURN), 'cancelEventTransactions', null, false, 'red');
                     break;
                 case EVENT_STATE_FAIR:
-                    console.log(args);
+                    console.log('state_fair');
                     this.addActionButton( BTN_ID_EVENT_DONE_HIDDEN_TRADING, _(MESSAGE_PASS), METHOD_EVENT_DONE_HIDDEN, null, false, 'blue');
                     dojo.place(dojo.create('br'),'generalactions','last');
                     this.addActionButton( BTN_ID_TRADE_TOGGLE, _(MESSAGE_TRADE_TOGGLE_OFF), METHOD_TRADE, null, false, 'gray' );
                     this.addActionButton( BTN_ID_TAKE_LOAN, _(MESSAGE_TAKE_LOAN), METHOD_TAKE_LOAN, null, false, 'gray' );
                     this.addActionButton( BTN_ID_UNDO_TRADE, _(MESSAGE_UNDO_TRADE), METHOD_UNDO_TRADE, null, false, 'red' );
                     this.addActionButton( BTN_ID_CONFIRM_TRADE_HIDDEN, _(MESSAGE_CONFIRM_TRADE), METHOD_CONFIRM_TRADE_HIDDEN);
-                    this.updateConfirmAndUndoTradeButtons();
+                    //this.updateConfirmAndUndoTradeButtons();
                     this.addActionButton( BTN_ID_CANCEL, _(MESSAGE_CANCEL_TURN), 'cancelHiddenUndoTransactions', null, false, 'red');
 
                     this.updateTradeAffordability();
@@ -1531,11 +1533,8 @@ function (dojo, declare) {
                     break;
                 case EVENT_EAGER_INVESTORS:
                 case EVENT_TIMBER_CULTURE_ACT:
-                    this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _(MESSAGE_PASS), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
-                    this.addTradeActionButton();
-                    this.addActionButton( BTN_ID_CANCEL, _(MESSAGE_CANCEL_TURN), 'cancelEventTransactions', null, false, 'red');
-                    break;
                 default:
+                    console.log('default');
                     this.addActionButton( BTN_ID_EVENT_DONE_TRADING, _(MESSAGE_PASS), METHOD_EVENT_DONE_TRADING, null, false, 'blue');
                     this.addTradeActionButton();
                     this.addActionButton( BTN_ID_CANCEL, _(MESSAGE_CANCEL_TURN), 'cancelEventTransactions', null, false, 'red');
@@ -1588,7 +1587,7 @@ function (dojo, declare) {
             this.setOffsetForPaymentButtons();
         },
         onUpdateActionButtons_bonusChoice_lotEvent: function (args){ 
-            let option = Number(args.bonus_option);
+            let option = Number(args.event_bonus);
             switch (option){
                 case EVENT_RAILROAD_CONTRACTS: // auction winners can pay 2 silver for track
                     this.addActionButton( BTN_ID_EVENT_SILVER_TRACK, `${TOKEN_HTML.silver}${TOKEN_HTML.silver} ${TOKEN_HTML.arrow} ${TOKEN_HTML.track}`, METHOD_EVENT_SILVER_TRACK);
@@ -5494,7 +5493,7 @@ function (dojo, declare) {
 
         // for moving workers between building worker slots.
         notif_workerMoved: function( notif ){
-            //console.log('notif_workerMoved');
+            console.log('notif_workerMoved');
             const worker_divId = 'token_worker_'+Number(notif.args.worker_key);
             if (this.player_id == notif.args.player_id){
                 this.moveObjectAndUpdateValues(worker_divId, BUILDING_WORKER_IDS[Number(notif.args.building_key)][Number(notif.args.building_slot)]);
@@ -5505,14 +5504,14 @@ function (dojo, declare) {
 
         // for moving train tokens on rail advancement track
         notif_railAdv: function( notif ){
-            //console.log('notif_railAdv');
+            console.log('notif_railAdv');
             const train_token = TRAIN_TOKEN_ID[notif.args.player_id];
             this.moveObject(train_token, `train_advancement_${notif.args.rail_destination}`);
         }, 
 
         // for gain worker events (not assigned to building by default)
         notif_gainWorker: function( notif ){
-            //console.log('notif_gainWorker');
+            console.log('notif_gainWorker');
             const worker_divId = `token_worker_${notif.args.worker_key}`;
             dojo.place(this.format_block( 'jptpl_worker', {id: notif.args.worker_key}), WORKER_TOKEN_ZONE[notif.args.player_id] );
             if (notif.args.player_id == this.player_id){
@@ -5540,7 +5539,7 @@ function (dojo, declare) {
 
         // for gaining railroad Track
         notif_gainTrack: function( notif ){
-            //console.log('notif_gainTrack');
+            console.log('notif_gainTrack');
             const p_id = Number(notif.args.player_id);
             var delay = 0;
             dojo.place(this.format_block( 'jptpl_track', 
@@ -5607,7 +5606,7 @@ function (dojo, declare) {
 
         // set/update player resource amounts (if visible) when they gain income (1 resource type)
         notif_playerIncome: function( notif ){
-            //console.log('notif_playerIncome');
+            console.log('notif_playerIncome');
             var start = this.getTargetFromNotifArgs(notif);
             const p_id = notif.args.player_id;
             var delay = 0;
@@ -5626,7 +5625,7 @@ function (dojo, declare) {
 
         // set/update player resource amounts (if visible) when they gain income (multiple resource types)
         notif_playerIncomeGroup: function( notif ){
-            //console.log('notif_playerIncomeGroup');
+            console.log('notif_playerIncomeGroup');
             var start = this.getTargetFromNotifArgs(notif);
             const p_id = notif.args.player_id;
             var delay = 0;
@@ -5648,7 +5647,7 @@ function (dojo, declare) {
 
         // set/update warehouse state (resources available)
         notif_updateWarehouseState: function (notif){
-            //console.log('notif_updateWarehouseState', notif.args);
+            console.log('notif_updateWarehouseState', notif.args);
             let origin = null;
             if (notif.args.income = true){
                 origin = notif.args.p_id;
@@ -5658,7 +5657,7 @@ function (dojo, declare) {
 
         // set/update player resource amounts (if visible) when they make payment (1 resource type)
         notif_playerPayment: function( notif ){         
-            //console.log('notif_playerPayment');
+            console.log('notif_playerPayment');
             var destination = this.getTargetFromNotifArgs(notif);
             const p_id = notif.args.player_id;
             var delay = 0;
@@ -5673,7 +5672,7 @@ function (dojo, declare) {
 
         // set/update player resource amounts (if visible) when they make payment (multiple resource types)
         notif_playerPaymentGroup: function( notif ){
-            //console.log('notif_playerPaymentGroup');
+            console.log('notif_playerPaymentGroup');
             var destination = this.getTargetFromNotifArgs(notif);
             const p_id = notif.args.player_id;
             var delay = 0;
@@ -5704,7 +5703,7 @@ function (dojo, declare) {
 
         // update player resources when a trade is done.
         notif_trade: function( notif ){
-            //console.log('notif_trade', notif);
+            console.log('notif_trade', notif);
             const p_id = notif.args.player_id;
             var delay = 0;
             for(let type in notif.args.tradeAway_arr){
@@ -5736,7 +5735,7 @@ function (dojo, declare) {
         },
 
         notif_auctionLoanPaid: function( notif){
-            //console.log('notif_auctionLoanPaid', notif);
+            console.log('notif_auctionLoanPaid', notif);
             const p_id = notif.args.player_id;
             var destination = this.getTargetFromNotifArgs(notif);
             let amt_loan = notif.args.resource_arr.loan;
