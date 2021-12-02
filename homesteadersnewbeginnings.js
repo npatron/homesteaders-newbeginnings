@@ -1515,7 +1515,7 @@ function (dojo, declare) {
                     console.log('state_fair');
                     this.addActionButton( BTN_ID_EVENT_DONE_HIDDEN_TRADING, _(MESSAGE_PASS), METHOD_EVENT_DONE_HIDDEN, null, false, 'blue');
                     dojo.place(dojo.create('br'),'generalactions','last');
-                    this.addActionButton( BTN_ID_TRADE_TOGGLE, _(MESSAGE_TRADE_TOGGLE_OFF), METHOD_TRADE, null, false, 'gray' );
+                    this.addActionButton( BTN_ID_TRADE_TOGGLE, _(MESSAGE_TRADE_TOGGLE_OFF), METHOD_TRADE_TOGGLE, null, false, 'gray' );
                     this.addActionButton( BTN_ID_TAKE_LOAN, _(MESSAGE_TAKE_LOAN), METHOD_TAKE_LOAN, null, false, 'gray' );
                     this.addActionButton( BTN_ID_UNDO_TRADE, _(MESSAGE_UNDO_TRADE), METHOD_UNDO_TRADE, null, false, 'red' );
                     this.addActionButton( BTN_ID_CONFIRM_TRADE_HIDDEN, _(MESSAGE_CONFIRM_TRADE), METHOD_CONFIRM_TRADE_HIDDEN);
@@ -4150,11 +4150,15 @@ function (dojo, declare) {
 
         doneHiddenTradingEvent: function(){
             if (this.checkAction('event')){
-                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/tradeHidden.html", 
+                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/doneHiddenTradeEvent.html", 
                 { //args
                     lock: true, 
                     trade_action: TRANSACTION_LOG.join(','),
-                    }, this, function( result ) {}, function( is_error) {});   
+                }, this, function( result ) {
+                    this.clearTransactionLog();
+                    this.can_cancel = true;
+                    this.calculateAndUpdateScore(this.player_id);
+                }, function( is_error) {});   
             }
         },
         
@@ -5207,6 +5211,7 @@ function (dojo, declare) {
                 ['buildBuilding', 1000],
                 ['cancel', 500],
                 ['cancelHiddenTrade', 20],
+                ['clearHiddenTrades', 20],
                 ['clearAllBids', 250],
                 ['gainWorker', 20],
                 ['gainTrack', 20],
@@ -5690,15 +5695,21 @@ function (dojo, declare) {
 
         // show hidden/pending trades (only to this player).
         notif_hiddenTrade: function ( notif ){
-            console.log('notif_hiddenTrade', notif);
+            //console.log('notif_hiddenTrade', notif);
             this.updateHiddenTrades({trade_away:notif.args.tradeAway_arr, trade_for:notif.args.tradeFor_arr});
         },
 
         // clear hidden/pending trades (only shown to this player).
         notif_cancelHiddenTrade: function (notif ){
-            console.log('notif_cancelHiddenTrade', notif);
+            //console.log('notif_cancelHiddenTrade', notif);
             this.clearHiddenTrades();
             this.updateTradeAffordability();
+        },
+
+        notif_clearHiddenTrades: function(notif){
+            console.log('notif_clearHiddenTrades', notif);
+            this.clearHiddenTrades();
+            this.changeStateCleanup();
         },
 
         // update player resources when a trade is done.

@@ -601,6 +601,9 @@ class homesteadersnewbeginnings extends Table
 
     public function playerTradeHidden($tradeAction_csv){
         $this->checkAction('event');
+        if ( strlen($tradeAction_csv) == 0){
+            return;
+        }
         $p_id = $this->getCurrentPlayerId();
         $tradeAction_arr = explode(',', $tradeAction_csv);
         foreach( $tradeAction_arr as $key=>$val ){

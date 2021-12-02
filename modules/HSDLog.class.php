@@ -293,6 +293,7 @@ class HSDLog extends APP_GameClass
 
   public function triggerHiddenTransactions()
   {
+    $this->game->notifyAllPlayers('clearHiddenTrades', clienttranslate("revealing hidden trades"), []);
     $players = $this->game->loadPlayersBasicInfos();
     foreach ($players as $p_id => $player) {
       $actions =  array_reverse($this->getLastActions($p_id, ['hiddenTrade'], 'allowTrades'));
@@ -301,6 +302,7 @@ class HSDLog extends APP_GameClass
         $this->game->Resource->trade($p_id, $args['tradeAction']);
       }
     }
+    
   }
   // END undo-able from cancelTransactions
 

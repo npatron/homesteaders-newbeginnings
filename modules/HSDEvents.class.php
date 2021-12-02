@@ -2,6 +2,7 @@
 
 /*
  * HSDEvents: a class that allows handles Events Related Methods.
+ * event information is stored in `material.inc.php` -> `event_info`
  */
 class HSDEvents extends APP_GameClass
 {
@@ -12,31 +13,35 @@ class HSDEvents extends APP_GameClass
     }
     
     ///// BEGIN event setup method ////
-    // for setup of backend sql.
+    // setup of backend sql table
     function createEvents(){
-        $sql = "INSERT INTO `events` (`event_id`, `position`, `location`) VALUES ";
         $values=array();
-        
+        // settlement `event_id` are 1-10
         $settlement = range(1, 10);
         shuffle($settlement);
+        // town `event_id` are 11-20
         $town = range(11, 20);
         shuffle($town);
-        for($i=0; $i <4;$i++){
+        // city `event_id` are 21-25
+        $city = range(21, 25);
+        shuffle($city);
+        for($i=0; $i <4; $i++){
+            // put 4 settlement events into events table (at positions 1-4)
             $evt_set_id = $settlement[$i];
             $pos_set = 1 + $i;
             $values[] = "($evt_set_id, $pos_set, 1)";
+            // put 4 town events into events table (at positions 5-8)
             $evt_town_id = $town[$i];
             $pos_town = 5 + $i;
             $values[] = "($evt_town_id, $pos_town, 2)";
+            // put 2 city events into events deck (at positions 9-10)
+            if ($i < 2){
+                $evt_city_id = $city[$i];
+                $pos_city = 9+$i;
+                $values[] = "($evt_city_id, $pos_city, 3)";
+            }
         }
-        $city = range(21, 25);
-        shuffle($city);
-        for($i=0;$i <2;$i++){
-            $evt_city_id = $city[$i];
-            $pos_city = 9+$i;
-            $values[] = "($evt_city_id, $pos_city, 3)";
-        }
-
+        $sql = "INSERT INTO `events` (`event_id`, `position`, `location`) VALUES ";
         $sql .= implode( ',', $values ); 
         $this->game->DbQuery( $sql );
     }
@@ -53,8 +58,8 @@ class HSDEvents extends APP_GameClass
     }
     ///// END event setup method ////
 
-    function showEventTable($values, $message=""){
-        $table = array();
+    function showEventTable($table, $event_id){
+        $message = $this->game->event_info[$event_id]['name'];
         $this->game->notifyAllPlayers( "tableWindow", '', array(
             "id" => 'eventResolved',
             "title" => clienttranslate($message),
@@ -207,50 +212,111 @@ class HSDEvents extends APP_GameClass
                 break;
             //// next_state='evt_pay' states //// (multi-active pay cost state)
             case EVENT_INTEREST: //note: players can't pay off loans until end of game. (so no trade before pay)
-                $players = $this->game->loadPlayersBasicInfos();
-                foreach($players as $p_id=> $player){
+                $all_players = $this->game->loadPlayersBasicInfos();
+                $row_1 = array( );
+                $row_2 = array( );
+                foreach($all_players as $p_id=> $p){
                     $p_loans = $this->game->Resource->getPlayerResourceAmount($p_id, 'loan');
                     $this->game->Resource->setCost($p_id, $p_loans);
+                    $row_1[] = array('str' => '${player_name}',
+                    'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
+                    'type' => 'header');
+                    if ($p_loans == 0){
+                        $row_2[] = '';
+                    } else {
+                        $row_2[] = '-'.$p_loans.' <span title = "silver" class="log_silver token_inline"></span>';
+                    }
                 }
+                $this->showEventTable(array($row_1, $row_2), $event_id);
                 $next_state = 'evt_pay';
                 break;
             case EVENT_PROPERTY_TAXES:
-                $players= $this->getPlayersAmountOfBuildings();
-                foreach($players as $p_id => $player){
+                $all_players= $this->getPlayersAmountOfBuildings();
+                $row_1 = array( );
+                $row_2 = array( );
+                foreach($all_players as $p_id => $player){
                     $this->game->Resource->setCost($p_id, $player['amt']);
+                    $row_1[] = array('str' => '${player_name}',
+                    'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
+                    'type' => 'header');
+                    $row_2[] = '-'.$player['amt'].' <span title = "silver" class="log_silver token_inline"></span>';
                 }
+                $this->showEventTable(array($row_1, $row_2), $event_id);
                 $next_state = 'evt_pay';
                 break;
             //// next_state='done' states ////
             case EVENT_TRAVELING_TRADERS: 
                 //everyone gets a trade token. (no trade req)
-                $resources = $this->game->getCollectionFromDB( "SELECT `player_id` FROM `resources` ", true);
-                foreach ($resources as $p_id =>$p){
+                $all_players = $this->game->loadPlayersBasicInfos();
+                $row_1 = array( );
+                $row_2 = array( );
+                foreach ($all_players as $p_id => $p){
                     $this->game->Resource->updateAndNotifyIncome($p_id, 'trade', 1, $this->getEventName(), 'event');
+                    $row_1[] = array('str' => '${player_name}',
+                    'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
+                    'type' => 'header');
+                    $row_2[] = '<span title = "trade" class="log_trade token_inline"></span>';
                 }
+                $this->showEventTable(array($row_1, $row_2), $event_id);
                 break;
             case EVENT_TRANSCONTINENTAL_RR: 
                 //The player(s) who is farthest advanced on the Railroad Development Track gets ${vp3}
-                $players = $this->getPlayersFurthestOnDevelopmentTrack();
-                foreach($players as $p_id => $p){
-                    $this->game->Resource->updateAndNotifyIncome($p_id, 'vp3', 1, $this->getEventName(), 'event');
+                $winning_players = $this->getPlayersFurthestOnDevelopmentTrack();
+
+                $all_players = $this->game->loadPlayersBasicInfos();
+                $row_1 = array( );
+                $row_2 = array( );
+                foreach ($all_players as $p_id => $p){
+                    $row_1[] = array('str' => '${player_name}',
+                    'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
+                    'type' => 'header');
+                    if (in_array($p_id, $winning_players)){
+                        $this->game->Resource->updateAndNotifyIncome($p_id, 'vp3', 1, $this->getEventName(), 'event');
+                        $row_2[] = '<span title = "vp3" class="log_vp3 token_inline"></span>';
+                    } else {
+                        $row_2[] = '';
+                    }
                 }
+                $this->showEventTable(array($row_1, $row_2), $event_id);
                 break;
             case EVENT_WESTERN_PACIFIC_RR: // players with least buildings get track (not adv)
-                $players = $this->getPlayersWithLeastBuildings();
-                foreach($players as $p_id => $p){
-                    $this->game->Resource->addTrackAndNotify($p_id, $this->getEventName(), 'event');
+                $winning_players = $this->getPlayersWithLeastBuildings();
+                $all_players = $this->game->loadPlayersBasicInfos();
+                $row_1 = array( );
+                $row_2 = array( );
+                foreach ($all_players as $p_id => $p){
+                    $row_1[] = array('str' => '${player_name}',
+                    'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
+                    'type' => 'header');
+                    if (in_array($p_id, $winning_players)){
+                        $this->game->Resource->addTrackAndNotify($p_id, $this->getEventName(), 'event');
+                        $row_2[] = '<span title = "track" class="log_track token_inline"></span>';
+                    } else {
+                        $row_2[] = '';
+                    }
                 }
+                $this->showEventTable(array($row_1, $row_2), $event_id);
                 break;
             case EVENT_INDUSTRIAL_DOMINANCE:
                 // The player(s) with the most ${ind} buildings gets 
                 //${vp} for each resource they received in income (${wood}, ${food}, ${steel}, ${gold}, ${copper}, ${cow} produced by buildings and not from trade)
-
-                $players = $this->getPlayersWithMostBuildings(TYPE_INDUSTRIAL);
-                foreach ($players as $p_id => $p){
-                    $res_amt = $this->game->Building->getBuildingResourceIncomeCountForPlayer($p_id);
-                    $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', $res_amt, $this->getEventName(), 'event');
+                $winning_players = $this->getPlayersWithMostBuildings(TYPE_INDUSTRIAL);
+                $all_players = $this->game->loadPlayersBasicInfos();
+                $row_1 = array( );
+                $row_2 = array( );
+                foreach ($all_players as $p_id => $p){
+                    $row_1[] = array('str' => '${player_name}',
+                    'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
+                    'type' => 'header');
+                    if (in_array($p_id, $winning_players)){
+                        $res_amt = $this->game->Building->getBuildingResourceIncomeCountForPlayer($p_id);
+                        $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', $res_amt, $this->getEventName(), 'event');
+                        $row_2[] = $res_amt.' <span title = "vp" class="log_vp token_inline"></span>';
+                    } else {
+                        $row_2[] = '';
+                    }
                 }
+                $this->showEventTable(array($row_1, $row_2), $event_id);
                 break;
         }
         self::dump('event next_state', $next_state);
@@ -264,24 +330,61 @@ class HSDEvents extends APP_GameClass
         switch($event_id){
             case EVENT_BANK_FAVORS:
                 $pending_players = $this->getPlayersWithLeastResource('loan');
-                foreach ($pending_players as $p_id =>$p){
-                    $this->game->Resource->getRailAdv($p_id, $this->getEventName(), 'event');
-                    $this->game->Log->allowTrades($p_id);
-                } 
+
+                $all_players = $this->game->loadPlayersBasicInfos();
+                $row_1 = array( );
+                $row_2 = array( );
+                foreach($all_players as $p_id=> $p){
+                    $row_1[] = array('str' => '${player_name}',
+                    'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
+                    'type' => 'header');
+                    if (in_array($p_id, $pending_players)){
+                        $this->game->Resource->getRailAdv($p_id, $this->getEventName(), 'event');
+                        $this->game->Log->allowTrades($p_id);
+                        $row_2[] = clienttranslate('Rail Development');
+                    } else {
+                        $row_2[] = '';
+                    }
+                }
+                $this->showEventTable(array($row_1, $row_2), $event_id);
                 $change_state = true;
             break;
             case EVENT_FORTUNE_SEEKER:
                 $pending_players = $this->getPlayersWithLeastResource('workers');
-                foreach($pending_players as $p_id => $p){
-                    $this->game->Log->allowTrades($p_id);
+                $all_players = $this->game->loadPlayersBasicInfos();
+                $row_1 = array( );
+                $row_2 = array( );
+                foreach($all_players as $p_id=> $p){
+                    $row_1[] = array('str' => '${player_name}',
+                    'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
+                    'type' => 'header');
+                    if (in_array($p_id, $pending_players)){
+                        $this->game->Log->allowTrades($p_id);
+                        $row_2[] = '<span title = "worker" class="log_worker token_inline"></span>';
+                    } else {
+                        $row_2[] = '';
+                    }
                 }
+                $this->showEventTable(array($row_1, $row_2), $event_id);
             break;
             case EVENT_RESIDENTIAL_DOMINANCE:   
                 $pending_players= $this->getPlayersWithMostBuildings(TYPE_RESIDENTIAL);
-                foreach ($pending_players as $p_id =>$p){
-                    $this->game->Resource->getRailAdv($p_id, $this->getEventName(), 'event');
-                    $this->game->Log->allowTrades($p_id);
+                $all_players = $this->game->loadPlayersBasicInfos();
+                $row_1 = array( );
+                $row_2 = array( );
+                foreach($all_players as $p_id=> $p){
+                    $row_1[] = array('str' => '${player_name}',
+                    'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
+                    'type' => 'header');
+                    if (in_array($p_id, $pending_players)){
+                        $this->game->Resource->getRailAdv($p_id, $this->getEventName(), 'event');
+                        $this->game->Log->allowTrades($p_id);
+                        $row_2[] = clienttranslate('Rail Development');
+                    } else {
+                        $row_2[] = '';
+                    }
                 }
+                $this->showEventTable(array($row_1, $row_2), $event_id);
                 $change_state = true;
             break;
         }
@@ -349,28 +452,70 @@ class HSDEvents extends APP_GameClass
                 break;
             case EVENT_EAGER_INVESTORS:
                 // all players with vp token, get 4 silver
-                $players = $this->getPlayersWithAtLeastOneResource('vp');
-                foreach ($players as $p_id => $p){
-                    $this->game->Resource->updateAndNotifyIncome($p_id, 'silver', 4, $this->getEventName(), 'event');
+                $winning_players = $this->getPlayersWithAtLeastOneResource('vp');
+
+                // build event table (and notifyIncome for winners)
+                $all_players = $this->game->loadPlayersBasicInfos();
+                $row_1 = array( );
+                $row_2 = array( );
+                $silver_html = '<span title = "silver" class="log_silver token_inline"></span>';
+                foreach ($all_players as $p_id => $p){
+                    $row_1[] = array('str' => '${player_name}',
+                    'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
+                    'type' => 'header');
+                    if (in_array($p_id, $winning_players)){
+                        $this->game->Resource->updateAndNotifyIncome($p_id, 'silver', 4, $this->getEventName(), 'event');
+                        $row_2[] = $silver_html.$silver_html.$silver_html.$silver_html;
+                    } else {
+                        $row_2[] = '';
+                    }
                 }
+                $this->showEventTable(array($row_1, $row_2), $bonus_id);
                 break;
             case EVENT_STATE_FAIR:
                 // apply pending trades
                 $this->game->Log->triggerHiddenTransactions();
                 // player(s) with most cow+copper get a gold
-                $resources =  $this->game->getCollectionFromDB( "SELECT `player_id`, `copper`, `cow` FROM `resources` ", true);
-                $players = $this->getMost($resources, 'copper', 1, 'cow');
-                foreach($players as $p_id => $p){
-                    $this->game->Resource->updateAndNotifyIncome($p_id, 'gold', 1, $this->getEventName(), 'event');
+                $resources =  $this->game->getCollectionFromDB( "SELECT `player_id`, `copper`, `cow` FROM `resources` WHERE `cow` >0 OR `copper`>0");
+                $winning_players = $this->getMost($resources, 'copper', 1, 'cow');
+
+                // build event table (and notifyIncome for winners)
+                $all_players = $this->game->loadPlayersBasicInfos();
+                $row_1 = array( );
+                $row_2 = array( );
+                foreach ($all_players as $p_id => $p){
+                    $row_1[] = array('str' => '${player_name}',
+                    'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
+                    'type' => 'header');
+                    if (in_array($p_id, $winning_players)){
+                        $this->game->Resource->updateAndNotifyIncome($p_id, 'gold', 1, $this->getEventName(), 'event');
+                        $row_2[] = '<span title = "gold" class="log_gold token_inline"></span>';
+                    } else {
+                        $row_2[] = '';
+                    }
                 }
+                $this->showEventTable(array($row_1, $row_2), $bonus_id);
                 break;
             case EVENT_TIMBER_CULTURE_ACT:
                 // player(s) get 1 vp per wood held.
-                $players_wood = $this->getPlayersWithAtLeastOneResource('wood');
-                foreach($players_wood as $p_id => $p){
-                    $wood_amt = $this->game->Resource->getPlayerResourceAmount($p_id, 'wood');
-                    $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', $wood_amt, $this->getEventName(), 'event');
+                $winning_players = $this->getPlayersWithAtLeastOneResource('wood');
+
+                $all_players = $this->game->loadPlayersBasicInfos();
+                $row_1 = array( );
+                $row_2 = array( );
+                foreach ($all_players as $p_id => $p){
+                    $row_1[] = array('str' => '${player_name}',
+                    'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
+                    'type' => 'header');
+                    if (in_array($p_id, $winning_players)){
+                        $wood_amt = $this->game->Resource->getPlayerResourceAmount($p_id, 'wood');
+                        $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', $wood_amt, $this->getEventName(), 'event');
+                        $row_2[] = $wood_amt.' <span title = "vp" class="log_vp token_inline"></span>';
+                    } else {
+                        $row_2[] = '';
+                    }
                 }
+                $this->showEventTable(array($row_1, $row_2), $bonus_id);
                 break;
         }
         $this->game->gamestate->nextState( 'done' );

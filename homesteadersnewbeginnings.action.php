@@ -102,6 +102,15 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
 
+  public function doneHiddenTradeEvent(){
+    self::setAjaxMode( );
+    $trade_action = self::getArg( "trade_action", AT_numberlist, true );
+    $this->game->playerTradeHidden($trade_action, false);
+
+    $this->game->playerDoneTradingEvent();
+    self::ajaxResponse( );
+  }
+
   public function doneTradingEvent() {
     self::setAjaxMode( );
     $trade_action = self::getArg( "trade_action", AT_numberlist, true );
