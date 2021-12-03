@@ -819,7 +819,6 @@ $this->event_info = array(
     'stage' => STAGE_CITY,
     'tt'    => clienttranslate('The player(s) with the most ${com} buildings only pays half their Auction bid (round down)'),
     'auc' => AUC_EVT_ALL,
-    'auc_b' => 1,
   ),
   EVENT_INDUSTRIAL_DOMINANCE => array(
     'name'  => clienttranslate('${ind} Dominance'),

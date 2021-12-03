@@ -60,6 +60,9 @@ class HSDEvents extends APP_GameClass
 
     function showEventTable($table, $event_id){
         $message = $this->game->event_info[$event_id]['name'];
+        if ($event_id == EVENT_INDUSTRIAL_DOMINANCE){
+            $message = '<span title="Industrial" class="ind">Industrial</span> Dominance';
+        }
         $this->game->notifyAllPlayers( "tableWindow", '', array(
             "id" => 'eventResolved',
             "title" => clienttranslate($message),
@@ -417,7 +420,7 @@ class HSDEvents extends APP_GameClass
                 $players = $this->game->loadPlayersBasicInfos();
                 foreach($players as $p_id=> $player){
                     if ($this->game->Resource->getCost($p_id) == 0) {
-                        $this->game->gamestate->setPlayerNonMultiactive($p_id,'done');
+                        $this->game->gamestate->setPlayerNonMultiactive($p_id, 'done');
                     }
                 }
             break;
@@ -427,6 +430,11 @@ class HSDEvents extends APP_GameClass
                 $this->game->gamestate->setAllPlayersMultiActive();    
             break;
         }
+    }
+
+    function doesPlayerHaveMostBuildings($p_id, $bld_type){
+        $winning_players = $this->getPlayersWithMostBuildings($bld_type);
+        return (array_key_exists($p_id, $winning_players));
     }
 
     function getNextStatePreTrade(){

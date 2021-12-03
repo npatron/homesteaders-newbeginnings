@@ -313,6 +313,12 @@ class HSDResource extends APP_GameClass
                 $values['preserve'] = [];
             }
             $values['preserve'][3] = 'player_id';
+        } else if ($origin === 'event'){
+            $values['origin'] = $origin;
+            if (!array_key_exists('preserve', $values)){
+                $values['preserve'] = [];
+            }
+            $values['preserve'][3] = 'player_id';
         }
         return $values;
     }

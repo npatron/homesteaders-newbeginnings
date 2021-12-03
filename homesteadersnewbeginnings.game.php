@@ -436,6 +436,11 @@ class homesteadersnewbeginnings extends Table
         }
         
         $bid_cost = $this->Bid->getBidCost($act_p_id);
+        if ($this->Event->getEvent() == EVENT_COMMERCIAL_DOMINANCE){
+            if ($this->Event->doesPlayerHaveMostBuildings($act_p_id, TYPE_COMMERCIAL)){
+                $bid_cost = floor($bid_cost/2);
+            }
+        }
         $bid_cost = max($bid_cost - 5*$gold, 0);
         $auc_no = $this->getGameStateValue('current_auction');
         $this->Resource->pay($act_p_id, $bid_cost, $gold, sprintf(clienttranslate("Auction %s"), $auc_no), $auc_no);

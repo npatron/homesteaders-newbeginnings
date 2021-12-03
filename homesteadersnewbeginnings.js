@@ -1743,14 +1743,12 @@ function (dojo, declare) {
 
         updateEventBanner: function(current_round){
             for(var i in this.events){
-                //console.log(this.events[i]);
                 if (Number(this.events[i].position) == current_round){
                     break;  
                 }
             }
             
             if (this.events[i] != null){
-                //console.log(this.events[i]);
                 let currentEvent = EVENT_INFO[this.events[i].e_id];
                 let eventName = this.replaceTooltipStrings(_(currentEvent.name));
                 let eventText = this.replaceTooltipStrings(_(currentEvent.tt));
@@ -5308,6 +5306,8 @@ function (dojo, declare) {
                         } else if (args.origin == "auction"){
                             let color = ASSET_COLORS[Number(args.key??0)+10];
                             args.reason_string = this.format_block('jstpl_color_number_log', {string:_('AUCTION '), color:color, number:args.key});
+                        } else if (args.origin == "event"){
+                            args.reason_string = this.replaceTooltipStrings(args.reason_string);
                         } else if (args.reason_string == 'train' || args.reason_string == 'bid') { // player_tokens (bid/train)
                             let color = PLAYER_COLOR[args.player_id];
                             args.reason_string = this.format_block('jstpl_player_token_log', {"color" : color, "type" : args.reason_string});

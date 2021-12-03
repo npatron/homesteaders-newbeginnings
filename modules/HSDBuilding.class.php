@@ -283,9 +283,7 @@ class HSDBuilding extends APP_GameClass
     function setupWarehouse($p_id, $b_key, $state){
         //default is to add all options.
         if ($state== -1){
-            foreach ($this->game->warehouse_map as $type=>$val){
-                $state |= $val;
-            }
+            $state=63; // all states
         }
         $oldState = $this->getBuildingState($b_key);
         $this->setBuildingState($b_key, $state);
