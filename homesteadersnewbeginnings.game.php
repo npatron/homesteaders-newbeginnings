@@ -821,7 +821,7 @@ class homesteadersnewbeginnings extends Table
     }
 
     function argEventTrade() {
-        return array('event_pass'=>$this->Event->getEventPass());
+        return array('event_pass'=>$this->Event->getEvent());
     }
 
     function argValidBids() {
@@ -1011,7 +1011,7 @@ class homesteadersnewbeginnings extends Table
     function stPassEvent()
     {
         $this->Log->allowTrades($this->getActivePlayerId());
-        $pass_evt = $this->Event->getEventPass();
+        $pass_evt = $this->Event->getEvent();
         if ($pass_evt != EVENT_NELSON_ACT){// every other event should not be here.
             $this->gamestate->nextState( "rail" );
         }

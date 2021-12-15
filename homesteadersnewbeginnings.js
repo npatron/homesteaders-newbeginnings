@@ -258,9 +258,7 @@ function (dojo, declare) {
             /** EVENT_NELSON_ACT **/
             const BTN_ID_PAY_LOAN_3_SILVER = 'btn_loan_3_silver';
             const METHOD_PAY_LOAN_3_SILVER = 'payLoan3Silver';
-            const PAY_LOAN_3_SILVER_ARR    = {'silver':-5,'loan':-1};
-
-    
+            const PAY_LOAN_3_SILVER_ARR    = {'silver':-3,'loan':-1};
 
     /* ** Choose Lot Action ** */
         const BTN_LOT_ACTION_BUILD  = 'btn_build';
@@ -1339,7 +1337,7 @@ function (dojo, declare) {
         },
         onUpdateActionButtons_pass_event: function (args) {
             // state for pass bid event triggers.
-            this.addActionButton( BTN_ID_ON_PASS_EVENT_DONE, _(MESSAGE_DONE_PASS), METHOD_ON_PASS_EVENT_DONE, null, false, 'blue');
+            this.addActionButton( BTN_ID_ON_PASS_EVENT_DONE, _("Done"), METHOD_ON_PASS_EVENT_DONE, null, false, 'blue');
             this.addActionButton( BTN_ID_UNDO_PASS, _(MESSAGE_UNDO_PASS), 'onUndoBidPass', null, false, 'red');
             if (args.event_pass == EVENT_NELSON_ACT){
                 this.addActionButton( BTN_ID_PAY_LOAN_3_SILVER, this.replaceTooltipStrings(_('pay off ${loan} for ${silver}${silver}${silver}')), METHOD_PAY_LOAN_3_SILVER, null, false, 'blue');

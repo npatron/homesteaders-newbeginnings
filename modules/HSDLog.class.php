@@ -412,7 +412,7 @@ class HSDLog extends APP_GameClass
   public function cancelPass()
   {
     $p_id = $this->game->getActivePlayerId();
-    $logs = $this->getLastActions($p_id, ['railAdv', 'gainTrack', 'updateResource', 'loanPaid', 'buildingState', 'passBid'], 'passBid');
+    $logs = $this->getLastActions($p_id, ['railAdv', 'gainTrack', 'updateResource', 'loanPaid', 'buildingState', 'loan', 'passBid'], 'passBid');
     $transactions = $this->cancelLogs($p_id, $logs);
     $this->game->notifyAllPlayers('cancel', '', array(
       'actions' => $transactions['action'],

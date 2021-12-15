@@ -63,6 +63,9 @@ class HSDEvents extends APP_GameClass
         if ($event_id == EVENT_INDUSTRIAL_DOMINANCE){
             $message = '<span title="Industrial" class="ind">Industrial</span> Dominance';
         }
+        if ($event_id == EVENT_RESIDENTIAL_DOMINANCE){
+            $message = '<span title="Residential" class="res">Residential</span> Dominance';
+        }
         $this->game->notifyAllPlayers( "tableWindow", '', array(
             "id" => 'eventResolved',
             "title" => clienttranslate($message),
@@ -94,10 +97,6 @@ class HSDEvents extends APP_GameClass
         return $this->game->event_info[$event][$attribute]??0;
     }
 
-    function getEventAucB($round_number = null){
-        return $this->getEventAttribute('auc_b', $round_number);
-    }
-
     /**
      * Is the current event in event phase?
      * bool true on yes, false on no.
@@ -107,10 +106,6 @@ class HSDEvents extends APP_GameClass
         return $this->eventHaskey('auc_b');
     }
 
-    function getEventPass($round_number = null){
-        return $this->getEventAttribute('pass', $round_number);
-    }
-    
     ///// BEGIN event phase helper methods ////
     /**
      * Is the current event in event phase?
@@ -380,11 +375,11 @@ class HSDEvents extends APP_GameClass
                     'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
                     'type' => 'header');
                     if (in_array($p_id, $pending_players)){
-                        $this->game->Resource->getRailAdv($p_id, $this->getEventName(), 'event');
+                        $this->game->Resource->getRailAdv($p_id, clienttranslate('<span title="Residential" class="res">Residential</span> Dominance'), 'event');
                         $this->game->Log->allowTrades($p_id);
                         $row_2[] = clienttranslate('Rail Development');
                     } else {
-                        $row_2[] = '';
+                        $row_2[] = 'x';
                     }
                 }
                 $this->showEventTable(array($row_1, $row_2), $event_id);
@@ -515,10 +510,16 @@ class HSDEvents extends APP_GameClass
                     $row_1[] = array('str' => '${player_name}',
                     'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
                     'type' => 'header');
-                    if (in_array($p_id, $winning_players)){
+                    if (key_exists($p_id, $winning_players)){
                         $wood_amt = $this->game->Resource->getPlayerResourceAmount($p_id, 'wood');
                         $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', $wood_amt, $this->getEventName(), 'event');
-                        $row_2[] = $wood_amt.' <span title = "vp" class="log_vp token_inline"></span>';
+
+                        $val = '<span class="log_container">';
+                        for($i=0;$i <$wood_amt; $i++){
+                            $val .= '<span title = "vp" class="log_vp token_inline"></span>';
+                        }
+                        $val .= '</span>';
+                        $row_2[] = $val;
                     } else {
                         $row_2[] = '';
                     }
@@ -621,11 +622,8 @@ class HSDEvents extends APP_GameClass
     }
 
     private function getPlayersFurthestOnDevelopmentTrack(){
-        return $this->game->getCollectionFromDB( "SELECT `player_id` FROM `player` WHERE `rail_adv` = (SELECT MAX(`rail_adv`) FROM `player`)", true);
-        /* alternate solution...
         $values = $this->game->getCollectionFromDB( "SELECT `player_id`, `rail_adv` FROM `player` ");
         return $this->getMost( $values, 'rail_adv');
-        */
     }
 
     private function getLeast($values, $key){
