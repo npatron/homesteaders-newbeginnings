@@ -570,8 +570,7 @@ class HSDEvents extends APP_GameClass
     function passBidNextState(){
         $next_state = 'rail';
         if($this->passPhase()){
-            $pass_evt = $this->getEventPass();
-            switch($pass_evt){
+            switch($this->getEvent()){
                 case EVENT_CENTRAL_PACIFIC_RR: //Players who pass, get a ${track}
                     $this->game->Resource->addTrackAndNotify($this->game->getActivePlayerId(), _("event"));
                 break;
