@@ -1465,7 +1465,7 @@ function (dojo, declare) {
         onUpdateActionButtons_endGameActions: function () {
             this.addActionButton( BTN_ID_DONE,   _(MESSAGE_PASS), METHOD_ENDGAME_DONE);    
             this.addActionButton( BTN_ID_CANCEL, _(MESSAGE_CANCEL_TURN), 'cancelUndoTransactions', null, false, 'red');
-            dojo.place(dojo.create('br'),'generalactions','last');
+            dojo.place(dojo.create('br'),'generalactions', 'last');
             
             this.addActionButton( BTN_ID_PAY_LOAN_SILVER, this.replaceTooltipStrings(_("Pay Debt ${silver}")), METHOD_PAY_LOAN_SILVER, null, false, 'blue' );
             this.addActionButton( BTN_ID_PAY_LOAN_GOLD, this.replaceTooltipStrings(_("Pay Debt ${gold}")), METHOD_PAY_LOAN_GOLD, null, false, 'blue' );
@@ -1587,7 +1587,7 @@ function (dojo, declare) {
             this.setOffsetForPaymentButtons();
         },
         onUpdateActionButtons_bonusChoice_lotEvent: function (args){ 
-            let option = Number(args.event_bonus);
+            let option = Number(args.event);
             switch (option){
                 case EVENT_RAILROAD_CONTRACTS: // auction winners can pay 2 silver for track
                     this.addActionButton( BTN_ID_EVENT_SILVER_TRACK, `${TOKEN_HTML.silver}${TOKEN_HTML.silver} ${TOKEN_HTML.arrow} ${TOKEN_HTML.track}`, METHOD_EVENT_SILVER_TRACK);

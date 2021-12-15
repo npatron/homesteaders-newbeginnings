@@ -785,20 +785,19 @@ class homesteadersnewbeginnings extends Table
 
     function argStartRound(){
         $round_number = $this->getGameStateValue('round_number');
-        $auctions = $this->Auction->getCurrentRoundAuctions($round_number);
-        return array('round_number'=>$round_number, 'auctions' => $auctions);
+        return array('round_number'=>$round_number, 
+                     'auctions' => $this->Auction->getCurrentRoundAuctions($round_number));
     }
 
     function argPayWorkers()
     {
-        $args = $this->getCollectionFromDB("SELECT `player_id`, `workers` FROM `resources`");
-        $paid = $this->getCollectionFromDB("SELECT `player_id`, `has_paid` FROM `player`");
-        return array('args'=>$args, 'paid'=>$paid);
+        return array('args'=>$this->getCollectionFromDB("SELECT `player_id`, `workers` FROM `resources`"), 
+                     'paid'=>$this->getCollectionFromDB("SELECT `player_id`, `has_paid` FROM `player`"));
     }
 
     function argDummyValidBids() {
-        $dummy_bids = $this->Bid->getDummyBidOptions();
-        return array('valid_bids'=>$dummy_bids);
+        return array('valid_bids'=>$this->Bid->getDummyBidOptions(), 
+                     'event'=>$this->Event->getEvent());
     }
 
     function argEventBonus() {
@@ -811,11 +810,9 @@ class homesteadersnewbeginnings extends Table
     }
 
     function argEventBuildBonus() {
-        $bonus_option = $this->Event->getEvent();
-        if ($bonus_option == EVENT_INDUSTRIALIZATION){
-            return array('event_bonus'=>$bonus_option, 'alternate'=>true);
-        }
-        return array('bonus_option'=>$bonus_option);
+        $event = $this->Event->getEvent();
+        return array('event'=>$event, 
+                     'alternate'=>($event == EVENT_INDUSTRIALIZATION));
     }
 
     function argEventPay(){
@@ -829,17 +826,16 @@ class homesteadersnewbeginnings extends Table
 
     function argValidBids() {
         $valid_bids = $this->Bid->getValidBids($this->getActivePlayerId());
-        return array("valid_bids"=>$valid_bids );
+        return array('valid_bids'=>$valid_bids, 'event'=>$this->Event->getEvent());
     }
 
     function argPassRailBonus() {
-        $rail_options= $this->Resource->getRailAdvBonusOptions($this->getActivePlayerId());
-        return array("rail_options"=>$rail_options, "can_undo"=>false);
+        return array("rail_options"=>$this->Resource->getRailAdvBonusOptions($this->getActivePlayerId()),
+                     "can_undo"=>false);
     }
 
     function argRailBonus() {
-        $rail_options= $this->Resource->getRailAdvBonusOptions($this->getActivePlayerId());
-        return array("rail_options"=>$rail_options);
+        return array("rail_options"=> $this->Resource->getRailAdvBonusOptions($this->getActivePlayerId()));
     }
 
     function argLotCost() {
