@@ -532,7 +532,7 @@ function (dojo, declare) {
             this.show_player_info = gamedatas.show_player_info;
             this.use_events = gamedatas.use_events;
             this.events = gamedatas.events;
-            this.current_round = gamedatas.round_number;
+            this.current_round = Number(gamedatas.round_number);
             this.fillArray(RESOURCE_INFO, gamedatas.resource_info);
             this.fillArray(EVENT_INFO, gamedatas.event_info);
             this.rail_no_build = gamedatas.rail_no_build;
@@ -570,8 +570,8 @@ function (dojo, declare) {
             this.setupBuildings(gamedatas.buildings);
             this.setupTracks(gamedatas.tracks);
             if (this.use_events){
-                this.createEventCards(gamedatas.round_number);
-                this.updateEventBanner(gamedatas.round_number);
+                this.createEventCards(Number(gamedatas.round_number));
+                this.updateEventBanner(Number(gamedatas.round_number));
             }
             
             dojo.place(FIRST_PLAYER_ID, PLAYER_SCORE_ZONE_ID[gamedatas.first_player]);
@@ -584,12 +584,12 @@ function (dojo, declare) {
             this.setupRailLines(gamedatas.players);
             this.setupRailAdvanceButtons(gamedatas.resource_info);
             this.setupShowButtons();
-            if (gamedatas.round_number ==11){
+            if (Number(gamedatas.round_number ==11)){
                 dojo.destroy('#round_number');
                 $("round_text").innerHTML=_('Final Income and Scoring Round');
             } else {
                 this.ROUND_COUNTER.create('round_number');
-                this.ROUND_COUNTER.setValue(gamedatas.round_number);
+                this.ROUND_COUNTER.setValue(Number(gamedatas.round_number));
             }
             this.showScoreTooltips(gamedatas.players);
             
