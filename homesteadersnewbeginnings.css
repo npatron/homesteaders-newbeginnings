@@ -1063,13 +1063,10 @@ div#sell_board{
    position: relative;
 }
 
-.score[payment].neg::after{
-   content: calc(attr(income) - attr(payment));
-}
-.score[income]::after, .score[payment]::after  {
+.score[income]::after  {
    bottom: 0px;
    color: lightgreen;  
-   content: "+" calc(attr(income) - attr(payment));
+   content: "+" attr(income);
    font-size: 14px;
    position: absolute;
    right: 0;

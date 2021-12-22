@@ -23,114 +23,34 @@
         <div id="player_resources_{COLOR}" class="this_player_resources">
             <span id="player_name_{COLOR}" class="boardheader biggerFont" style="color: {COLOR};">{NAME}</span>
             <span id="silver_group" class="this_player_resource_group"><!-- horiz -->
-                <span id="silvericon_{COLOR}" class="score_token player_silver score"></span>
-                <span id="silver_num" class="player_numbers vert"><!-- vertical -->
-                    <span id="silvercount_{COLOR}" class="player_silver_text player_text">0</span>
-                    <span id="silver_offsets" class="vert"><!-- vertical -->
-                        <span class="signed silver pos horiz">+<span id="silver_pos">0</span></span>
-                        <span class="signed silver neg horiz">-<span id="silver_neg">0</span></span>
-                    </span>
-                    <span id="silver_new" class="player_silver_new new_text noshow">0</span>
-                </span>
+                <span id="silvericon_{COLOR}" class="score_token player_silver score" income="0"></span>
             </span>
             <span id="trade_group" class="this_player_resource_group">
-                <span id="tradeicon_{COLOR}"  class="score_token player_trade score"></span>
-                <span id="trade_num" class="player_numbers vert"><!-- vertical -->
-                    <span id="tradecount_{COLOR}" class="player_trade_text player_text">0</span>
-                    <span id="trade_offsets" class="vert"><!-- vertical -->
-                        <span class="signed trade pos horiz">+<span id="trade_pos">0</span></span>
-                        <span class="signed trade neg horiz">-<span id="trade_neg">0</span></span>
-                    </span>
-                    <span id="trade_new" class="player_trade_new new_text noshow">0</span>
-                </span>
+                <span id="tradeicon_{COLOR}"  class="score_token player_trade score" income="0"></span>
             </span>
             <span id="vp_group" class="this_player_resource_group">
-                <span id="vpicon_{COLOR}"   class="score_token player_vp score"></span>
-                <span id="vp_num" class="player_numbers vert"><!-- vertical -->
-                    <span id="vpcount_{COLOR}" class="player_vp_text player_text">0</span>
-                    <span id="vp_offsets" class="vert"><!-- vertical -->
-                        <span class="signed vp pos horiz">+<span id="vp_pos">0</span></span>
-                        <span class="signed vp neg horiz">-<span id="vp_neg">0</span></span>
-                    </span>
-                    <span id="vp_new" class="player_vp_new new_text noshow">0</span>
-                </span>
+                <span id="vpicon_{COLOR}"   class="score_token player_vp score" income="0"></span>
             </span>
             <span id="loan_group" class="this_player_resource_group">
-                <span id="loanicon_{COLOR}"   class="player_loan score"></span>
-                <span id="loan_num" class="player_numbers vert"><!-- vertical -->
-                    <span id="loancount_{COLOR}" class="player_loan_text player_text">0</span>
-                    <span id="loan_offsets" class="vert"><!-- vertical -->
-                        <span class="signed loan pos horiz">+<span id="loan_pos">0</span></span>
-                        <span class="signed loan neg horiz">-<span id="loan_neg">0</span></span>
-                    </span>
-                    <span id="loan_new" class="player_loan_new new_text noshow">0</span>
-                </span>
+                <span id="loanicon_{COLOR}"   class="player_loan score" income="0"></span>
             </span>
             <span id="wood_group" class="this_player_resource_group">
-                <span id="woodicon_{COLOR}"   class="score_token player_wood score"></span>
-                <span id="wood_num" class="player_numbers vert"><!-- vertical -->
-                    <span id="woodcount_{COLOR}" class="player_wood_text player_text">0</span>
-                    <span id="wood_offsets" class="vert"><!-- vertical -->
-                        <span class="signed wood pos horiz">+<span id="wood_pos">0</span></span>
-                        <span class="signed wood neg horiz">-<span id="wood_neg">0</span></span>
-                    </span>
-                    <span id="wood_new" class="player_wood_new new_text noshow">0</span>
-                </span>
+                <span id="woodicon_{COLOR}"   class="score_token player_wood score" income="0"></span>
             </span>
             <span id="food_group" class="this_player_resource_group">
-                <span id="foodicon_{COLOR}"   class="score_token player_food score"></span>
-                <span id="food_num" class="player_numbers vert"><!-- vertical -->
-                    <span id="foodcount_{COLOR}" class="player_food_text player_text">0</span>
-                    <span id="food_offsets" class="vert"><!-- vertical -->
-                        <span class="signed food pos horiz">+<span id="food_pos">0</span></span>
-                        <span class="signed food neg horiz">-<span id="food_neg">0</span></span>
-                    </span>
-                    <span id="food_new" class="player_food_new new_text noshow">0</span>
-                </span>
+                <span id="foodicon_{COLOR}"   class="score_token player_food score" income="0"></span>
             </span>
             <span id="steel_group" class="this_player_resource_group">
-                <span id="steelicon_{COLOR}"  class="score_token player_steel score"></span>
-                <span id="steel_num" class="player_numbers vert"><!-- vertical -->
-                    <span id="steelcount_{COLOR}" class="player_steel_text player_text">0</span>
-                    <span id="steel_offsets" class="vert"><!-- vertical -->
-                        <span class="signed steel pos horiz">+<span id="steel_pos">0</span></span>
-                        <span class="signed steel neg horiz">-<span id="steel_neg">0</span></span>
-                    </span>
-                    <span id="steel_new" class="player_steel_new new_text noshow">0</span>
-                </span>
+                <span id="steelicon_{COLOR}"  class="score_token player_steel score" income="0"></span>
             </span>
             <span id="gold_group" class="this_player_resource_group">
-                <span id="goldicon_{COLOR}"   class="score_token player_gold score"></span>
-                <span id="gold_num" class="player_numbers vert"><!-- vertical -->
-                    <span id="goldcount_{COLOR}" class="player_gold_text player_text">0</span>
-                    <span id="gold_offsets" class="vert"><!-- vertical -->
-                        <span class="signed gold pos horiz">+<span id="gold_pos">0</span></span>
-                        <span class="signed gold neg horiz">-<span id="gold_neg">0</span></span>
-                    </span>
-                    <span id="gold_new" class="player_gold_new new_text noshow">0</span>
-                </span>
+                <span id="goldicon_{COLOR}"   class="score_token player_gold score" income="0"></span>
             </span>
             <span id="cow_group" class="this_player_resource_group">
-                <span id="cowicon_{COLOR}"    class="score_token player_cow score"></span>
-                <span id="cow_num" class="player_numbers vert"><!-- vertical -->
-                    <span id="cowcount_{COLOR}" class="player_cow_text player_text">0</span>
-                    <span id="cow_offsets" class="vert"><!-- vertical -->
-                        <span class="signed cow pos horiz">+<span id="cow_pos">0</span></span>
-                        <span class="signed cow neg horiz">-<span id="cow_neg">0</span></span>
-                    </span>
-                    <span id="cow_new" class="player_cow_new new_text noshow">0</span>
-                </span>
+                <span id="cowicon_{COLOR}"    class="score_token player_cow score" income="0"></span>
             </span>
             <span id="copper_group" class="this_player_resource_group">
-                <span id="coppericon_{COLOR}" class="score_token player_copper score"></span>
-                <span id="copper_num" class="player_numbers vert"><!-- vertical -->
-                    <span id="coppercount_{COLOR}" class="player_copper_text player_text">0</span>
-                    <span id="copper_offsets" class="vert"><!-- vertical -->
-                        <span class="signed copper pos horiz">+<span id="copper_pos">0</span></span>
-                        <span class="signed copper neg horiz">-<span id="copper_neg">0</span></span>
-                    </span>
-                    <span id="copper_new" class="player_copper_new new_text noshow">0</span>
-                </span>
+                <span id="coppericon_{COLOR}" class="score_token player_copper score" income="0"></span>
             </span>
         </div>
         <div id="token_zone_{COLOR}" class="player_token_zone">

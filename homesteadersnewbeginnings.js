@@ -422,6 +422,7 @@ function (dojo, declare) {
             const PLAYER_BUILDING_ZONE_ID = [];
         /* PLAYER resources and score counters */
             const BOARD_RESOURCE_COUNTERS = [];
+            const RESOURCE_ARRAY = [];
             const POSITIVE_RESOURCE_COUNTERS = [];
             const NEGATIVE_RESOURCE_COUNTERS = [];
             const NEW_RESOURCE_COUNTERS = [];
@@ -548,16 +549,16 @@ function (dojo, declare) {
                 const player = gamedatas.players[p_id];
                 this.setupPlayerAssets(player);
             }
+            if (this.player_count == 2){
+                PLAYER_COLOR[DUMMY_BID] = this.getAvailableColor();
+                PLAYER_COLOR[DUMMY_OPT] = PLAYER_COLOR[0];
+            }
             this.setupPlayerResources(gamedatas.player_resources, gamedatas.resources);
             if (!this.isSpectator){
                 this.orientPlayerZones(gamedatas.player_order);
                 this.setupTradeButtons();
             } else {
                 this.spectatorFormatting();
-            }
-            if (this.player_count == 2){
-                PLAYER_COLOR[DUMMY_BID] = this.getAvailableColor();
-                PLAYER_COLOR[DUMMY_OPT] = PLAYER_COLOR[0];
             }
             if (this.player_count <5){
                 this.hideBoard2();
@@ -718,7 +719,7 @@ function (dojo, declare) {
                 this.addTooltipHtml( boardIconId, tooltip_html );
 
                 BOARD_RESOURCE_COUNTERS[resource.p_id][key] = new ebg.counter();
-                BOARD_RESOURCE_COUNTERS[resource.p_id][key].create(boardResourceId);
+                BOARD_RESOURCE_COUNTERS[resource.p_id][key].create(boardIconId);
                 BOARD_RESOURCE_COUNTERS[resource.p_id][key].setValue(value);
             }
 
@@ -934,15 +935,16 @@ function (dojo, declare) {
             // create new and offset counters
             for (const [key, value] of Object.entries(RESOURCE_INFO)) {
                 if ( key == "workers" || key == "track") continue;
-                POSITIVE_RESOURCE_COUNTERS[key] = new ebg.counter();
-                POSITIVE_RESOURCE_COUNTERS[key].create(`${key}_pos`);
-                POSITIVE_RESOURCE_COUNTERS[key].setValue(0);
-                NEGATIVE_RESOURCE_COUNTERS[key] = new ebg.counter();
-                NEGATIVE_RESOURCE_COUNTERS[key].create(`${key}_neg`);
-                NEGATIVE_RESOURCE_COUNTERS[key].setValue(0);
-                NEW_RESOURCE_COUNTERS[key] = new ebg.counter();
-                NEW_RESOURCE_COUNTERS[key].create(`${key}_new`);
-                NEW_RESOURCE_COUNTERS[key].setValue(0);
+                RESOURCE_ARRAY[key] = key+"count_"+ PLAYER_COLOR[this.player_id];
+                POSITIVE_RESOURCE_COUNTERS[key] = 0;
+                //POSITIVE_RESOURCE_COUNTERS[key].create(`${key}_pos`);
+                //POSITIVE_RESOURCE_COUNTERS[key].setValue(0);
+                NEGATIVE_RESOURCE_COUNTERS[key] = 0;
+                //NEGATIVE_RESOURCE_COUNTERS[key].create(`${key}_neg`);
+                //NEGATIVE_RESOURCE_COUNTERS[key].setValue(0);
+                NEW_RESOURCE_COUNTERS[key] = 0;
+                //NEW_RESOURCE_COUNTERS[key].create(`${key}_new`);
+                //NEW_RESOURCE_COUNTERS[key].setValue(0);
             }
             this.resetTradeValues();
         },
@@ -2640,7 +2642,7 @@ function (dojo, declare) {
                     if (INCOME_ARRAY[id][type]!= 0){
                         let income = INCOME_ARRAY[id][type];
                         this.offsetPosNeg(type, income, true);
-                        this.newPosNeg(type, income, true);
+                        //this.newPosNeg(type, income, true);
                         this.updateBuildingAffordability();
                         this.updateTradeAffordability();
                     }
@@ -2651,12 +2653,14 @@ function (dojo, declare) {
 
         clearOffset: function() {
             //console.log("clearOffset");
-            for(type in POSITIVE_RESOURCE_COUNTERS){
-                POSITIVE_RESOURCE_COUNTERS[type].setValue(0);
-                dojo.query(`.${type}.pos:not(.noshow)`).addClass('noshow');
-                NEGATIVE_RESOURCE_COUNTERS[type].setValue(0);
-                dojo.query(`.${type}.neg:not(.noshow)`).addClass('noshow');
-                dojo.query(`#${type}_new:not(.noshow)`).addClass("noshow");
+            for(type in RESOURCE_ARRAY){
+                RESOURCE_ARRAY[type].removeAttr('income');
+                RESOURCE_ARRAY[type].removeAttr('payment');
+                POSITIVE_RESOURCE_COUNTERS[type] = 0;
+                //dojo.query(`.${type}.pos:not(.noshow)`).addClass('noshow');
+                NEGATIVE_RESOURCE_COUNTERS[type] = 0;
+                //dojo.query(`.${type}.neg:not(.noshow)`).addClass('noshow');
+                //dojo.query(`#${type}_new:not(.noshow)`).addClass("noshow");
             }
         },
 
@@ -3645,7 +3649,7 @@ function (dojo, declare) {
                 } else {
                     this.setOffsetNeg(type, (undo?offset:(-1 * offset)), true);
                 }
-                let offset_value = POSITIVE_RESOURCE_COUNTERS[type].getValue() - NEGATIVE_RESOURCE_COUNTERS[type].getValue();
+                let offset_value = POSITIVE_RESOURCE_COUNTERS[type] - NEGATIVE_RESOURCE_COUNTERS[type];
                 this.newPosNeg(type, BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue() + offset_value);
             }
             return true;
@@ -3653,40 +3657,24 @@ function (dojo, declare) {
 
         
         showResource: function(type){
-            let showNew = false;
-            if (POSITIVE_RESOURCE_COUNTERS[type].getValue() != 0){
-                dojo.query(`.${type}.pos.noshow`).removeClass('noshow');
-                showNew = true;
-            } else {
-                dojo.query(`.${type}.pos:not(.noshow)`).addClass('noshow');
-            }
-            if (NEGATIVE_RESOURCE_COUNTERS[type].getValue() != 0){
-                dojo.query(`.${type}.neg.noshow`).removeClass('noshow');
-                showNew = true;
-            } else {
-                dojo.query(`.${type}.neg:not(.noshow)`).addClass('noshow');
-            }
-            if (showNew){
-                dojo.query(`#${type}_new.noshow`).removeClass("noshow");
-            } else {
-                dojo.query(`#${type}_new:not(.noshow)`).addClass("noshow");
-            }         
+            dojo.query(`#${RESOURCE_ARRAY[type]}`).income = POSITIVE_RESOURCE_COUNTERS[type]; 
+            dojo.query(`#${RESOURCE_ARRAY[type]}`).payment = NEGATIVE_RESOURCE_COUNTERS[type];
         },
         
         newPosNeg: function(type, new_value, inc= false){   
             if (inc){
-                old_value = NEW_RESOURCE_COUNTERS[type].getValue();
-                new_value = NEW_RESOURCE_COUNTERS[type].setValue(old_value+ new_value);
+                old_value = NEW_RESOURCE_COUNTERS[type];
+                new_value = NEW_RESOURCE_COUNTERS[type] = old_value + new_value;
             } else {
-                NEW_RESOURCE_COUNTERS[type].setValue(new_value);
+                NEW_RESOURCE_COUNTERS[type] = new_value;
             }         
             
-            if(new_value < 0){
+            /*if(new_value < 0){
                 dojo.query(`#${type}_new`).addClass('negative');
             } else {
                 dojo.query(`#${type}_new`).removeClass('negative');
             }
-            this.showResource(type);
+            this.showResource(type);*/
             return new_value;
         },
 
@@ -3741,16 +3729,21 @@ function (dojo, declare) {
          * @returns the new offset value
          */
         setOffset:function(pos, type, offset_value, inc= false){
-            let counter = NEGATIVE_RESOURCE_COUNTERS[type];
-            if (pos){
-                counter = POSITIVE_RESOURCE_COUNTERS[type];
-            } 
             if (inc) {
-                old_value = counter.getValue();
-                offset_value = counter.setValue(old_value + offset_value);
+                if (pos){
+                    old_value = POSITIVE_RESOURCE_COUNTERS[type];
+                    offset_value = POSITIVE_RESOURCE_COUNTERS[type] = (old_value + offset_value);
+                } else {
+                    old_value = NEGATIVE_RESOURCE_COUNTERS[type];
+                    offset_value = NEGATIVE_RESOURCE_COUNTERS[type] = (old_value + offset_value);
+                }                
             } else {
-                counter.setValue(offset_value);
-            } 
+                if (pos){
+                    offset_value = POSITIVE_RESOURCE_COUNTERS[type] = offset_value;
+                } else {
+                    offset_value = NEGATIVE_RESOURCE_COUNTERS[type] = offset_value;
+                }   
+            }
             this.showResource(type);
             return offset_value;
         },
@@ -4090,9 +4083,9 @@ function (dojo, declare) {
         },
 
         validPay:function(){
-            if (NEW_RESOURCE_COUNTERS.silver.getValue() < 0)
+            if (NEW_RESOURCE_COUNTERS.silver < 0)
                 return false;
-            if (NEW_RESOURCE_COUNTERS.gold.getValue() < 0)
+            if (NEW_RESOURCE_COUNTERS.gold < 0)
                 return false;
             return true;
         },
