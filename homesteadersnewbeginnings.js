@@ -119,6 +119,11 @@ function (dojo, declare) {
         const TPL_EVT_ZONE  = "event_tile_zone_";
         const FIRST_PLAYER_ID = 'first_player_tile';
 
+    /* ***** building aids ***** */
+        const AID_BLD_TABLE = "bld_aid_table";
+        const AID_BLD_HEADER = "bld_aid_header_";
+        const TPL_AID_BLD_ROW = "bld_aid_row_";
+
     /* ***** allocate workers ***** */
         const BTN_ID_CONFIRM_WORKERS = 'btn_confirm_workers'; 
         const METHOD_CONFIRM_WORKERS = 'donePlacingWorkers';
@@ -258,7 +263,7 @@ function (dojo, declare) {
             /** EVENT_NELSON_ACT **/
             const BTN_ID_PAY_LOAN_3_SILVER = 'btn_loan_3_silver';
             const METHOD_PAY_LOAN_3_SILVER = 'payLoan3Silver';
-            const PAY_LOAN_3_SILVER_ARR    = {'silver':-3,'loan':-1};
+            const PAY_LOAN_3_SILVER_ARR    = {'silver':-5,'loan':-1};
 
     /* ** Choose Lot Action ** */
         const BTN_LOT_ACTION_BUILD  = 'btn_build';
@@ -532,7 +537,7 @@ function (dojo, declare) {
             this.show_player_info = gamedatas.show_player_info;
             this.use_events = gamedatas.use_events;
             this.events = gamedatas.events;
-            this.current_round = Number(gamedatas.round_number);
+            this.current_round = gamedatas.round_number;
             this.fillArray(RESOURCE_INFO, gamedatas.resource_info);
             this.fillArray(EVENT_INFO, gamedatas.event_info);
             this.rail_no_build = gamedatas.rail_no_build;
@@ -568,10 +573,11 @@ function (dojo, declare) {
             this.setupAuctionTiles(gamedatas.auctions, gamedatas.auction_info);
             this.showCurrentAuctions(gamedatas.current_auctions);
             this.setupBuildings(gamedatas.buildings);
+            this.setupBuildingAid(gamedatas.buildings);
             this.setupTracks(gamedatas.tracks);
             if (this.use_events){
-                this.createEventCards(Number(gamedatas.round_number));
-                this.updateEventBanner(Number(gamedatas.round_number));
+                this.createEventCards(gamedatas.round_number);
+                this.updateEventBanner(gamedatas.round_number);
             }
             
             dojo.place(FIRST_PLAYER_ID, PLAYER_SCORE_ZONE_ID[gamedatas.first_player]);
@@ -584,12 +590,12 @@ function (dojo, declare) {
             this.setupRailLines(gamedatas.players);
             this.setupRailAdvanceButtons(gamedatas.resource_info);
             this.setupShowButtons();
-            if (Number(gamedatas.round_number ==11)){
+            if (gamedatas.round_number ==11){
                 dojo.destroy('#round_number');
                 $("round_text").innerHTML=_('Final Income and Scoring Round');
             } else {
                 this.ROUND_COUNTER.create('round_number');
-                this.ROUND_COUNTER.setValue(Number(gamedatas.round_number));
+                this.ROUND_COUNTER.setValue(gamedatas.round_number);
             }
             this.showScoreTooltips(gamedatas.players);
             
@@ -753,6 +759,82 @@ function (dojo, declare) {
                 } else {
                     this.addBuildingToOffer(building);
                 }
+            }
+        },
+
+        setupBuildingAid: function() {
+            dojo.removeClass('building_aid', 'noshow');
+            let building_aid_table = dojo.create('section', {id:AID_BLD_TABLE, style:'display: flex;flex-direction: column;'});
+            dojo.place(building_aid_table, 'building_aid', 'last');
+
+            let row_id = TPL_AID_BLD_ROW+"0";
+            let row = dojo.create('header', {id:row_id, style:'display: flex;'});
+            dojo.place(row, AID_BLD_TABLE, 'last');
+
+            let header = dojo.create('div', {id:row_id+"_name", style:"flex: 1;"});
+            dojo.place(header, row_id, 'last');
+            header.innerText= _("Building Name");
+            
+            header = dojo.create('div', {id:row_id+"_stage", style:"flex: 1;"});
+            dojo.place(header, row_id, 'last');
+            header.innerText= _("Stage");
+
+            header = dojo.create('div', {id:row_id+"_cost", style:"flex: 1;"});
+            dojo.place(header, row_id, 'last');
+            header.innerText= _("Cost");
+
+            header = dojo.create('div', {id:row_id+"_effect", style:"flex: 2;"});
+            dojo.place(header, row_id, 'last');
+            header.innerText= _("Effect");
+
+            header = dojo.create('div', {id:row_id+"_income", style:"flex: 2;"});
+            dojo.place(header, row_id, 'last');
+            header.innerText= _("Income");
+            
+            for (let b_id in BUILDING_INFO){
+                const building = BUILDING_INFO[b_id];
+                if (building.stage == 0) continue;
+                row_id = TPL_AID_BLD_ROW+b_id;
+                row = dojo.create('div', {id:row_id, style:'display: flex;'});
+                dojo.place(row, AID_BLD_TABLE, 'last');
+                let col = dojo.create('div', {id:row_id+"_name", style:"flex: 1;align-text: center;"});
+                dojo.place(col, row_id, 'last');
+                if (building.name){
+                    col.innerText= _(building.name);
+                }
+                col = dojo.create('div', {id:row_id+"_stage", style:"flex: 1;align-text: center;"});
+                dojo.place(col, row_id, 'last');
+                var translatedText = "";
+                switch(Number(building.stage)){
+                    case 1:
+                        translatedText = _("Settlement");
+                        break;
+                    case 2:
+                        translatedText = _("Settlement Town");
+                        break;
+                    case 3:
+                        translatedText = _("Town");
+                        break;
+                    case 4:
+                        translatedText = _("City");
+                }
+                col.innerText = translatedText;
+                
+                col = dojo.create('div', {id:row_id+"_cost", style:"flex: 1;align-text: center;"});
+                dojo.place(col, row_id, 'last');
+                if (building.cost){
+                    let costArr = this.getResourceArrayHtml(building.cost);
+                    console.log(costArr, row_id);
+                    col.innerHTML = costArr;
+                }
+
+                col = dojo.create('div', {id:row_id+"_effect", style:"flex: 2;align-text: center;"});
+                dojo.place(col, row_id, 'last');
+                col.innerHTML = this.formatBuildingDescription(b_id, 1);
+
+                col = dojo.create('div', {id:row_id+"_income", style:"flex: 2;align-text: center;"});
+                dojo.place(col, row_id, 'last');
+                col.innerHTML = this.formatBuildingIncome(b_id, 1);
             }
         },
 
@@ -1337,7 +1419,7 @@ function (dojo, declare) {
         },
         onUpdateActionButtons_pass_event: function (args) {
             // state for pass bid event triggers.
-            this.addActionButton( BTN_ID_ON_PASS_EVENT_DONE, _("Done"), METHOD_ON_PASS_EVENT_DONE, null, false, 'blue');
+            this.addActionButton( BTN_ID_ON_PASS_EVENT_DONE, _(MESSAGE_DONE_PASS), METHOD_ON_PASS_EVENT_DONE, null, false, 'blue');
             this.addActionButton( BTN_ID_UNDO_PASS, _(MESSAGE_UNDO_PASS), 'onUndoBidPass', null, false, 'red');
             if (args.event_pass == EVENT_NELSON_ACT){
                 this.addActionButton( BTN_ID_PAY_LOAN_3_SILVER, this.replaceTooltipStrings(_('pay off ${loan} for ${silver}${silver}${silver}')), METHOD_PAY_LOAN_3_SILVER, null, false, 'blue');
@@ -1463,7 +1545,7 @@ function (dojo, declare) {
         onUpdateActionButtons_endGameActions: function () {
             this.addActionButton( BTN_ID_DONE,   _(MESSAGE_PASS), METHOD_ENDGAME_DONE);    
             this.addActionButton( BTN_ID_CANCEL, _(MESSAGE_CANCEL_TURN), 'cancelUndoTransactions', null, false, 'red');
-            dojo.place(dojo.create('br'),'generalactions', 'last');
+            dojo.place(dojo.create('br'),'generalactions','last');
             
             this.addActionButton( BTN_ID_PAY_LOAN_SILVER, this.replaceTooltipStrings(_("Pay Debt ${silver}")), METHOD_PAY_LOAN_SILVER, null, false, 'blue' );
             this.addActionButton( BTN_ID_PAY_LOAN_GOLD, this.replaceTooltipStrings(_("Pay Debt ${gold}")), METHOD_PAY_LOAN_GOLD, null, false, 'blue' );
@@ -1585,7 +1667,7 @@ function (dojo, declare) {
             this.setOffsetForPaymentButtons();
         },
         onUpdateActionButtons_bonusChoice_lotEvent: function (args){ 
-            let option = Number(args.event);
+            let option = Number(args.event_bonus);
             switch (option){
                 case EVENT_RAILROAD_CONTRACTS: // auction winners can pay 2 silver for track
                     this.addActionButton( BTN_ID_EVENT_SILVER_TRACK, `${TOKEN_HTML.silver}${TOKEN_HTML.silver} ${TOKEN_HTML.arrow} ${TOKEN_HTML.track}`, METHOD_EVENT_SILVER_TRACK);

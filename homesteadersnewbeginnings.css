@@ -724,6 +724,24 @@ div[id$=trade_market_wood_food]{
    background-color: linen;
    border-radius: 6px;
 }
+.event_card {
+   width: 144px;
+   min-height: 196px;
+   height: min-content;
+   border-radius: 6px;
+   position: relative;
+   background-color: linen;
+   box-shadow: -3px -3px 3px grey inset;
+}
+.event_tile:not(.event_card) {
+   background-image: url('img/event_cards.png');
+   background-repeat: no-repeat;
+}
+
+.build_tile_1 { /* Yellow Homestead */
+   background-position: 0% 0%;
+   order: 1;
+}
 div[id$=trade_market_food_steel]{
    left: 38px;
    top: 114px;

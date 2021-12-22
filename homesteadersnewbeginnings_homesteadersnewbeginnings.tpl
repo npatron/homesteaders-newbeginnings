@@ -236,6 +236,8 @@
         </span>
         <!-- END future_auction_zones -->
     </div>
+    <div id="building_aid" class="whiteblock noshow" style="flex-grow: 1;">
+    </div>
     <div id='past_building_container' class="whiteblock building_container border_white noshow">
         <span class="biggerFont">{BUILDING_DISCARD}</span>
         <div id='past_building_zone' class="main_building_zone"> </div>
@@ -311,20 +313,20 @@
 
 <script type="text/javascript">
 
-var jstpl_building_stack= '<div id="building_stack_${id}" class="building_zone_diag" style="order: ${order}"></div>';
-var jstpl_buildings='<div id="building_tile_${key}" class="building_tile build_tile_${id}"></div>';
+var jstpl_building_stack = '<div id="building_stack_${id}" class="building_zone_diag" style="order: ${order}"></div>';
+var jstpl_buildings = '<div id="building_tile_${key}" class="building_tile build_tile_${id}"></div>';
 var jptpl_bld_text = '<div id="building_tile_${key}" class="building_tile build_tile_${id} building_card">${card}</div>';
-var jstpl_building_slot='<div id="slot_${key}_${slot}" class="worker_slot slot_${id}_${slot} key_${key}"></div>'; 
-var jstpl_tt_building_slot='<div id="slot_${key}_${slot}" class="worker_slot slot_${id}_${slot} key_${key}"></div>'; 
+var jstpl_building_slot = '<div id="slot_${key}_${slot}" class="worker_slot slot_${id}_${slot} key_${key}"></div>'; 
+var jstpl_tt_building_slot = '<div id="slot_${key}_${slot}" class="worker_slot slot_${id}_${slot} key_${key}"></div>'; 
 var jstpl_tt_building_slot_3 = '<div id="slot_${key}_${slot}" class="worker_slot slot_${id}_${slot}"></div>';
 
-var jstpl_auction_tile='<div id="auction_tile_${auc}" class="auction_tile border_${color}"></div>';
+var jstpl_auction_tile = '<div id="auction_tile_${auc}" class="auction_tile border_${color}"></div>';
 var jptpl_auction_text = '<div id="auction_tile_${auc}" class="auction_tile border_${color} auction_card">${card}</div>';
 
-var jptpl_worker='<div id="token_worker_${id}" class="token_worker"> </div>';
-var jptpl_player_token='<div id="token_${type}_${color}" class="player_token_${color} player_token_${type}"> </div>';
-var jptpl_dummy_player_token='<div id="token_${type}_${color}_dummy" class="player_token_${color} player_token_${type}"> </div>';
-var jptpl_track='<div id="token_track_${id}" class="token_track border_${color}"> </div>';
+var jptpl_worker = '<div id="token_worker_${id}" class="token_worker"> </div>';
+var jptpl_player_token = '<div id="token_${type}_${color}" class="player_token_${color} player_token_${type}"> </div>';
+var jptpl_dummy_player_token = '<div id="token_${type}_${color}_dummy" class="player_token_${color} player_token_${type}"> </div>';
+var jptpl_track = '<div id="token_track_${id}" class="token_track border_${color}"> </div>';
 
 var jstpl_player_board = '\<div class="cp_board">\
     <div class="score_group"><div class="score_flex">\
@@ -351,8 +353,8 @@ var jstpl_resource_inline = '<span title = "${type}" class="log_${type} token_in
 var jstpl_resource_log = '<span title = "${type}" class="log_${type} log_token"></span>';
 var jstpl_player_token_log = '<span title = "${type}_${color}" class="${type}_${color} log_${type}"></span>';
 var jptpl_track_log = '<span title="${type}" class="log_inline_${type}"></span>';
-var jptpl_x_loan= '<span title="pay dept" class="crossout log_inline_loan"></span>';
-var jptpl_buy_sell_board='<div id="buy_board" class="buy_board"></div><div id="sell_board" class="sell_board"></div>';
+var jptpl_x_loan = '<span title="pay dept" class="crossout log_inline_loan"></span>';
+var jptpl_buy_sell_board = '<div id="buy_board" class="buy_board"></div><div id="sell_board" class="sell_board"></div>';
 
 var jptpl_breadcrumb_trade = '<span id="breadcrumb_${id}" class="breadcrumbs_element font">${text}</span><span id="breadcrumb_${id}_1" class="breadcrumbs_element"><button id="x_${id}" class="trade_x"></button>${away}<span title ="for" class="log_arrow token_inline" style="position: relative; top: 9px;"></span>${for}</span>'
 var jptpl_breadcrumb_payment = '<span id="breadcrumb_payment" class="breadcrumbs_element font">${text}</span><span id="breadcrumb_payment_tokens" class="breadcrumbs_element">${cost}</span>'
