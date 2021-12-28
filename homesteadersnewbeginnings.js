@@ -422,6 +422,7 @@ function (dojo, declare) {
             const PLAYER_BUILDING_ZONE_ID = [];
         /* PLAYER resources and score counters */
             const BOARD_RESOURCE_COUNTERS = [];
+            const BOARD_RESOURCE_ICON = [];
             const RESOURCE_ARRAY = [];
             const POSITIVE_RESOURCE_COUNTERS = [];
             const NEGATIVE_RESOURCE_COUNTERS = [];
@@ -697,6 +698,7 @@ function (dojo, declare) {
         setupOnePlayerResources: function (resource) {
             //console.log('setupOnePlayerResources');
             BOARD_RESOURCE_COUNTERS[resource.p_id] = [];
+            BOARD_RESOURCE_ICON[resource.p_id] = [];
             SCORE_RESOURCE_COUNTERS[resource.p_id] = [];
             for (const [key, value] of Object.entries(resource)) {
                 //console.log(resource, key, value);
@@ -713,13 +715,15 @@ function (dojo, declare) {
                 SCORE_RESOURCE_COUNTERS[resource.p_id][key].create(resourceId);
                 SCORE_RESOURCE_COUNTERS[resource.p_id][key].setValue(value);
 
-                let boardResourceId = `${key}count_${PLAYER_COLOR[resource.p_id]}`;
+                let boardResourceId = `${key}Num_${PLAYER_COLOR[resource.p_id]}`;
                 this.addTooltipHtml( boardResourceId, tooltip_html );
                 let boardIconId = `${key}icon_${PLAYER_COLOR[resource.p_id]}`;
                 this.addTooltipHtml( boardIconId, tooltip_html );
+                BOARD_RESOURCE_ICON[resource.p_id][key] = boardIconId;
 
+                console.log(boardResourceId);
                 BOARD_RESOURCE_COUNTERS[resource.p_id][key] = new ebg.counter();
-                BOARD_RESOURCE_COUNTERS[resource.p_id][key].create(boardIconId);
+                BOARD_RESOURCE_COUNTERS[resource.p_id][key].create(boardResourceId);
                 BOARD_RESOURCE_COUNTERS[resource.p_id][key].setValue(value);
             }
 
@@ -935,7 +939,7 @@ function (dojo, declare) {
             // create new and offset counters
             for (const [key, value] of Object.entries(RESOURCE_INFO)) {
                 if ( key == "workers" || key == "track") continue;
-                RESOURCE_ARRAY[key] = key+"count_"+ PLAYER_COLOR[this.player_id];
+                RESOURCE_ARRAY[key] = key+"Num_"+ PLAYER_COLOR[this.player_id];
                 POSITIVE_RESOURCE_COUNTERS[key] = 0;
                 //POSITIVE_RESOURCE_COUNTERS[key].create(`${key}_pos`);
                 //POSITIVE_RESOURCE_COUNTERS[key].setValue(0);
@@ -2174,7 +2178,6 @@ function (dojo, declare) {
         cancelBuild: function(building){
             //console.log('cancelBuild', building.p_id);
             const b_divId = `${TPL_BLD_TILE}_${building.b_key}`;
-            dojo.removeAttr( $(b_divId), 'style');
             building.location=BLD_LOC_OFFER;
             this.createBuildingZoneIfMissing(building);
             this.moveObject(b_divId, `${TPL_BLD_STACK}${building.b_id}`);
@@ -2654,8 +2657,7 @@ function (dojo, declare) {
         clearOffset: function() {
             //console.log("clearOffset");
             for(type in RESOURCE_ARRAY){
-                RESOURCE_ARRAY[type].removeAttr('income');
-                RESOURCE_ARRAY[type].removeAttr('payment');
+                dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}.income`).removeClass('income');
                 POSITIVE_RESOURCE_COUNTERS[type] = 0;
                 //dojo.query(`.${type}.pos:not(.noshow)`).addClass('noshow');
                 NEGATIVE_RESOURCE_COUNTERS[type] = 0;
@@ -3657,8 +3659,19 @@ function (dojo, declare) {
 
         
         showResource: function(type){
-            dojo.query(`#${RESOURCE_ARRAY[type]}`).income = POSITIVE_RESOURCE_COUNTERS[type]; 
-            dojo.query(`#${RESOURCE_ARRAY[type]}`).payment = NEGATIVE_RESOURCE_COUNTERS[type];
+            let offset = POSITIVE_RESOURCE_COUNTERS[type] - NEGATIVE_RESOURCE_COUNTERS[type];
+            console.log('showResource: ', type, 'offset', offset);
+            console.log(BOARD_RESOURCE_ICON[this.player_id][type]);
+            document.getElementById(BOARD_RESOURCE_ICON[this.player_id][type]).setAttribute('income', offset);
+            dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}`).addClass('income');
+            if (offset < 0){
+                dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}:not(.negative)`).addClass('negative');
+            } else {
+                dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}.negative`).removeClass('negative');
+            }
+
+            //dojo.query(`#${BOARD_RESOURCE_ICON[type]}`).income = POSITIVE_RESOURCE_COUNTERS[type]; 
+            //dojo.query(`#${BOARD_RESOURCE_ICON[type]}`).payment = NEGATIVE_RESOURCE_COUNTERS[type];
         },
         
         newPosNeg: function(type, new_value, inc= false){   
@@ -3744,7 +3757,8 @@ function (dojo, declare) {
                     offset_value = NEGATIVE_RESOURCE_COUNTERS[type] = offset_value;
                 }   
             }
-            this.showResource(type);
+            if (offset_value != 0)
+                this.showResource(type);
             return offset_value;
         },
         
