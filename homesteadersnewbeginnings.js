@@ -2654,16 +2654,21 @@ function (dojo, declare) {
             }
         },
 
-        clearOffset: function() {
+        clearOffset: function(type = null) {
             //console.log("clearOffset");
-            for(type in RESOURCE_ARRAY){
+            if (type){
                 dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}.income`).removeClass('income');
-                POSITIVE_RESOURCE_COUNTERS[type] = 0;
-                //dojo.query(`.${type}.pos:not(.noshow)`).addClass('noshow');
-                NEGATIVE_RESOURCE_COUNTERS[type] = 0;
-                //dojo.query(`.${type}.neg:not(.noshow)`).addClass('noshow');
-                //dojo.query(`#${type}_new:not(.noshow)`).addClass("noshow");
+            } else {
+                for(type in RESOURCE_ARRAY){
+                    dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}.income`).removeClass('income');
+                    POSITIVE_RESOURCE_COUNTERS[type] = 0;
+                    //dojo.query(`.${type}.pos:not(.noshow)`).addClass('noshow');
+                    NEGATIVE_RESOURCE_COUNTERS[type] = 0;
+                    //dojo.query(`.${type}.neg:not(.noshow)`).addClass('noshow');
+                    //dojo.query(`#${type}_new:not(.noshow)`).addClass("noshow");
+                }
             }
+            
         },
 
         /****** 
@@ -3757,8 +3762,11 @@ function (dojo, declare) {
                     offset_value = NEGATIVE_RESOURCE_COUNTERS[type] = offset_value;
                 }   
             }
-            if (offset_value != 0)
+            if (offset_value != 0){
                 this.showResource(type);
+            } else {
+                this.clearOffset(type);
+            }
             return offset_value;
         },
         
