@@ -1009,19 +1009,20 @@ function (dojo, declare) {
          */
         setupResourceTokens(){
             for(let type in RESOURCES){
-                TOKEN_HTML[type] = this.format_block( 'jstpl_resource_inline', {type:type}, );
-                TOKEN_HTML["big_"+type] = this.format_block( 'jstpl_resource_inline', {type:"big_"+type}, );
+                TOKEN_HTML[type] = this.format_block( 'jstpl_resource_inline', {type:type, amt:""}, );
+                TOKEN_HTML["big_"+type] = this.format_block( 'jstpl_resource_inline', {type:"big_"+type, amt:""}, );
                 TOKEN_HTML["x_"+type] = `<span title = "${type}" class="log_${type} crossout token_inline" style="top: 9px;"></span>`;
             }
             let types = ['arrow', 'big_arrow', 'inc_arrow'];
             for(let i in types){
-                TOKEN_HTML[types[i]] = this.format_block( 'jstpl_resource_inline', {type:types[i]}, );
+                TOKEN_HTML[types[i]] = this.format_block( 'jstpl_resource_inline', {type:types[i],amt:""}, );
             }
             for (let i in VP_TOKENS){
-                TOKEN_HTML[VP_TOKENS[i]] = this.format_block( 'jstpl_resource_inline', {type:VP_TOKENS[i]}, );
-                TOKEN_HTML["bld_"+VP_TOKENS[i]] = this.format_block('jstpl_resource_log', {"type" : VP_TOKENS[i] + " bld_vp"});
+                let amt = VP_TOKENS[i].charAt(VP_TOKENS.length-1);
+                TOKEN_HTML[VP_TOKENS[i]] = this.format_block( 'jstpl_resource_inline', {type:VP_TOKENS[i], amt:amt},);
+                TOKEN_HTML["bld_"+VP_TOKENS[i]] = this.format_block('jstpl_resource_log', {"type" : VP_TOKENS[i] + " bld_vp", amt:amt});
             }
-            TOKEN_HTML.bld_vp = this.format_block('jstpl_resource_log', {"type" : "vp bld_vp"});
+            TOKEN_HTML.bld_vp = this.format_block('jstpl_resource_log', {"type" : "vp bld_vp", amt:""});
             TOKEN_HTML.track = this.getOneResourceHtml('track', 1, true);
             TOKEN_HTML.loan = this.format_block( 'jptpl_track_log', {type:'loan'}, );
             TOKEN_HTML.end = this.format_block('jstpl_color_log', {'string':_("End"), 'color':ASSET_COLORS[6]}); 

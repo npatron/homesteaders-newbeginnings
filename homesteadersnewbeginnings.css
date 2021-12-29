@@ -434,8 +434,8 @@ button:disabled {
 
 .trade_x {
    background-image: url('img/Tokens.png');
-   background-position: 48% 100%;
-   background-size: 200px 81px;
+   background-position: 68% -18%;
+   background-size: 1200% 600%;
    background-color: #813818;
    border-radius: 4px;
    position: absolute;
@@ -1065,16 +1065,23 @@ div#sell_board{
 
 .score.income::after  {
    bottom: 0px;
-   color: lightgreen;  
+   color: black;  
    content: "+" attr(income);
    font-size: 20px;
    position: absolute;
-   right: 0;
-   text-shadow: 0 0 3px #000;
+   left: -5px;
+   background: lightgreen;
+   border-radius: 10px;
 }
-.score.negative.income::after  {
-   color: red;  
+.score.player_loan.income::after  {
+   background: pink;
+}
+.score.player_loan.income.negative::after  {
+   background: lightgreen;
+}
+.score.negative.income:not(.player_loan)::after  { 
    content: attr(income);
+   background: pink;
 }
 .score_text {
    position: relative;
@@ -1139,6 +1146,23 @@ div#sell_board{
    margin: 3px;
    padding: 2px;
 }
+.this_player_resource_group{
+   flex-grow: 1;
+   min-width: 70px;
+   max-width: 90px;
+   min-height: 45px;
+   display: inline-flex;
+   flex-direction: row-reverse;
+   background-color: rgba(153, 153, 153, .25);
+   border-radius: 42px;
+   align-items: center;
+   justify-content: center;
+   margin: 3px;
+   padding: 2px;
+}
+.this_player_resource_group:last-child{
+   border-right: none;
+}
 #player_zone_purple .player_resources{
    background-color: #8000803d;
 }
@@ -1173,9 +1197,8 @@ div#sell_board{
    font-size: 30px;
    font-family: 'Old Standard TT';
    display: inline-block;
-   margin-top: 4px;
-   margin-left: -5px;
    text-shadow:  0.5px 0.5px 3px #fff;
+   flex-grow: 1;
 }
 .player_food .player_numbers{
    margin-top: 6px;
@@ -1243,8 +1266,8 @@ div#sell_board{
 }
 .player_loan {
    background-image: url('img/rail_debt_85x102.png');
-   background-position: -86% 50%;
-   background-size: 150px 60px;
+   background-position: 200% 50%;
+   background-size: 300% 150%;
    position: relative;
    margin: auto;
    filter: drop-shadow(0px 0px 1px #000000);
@@ -1277,23 +1300,26 @@ div#sell_board{
    width: 20px;
    height: 20px;
 }
+span[amt] {
+   content: attr(amt);
+}
 .log_blank_silver, .log_blank_trade{
    font-size: 10px;
 }
 /*** position & scale for types ***/
-.log_silver, .score_silver {
+.log_silver, .score_silver, .player_silver, .log_big_silver {
    background-size: 700% 310%;
    background-position: 61.5% 2%;
 }
-.player_silver, .log_big_silver, .log_blank_silver {
+.log_blank_silver {
    background-size: 700% 310%;
    background-position: 42% 2%;
 }
-.log_trade, .score_trade {
+.log_trade, .score_trade, .player_trade, .log_big_trade{
    background-size: 770% 337%;
    background-position: 96.5% 5%;
 }
-.player_trade, .log_big_trade, .blank_trade {
+.blank_trade, .log_blank_trade {
    background-size: 770% 337%;
    background-position: 79.1% 5%;
 }
@@ -1310,11 +1336,11 @@ div#sell_board{
    background-position: 10% 4%;
 }
 /** vps */
-.log_big_vp, .log_vp, .bld_vp, .score_vp {
+.log_big_vp, .log_vp, .bld_vp, .score_vp, .player_vp {
    background-size: 610% 268%;
    background-position: -21% 65%;
 }
-.player_vp, .log_vp0, .log_vp2, .log_vp3, .log_vp4, .log_vp6, .log_vp8, .log_vp10{
+.log_vp0, .log_vp2, .log_vp3, .log_vp4, .log_vp6, .log_vp8, .log_vp10{
    background-size: 610% 268%;
    background-position: -42% 65%;
 } 
