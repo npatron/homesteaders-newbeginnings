@@ -424,9 +424,8 @@ function (dojo, declare) {
             const BOARD_RESOURCE_COUNTERS = [];
             const BOARD_RESOURCE_ICON = [];
             const RESOURCE_ARRAY = [];
-            const POSITIVE_RESOURCE_COUNTERS = [];
-            const NEGATIVE_RESOURCE_COUNTERS = [];
-            const NEW_RESOURCE_COUNTERS = [];
+            const OFFSET_RESOURCE_AMT = [];
+            const NEW_RESOURCE_AMT = [];
             const INCOME_ARRAY = []; // current round income (for updating breadcrumbs/offset).
 
         /* ** Score counters ** */
@@ -721,7 +720,7 @@ function (dojo, declare) {
                 this.addTooltipHtml( boardIconId, tooltip_html );
                 BOARD_RESOURCE_ICON[resource.p_id][key] = boardIconId;
 
-                console.log(boardResourceId);
+                //console.log(boardResourceId);
                 BOARD_RESOURCE_COUNTERS[resource.p_id][key] = new ebg.counter();
                 BOARD_RESOURCE_COUNTERS[resource.p_id][key].create(boardResourceId);
                 BOARD_RESOURCE_COUNTERS[resource.p_id][key].setValue(value);
@@ -940,15 +939,8 @@ function (dojo, declare) {
             for (const [key, value] of Object.entries(RESOURCE_INFO)) {
                 if ( key == "workers" || key == "track") continue;
                 RESOURCE_ARRAY[key] = key+"Num_"+ PLAYER_COLOR[this.player_id];
-                POSITIVE_RESOURCE_COUNTERS[key] = 0;
-                //POSITIVE_RESOURCE_COUNTERS[key].create(`${key}_pos`);
-                //POSITIVE_RESOURCE_COUNTERS[key].setValue(0);
-                NEGATIVE_RESOURCE_COUNTERS[key] = 0;
-                //NEGATIVE_RESOURCE_COUNTERS[key].create(`${key}_neg`);
-                //NEGATIVE_RESOURCE_COUNTERS[key].setValue(0);
-                NEW_RESOURCE_COUNTERS[key] = 0;
-                //NEW_RESOURCE_COUNTERS[key].create(`${key}_new`);
-                //NEW_RESOURCE_COUNTERS[key].setValue(0);
+                OFFSET_RESOURCE_AMT[key] = 0;
+                NEW_RESOURCE_AMT[key] = BOARD_RESOURCE_COUNTERS[this.player_id][key].getValue();
             }
             this.resetTradeValues();
         },
@@ -1493,7 +1485,7 @@ function (dojo, declare) {
         onUpdateActionButtons_preEventTrade: function (args) {
             let bonus_id = Number(args.bonus_id);
             this.current_args = args;
-            console.log(args, bonus_id);
+            //console.log(args, bonus_id);
             switch(bonus_id){
                 case EVENT_WARTIME_DEMAND:
                     console.log('wartime_demand');
@@ -2424,24 +2416,19 @@ function (dojo, declare) {
          */
         setOffsetForPaymentButtons: function( ) {
             // silver
-            let silver_offset_neg = this.getOffsetNeg('silver');
+            let silver_offset = this.getOffsetValue('silver');
             if (this.silverCost >0){
-                silver_offset_neg += this.silverCost;
+                silver_offset -= this.silverCost;
             } 
-            this.setOffsetNeg('silver', silver_offset_neg);
-            let silver_offset_pos = this.getOffsetPos('silver');
-            let silver_new = BOARD_RESOURCE_COUNTERS[this.player_id].silver.getValue() - silver_offset_neg + silver_offset_pos;
-            this.newPosNeg('silver', silver_new);
-
+            this.setOffset('silver', silver_offset);
+            
             // gold
-            let gold_offset_neg = this.getOffsetNeg('gold');
-            let gold_offset_pos = this.getOffsetPos('gold');
+            let gold_offset = this.getOffsetValue('gold');
             if (this.goldCost >0){
-                gold_offset_neg += this.goldCost;
+                gold_offset -= this.goldCost;
             }
-            this.setOffsetNeg('gold', gold_offset_neg);
-            let gold_new = BOARD_RESOURCE_COUNTERS[this.player_id].gold.getValue() - gold_offset_neg + gold_offset_pos;
-            this.newPosNeg('gold', gold_new);
+            this.setOffset('gold', gold_offset);
+
             this.updateBuildingAffordability();
             this.updateTradeAffordability();
             
@@ -2645,8 +2632,7 @@ function (dojo, declare) {
                 for (let type in INCOME_ARRAY[id]){
                     if (INCOME_ARRAY[id][type]!= 0){
                         let income = INCOME_ARRAY[id][type];
-                        this.offsetPosNeg(type, income, true);
-                        //this.newPosNeg(type, income, true);
+                        this.incOffset(type, income);
                         this.updateBuildingAffordability();
                         this.updateTradeAffordability();
                     }
@@ -2656,20 +2642,16 @@ function (dojo, declare) {
         },
 
         clearOffset: function(type = null) {
-            //console.log("clearOffset");
+            console.log("clearOffset", type);
             if (type){
                 dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}.income`).removeClass('income');
             } else {
                 for(type in RESOURCE_ARRAY){
                     dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}.income`).removeClass('income');
-                    POSITIVE_RESOURCE_COUNTERS[type] = 0;
-                    //dojo.query(`.${type}.pos:not(.noshow)`).addClass('noshow');
-                    NEGATIVE_RESOURCE_COUNTERS[type] = 0;
-                    //dojo.query(`.${type}.neg:not(.noshow)`).addClass('noshow');
-                    //dojo.query(`#${type}_new:not(.noshow)`).addClass("noshow");
+                    OFFSET_RESOURCE_AMT[type]=0;
+                    NEW_RESOURCE_AMT[type] = BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue();
                 }
             }
-            
         },
 
         /****** 
@@ -3218,26 +3200,6 @@ function (dojo, declare) {
              }, function( is_error) {});
         },
 
-        /** helper method that calculates total negative offset for resource of type */
-        getOffsetNeg: function(type){
-            let value = 0;
-            for(let i in TRANSACTION_COST){
-                if (type in TRANSACTION_COST[i] && TRANSACTION_COST[i][type] < 0){
-                    value += TRANSACTION_COST[i][type];
-                }
-            }
-            return Math.abs(value);
-        },
-        /** helper method that calculates total positive offset for resource of type */
-        getOffsetPos: function(type){
-            let value = 0;
-            for(let i in TRANSACTION_COST){
-                if (type in TRANSACTION_COST[i] && TRANSACTION_COST[i][type]>0){
-                    value += TRANSACTION_COST[i][type];
-                }
-            }
-            return Math.abs(value);
-        },
         /** helper method that calculates total offset for resource of type */
         getOffsetValue: function(type) {
             //console.log('transaction_cost', TRANSACTION_COST);
@@ -3253,12 +3215,9 @@ function (dojo, declare) {
          * values are board_resourceCounters + offset from pending transactions.
          */
         resetTradeValues: function() {
+            console.log('resetTradeValues');
             for(let type in BOARD_RESOURCE_COUNTERS[this.player_id]){
-                let offset = 0;
-                offset -= this.setOffsetNeg(type, this.getOffsetNeg(type));
-                offset += this.setOffsetPos(type, this.getOffsetPos(type));
-
-                this.newPosNeg(type, BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue() + offset);
+                this.setOffset(type, this.getOffsetValue(type));
             }
         },
 
@@ -3652,87 +3611,36 @@ function (dojo, declare) {
             //console.log('updateTrade', change, undo);
             for (let type in change){
                 let offset = change[type];
-                if (offset > 0){
-                    this.setOffsetPos(type, (undo?(-1 * offset):offset), true);
-                } else {
-                    this.setOffsetNeg(type, (undo?offset:(-1 * offset)), true);
-                }
-                let offset_value = POSITIVE_RESOURCE_COUNTERS[type] - NEGATIVE_RESOURCE_COUNTERS[type];
-                this.newPosNeg(type, BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue() + offset_value);
+                this.incOffset(type, (undo?(-1 * offset):offset));
             }
             return true;
         },
 
         
         showResource: function(type){
-            let offset = POSITIVE_RESOURCE_COUNTERS[type] - NEGATIVE_RESOURCE_COUNTERS[type];
-            console.log('showResource: ', type, 'offset', offset);
-            console.log(BOARD_RESOURCE_ICON[this.player_id][type]);
+            let offset = OFFSET_RESOURCE_AMT[type];
+
+            console.log('showResource: ', type, 'offset', offset, BOARD_RESOURCE_ICON[this.player_id][type]);
             document.getElementById(BOARD_RESOURCE_ICON[this.player_id][type]).setAttribute('income', offset);
-            dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}`).addClass('income');
+            if (offset != 0) {
+                dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}:not(.income)`).addClass('income');
+            } else {
+                dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}.income`).removeClass('income');
+            }
             if (offset < 0){
                 dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}:not(.negative)`).addClass('negative');
             } else {
                 dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}.negative`).removeClass('negative');
             }
-
-            //dojo.query(`#${BOARD_RESOURCE_ICON[type]}`).income = POSITIVE_RESOURCE_COUNTERS[type]; 
-            //dojo.query(`#${BOARD_RESOURCE_ICON[type]}`).payment = NEGATIVE_RESOURCE_COUNTERS[type];
         },
-        
-        newPosNeg: function(type, new_value, inc= false){   
-            if (inc){
-                old_value = NEW_RESOURCE_COUNTERS[type];
-                new_value = NEW_RESOURCE_COUNTERS[type] = old_value + new_value;
-            } else {
-                NEW_RESOURCE_COUNTERS[type] = new_value;
-            }         
+
+        incOffset:function(type, offset_value){
+            console.log('incOffset-args:', type, offset_value);
             
-            /*if(new_value < 0){
-                dojo.query(`#${type}_new`).addClass('negative');
-            } else {
-                dojo.query(`#${type}_new`).removeClass('negative');
-            }
-            this.showResource(type);*/
-            return new_value;
-        },
-
-        /**
-         * update pos offset counter if offset_value is positive, or 
-         * update neg offset counter if offset_value is negative.
-         * if inc is true, it will increment instead of setting the offset.
-         * @param {*} type 
-         * @param {*} offset_value 
-         * @param {*} inc 
-         */
-        offsetPosNeg: function(type, offset_value, inc= false){
-            if (offset_value > 0){
-                this.setOffset(true, type, offset_value, inc);
-            } else {
-                this.setOffset(false, type, (-1 * offset_value), inc);
-            }
-        },
-
-        /**
-         * update pos offset counter 
-         * if inc is true, it will increment instead of setting the offset.
-         * @param {String} type 
-         * @param {int} offset_value 
-         * @param {Boolean} inc 
-         */
-        setOffsetPos: function(type, offset_value, inc= false){
-            return this.setOffset(true, type, offset_value, inc);
-        },
-
-        /**
-         * update neg offset counter
-         * if inc is true, it will increment instead of setting the offset.
-         * @param {String} type 
-         * @param {int} offset_value 
-         * @param {Boolean} inc 
-         */
-        setOffsetNeg:function(type, offset_value, inc= false){
-            return this.setOffset(false, type, offset_value, inc);
+            let old_value = OFFSET_RESOURCE_AMT[type];
+            OFFSET_RESOURCE_AMT[type] = (old_value + offset_value);
+            NEW_RESOURCE_AMT[type] = BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue() + OFFSET_RESOURCE_AMT[type];
+            this.showResource(type);
         },
         
         /**
@@ -3741,34 +3649,17 @@ function (dojo, declare) {
          * 
          * if the resulting value is not 0 it will display the counter.
          * if the resulting value is 0 it will hide the counter.
-         * @param {Boolean} pos
+         * 
          * @param {String} type 
          * @param {int} offset_value 
          * @param {Boolean} inc 
          * @returns the new offset value
          */
-        setOffset:function(pos, type, offset_value, inc= false){
-            if (inc) {
-                if (pos){
-                    old_value = POSITIVE_RESOURCE_COUNTERS[type];
-                    offset_value = POSITIVE_RESOURCE_COUNTERS[type] = (old_value + offset_value);
-                } else {
-                    old_value = NEGATIVE_RESOURCE_COUNTERS[type];
-                    offset_value = NEGATIVE_RESOURCE_COUNTERS[type] = (old_value + offset_value);
-                }                
-            } else {
-                if (pos){
-                    offset_value = POSITIVE_RESOURCE_COUNTERS[type] = offset_value;
-                } else {
-                    offset_value = NEGATIVE_RESOURCE_COUNTERS[type] = offset_value;
-                }   
-            }
-            if (offset_value != 0){
-                this.showResource(type);
-            } else {
-                this.clearOffset(type);
-            }
-            return offset_value;
+        setOffset:function(type, offset_value){
+            console.log('setOffset-args:', type, offset_value);
+            OFFSET_RESOURCE_AMT[type] = offset_value;
+            NEW_RESOURCE_AMT[type] = (BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue() + offset_value);
+            this.showResource(type);
         },
         
         // called after executing trades.
@@ -4106,9 +3997,9 @@ function (dojo, declare) {
         },
 
         validPay:function(){
-            if (NEW_RESOURCE_COUNTERS.silver < 0)
+            if (NEW_RESOURCE_AMT.silver < 0)
                 return false;
-            if (NEW_RESOURCE_COUNTERS.gold < 0)
+            if (NEW_RESOURCE_AMT.gold < 0)
                 return false;
             return true;
         },
@@ -5709,13 +5600,13 @@ function (dojo, declare) {
 
         // show hidden/pending trades (only to this player).
         notif_hiddenTrade: function ( notif ){
-            //console.log('notif_hiddenTrade', notif);
+            console.log('notif_hiddenTrade', notif);
             this.updateHiddenTrades({trade_away:notif.args.tradeAway_arr, trade_for:notif.args.tradeFor_arr});
         },
 
         // clear hidden/pending trades (only shown to this player).
         notif_cancelHiddenTrade: function (notif ){
-            //console.log('notif_cancelHiddenTrade', notif);
+            console.log('notif_cancelHiddenTrade', notif);
             this.clearHiddenTrades();
             this.updateTradeAffordability();
         },
@@ -5779,7 +5670,7 @@ function (dojo, declare) {
 
         // update player resources when a loan is paid
         notif_loanPaid: function( notif ){
-            //console.log('notif_loanPaid', notif);
+            console.log('notif_loanPaid', notif);
             const p_id = notif.args.player_id;
             var delay = 0;
             var destination = this.getTargetFromNotifArgs(notif);
@@ -5803,7 +5694,7 @@ function (dojo, declare) {
 
         // update player resources when a loan is taken
         notif_loanTaken: function( notif ){
-            //console.log('notif_loanTaken', notif);
+            console.log('notif_loanTaken', notif);
             var delay = 0;
             const p_id = notif.args.player_id;
             this.slideTemporaryObject( TOKEN_HTML.loan, 'limbo' , 'board', PLAYER_SCORE_ZONE_ID[p_id],  500 , 50*(delay++) );
@@ -5818,7 +5709,7 @@ function (dojo, declare) {
 
         // update player score
         notif_score: function( notif ){
-            //console.log('notif_score', notif);
+            console.log('notif_score', notif);
             const p_id = notif.args.player_id;
             this.scoreCtrl[p_id].setValue(0);
             for(let b_key in notif.args.building){
@@ -5843,7 +5734,7 @@ function (dojo, declare) {
 
         // for use when in non-show resources game, when reaching round 11 (where all player resources are revealed)
         notif_showResources: function( notif ){
-            //console.log('notif_showResources', notif);
+            console.log('notif_showResources', notif);
             if (this.show_player_info) return;// already showing player resources.
             this.show_player_info = true;
             for(let p_id in notif.args.resource_arr){
@@ -5959,7 +5850,7 @@ function (dojo, declare) {
                         }
                         if (dojo.query('#choose_warehouse_buttons').length >0){    
                             let newState = this.getWarehouseResources();
-                            console.log('newState', newState);
+                            //console.log('newState', newState);
                             for(let type in newState){
                                 //console.log('checking', type);
                                 if (!(type in oldState)){

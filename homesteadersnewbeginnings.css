@@ -1069,7 +1069,7 @@ div#sell_board{
    content: "+" attr(income);
    font-size: 20px;
    position: absolute;
-   left: -5px;
+   right: 0px;
    background: lightgreen;
    border-radius: 10px;
 }
@@ -1192,7 +1192,7 @@ div#sell_board{
    padding: 2px;
 }
 .player_numbers{
-   margin: auto;
+   margin: auto auto auto 5px;
    color: #000;
    font-size: 30px;
    font-family: 'Old Standard TT';
@@ -1271,6 +1271,11 @@ div#sell_board{
    position: relative;
    margin: auto;
    filter: drop-shadow(0px 0px 1px #000000);
+   color: #fff;
+   font-size: 30px;
+   text-align: center;
+   font-family: 'Old Standard TT';
+   text-shadow: 0 0 3px #000;
  }
 /*** Square Icons 
  * silver, trade, food, steel, gold, vp(all of them)
@@ -1352,7 +1357,7 @@ span[amt] {
    background-size: 1300% 283%;
    background-position: 0% 0%;
 }
- {
+.player_wood, .log_big_wood {
    width: 40px;
    height: 40px;
 }
@@ -1542,7 +1547,35 @@ span[amt] {
    position: relative;
    display: inline-block;
    pointer-events: none;
+   font-family: 'Old Standard TT';
 }
+.token_inline::after{
+   font-size: 16px;
+   margin-left: 5.5px;
+}
+.log_token::after {
+   font-size: 14px;
+   margin-left: 3px;
+}
+.log_vp0::after {
+   content: "0";
+}
+.log_vp2::after {
+   content: "2";
+}
+.log_vp3::after {
+   content: "3";
+}
+.log_vp4::after {
+   content: "4";
+}
+.log_vp6::after {
+   content: "6";
+}
+.log_vp8::after {
+   content: "8";
+}
+
 .log_token {
    background-image: url('img/Tokens.png');
    position: relative;
