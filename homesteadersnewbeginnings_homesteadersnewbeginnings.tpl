@@ -181,44 +181,44 @@
         <div id="player_resources_{COLOR}" class="player_resources">
             <div id="player_name_{COLOR}" class="boardheader biggerFont" style="color: {COLOR};">{NAME}</div>
             <span id="silver_group" class="player_resource_group">
-                <span id="silvericon_{COLOR}" class="score_token player_silver score"></span>
                 <span id="silverNum_{COLOR}" class="player_numbers">0</span>
+                <span id="silvericon_{COLOR}" class="score_token player_silver score"></span>
             </span>
             <span id="trade_group" class="player_resource_group">
-                <span id="tradeicon_{COLOR}" class="score_token player_trade score"></span>
                 <span id="tradeNum_{COLOR}" class="player_numbers">0</span>
+                <span id="tradeicon_{COLOR}" class="score_token player_trade score"></span>
             </span>
             <span id="vp_group" class="player_resource_group">
                 <span id="vpNum_{COLOR}" class="player_numbers">0</span>
                 <span id="vpicon_{COLOR}" class="score_token player_vp score"></span>
             </span>
             <span id="loan_group" class="player_resource_group">
-                <span id="loanicon_{COLOR}" class="score_token player_loan score"></span>
                 <span id="loanNum_{COLOR}" class="player_numbers">0</span>
+                <span id="loanicon_{COLOR}" class="score_token player_loan score"></span>
             </span>
             <span id="wood_group" class="player_resource_group">
-                <span id="woodicon_{COLOR}" class="score_token player_wood score"></span>
                 <span id="woodNum_{COLOR}" class="player_numbers">0</span>
+                <span id="woodicon_{COLOR}" class="score_token player_wood score"></span>
             </span>
             <span id="food_group" class="player_resource_group">
-                <span id="foodicon_{COLOR}" class="score_token player_food score"></span>
                 <span id="foodNum_{COLOR}" class="player_numbers">0</span>
+                <span id="foodicon_{COLOR}" class="score_token player_food score"></span>
             </span>
             <span id="steel_group" class="player_resource_group">
-                <span id="steelicon_{COLOR}" class="score_token player_steel score"></span>
                 <span id="steelNum_{COLOR}" class="player_numbers">0</span>
+                <span id="steelicon_{COLOR}" class="score_token player_steel score"></span>
             </span>
             <span id="gold_group" class="player_resource_group">
-                <span id="goldicon_{COLOR}" class="score_token player_gold score"></span>
                 <span id="goldNum_{COLOR}" class="player_numbers">0</span>
+                <span id="goldicon_{COLOR}" class="score_token player_gold score"></span>
             </span>
             <span id="cow_group" class="player_resource_group">
-                <span id="cowicon_{COLOR}" class="score_token player_cow score"></span>
                 <span id="cowNum_{COLOR}" class="player_numbers">0</span>
+                <span id="cowicon_{COLOR}" class="score_token player_cow score"></span>
             </span>
             <span id="copper_group" class="player_resource_group">
-                <span id="coppericon_{COLOR}" class="score_token player_copper score"></span>
                 <span id="copperNum_{COLOR}" class="player_numbers">0</span>
+                <span id="coppericon_{COLOR}" class="score_token player_copper score"></span>
             </span>
         </div>
         <div id="token_zone_{COLOR}" class="player_token_zone">
