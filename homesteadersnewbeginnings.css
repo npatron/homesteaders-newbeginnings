@@ -1200,12 +1200,6 @@ div#sell_board{
    text-shadow:  0.5px 0.5px 3px #fff;
    flex-grow: 1;
 }
-.player_food .player_numbers{
-   margin-top: 6px;
-}
-.player_cow .player_numbers{
-   margin-top: 2px;
-}
 .building_container .biggerFont, .event_container .biggerFont{
    margin-left: auto;
    margin-right: auto;

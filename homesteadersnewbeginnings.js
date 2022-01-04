@@ -424,8 +424,8 @@ function (dojo, declare) {
             const BOARD_RESOURCE_COUNTERS = [];
             const BOARD_RESOURCE_ICON = [];
             const RESOURCE_ARRAY = [];
-            const OFFSET_RESOURCE_AMT = [];
-            const NEW_RESOURCE_AMT = [];
+            const OFFSET_RESOURCE_AMOUNT = [];
+            const NEW_RESOURCE_AMOUNT = [];
             const INCOME_ARRAY = []; // current round income (for updating breadcrumbs/offset).
 
         /* ** Score counters ** */
@@ -939,8 +939,8 @@ function (dojo, declare) {
             for (const [key, value] of Object.entries(RESOURCE_INFO)) {
                 if ( key == "workers" || key == "track") continue;
                 RESOURCE_ARRAY[key] = key+"Num_"+ PLAYER_COLOR[this.player_id];
-                OFFSET_RESOURCE_AMT[key] = 0;
-                NEW_RESOURCE_AMT[key] = BOARD_RESOURCE_COUNTERS[this.player_id][key].getValue();
+                OFFSET_RESOURCE_AMOUNT[key] = 0;
+                NEW_RESOURCE_AMOUNT[key] = BOARD_RESOURCE_COUNTERS[this.player_id][key].getValue();
             }
             this.resetTradeValues();
         },
@@ -2648,8 +2648,8 @@ function (dojo, declare) {
             } else {
                 for(type in RESOURCE_ARRAY){
                     dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}.income`).removeClass('income');
-                    OFFSET_RESOURCE_AMT[type]=0;
-                    NEW_RESOURCE_AMT[type] = BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue();
+                    OFFSET_RESOURCE_AMOUNT[type]=0;
+                    NEW_RESOURCE_AMOUNT[type] = BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue();
                 }
             }
         },
@@ -3618,7 +3618,7 @@ function (dojo, declare) {
 
         
         showResource: function(type){
-            let offset = OFFSET_RESOURCE_AMT[type];
+            let offset = OFFSET_RESOURCE_AMOUNT[type];
 
             console.log('showResource: ', type, 'offset', offset, BOARD_RESOURCE_ICON[this.player_id][type]);
             document.getElementById(BOARD_RESOURCE_ICON[this.player_id][type]).setAttribute('income', offset);
@@ -3637,9 +3637,9 @@ function (dojo, declare) {
         incOffset:function(type, offset_value){
             console.log('incOffset-args:', type, offset_value);
             
-            let old_value = OFFSET_RESOURCE_AMT[type];
-            OFFSET_RESOURCE_AMT[type] = (old_value + offset_value);
-            NEW_RESOURCE_AMT[type] = BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue() + OFFSET_RESOURCE_AMT[type];
+            let old_value = OFFSET_RESOURCE_AMOUNT[type];
+            OFFSET_RESOURCE_AMOUNT[type] = (old_value + offset_value);
+            NEW_RESOURCE_AMOUNT[type] = BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue() + OFFSET_RESOURCE_AMOUNT[type];
             this.showResource(type);
         },
         
@@ -3652,13 +3652,11 @@ function (dojo, declare) {
          * 
          * @param {String} type 
          * @param {int} offset_value 
-         * @param {Boolean} inc 
-         * @returns the new offset value
          */
         setOffset:function(type, offset_value){
             console.log('setOffset-args:', type, offset_value);
-            OFFSET_RESOURCE_AMT[type] = offset_value;
-            NEW_RESOURCE_AMT[type] = (BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue() + offset_value);
+            OFFSET_RESOURCE_AMOUNT[type] = offset_value;
+            NEW_RESOURCE_AMOUNT[type] = (BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue() + offset_value);
             this.showResource(type);
         },
         
@@ -3997,9 +3995,9 @@ function (dojo, declare) {
         },
 
         validPay:function(){
-            if (NEW_RESOURCE_AMT.silver < 0)
+            if (NEW_RESOURCE_AMOUNT.silver < 0)
                 return false;
-            if (NEW_RESOURCE_AMT.gold < 0)
+            if (NEW_RESOURCE_AMOUNT.gold < 0)
                 return false;
             return true;
         },
