@@ -422,9 +422,10 @@ function (dojo, declare) {
             const PLAYER_BUILDING_ZONE_ID = [];
         /* PLAYER resources and score counters */
             const BOARD_RESOURCE_COUNTERS = [];
-            const POSITIVE_RESOURCE_COUNTERS = [];
-            const NEGATIVE_RESOURCE_COUNTERS = [];
-            const NEW_RESOURCE_COUNTERS = [];
+            const BOARD_RESOURCE_ICON = [];
+            const RESOURCE_ARRAY = [];
+            const OFFSET_RESOURCE_AMOUNT = [];
+            const NEW_RESOURCE_AMOUNT = [];
             const INCOME_ARRAY = []; // current round income (for updating breadcrumbs/offset).
 
         /* ** Score counters ** */
@@ -548,16 +549,16 @@ function (dojo, declare) {
                 const player = gamedatas.players[p_id];
                 this.setupPlayerAssets(player);
             }
+            if (this.player_count == 2){
+                PLAYER_COLOR[DUMMY_BID] = this.getAvailableColor();
+                PLAYER_COLOR[DUMMY_OPT] = PLAYER_COLOR[0];
+            }
             this.setupPlayerResources(gamedatas.player_resources, gamedatas.resources);
             if (!this.isSpectator){
                 this.orientPlayerZones(gamedatas.player_order);
                 this.setupTradeButtons();
             } else {
                 this.spectatorFormatting();
-            }
-            if (this.player_count == 2){
-                PLAYER_COLOR[DUMMY_BID] = this.getAvailableColor();
-                PLAYER_COLOR[DUMMY_OPT] = PLAYER_COLOR[0];
             }
             if (this.player_count <5){
                 this.hideBoard2();
@@ -696,6 +697,7 @@ function (dojo, declare) {
         setupOnePlayerResources: function (resource) {
             //console.log('setupOnePlayerResources');
             BOARD_RESOURCE_COUNTERS[resource.p_id] = [];
+            BOARD_RESOURCE_ICON[resource.p_id] = [];
             SCORE_RESOURCE_COUNTERS[resource.p_id] = [];
             for (const [key, value] of Object.entries(resource)) {
                 //console.log(resource, key, value);
@@ -712,11 +714,13 @@ function (dojo, declare) {
                 SCORE_RESOURCE_COUNTERS[resource.p_id][key].create(resourceId);
                 SCORE_RESOURCE_COUNTERS[resource.p_id][key].setValue(value);
 
-                let boardResourceId = `${key}count_${PLAYER_COLOR[resource.p_id]}`;
+                let boardResourceId = `${key}Num_${PLAYER_COLOR[resource.p_id]}`;
                 this.addTooltipHtml( boardResourceId, tooltip_html );
                 let boardIconId = `${key}icon_${PLAYER_COLOR[resource.p_id]}`;
                 this.addTooltipHtml( boardIconId, tooltip_html );
+                BOARD_RESOURCE_ICON[resource.p_id][key] = boardIconId;
 
+                //console.log(boardResourceId);
                 BOARD_RESOURCE_COUNTERS[resource.p_id][key] = new ebg.counter();
                 BOARD_RESOURCE_COUNTERS[resource.p_id][key].create(boardResourceId);
                 BOARD_RESOURCE_COUNTERS[resource.p_id][key].setValue(value);
@@ -934,15 +938,9 @@ function (dojo, declare) {
             // create new and offset counters
             for (const [key, value] of Object.entries(RESOURCE_INFO)) {
                 if ( key == "workers" || key == "track") continue;
-                POSITIVE_RESOURCE_COUNTERS[key] = new ebg.counter();
-                POSITIVE_RESOURCE_COUNTERS[key].create(`${key}_pos`);
-                POSITIVE_RESOURCE_COUNTERS[key].setValue(0);
-                NEGATIVE_RESOURCE_COUNTERS[key] = new ebg.counter();
-                NEGATIVE_RESOURCE_COUNTERS[key].create(`${key}_neg`);
-                NEGATIVE_RESOURCE_COUNTERS[key].setValue(0);
-                NEW_RESOURCE_COUNTERS[key] = new ebg.counter();
-                NEW_RESOURCE_COUNTERS[key].create(`${key}_new`);
-                NEW_RESOURCE_COUNTERS[key].setValue(0);
+                RESOURCE_ARRAY[key] = key+"Num_"+ PLAYER_COLOR[this.player_id];
+                OFFSET_RESOURCE_AMOUNT[key] = 0;
+                NEW_RESOURCE_AMOUNT[key] = BOARD_RESOURCE_COUNTERS[this.player_id][key].getValue();
             }
             this.resetTradeValues();
         },
@@ -1003,19 +1001,20 @@ function (dojo, declare) {
          */
         setupResourceTokens(){
             for(let type in RESOURCES){
-                TOKEN_HTML[type] = this.format_block( 'jstpl_resource_inline', {type:type}, );
-                TOKEN_HTML["big_"+type] = this.format_block( 'jstpl_resource_inline', {type:"big_"+type}, );
+                TOKEN_HTML[type] = this.format_block( 'jstpl_resource_inline', {type:type, amt:""}, );
+                TOKEN_HTML["big_"+type] = this.format_block( 'jstpl_resource_inline', {type:"big_"+type, amt:""}, );
                 TOKEN_HTML["x_"+type] = `<span title = "${type}" class="log_${type} crossout token_inline" style="top: 9px;"></span>`;
             }
             let types = ['arrow', 'big_arrow', 'inc_arrow'];
             for(let i in types){
-                TOKEN_HTML[types[i]] = this.format_block( 'jstpl_resource_inline', {type:types[i]}, );
+                TOKEN_HTML[types[i]] = this.format_block( 'jstpl_resource_inline', {type:types[i],amt:""}, );
             }
             for (let i in VP_TOKENS){
-                TOKEN_HTML[VP_TOKENS[i]] = this.format_block( 'jstpl_resource_inline', {type:VP_TOKENS[i]}, );
-                TOKEN_HTML["bld_"+VP_TOKENS[i]] = this.format_block('jstpl_resource_log', {"type" : VP_TOKENS[i] + " bld_vp"});
+                let amt = VP_TOKENS[i].charAt(VP_TOKENS.length-1);
+                TOKEN_HTML[VP_TOKENS[i]] = this.format_block( 'jstpl_resource_inline', {type:VP_TOKENS[i], amt:amt},);
+                TOKEN_HTML["bld_"+VP_TOKENS[i]] = this.format_block('jstpl_resource_log', {"type" : VP_TOKENS[i] + " bld_vp", amt:amt});
             }
-            TOKEN_HTML.bld_vp = this.format_block('jstpl_resource_log', {"type" : "vp bld_vp"});
+            TOKEN_HTML.bld_vp = this.format_block('jstpl_resource_log', {"type" : "vp bld_vp", amt:""});
             TOKEN_HTML.track = this.getOneResourceHtml('track', 1, true);
             TOKEN_HTML.loan = this.format_block( 'jptpl_track_log', {type:'loan'}, );
             TOKEN_HTML.end = this.format_block('jstpl_color_log', {'string':_("End"), 'color':ASSET_COLORS[6]}); 
@@ -1486,7 +1485,7 @@ function (dojo, declare) {
         onUpdateActionButtons_preEventTrade: function (args) {
             let bonus_id = Number(args.bonus_id);
             this.current_args = args;
-            console.log(args, bonus_id);
+            //console.log(args, bonus_id);
             switch(bonus_id){
                 case EVENT_WARTIME_DEMAND:
                     console.log('wartime_demand');
@@ -2172,7 +2171,6 @@ function (dojo, declare) {
         cancelBuild: function(building){
             //console.log('cancelBuild', building.p_id);
             const b_divId = `${TPL_BLD_TILE}_${building.b_key}`;
-            dojo.removeAttr( $(b_divId), 'style');
             building.location=BLD_LOC_OFFER;
             this.createBuildingZoneIfMissing(building);
             this.moveObject(b_divId, `${TPL_BLD_STACK}${building.b_id}`);
@@ -2418,24 +2416,19 @@ function (dojo, declare) {
          */
         setOffsetForPaymentButtons: function( ) {
             // silver
-            let silver_offset_neg = this.getOffsetNeg('silver');
+            let silver_offset = this.getOffsetValue('silver');
             if (this.silverCost >0){
-                silver_offset_neg += this.silverCost;
+                silver_offset -= this.silverCost;
             } 
-            this.setOffsetNeg('silver', silver_offset_neg);
-            let silver_offset_pos = this.getOffsetPos('silver');
-            let silver_new = BOARD_RESOURCE_COUNTERS[this.player_id].silver.getValue() - silver_offset_neg + silver_offset_pos;
-            this.newPosNeg('silver', silver_new);
-
+            this.setOffset('silver', silver_offset);
+            
             // gold
-            let gold_offset_neg = this.getOffsetNeg('gold');
-            let gold_offset_pos = this.getOffsetPos('gold');
+            let gold_offset = this.getOffsetValue('gold');
             if (this.goldCost >0){
-                gold_offset_neg += this.goldCost;
+                gold_offset -= this.goldCost;
             }
-            this.setOffsetNeg('gold', gold_offset_neg);
-            let gold_new = BOARD_RESOURCE_COUNTERS[this.player_id].gold.getValue() - gold_offset_neg + gold_offset_pos;
-            this.newPosNeg('gold', gold_new);
+            this.setOffset('gold', gold_offset);
+
             this.updateBuildingAffordability();
             this.updateTradeAffordability();
             
@@ -2639,8 +2632,7 @@ function (dojo, declare) {
                 for (let type in INCOME_ARRAY[id]){
                     if (INCOME_ARRAY[id][type]!= 0){
                         let income = INCOME_ARRAY[id][type];
-                        this.offsetPosNeg(type, income, true);
-                        this.newPosNeg(type, income, true);
+                        this.incOffset(type, income);
                         this.updateBuildingAffordability();
                         this.updateTradeAffordability();
                     }
@@ -2649,14 +2641,16 @@ function (dojo, declare) {
             }
         },
 
-        clearOffset: function() {
-            //console.log("clearOffset");
-            for(type in POSITIVE_RESOURCE_COUNTERS){
-                POSITIVE_RESOURCE_COUNTERS[type].setValue(0);
-                dojo.query(`.${type}.pos:not(.noshow)`).addClass('noshow');
-                NEGATIVE_RESOURCE_COUNTERS[type].setValue(0);
-                dojo.query(`.${type}.neg:not(.noshow)`).addClass('noshow');
-                dojo.query(`#${type}_new:not(.noshow)`).addClass("noshow");
+        clearOffset: function(type = null) {
+            console.log("clearOffset", type);
+            if (type){
+                dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}.income`).removeClass('income');
+            } else {
+                for(type in RESOURCE_ARRAY){
+                    dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}.income`).removeClass('income');
+                    OFFSET_RESOURCE_AMOUNT[type]=0;
+                    NEW_RESOURCE_AMOUNT[type] = BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue();
+                }
             }
         },
 
@@ -3206,26 +3200,6 @@ function (dojo, declare) {
              }, function( is_error) {});
         },
 
-        /** helper method that calculates total negative offset for resource of type */
-        getOffsetNeg: function(type){
-            let value = 0;
-            for(let i in TRANSACTION_COST){
-                if (type in TRANSACTION_COST[i] && TRANSACTION_COST[i][type] < 0){
-                    value += TRANSACTION_COST[i][type];
-                }
-            }
-            return Math.abs(value);
-        },
-        /** helper method that calculates total positive offset for resource of type */
-        getOffsetPos: function(type){
-            let value = 0;
-            for(let i in TRANSACTION_COST){
-                if (type in TRANSACTION_COST[i] && TRANSACTION_COST[i][type]>0){
-                    value += TRANSACTION_COST[i][type];
-                }
-            }
-            return Math.abs(value);
-        },
         /** helper method that calculates total offset for resource of type */
         getOffsetValue: function(type) {
             //console.log('transaction_cost', TRANSACTION_COST);
@@ -3241,12 +3215,9 @@ function (dojo, declare) {
          * values are board_resourceCounters + offset from pending transactions.
          */
         resetTradeValues: function() {
+            console.log('resetTradeValues');
             for(let type in BOARD_RESOURCE_COUNTERS[this.player_id]){
-                let offset = 0;
-                offset -= this.setOffsetNeg(type, this.getOffsetNeg(type));
-                offset += this.setOffsetPos(type, this.getOffsetPos(type));
-
-                this.newPosNeg(type, BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue() + offset);
+                this.setOffset(type, this.getOffsetValue(type));
             }
         },
 
@@ -3640,92 +3611,36 @@ function (dojo, declare) {
             //console.log('updateTrade', change, undo);
             for (let type in change){
                 let offset = change[type];
-                if (offset > 0){
-                    this.setOffsetPos(type, (undo?(-1 * offset):offset), true);
-                } else {
-                    this.setOffsetNeg(type, (undo?offset:(-1 * offset)), true);
-                }
-                let offset_value = POSITIVE_RESOURCE_COUNTERS[type].getValue() - NEGATIVE_RESOURCE_COUNTERS[type].getValue();
-                this.newPosNeg(type, BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue() + offset_value);
+                this.incOffset(type, (undo?(-1 * offset):offset));
             }
             return true;
         },
 
         
         showResource: function(type){
-            let showNew = false;
-            if (POSITIVE_RESOURCE_COUNTERS[type].getValue() != 0){
-                dojo.query(`.${type}.pos.noshow`).removeClass('noshow');
-                showNew = true;
+            let offset = OFFSET_RESOURCE_AMOUNT[type];
+
+            console.log('showResource: ', type, 'offset', offset, BOARD_RESOURCE_ICON[this.player_id][type]);
+            document.getElementById(BOARD_RESOURCE_ICON[this.player_id][type]).setAttribute('income', offset);
+            if (offset != 0) {
+                dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}:not(.income)`).addClass('income');
             } else {
-                dojo.query(`.${type}.pos:not(.noshow)`).addClass('noshow');
+                dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}.income`).removeClass('income');
             }
-            if (NEGATIVE_RESOURCE_COUNTERS[type].getValue() != 0){
-                dojo.query(`.${type}.neg.noshow`).removeClass('noshow');
-                showNew = true;
+            if (offset < 0){
+                dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}:not(.negative)`).addClass('negative');
             } else {
-                dojo.query(`.${type}.neg:not(.noshow)`).addClass('noshow');
+                dojo.query(`#${BOARD_RESOURCE_ICON[this.player_id][type]}.negative`).removeClass('negative');
             }
-            if (showNew){
-                dojo.query(`#${type}_new.noshow`).removeClass("noshow");
-            } else {
-                dojo.query(`#${type}_new:not(.noshow)`).addClass("noshow");
-            }         
         },
-        
-        newPosNeg: function(type, new_value, inc= false){   
-            if (inc){
-                old_value = NEW_RESOURCE_COUNTERS[type].getValue();
-                new_value = NEW_RESOURCE_COUNTERS[type].setValue(old_value+ new_value);
-            } else {
-                NEW_RESOURCE_COUNTERS[type].setValue(new_value);
-            }         
+
+        incOffset:function(type, offset_value){
+            console.log('incOffset-args:', type, offset_value);
             
-            if(new_value < 0){
-                dojo.query(`#${type}_new`).addClass('negative');
-            } else {
-                dojo.query(`#${type}_new`).removeClass('negative');
-            }
+            let old_value = OFFSET_RESOURCE_AMOUNT[type];
+            OFFSET_RESOURCE_AMOUNT[type] = (old_value + offset_value);
+            NEW_RESOURCE_AMOUNT[type] = BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue() + OFFSET_RESOURCE_AMOUNT[type];
             this.showResource(type);
-            return new_value;
-        },
-
-        /**
-         * update pos offset counter if offset_value is positive, or 
-         * update neg offset counter if offset_value is negative.
-         * if inc is true, it will increment instead of setting the offset.
-         * @param {*} type 
-         * @param {*} offset_value 
-         * @param {*} inc 
-         */
-        offsetPosNeg: function(type, offset_value, inc= false){
-            if (offset_value > 0){
-                this.setOffset(true, type, offset_value, inc);
-            } else {
-                this.setOffset(false, type, (-1 * offset_value), inc);
-            }
-        },
-
-        /**
-         * update pos offset counter 
-         * if inc is true, it will increment instead of setting the offset.
-         * @param {String} type 
-         * @param {int} offset_value 
-         * @param {Boolean} inc 
-         */
-        setOffsetPos: function(type, offset_value, inc= false){
-            return this.setOffset(true, type, offset_value, inc);
-        },
-
-        /**
-         * update neg offset counter
-         * if inc is true, it will increment instead of setting the offset.
-         * @param {String} type 
-         * @param {int} offset_value 
-         * @param {Boolean} inc 
-         */
-        setOffsetNeg:function(type, offset_value, inc= false){
-            return this.setOffset(false, type, offset_value, inc);
         },
         
         /**
@@ -3734,25 +3649,15 @@ function (dojo, declare) {
          * 
          * if the resulting value is not 0 it will display the counter.
          * if the resulting value is 0 it will hide the counter.
-         * @param {Boolean} pos
+         * 
          * @param {String} type 
          * @param {int} offset_value 
-         * @param {Boolean} inc 
-         * @returns the new offset value
          */
-        setOffset:function(pos, type, offset_value, inc= false){
-            let counter = NEGATIVE_RESOURCE_COUNTERS[type];
-            if (pos){
-                counter = POSITIVE_RESOURCE_COUNTERS[type];
-            } 
-            if (inc) {
-                old_value = counter.getValue();
-                offset_value = counter.setValue(old_value + offset_value);
-            } else {
-                counter.setValue(offset_value);
-            } 
+        setOffset:function(type, offset_value){
+            console.log('setOffset-args:', type, offset_value);
+            OFFSET_RESOURCE_AMOUNT[type] = offset_value;
+            NEW_RESOURCE_AMOUNT[type] = (BOARD_RESOURCE_COUNTERS[this.player_id][type].getValue() + offset_value);
             this.showResource(type);
-            return offset_value;
         },
         
         // called after executing trades.
@@ -4090,9 +3995,9 @@ function (dojo, declare) {
         },
 
         validPay:function(){
-            if (NEW_RESOURCE_COUNTERS.silver.getValue() < 0)
+            if (NEW_RESOURCE_AMOUNT.silver < 0)
                 return false;
-            if (NEW_RESOURCE_COUNTERS.gold.getValue() < 0)
+            if (NEW_RESOURCE_AMOUNT.gold < 0)
                 return false;
             return true;
         },
@@ -5693,13 +5598,13 @@ function (dojo, declare) {
 
         // show hidden/pending trades (only to this player).
         notif_hiddenTrade: function ( notif ){
-            //console.log('notif_hiddenTrade', notif);
+            console.log('notif_hiddenTrade', notif);
             this.updateHiddenTrades({trade_away:notif.args.tradeAway_arr, trade_for:notif.args.tradeFor_arr});
         },
 
         // clear hidden/pending trades (only shown to this player).
         notif_cancelHiddenTrade: function (notif ){
-            //console.log('notif_cancelHiddenTrade', notif);
+            console.log('notif_cancelHiddenTrade', notif);
             this.clearHiddenTrades();
             this.updateTradeAffordability();
         },
@@ -5763,7 +5668,7 @@ function (dojo, declare) {
 
         // update player resources when a loan is paid
         notif_loanPaid: function( notif ){
-            //console.log('notif_loanPaid', notif);
+            console.log('notif_loanPaid', notif);
             const p_id = notif.args.player_id;
             var delay = 0;
             var destination = this.getTargetFromNotifArgs(notif);
@@ -5787,7 +5692,7 @@ function (dojo, declare) {
 
         // update player resources when a loan is taken
         notif_loanTaken: function( notif ){
-            //console.log('notif_loanTaken', notif);
+            console.log('notif_loanTaken', notif);
             var delay = 0;
             const p_id = notif.args.player_id;
             this.slideTemporaryObject( TOKEN_HTML.loan, 'limbo' , 'board', PLAYER_SCORE_ZONE_ID[p_id],  500 , 50*(delay++) );
@@ -5802,7 +5707,7 @@ function (dojo, declare) {
 
         // update player score
         notif_score: function( notif ){
-            //console.log('notif_score', notif);
+            console.log('notif_score', notif);
             const p_id = notif.args.player_id;
             this.scoreCtrl[p_id].setValue(0);
             for(let b_key in notif.args.building){
@@ -5827,7 +5732,7 @@ function (dojo, declare) {
 
         // for use when in non-show resources game, when reaching round 11 (where all player resources are revealed)
         notif_showResources: function( notif ){
-            //console.log('notif_showResources', notif);
+            console.log('notif_showResources', notif);
             if (this.show_player_info) return;// already showing player resources.
             this.show_player_info = true;
             for(let p_id in notif.args.resource_arr){
@@ -5943,7 +5848,7 @@ function (dojo, declare) {
                         }
                         if (dojo.query('#choose_warehouse_buttons').length >0){    
                             let newState = this.getWarehouseResources();
-                            console.log('newState', newState);
+                            //console.log('newState', newState);
                             for(let type in newState){
                                 //console.log('checking', type);
                                 if (!(type in oldState)){

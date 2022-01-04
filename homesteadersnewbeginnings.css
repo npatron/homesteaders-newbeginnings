@@ -433,9 +433,9 @@ button:disabled {
  }
 
 .trade_x {
-   background-image: url('img/drawn_tokens.png');
-   background-position: 48% 100%;
-   background-size: 200px 81px;
+   background-image: url('img/Tokens.png');
+   background-position: 68% -18%;
+   background-size: 1200% 600%;
    background-color: #813818;
    border-radius: 4px;
    position: absolute;
@@ -1062,6 +1062,27 @@ div#sell_board{
 .score {
    position: relative;
 }
+
+.score.income::after  {
+   bottom: 0px;
+   color: black;  
+   content: "+" attr(income);
+   font-size: 20px;
+   position: absolute;
+   right: 0px;
+   background: lightgreen;
+   border-radius: 10px;
+}
+.score.player_loan.income::after  {
+   background: pink;
+}
+.score.player_loan.income.negative::after  {
+   background: lightgreen;
+}
+.score.negative.income:not(.player_loan)::after  { 
+   content: attr(income);
+   background: pink;
+}
 .score_text {
    position: relative;
    margin: auto;
@@ -1096,10 +1117,11 @@ div#sell_board{
    position: relative;
 }
 .score_token {
-   background-image: url('img/drawn_tokens.png');
+   background-image: url('img/Tokens.png');
    position: relative;
    margin: auto;
    filter: drop-shadow(0px 0px 1px #000000);
+   text-align: center;
 }
 .score_loan {
    background-image: url('img/rail_debt_85x102.png');
@@ -1117,27 +1139,13 @@ div#sell_board{
 .player_resources{
    display: flex;
    flex-wrap: wrap;
-}
-.player_resource_group{
-   min-width: 70px;
-   max-width: 90px;
-   min-height: 45px;
-   display: inline-flex;
-   flex-direction: row-reverse;
    background-color: rgba(153, 153, 153, .25);
-   border-radius: 42px;
+   border-radius: 10px;
    align-items: center;
    justify-content: center;
    margin: 3px;
    padding: 2px;
 }
-.player_numbers{
-   margin: auto;
-}
-.this_player_resources{
-   display: flex;
-   flex-wrap: wrap;
-} 
 .this_player_resource_group{
    flex-grow: 1;
    min-width: 70px;
@@ -1154,6 +1162,43 @@ div#sell_board{
 }
 .this_player_resource_group:last-child{
    border-right: none;
+}
+#player_zone_purple .player_resources{
+   background-color: #8000803d;
+}
+#player_zone_green .player_resources{
+   background-color: #00ff003d;
+}
+#player_zone_yellow .player_resources{
+   background-color: #ffff003d;
+}
+#player_zone_blue .player_resources{
+   background-color: #0000ff3d;
+}
+#player_zone_red .player_resources{
+   background-color: #ff00003d;
+}
+.player_resource_group{
+   min-width: 70px;
+   max-width: 90px;
+   min-height: 45px;
+   display: inline-flex;
+   flex-direction: row-reverse;
+   background-color: rgba(153, 153, 153, .25);
+   border-radius: 42px;
+   align-items: center;
+   justify-content: center;
+   margin: 3px;
+   padding: 2px;
+}
+.player_numbers{
+   margin: auto auto auto 5px;
+   color: #000;
+   font-size: 30px;
+   font-family: 'Old Standard TT';
+   display: inline-block;
+   text-shadow:  0.5px 0.5px 3px #fff;
+   flex-grow: 1;
 }
 .building_container .biggerFont, .event_container .biggerFont{
    margin-left: auto;
@@ -1208,22 +1253,6 @@ div#sell_board{
    border-style: solid;
    box-sizing: border-box;
 }
-/* .buy{
-   background-image: url('img/drawn_tokens.png');
-   background-size: 1000px 300px;
-   background-position: -312px -216px;
-   height: 20px;
-   width: 20px;
-   grid-row: 1 / 2;
-}
-.sell{
-   background-image: url('img/drawn_tokens.png');
-   background-size: 1000px 300px;
-   background-position: -312px -264px;
-   height: 20px;
-   width: 20px;
-   grid-row: 3 / 4;
-} */
 
 .signed{
    margin: auto;
@@ -1231,29 +1260,25 @@ div#sell_board{
 }
 .player_loan {
    background-image: url('img/rail_debt_85x102.png');
-   background-position: -86% 50%;
-   background-size: 150px 60px;
-   height: 40px;
-   width: 40px;
+   background-position: 200% 50%;
+   background-size: 300% 150%;
    position: relative;
    margin: auto;
    filter: drop-shadow(0px 0px 1px #000000);
+   color: #fff;
+   font-size: 30px;
+   text-align: center;
+   font-family: 'Old Standard TT';
+   text-shadow: 0 0 3px #000;
  }
-.take_loan {
-   background-image: url('img/drawn_tokens.png');
-   background-size: 1000px 300px;
-   background-position: -312px -216px;
-   height: 20px;
-   width: 20px;
-   grid-row: 1 / 2;
-}
 /*** Square Icons 
  * silver, trade, food, steel, gold, vp(all of them)
 ***/
 /** size ***/
 .player_silver, .log_big_silver, .player_trade, .log_big_trade,
-.player_food,   .log_big_food,   .player_steel, .log_big_steel,
-.player_gold,  .log_big_gold,    .player_vp,    .log_big_vp   {
+.player_vp, .log_big_vp, .player_loan, 
+.player_wood, .log_big_wood, .player_food, .log_big_food,
+.player_steel, .log_big_steel, .player_gold, .log_big_gold  {
    width: 40px;
    height: 40px;
 }
@@ -1267,77 +1292,67 @@ div#sell_board{
    height: 25px;
    transform: scale(1.25);
 }
-.log_silver, .log_trade, .log_food, 
-.log_steel, .log_gold,
+.log_silver, .log_blank_silver, .log_trade, .log_blank_trade, 
+.log_food, .log_steel, .log_gold,
 .log_vp0, .log_vp, .log_vp2, .log_vp3, 
 .log_vp4, .log_vp6, .log_vp8, .log_vp10{
    width: 20px;
    height: 20px;
 }
-/*** position & scale for types ***/
-.player_silver, .log_big_silver, .log_silver, .score_silver {
-   background-size: 950%;
-   background-position: 29% 0%;
+span[amt] {
+   content: attr(amt);
 }
-.player_trade, .log_big_trade, .log_trade, .score_trade {
-   background-size: 1000%;
-   background-position: -69.5% 0%;
+.log_blank_silver, .log_blank_trade{
+   font-size: 10px;
+}
+/*** position & scale for types ***/
+.log_silver, .score_silver, .player_silver, .log_big_silver {
+   background-size: 700% 310%;
+   background-position: 61.5% 2%;
+}
+.log_blank_silver {
+   background-size: 700% 310%;
+   background-position: 42% 2%;
+}
+.log_trade, .score_trade, .player_trade, .log_big_trade{
+   background-size: 770% 337%;
+   background-position: 96.5% 5%;
+}
+.blank_trade, .log_blank_trade {
+   background-size: 770% 337%;
+   background-position: 79.1% 5%;
 }
 .player_food, .log_big_food, .log_food, .score_food {
-   background-size: 1250%;
-   background-position: 18.5% 6%;
+   background-size: 960% 390%;
+   background-position: 26.7% 6%;
 }
 .player_steel, .log_big_steel, .log_steel, .score_steel {
-   background-size: 1200%;
-   background-position: 23.5% -42%;
+   background-size: 914% 392%;
+   background-position: 34% -38%;
 }
 .player_gold, .log_big_gold, .log_gold, .score_gold {
-   background-size: 1000%;
-   background-position: 6.5% 1%;
+   background-size: 777% 334%;
+   background-position: 10% 4%;
 }
 /** vps */
-.player_vp, .log_big_vp, .log_vp, .bld_vp, .score_vp {
-   background-size: 800%;
-   background-position: -45% 1%;
+.log_big_vp, .log_vp, .bld_vp, .score_vp, .player_vp {
+   background-size: 610% 268%;
+   background-position: -21% 65%;
 }
-.log_vp0 {
-   background-size: 800%;
-   background-position: -60% 1%;
-}
-.log_vp2{
-   background-size: 800%;
-   background-position: -30% 1%;
-}
-.log_vp3{
-   background-size: 800%;
-   background-position: -15% 1%;
-}
-.log_vp4{
-   background-size: 800%;
-   background-position: -60% 77%;
-}
-.log_vp6{
-   background-size: 800%;
-   background-position: -45% 77%;
-}
-.log_vp8{
-   background-size: 800%;
-   background-position: -30% 77%;
-}
-.log_vp10{
-   background-size: 800%;
-   background-position: -15% 77%;
-}
+.log_vp0, .log_vp2, .log_vp3, .log_vp4, .log_vp6, .log_vp8, .log_vp10{
+   background-size: 610% 268%;
+   background-position: -42% 65%;
+} 
 
 /*** different shaped icons 
  * (wood, copper, cow, worker) ***/
 /*** Wood ***/
 .player_wood, .log_big_wood, .log_wood, .score_wood {
-   background-size: 2000%;
+   background-size: 1300% 283%;
    background-position: 0% 0%;
 }
 .player_wood, .log_big_wood {
-   width: 19px;
+   width: 40px;
    height: 40px;
 }
 .score_wood {
@@ -1351,12 +1366,12 @@ div#sell_board{
 }
 /*** copper cow ***/
 .player_cow, .log_big_cow, .log_cow, .score_cow {
-   background-size: 962%;
-   background-position: 13% 51%;
+   background-size: 700% 403%;
+   background-position: 19.5% 53%;
 }
 .player_copper, .log_big_copper, .log_copper, .score_copper {
-   background-size: 900%;
-   background-position: 26.5% 50%;
+   background-size: 700% 463%;
+   background-position: 39% 51.1%;
 }
 .player_copper, .log_big_copper, .player_cow, .log_big_cow {
    width: 55px;
@@ -1522,13 +1537,41 @@ div#sell_board{
    pointer-events: none;
 }
 .token_inline{
-   background-image: url('img/drawn_tokens.png');
+   background-image: url('img/Tokens.png');
    position: relative;
    display: inline-block;
    pointer-events: none;
+   font-family: 'Old Standard TT';
 }
+.token_inline::after{
+   font-size: 16px;
+   margin-left: 5.5px;
+}
+.log_token::after {
+   font-size: 14px;
+   margin-left: 3px;
+}
+.log_vp0::after {
+   content: "0";
+}
+.log_vp2::after {
+   content: "2";
+}
+.log_vp3::after {
+   content: "3";
+}
+.log_vp4::after {
+   content: "4";
+}
+.log_vp6::after {
+   content: "6";
+}
+.log_vp8::after {
+   content: "8";
+}
+
 .log_token {
-   background-image: url('img/drawn_tokens.png');
+   background-image: url('img/Tokens.png');
    position: relative;
    overflow: hidden;
    flex-direction: row-reverse;
@@ -1555,8 +1598,8 @@ div#sell_board{
 }
 
 .log_worker{
-   background-size: 122px 36.6px;
-   background-position: 0px -13.9px;
+   background-size: 700%;
+   background-position: 0% 81%;
    width: 13.2px;
    height: 20px;
 }
@@ -1570,10 +1613,10 @@ div#sell_board{
    margin-left: -8px;
  }
 .log_track, .log_big_track{
-   background-position: -94.5% -37%;
+   background-position: -92.5% -37%;
 }
 .log_track{
-   background-size: 259.7px 77.9px;
+   background-size: 190px 77.9px;
    width: 20px;
    height: 20px;
 }
@@ -1589,14 +1632,14 @@ div#sell_board{
    height: 20px;
 }
 .log_arrow{
-   background-size: 344.85px 103.45px;
-   background-position: -124.8px -40px;
+   background-size: 1800%;
+   background-position: 53% -71%;
    width: 11px;
    height: 10px;
 }
 .log_inc_arrow{
-   background-size: 517px 155px;
-   background-position: -187px -80px;
+   background-size: 1800%;
+   background-position: 52% -57%;
    width: 15px;
    height: 15px;
    filter: drop-shadow(0px 0px 1px #000000);
@@ -1637,11 +1680,11 @@ div#sell_board{
  * Worker Tokens *
  *===============*/
 .token_worker {
-   background-image: url('img/drawn_tokens.png');
-   background-size: 677px 207px;
+   background-image: url('img/Tokens.png');
+   background-size: 488px 207px;
    height: 35px;
    width: 24px;
-   background-position: 42.2% 49%;
+   background-position: 59.6% 49%;
    z-index: 2;
    filter: drop-shadow(0px 0px 1px #000000);
    position: relative;
@@ -1763,9 +1806,9 @@ div#sell_board{
    max-height: 33px;
 }
 .tt_container .worker_slot{
-   background-image: url('img/drawn_tokens.png');
-   background-size: 1100%;
-   background-position: 38% 98%;
+   background-image: url('img/Tokens.png');
+   background-size: 800%;
+   background-position: 55% 100%;
    width: 33px;
    height: 35px;
    position: unset;
@@ -1775,9 +1818,9 @@ div#sell_board{
    display: inline-flex;
 }
 .dijitTooltipContainer .worker_slot {
-   background-image: url('img/drawn_tokens.png');
-   background-size: 1100%;
-   background-position: 38% 98%;
+   background-image: url('img/Tokens.png');
+   background-size: 800%;
+   background-position: 55% 100%;
    width: 20px;
    height: 25px;
    position: unset;
@@ -1866,11 +1909,11 @@ div#sell_board{
    border-width: 0px;
 }
 .w_slot .slot_17_1{
-   background-position: 37% 99%;
+   background-position: 54% 99%;
    width: 32px;
 }
 .w_slot .slot_17_2{
-   background-position: 40% 99%;
+   background-position: 57% 99%;
    width: 32px;
 }
 .w_slot [id^="slot_"][id$="_3"] {
