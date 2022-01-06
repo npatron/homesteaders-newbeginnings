@@ -127,9 +127,11 @@
    color: lightseagreen;
 }
 .a2 {
+   background-color: gray;
    color: orange;
 }
 .a3 {
+   background-color: gray;
    color: hotpink;
 }
 .a4 {
@@ -713,16 +715,6 @@ div[id$=trade_market_wood_food]{
    position: unset;
    margin-left: auto;
    margin-right: auto;
-}
-.event_card{
-   box-shadow: -3px -3px 3px grey inset;
-}
-.tt_container.event_card {
-   border-style: solid;
-   border-width: 1px;
-   min-height: 200px;
-   background-color: linen;
-   border-radius: 6px;
 }
 div[id$=trade_market_food_steel]{
    left: 38px;
@@ -1540,7 +1532,7 @@ span[amt] {
    background-image: url('img/Tokens.png');
    position: relative;
    display: inline-block;
-   pointer-events: none;
+   pointer-events: visible;
    font-family: 'Old Standard TT';
 }
 .token_inline::after{
@@ -2313,4 +2305,99 @@ div#auction_tile_40:not(.auction_card) {
    background-image: url('img/exp_building.png');
    background-position: 100% 0%;
    background-size: 1008px 196px;
+}
+
+/* Event Cards */
+.event_card, .building_card:not( .building_card), .auction_card:not( .auction_card) {
+   width: 144px;
+   min-height: 196px;
+   height: min-content;
+   border-radius: 6px;
+   position: relative;
+   background-color: linen;
+   box-shadow: -3px -3px 3px grey inset;
+}
+.event_tile {
+   width: 144px;
+   min-height: 196px;
+   border-radius: 6px;
+   box-shadow: -3px -3px 3px grey inset;
+   background-image: url('img/event_cards.png');
+   background-repeat: no-repeat;
+   background-size: 500% 500%;
+}
+#event_tile_1{
+   background-position: 0% 0%;
+}
+#event_tile_2{
+   background-position: 25% 0%;
+}
+#event_tile_3{
+   background-position: 50% 0%;
+}
+#event_tile_4{
+   background-position: 75% 0%;
+}
+#event_tile_5{
+   background-position: 100% 0%;
+}
+#event_tile_6{
+   background-position: 0% 25%;
+}
+#event_tile_7{
+   background-position: 25% 25%;
+}
+#event_tile_8{
+   background-position: 50% 25%;
+}
+#event_tile_9{
+   background-position: 75% 25%;
+}
+#event_tile_10{
+   background-position: 100% 25%;
+}
+#event_tile_11{
+   background-position: 0% 50%;
+}
+#event_tile_12{
+   background-position: 25% 50%;
+}
+#event_tile_13{
+   background-position: 50% 50%;
+}
+#event_tile_14{
+   background-position: 75% 50%;
+}
+#event_tile_15{
+   background-position: 100% 50%;
+}
+#event_tile_16{
+   background-position: 0% 75%;
+}
+#event_tile_17{
+   background-position: 25% 75%;
+}
+#event_tile_18{
+   background-position: 50% 75%;
+}
+#event_tile_19{
+   background-position: 75% 75%;
+}
+#event_tile_20{
+   background-position: 100% 75%;
+}
+#event_tile_21{
+   background-position: 0% 100%;
+}
+#event_tile_22{
+   background-position: 25% 100%;
+}
+#event_tile_23{
+   background-position: 50% 100%;
+}
+#event_tile_24{
+   background-position: 75% 100%;
+}
+#event_tile_25{
+   background-position: 100% 100%;
 }

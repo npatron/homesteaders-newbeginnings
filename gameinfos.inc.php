@@ -16,7 +16,7 @@ $gameinfos = array(
 'game_name' => 'HomesteadersNewBeginnings',
 
 // Game designer (or game designers, separated by commas)
-'designer' => 'Alex Rockwell',       
+'designer' => 'Alex Rockwell, Sean McCarthy',       
 
 // Game artist (or game artists, separated by commas)
 'artist' => 'Hans Janssen, Ariel Seoane',         
@@ -45,8 +45,6 @@ $gameinfos = array(
 
 // Discourage players to play with these numbers of players. Must be null if there is no such advice.
 'not_recommend_player_number' => null,
-// 'not_recommend_player_number' => array( 2, 3 ),      // <= example: this is not recommended to play this game with 2 or 3 players
-
 
 // Estimated game duration, in minutes (used only for the launch, afterward the real duration is computed)
 'estimated_duration' => 30,           

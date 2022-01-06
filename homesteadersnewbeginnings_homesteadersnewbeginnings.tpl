@@ -248,8 +248,10 @@ var jstpl_building_slot='<div id="slot_${key}_${slot}" class="worker_slot slot_$
 var jstpl_tt_building_slot='<div id="slot_${key}_${slot}" class="worker_slot slot_${id}_${slot} key_${key}"></div>'; 
 var jstpl_tt_building_slot_3 = '<div id="slot_${key}_${slot}" class="worker_slot slot_${id}_${slot}"></div>';
 
-var jstpl_auction_tile='<div id="auction_tile_${auc}" class="auction_tile border_${color}"></div>';
-var jptpl_auction_text = '<div id="auction_tile_${auc}" class="auction_tile border_${color} auction_card">${card}</div>';
+var jstpl_auction_tile ='<div id="auction_tile_${auc}" class="auction_tile border_${color}"></div>';
+var jptpl_auction_card ='<div id="auction_tile_${auc}" class="auction_tile border_${color} auction_card">${card}</div>';
+
+var jstpl_event_tile='<div id="event_tile_${KEY}" class="event_tile" style="order:${POS}"></div>';
 
 var jptpl_worker='<div id="token_worker_${id}" class="token_worker"> </div>';
 var jptpl_player_token='<div id="token_${type}_${color}" class="player_token_${color} player_token_${type}"> </div>';
@@ -291,14 +293,15 @@ var jptpl_breadcrumb_building = '<span id="breadcrumb_building" class="breadcrum
 
 var jptpl_tt_break = '<div class="tt_${type}"><span font>${text}</span></div>';
 var jptpl_res_tt = '<div class="tt_container" style="text-align:center;">${value}</br>';
-var jptpl_bld_tt = '<div class="tt_container">${msg}<span class="font bold ${type} tt_left">${name}</span>\
+var jptpl_bld_tt = '${msg}<div class="tt_container building_card"><span class="font bold ${type} tt_left">${name}</span>\
     <p class="alignright"><span aria="${vp}" title="${vp}" class="log_${vp} bld_vp token_inline"></span></p><br>\
     <p class="font caps tt_left">${COST} ${cost_vals}</p>${hr}\
     <p class="font tt_center">${desc}</p>${hr}\
     <p class="income tt_center">${INCOME}</p>\
     <p class="font tt_center">${inc_vals}</p></div>';
-var jptpl_evt_tt = '<div id="event_tile_${pos}" class="tt_container event_card" style="order:${pos}">\<div class="font bold" style="text-align:center;">${TITLE}</div><hr>\
-    <div style="text-align:center;"><span class="font" style="max-width:200px;display:inline-block;margin: 1px 3px 1px 3px">${DESC}</span>';
+var jptpl_evt_tt = '<div class="tt_container event_card" style="order:${POS}">\
+    <div class="font bold" style="text-align:center;">${TITLE}</div><hr>\
+    <div style="text-align:center;"><span class="font" style="max-width:200px;display:inline-block;margin: 1px 3px 1px 3px">${DESC}</span></div></div></div>';
 </script>  
 
 {OVERALL_GAME_FOOTER}

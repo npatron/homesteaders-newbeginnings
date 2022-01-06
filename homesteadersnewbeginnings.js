@@ -1659,12 +1659,12 @@ function (dojo, declare) {
 
         createAuctionTile: function (a_id, location, info){
             let color = ASSET_COLORS[10+Number(location)];
+            let text_auction_html = this.format_block('jptpl_auction_card', {auc: a_id, color:color, 'card':this.formatTooltipAuction(info, a_id)});
             if (this.prefs[USE_ART_USER_PREF].value == ENABLED_USER_PREF){ // use art (default case)
                 dojo.place(this.format_block( 'jstpl_auction_tile', {auc: a_id, color:color}), `future_auction_${location}`);
-                this.addTooltipHtml(`${TPL_AUC_TILE}_${a_id}`, this.formatTooltipAuction(info, a_id));
+                this.addTooltipHtml(`${TPL_AUC_TILE}_${a_id}`, text_auction_html);
             } else {
-                let text_auction_html = this.formatTooltipAuction(info, a_id);
-                dojo.place(this.format_block('jptpl_auction_text', {auc: a_id, color:color, 'card':text_auction_html}), `future_auction_${location}`);
+                dojo.place(text_auction_html, `future_auction_${location}`);
             }
             dojo.style(`${TPL_AUC_TILE}_${a_id}`, 'order', a_id);
         },
@@ -1726,15 +1726,28 @@ function (dojo, declare) {
         /***** events utils ******/
         createEventCards: function(current_round){
             for (let i in this.events){
-                let event = EVENT_INFO[this.events[i].e_id];
-                //do a thing for each event...
-                
-                let destination_loc = (Number(this.events[i].position) >= current_round)?TILE_ZONE_DIV_ID[EVT_LOC_MAIN]:TILE_ZONE_DIV_ID[GEN_LOC_DISCARD]
-                dojo.place(this.format_block('jptpl_evt_tt', 
-                    {'pos': this.events[i].position, 
-                    TITLE: _("Round ") + this.events[i].position + ":<br>" + this.replaceTooltipStrings(event.name), 
-                    DESC: this.replaceTooltipStrings(event.tt)}), 
-                    destination_loc,'last');
+                let e_id = this.events[i].e_id;
+                let event = EVENT_INFO[e_id];
+                let position = Number(this.events[i].position);
+                let destination_loc = (position >= current_round)?TILE_ZONE_DIV_ID[EVT_LOC_MAIN]:TILE_ZONE_DIV_ID[GEN_LOC_DISCARD];
+
+                if (this.prefs[USE_ART_USER_PREF].value == ENABLED_USER_PREF){ // use art (default case)
+                    dojo.place(this.format_block( 'jstpl_event_tile', {'KEY': e_id, 'POS':this.events[i].position}), destination_loc);
+                    this.addTooltipHtml( `${TPL_EVT_TILE}_${e_id}`, 
+                        this.format_block('jptpl_evt_tt',  
+                        {
+                            POS: position, 
+                            TITLE: _("Round ") + position + ":<br>" + this.replaceTooltipStrings(event.name), 
+                            DESC: this.replaceTooltipStrings(event.tt)
+                        }));
+                } else {
+                    dojo.place(this.format_block('jptpl_evt_tt', 
+                    {
+                        POS: this.events[i].position, 
+                        TITLE: _("Round ") + this.events[i].position + ":<br>" + this.replaceTooltipStrings(event.name), 
+                        DESC: this.replaceTooltipStrings(event.tt)
+                    }), destination_loc,'last');
+                }
             }
         },
 
@@ -2142,13 +2155,13 @@ function (dojo, declare) {
         },
 
         createBuildingTile(b_id, b_key, destination){
+            let text_building_html = this.formatTooltipBuilding(b_id, b_key);
             if (this.prefs[USE_ART_USER_PREF].value == ENABLED_USER_PREF){ // use art (default case)
                 dojo.place(this.format_block( 'jstpl_buildings', {key: b_key, id: b_id}), destination);
-                this.addTooltipHtml( `${TPL_BLD_TILE}_${b_key}`, this.formatTooltipBuilding(b_id, b_key));
+                this.addTooltipHtml( `${TPL_BLD_TILE}_${b_key}`, text_building_html);
                 this.addBuildingTradeActionsAndWorkerSlots(b_id, b_key);
                 this.setupBuildingWorkerSlots(b_id, b_key);
             } else { // use text instead of art.
-                let text_building_html = this.formatTooltipBuilding(b_id, b_key);
                 dojo.place(this.format_block('jptpl_bld_text', {key: b_key, id: b_id, 'card':text_building_html}), destination);
                 this.setupBuildingWorkerSlots(b_id, b_key);
             }
