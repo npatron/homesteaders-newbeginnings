@@ -48,8 +48,8 @@ $game_options = array(
                 'name' => totranslate('Receive Nothing If Do Not Build'),
                 'tmdisplay' => totranslate('Nothing on No-Build')),
             1 => array(
-                'name' => totranslate('Receive a Rail Line When Do Not bBuild (Recommended for 5 player)'),
-                'tmdisplay' => totranslate('Rail Line on no-build'),
+                'name' => totranslate('Receive a Rail Line When Do Not Build (Recommended for 5 player)'),
+                'tmdisplay' => totranslate('Rail Line on No-Build'),
             ),
         ),
     ),

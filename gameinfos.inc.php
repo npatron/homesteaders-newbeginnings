@@ -13,7 +13,7 @@
 $gameinfos = array( 
 
 // Game Name
-'game_name' => 'HomesteadersNewBeginnings',
+'game_name' => 'Homesteaders New Beginnings',
 
 // Game designer (or game designers, separated by commas)
 'designer' => 'Alex Rockwell, Sean McCarthy',       
@@ -47,7 +47,7 @@ $gameinfos = array(
 'not_recommend_player_number' => null,
 
 // Estimated game duration, in minutes (used only for the launch, afterward the real duration is computed)
-'estimated_duration' => 30,           
+'estimated_duration' => 60,           
 
 // Time in second add to a player when "giveExtraTime" is called (speed profile = fast)
 'fast_additional_time' => 30,           
@@ -125,6 +125,7 @@ $gameinfos = array(
     totranslate("Homesteaders is an auction and resource management game in which players bid on the opportunity to build certain types of buildings, then spend resource cubes to build one of several buildings of that type. The buildings confer abilities, income, and points; some automatically and some requiring a worker."),
     totranslate("The game lasts ten rounds, with each round consisting of an auction phase followed by a building phase. After the last round, players take one final income phase and have one last chance to buy and sell goods and use their building abilities before scores are tallied."),
     totranslate("Players score for their buildings, bonuses conferred by buildings, and points earned throughout the game from selling resource cubes. The player who builds the best combination of buildings and best manages the nine different resources in the game will score the most points and win – as long as they don't take on too much debt!"),
+    totranslate("Homesteaders: New Beginnings allows a fifth player to play the game. In addition, the expansion adds more auction and building tiles to give more variance to each play session. Lastly, the expansion includes an event deck, with every round of the game altered slightly by an event."),
 ),
 
 // Games categories
