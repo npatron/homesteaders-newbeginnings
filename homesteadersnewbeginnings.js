@@ -86,7 +86,7 @@ function (dojo, declare) {
             const BLD_LOC_DISCARD = 3;
         const AUC_LOC_FUTURE  = 2;
         const EVT_LOC_MAIN    = 4;
-        const GEN_LOC_DISCARD = 5;
+        const EVT_LOC_DISCARD = 5;
 
     // arrays for the map between toggle buttons and show/hide zones 
         const TOGGLE_BTN_ID     = ['tgl_future_bld', 'tgl_main_bld', 'tgl_future_auc', 'tgl_past_bld', 'tgl_events', 'tgl_discard'];
@@ -1053,7 +1053,7 @@ function (dojo, declare) {
             dojo.connect($(TOGGLE_BTN_ID[BLD_LOC_DISCARD]),  'onclick', this, 'toggleShowBldDiscard');
             dojo.connect($(TOGGLE_BTN_ID[BLD_LOC_FUTURE]),  'onclick', this, 'toggleShowBldFuture');
             dojo.connect($(TOGGLE_BTN_ID[EVT_LOC_MAIN]),  'onclick', this, 'toggleShowEvents');
-            dojo.connect($(TOGGLE_BTN_ID[GEN_LOC_DISCARD]),  'onclick', this, 'toggleShowDiscard');
+            dojo.connect($(TOGGLE_BTN_ID[EVT_LOC_DISCARD]),  'onclick', this, 'toggleShowDiscard');
             this.showHideButtons();
         },
 
@@ -1081,6 +1081,8 @@ function (dojo, declare) {
             this.showHideToggleButton(BLD_LOC_DISCARD);
             this.showHideToggleButton(BLD_LOC_FUTURE);
             this.showHideToggleButton(BLD_LOC_OFFER);
+            this.showHideToggleButton(EVT_LOC_MAIN);
+            this.showHideToggleButton(EVT_LOC_DISCARD)
         },
 
         ///////////////////////////////////////////////////
@@ -1729,7 +1731,7 @@ function (dojo, declare) {
                 let e_id = this.events[i].e_id;
                 let event = EVENT_INFO[e_id];
                 let position = Number(this.events[i].position);
-                let destination_loc = (position >= current_round)?TILE_ZONE_DIV_ID[EVT_LOC_MAIN]:TILE_ZONE_DIV_ID[GEN_LOC_DISCARD];
+                let destination_loc = (position >= current_round)?TILE_ZONE_DIV_ID[EVT_LOC_MAIN]:TILE_ZONE_DIV_ID[EVT_LOC_DISCARD];
 
                 if (this.prefs[USE_ART_USER_PREF].value == ENABLED_USER_PREF){ // use art (default case)
                     dojo.place(this.format_block( 'jstpl_event_tile', {'KEY': e_id, 'POS':this.events[i].position}), destination_loc);
@@ -1776,8 +1778,8 @@ function (dojo, declare) {
             for(var i in this.events){
                 let position = Number(this.events[i].position);
                 if (position < current_round){
-                    console.log(`${TPL_EVT_TILE}_${position}`, `${TILE_ZONE_DIV_ID[GEN_LOC_DISCARD]}`);
-                    this.moveObject(`${TPL_EVT_TILE}_${position}`, `${TILE_ZONE_DIV_ID[GEN_LOC_DISCARD]}`, 'last');
+                    console.log(`${TPL_EVT_TILE}_${position}`, `${TILE_ZONE_DIV_ID[EVT_LOC_DISCARD]}`);
+                    this.moveObject(`${TPL_EVT_TILE}_${position}`, `${TILE_ZONE_DIV_ID[EVT_LOC_DISCARD]}`, 'last');
                 }
             }
         },
@@ -3830,7 +3832,7 @@ function (dojo, declare) {
         toggleShowDiscard: function (evt ){
             evt.preventDefault();
             dojo.stopEvent( evt );
-            this.toggleShowButton(GEN_LOC_DISCARD);
+            this.toggleShowButton(EVT_LOC_DISCARD);
         },
 
         /***** PLACE WORKERS PHASE *****/

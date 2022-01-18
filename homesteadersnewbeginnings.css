@@ -261,15 +261,15 @@
  * Button css *
  *============*/
  
-a#tgl_main_bld{
-   height: 17px;
-   width: 180px;
-   order: 5;
-}
 a#tgl_future_auc{
    height: 17px;
    width: 180px;
    order: 4;
+}
+a#tgl_main_bld{
+   height: 17px;
+   width: 180px;
+   order: 5;
 }
 a#tgl_past_bld{
    height: 17px;
@@ -280,6 +280,11 @@ a#tgl_future_bld{
    height: 17px;
    width: 180px;
    order: 6;
+}
+a#tgl_events {
+   height: 17px;
+   order: 7;
+   width: 180px;
 }
 a#tgl_discard{
    height: 17px;
