@@ -1081,8 +1081,8 @@ function (dojo, declare) {
             this.showHideToggleButton(BLD_LOC_DISCARD);
             this.showHideToggleButton(BLD_LOC_FUTURE);
             this.showHideToggleButton(BLD_LOC_OFFER);
-            this.showHideToggleButton(EVT_LOC_MAIN);
-            this.showHideToggleButton(EVT_LOC_DISCARD)
+            this.showHideToggleButton(EVT_LOC_MAIN, TPL_EVT_TILE);
+            this.showHideToggleButton(EVT_LOC_DISCARD, TPL_EVT_TILE);
         },
 
         ///////////////////////////////////////////////////
@@ -1633,6 +1633,7 @@ function (dojo, declare) {
                 this.updateEventBanner(round_number);
                 this.updateEventCards(round_number);
             }
+            this.showHideButtons();
         },
 
         /**
@@ -1738,6 +1739,7 @@ function (dojo, declare) {
                     this.addTooltipHtml( `${TPL_EVT_TILE}_${e_id}`, 
                         this.format_block('jptpl_evt_tt',  
                         {
+                            KEY: "",
                             POS: position, 
                             TITLE: _("Round ") + position + ":<br>" + this.replaceTooltipStrings(event.name), 
                             DESC: this.replaceTooltipStrings(event.tt)
@@ -1745,6 +1747,7 @@ function (dojo, declare) {
                 } else {
                     dojo.place(this.format_block('jptpl_evt_tt', 
                     {
+                        KEY: this.events[i].e_id,
                         POS: this.events[i].position, 
                         TITLE: _("Round ") + this.events[i].position + ":<br>" + this.replaceTooltipStrings(event.name), 
                         DESC: this.replaceTooltipStrings(event.tt)
@@ -1776,10 +1779,11 @@ function (dojo, declare) {
 
         updateEventCards: function (current_round){
             for(var i in this.events){
-                let position = Number(this.events[i].position);
+                const position = Number(this.events[i].position);
+                const e_id = Number(this.events[i].e_id);
                 if (position < current_round){
-                    console.log(`${TPL_EVT_TILE}_${position}`, `${TILE_ZONE_DIV_ID[EVT_LOC_DISCARD]}`);
-                    this.moveObject(`${TPL_EVT_TILE}_${position}`, `${TILE_ZONE_DIV_ID[EVT_LOC_DISCARD]}`, 'last');
+                    console.log(`${TPL_EVT_TILE}_${e_id}`, `${TILE_ZONE_DIV_ID[EVT_LOC_DISCARD]}`);
+                    this.moveObject(`${TPL_EVT_TILE}_${e_id}`, `${TILE_ZONE_DIV_ID[EVT_LOC_DISCARD]}`, 'last');
                 }
             }
         },

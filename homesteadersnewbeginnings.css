@@ -2313,20 +2313,15 @@ div#auction_tile_40:not(.auction_card) {
 }
 
 /* Event Cards */
-.event_card, .building_card:not( .building_card), .auction_card:not( .auction_card) {
+.event_tile, .building_card {
    width: 144px;
    min-height: 196px;
    height: min-content;
    border-radius: 6px;
-   position: relative;
    background-color: linen;
    box-shadow: -3px -3px 3px grey inset;
 }
-.event_tile {
-   width: 144px;
-   min-height: 196px;
-   border-radius: 6px;
-   box-shadow: -3px -3px 3px grey inset;
+.event_tile:not(.event_card) {
    background-image: url('img/event_cards.png');
    background-repeat: no-repeat;
    background-size: 500% 500%;

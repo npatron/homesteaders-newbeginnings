@@ -268,7 +268,7 @@ class HSDEvents extends APP_GameClass
                     $row_1[] = array('str' => '${player_name}',
                     'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
                     'type' => 'header');
-                    if (in_array($p_id, $winning_players)){
+                    if (array_key_exists($p_id, $winning_players)){
                         $this->game->Resource->updateAndNotifyIncome($p_id, 'vp3', 1, $this->getEventName(), 'event');
                         $row_2[] = '<span title = "vp3" class="log_vp3 token_inline"></span>';
                     } else {
@@ -286,7 +286,7 @@ class HSDEvents extends APP_GameClass
                     $row_1[] = array('str' => '${player_name}',
                     'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
                     'type' => 'header');
-                    if (in_array($p_id, $winning_players)){
+                    if (array_key_exists($p_id, $winning_players)){
                         $this->game->Resource->addTrackAndNotify($p_id, $this->getEventName(), 'event');
                         $row_2[] = '<span title = "track" class="log_track token_inline"></span>';
                     } else {
@@ -336,7 +336,7 @@ class HSDEvents extends APP_GameClass
                     $row_1[] = array('str' => '${player_name}',
                     'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
                     'type' => 'header');
-                    if (in_array($p_id, $pending_players)){
+                    if (array_key_exists($p_id, $pending_players)){
                         $this->game->Resource->getRailAdv($p_id, $this->getEventName(), 'event');
                         $this->game->Log->allowTrades($p_id);
                         $row_2[] = clienttranslate('Rail Development');
@@ -356,7 +356,7 @@ class HSDEvents extends APP_GameClass
                     $row_1[] = array('str' => '${player_name}',
                     'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
                     'type' => 'header');
-                    if (in_array($p_id, $pending_players)){
+                    if (array_key_exists($p_id, $pending_players)){
                         $this->game->Log->allowTrades($p_id);
                         $row_2[] = '<span title = "worker" class="log_worker token_inline"></span>';
                     } else {
@@ -374,7 +374,7 @@ class HSDEvents extends APP_GameClass
                     $row_1[] = array('str' => '${player_name}',
                     'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
                     'type' => 'header');
-                    if (in_array($p_id, $pending_players)){
+                    if (array_key_exists($p_id, $pending_players)){
                         $this->game->Resource->getRailAdv($p_id, clienttranslate('<span title="Residential" class="res">Residential</span> Dominance'), 'event');
                         $this->game->Log->allowTrades($p_id);
                         $row_2[] = clienttranslate('Rail Development');
@@ -466,7 +466,7 @@ class HSDEvents extends APP_GameClass
                     $row_1[] = array('str' => '${player_name}',
                     'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
                     'type' => 'header');
-                    if (in_array($p_id, $winning_players)){
+                    if (array_key_exists($p_id, $winning_players)){
                         $this->game->Resource->updateAndNotifyIncome($p_id, 'silver', 4, $this->getEventName(), 'event');
                         $row_2[] = $silver_html.$silver_html.$silver_html.$silver_html;
                     } else {
@@ -490,7 +490,7 @@ class HSDEvents extends APP_GameClass
                     $row_1[] = array('str' => '${player_name}',
                     'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
                     'type' => 'header');
-                    if (in_array($p_id, $winning_players)){
+                    if (array_key_exists($p_id, $winning_players)){
                         $this->game->Resource->updateAndNotifyIncome($p_id, 'gold', 1, $this->getEventName(), 'event');
                         $row_2[] = '<span title = "gold" class="log_gold token_inline"></span>';
                     } else {
@@ -510,7 +510,7 @@ class HSDEvents extends APP_GameClass
                     $row_1[] = array('str' => '${player_name}',
                     'args' => array( 'player_name' => $this->game->getPlayerName($p_id) ),
                     'type' => 'header');
-                    if (key_exists($p_id, $winning_players)){
+                    if (array_key_exists($p_id, $winning_players)){
                         $wood_amt = $this->game->Resource->getPlayerResourceAmount($p_id, 'wood');
                         $this->game->Resource->updateAndNotifyIncome($p_id, 'vp', $wood_amt, $this->getEventName(), 'event');
 
@@ -589,7 +589,7 @@ class HSDEvents extends APP_GameClass
     //// BEGIN private HELPER methods for determining effected players & values ////
 
     private function getPlayersWithAtLeastOneResource($type){
-        return $this->game->getCollectionFromDB( "SELECT `player_id` FROM `resources` WHERE `$type`>0 ", true);
+        return $this->game->getCollectionFromDB( "SELECT `player_id`, `$type` amt FROM `resources` WHERE `$type`>0 Group by player_id");;
     }
 
     private function getPlayersWithLeastBuildings(){
