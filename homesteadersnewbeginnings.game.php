@@ -493,7 +493,7 @@ class homesteadersnewbeginnings extends Table
         $b_key = $this->getGameStateValue('last_building');
         $b_name = $this->Building->getBuildingNameFromKey($b_key);
         $this->Resource->addWorkerAndNotify($act_p_id, $b_name, 'building', $b_key);
-        $this->gamestate->nextState( 'auction_bonus' );
+        $this->gamestate->nextState( 'done' );
     }
 
     public function playerPassBuildingBonus () 
