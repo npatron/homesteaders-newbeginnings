@@ -499,7 +499,7 @@ class homesteadersnewbeginnings extends Table
     public function playerPassBuildingBonus () 
     {
         $this->checkAction( "buildBonus" );
-        $this->gamestate->nextState( 'done' );
+        $this->gamestate->nextState( 'auction_bonus' );
     }
 
     /**** Auction Bonus actions ******/

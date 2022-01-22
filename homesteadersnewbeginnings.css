@@ -1542,8 +1542,7 @@ span[amt] {
 }
 .token_inline::after{
    font-size: 16px;
-   position: relative;
-   top: 5%;
+   margin-left: 5.5px;
 }
 .log_token::after {
    font-size: 14px;
