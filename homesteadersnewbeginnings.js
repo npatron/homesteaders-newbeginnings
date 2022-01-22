@@ -397,7 +397,7 @@ function (dojo, declare) {
     const BID_VAL_ARR = [3,4,5,6,7,9,12,16,21];//note: starts at 0.
     const ASSET_COLORS = {0:'res', 1:'com', 2:'ind', 3:'spe', 4:'any', 6:'any', 7:'adv_track',
                         10:'a0',11:'a1', 12:'a2', 13:'a3', 14:'a4'};
-    const VP_TOKENS = ['vp0', 'vp2', 'vp3', 'vp4','vp6','vp8', 'vp10'];
+    const VP_TOKENS = {0:'vp0', 2:'vp2', 3:'vp3', 4:'vp4', 6:'vp6', 8:'vp8', 10:'vp10'};
     const WAREHOUSE_MAP = {1:'wood',2:'food',4:'steel',8:'gold',16:'copper',32:'cow',}
 
     const COST_REPLACE_TYPE = {'steel':{'wood':1,'vp':1}, 'cow':{'gold':1}, 'copper':{'gold':1}, 'gold':{'silver':5}};
@@ -1002,17 +1002,16 @@ function (dojo, declare) {
         setupResourceTokens(){
             for(let type in RESOURCES){
                 TOKEN_HTML[type] = this.format_block( 'jstpl_resource_inline', {type:type, amt:""}, );
-                TOKEN_HTML["big_"+type] = this.format_block( 'jstpl_resource_inline', {type:"big_"+type, amt:""}, );
-                TOKEN_HTML["x_"+type] = `<span title = "${type}" class="log_${type} crossout token_inline" style="top: 9px;"></span>`;
+                TOKEN_HTML[`big_${type}`] = this.format_block( 'jstpl_resource_inline', {type:"big_"+type, amt:""}, );
+                TOKEN_HTML[`x_${type}`] = `<span title = "${type}" class="log_${type} crossout token_inline" style="top: 9px;"></span>`;
             }
             let types = ['arrow', 'big_arrow', 'inc_arrow'];
             for(let i in types){
                 TOKEN_HTML[types[i]] = this.format_block( 'jstpl_resource_inline', {type:types[i],amt:""}, );
             }
             for (let i in VP_TOKENS){
-                let amt = VP_TOKENS[i].charAt(VP_TOKENS.length-1);
-                TOKEN_HTML[VP_TOKENS[i]] = this.format_block( 'jstpl_resource_inline', {type:VP_TOKENS[i], amt:amt},);
-                TOKEN_HTML["bld_"+VP_TOKENS[i]] = this.format_block('jstpl_resource_log', {"type" : VP_TOKENS[i] + " bld_vp", amt:amt});
+                TOKEN_HTML[VP_TOKENS[i]] = this.format_block( 'jstpl_resource_inline', {type:VP_TOKENS[i], amt:i},);
+                TOKEN_HTML["bld_"+VP_TOKENS[i]] = this.format_block('jstpl_resource_log', {"type" : VP_TOKENS[i] + " bld_vp", amt:i});
             }
             TOKEN_HTML.bld_vp = this.format_block('jstpl_resource_log', {"type" : "vp bld_vp", amt:""});
             TOKEN_HTML.track = this.getOneResourceHtml('track', 1, true);
@@ -5368,7 +5367,7 @@ function (dojo, declare) {
                     if (amt < 0){
                         type_no = type + " crossout";
                     }
-                    if (type == 'vp' || VP_TOKENS.includes(type)) {
+                    if (type == 'vp' || VP_TOKENS.hasValue(type)) {
                         var tokenDiv = TOKEN_HTML["bld_"+type_no];
                     } else {
                         var tokenDiv = TOKEN_HTML[type_no];
@@ -5540,7 +5539,7 @@ function (dojo, declare) {
             for(let i = 0; i < notif.args.amount; i++){
                 this.slideTemporaryObject( TOKEN_HTML[String(notif.args.typeStr)], 'limbo', start , PLAYER_SCORE_ZONE_ID[p_id] , 500 , 50*(delay++) );
                 if (p_id == this.player_id || this.show_player_info){
-                    if (VP_TOKENS.includes(notif.args.typeStr)){
+                    if (VP_TOKENS.hasValue(notif.args.typeStr)){
                         this.incResCounter(p_id, 'vp',Number(notif.args.typeStr.charAt(2)));
                     } else{ // normal case
                         this.incResCounter(p_id, notif.args.typeStr, 1);
@@ -5561,7 +5560,7 @@ function (dojo, declare) {
                 for(let i = 0; i < amt; i++){
                     this.slideTemporaryObject( TOKEN_HTML[type], 'limbo', start , PLAYER_SCORE_ZONE_ID[p_id] , 500 , 50*(delay++) );
                     if (p_id == this.player_id || this.show_player_info){
-                        if (VP_TOKENS.includes(notif.args.typeStr)){
+                        if (VP_TOKENS.hasValue(notif.args.typeStr)){
                             this.incResCounter(p_id, 'vp', Number(notif.args.typeStr.charAt(2)));    
                         } else{ // normal case
                             this.incResCounter(p_id, type, 1);
@@ -5654,7 +5653,7 @@ function (dojo, declare) {
                     this.slideTemporaryObject( TOKEN_HTML[type], 'limbo', TRADE_BOARD_ID, PLAYER_SCORE_ZONE_ID[p_id], 500 , 50*(delay++) );
                 }   
                 if (p_id == this.player_id || this.show_player_info){
-                    if (VP_TOKENS.includes(type)){
+                    if (VP_TOKENS.hasValue(type)){
                         amt = amt * Number(type.charAt(2));
                         this.incResCounter(p_id, 'vp', amt);
                     } else {
@@ -5952,6 +5951,8 @@ function (dojo, declare) {
         getKeyByValue: function (object, value) {
             return Object.keys(object).find(key => object[key] === value);
         },
+
+        arrayHasValue: function ()
 
    });             
 });
