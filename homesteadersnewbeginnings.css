@@ -1537,7 +1537,7 @@ span[amt] {
    background-image: url('img/Tokens.png');
    position: relative;
    display: inline-block;
-   pointer-events: visible;
+   pointer-events: none;
    font-family: 'Old Standard TT';
 }
 .token_inline::after{
