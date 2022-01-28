@@ -947,7 +947,11 @@ div#sell_board{
    border-style: dotted;
    border-width: 4px;
 }
-
+.building_tile.selected {
+   border-style: solid;
+   border-color:red;
+   border-width: 2px;
+}
 /** Player Borders */
 .border_yellow {
    border-color:yellow;
@@ -1012,11 +1016,6 @@ div#sell_board{
    border-style: solid;
 }
 
-.building_tile.selected {
-   border-style: solid;
-   border-color:red;
-   border-width: 2px;
-}
 .tile_tip {
    border-radius: 6px;
    width:200px;
@@ -1279,10 +1278,6 @@ div#sell_board{
    width: 40px;
    height: 40px;
 }
-.bld_vp {
-   width: 30px;
-   height: 30px;
-}
 .score_silver, .score_trade, .score_food, 
 .score_steel, .score_vp, .score_gold {
    width: 25px;
@@ -1295,6 +1290,10 @@ div#sell_board{
 .log_vp4, .log_vp6, .log_vp8, .log_vp10{
    width: 20px;
    height: 20px;
+}
+.bld_vp {
+   width: 30px;
+   height: 30px;
 }
 span[amt] {
    content: attr(amt);
@@ -1541,8 +1540,10 @@ span[amt] {
    font-family: 'Old Standard TT';
 }
 .token_inline::after{
-   font-size: 16px;
+   font-size: 14px;
+   position: absolute;
    margin-left: 5.5px;
+   margin-top: 2px;
 }
 .log_token::after {
    font-size: 14px;
@@ -1553,6 +1554,7 @@ span[amt] {
 }
 .log_vp2::after {
    content: "2";
+   margin-left: 6px;
 }
 .log_vp3::after {
    content: "3";
@@ -1565,6 +1567,29 @@ span[amt] {
 }
 .log_vp8::after {
    content: "8";
+}
+.log_vp10::after {
+   content: "10";
+   font-size: 14px;
+   margin-top: 1.5px;
+   margin-left: 2.5px;
+}
+.log_big_vp::after{
+   font-size: 20px;
+   margin-left: 4px;
+}
+.bld_vp::after {
+   font-size: 18px;
+   margin-left: 9px;
+   margin-top: 4px;
+}
+.bld_vp.log_vp10::after{
+   font-size: 16px;
+   margin-left: 4.5px;
+   margin-top: 6px;
+}
+.tt_center .bld_vp::after{
+   margin-left: -5px;
 }
 
 .log_token {
@@ -2119,10 +2144,19 @@ div#auction_tile_40:not(.auction_card) {
    background-color: linen;
    box-shadow: -3px -3px 3px grey inset;
 }
-.building_tile:not(.building_card) {
+.building_tile:not(.building_text) {
    background-image: url('img/buildingTiles_602x821.jpg');
    background-repeat: no-repeat;
    background-size: 1307px 781px;
+}
+.midSizeDialog .building_card {
+   min-width: 144px;
+   width: min-content;
+   min-height: 196px;
+   height: min-content;
+   border-radius: 6px;
+   background-color: linen;
+   box-shadow: -3px -3px 3px grey inset;
 }
 
 .build_tile_1 { /* Yellow Homestead */
@@ -2277,44 +2311,44 @@ div#auction_tile_40:not(.auction_card) {
    top: -76px;
 }
 /* EXPANSION BUILDINGS */
-.build_tile_0:not(.building_card) { /* Purple homestead */
+.build_tile_0:not(.building_text) { /* Purple homestead */
    background-image: url('img/exp_building.png');
    background-position: 0% 0%;
    background-size: 1008px 196px;
 }
-.build_tile_36:not(.building_card) { /* Lumbermill */
+.build_tile_36:not(.building_text) { /* Lumbermill */
    background-image: url('img/exp_building.png');
    background-position: 33.3% 0%;
    background-size: 1008px 196px;
 }
-.build_tile_37:not(.building_card) { /* Saloon */
+.build_tile_37:not(.building_text) { /* Saloon */
    background-image: url('img/exp_building.png');
    background-position: 83.3% 0%;
    background-size: 1008px 196px;
 }
-.build_tile_38:not(.building_card) { /* Silver Mine */
+.build_tile_38:not(.building_text) { /* Silver Mine */
    background-image: url('img/exp_building.png');
    background-position: 66.6% 0%;
    background-size: 1008px 196px;
 }
-.build_tile_39:not(.building_card) { /* Hotel */
+.build_tile_39:not(.building_text) { /* Hotel */
    background-image: url('img/exp_building.png');
    background-position: 16.6% 0%;
    background-size: 1008px 196px;
 }
-.build_tile_40:not(.building_card) { /* Warehouse */
+.build_tile_40:not(.building_text) { /* Warehouse */
    background-image: url('img/exp_building.png');
    background-position: 50% 0%;
    background-size: 1008px 196px;
 }
-.build_tile_41:not(.building_card) { /* Post Office */
+.build_tile_41:not(.building_text) { /* Post Office */
    background-image: url('img/exp_building.png');
    background-position: 100% 0%;
    background-size: 1008px 196px;
 }
 
 /* Event Cards */
-.event_tile, .building_card {
+.event_tile {
    width: 144px;
    min-height: 196px;
    height: min-content;

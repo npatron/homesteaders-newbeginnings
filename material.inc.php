@@ -119,6 +119,39 @@ $this->translation_strings = array(
   72=> clienttranslate('Do Not Build (Get ${track} instead)'),
 );
 
+$this->auction_bonus_strings = array(
+  AUC_BONUS_WORKER               => clienttranslate('May hire a ${worker} (for free)'),
+  AUC_BONUS_WORKER_RAIL_ADV      => clienttranslate('May hire a ${worker} (for free) ${and} ${adv_track}'),
+  AUC_BONUS_WOOD_FOR_TRACK       => clienttranslate('May trade ${wood} for ${track}(once)'),
+  AUC_BONUS_COPPER_FOR_VP        => clienttranslate('May trade ${copper} for ${vp4}(once)'),
+  AUC_BONUS_COW_FOR_VP           => clienttranslate('May trade ${cow} for ${vp4}(once)'),
+  AUC_BONUS_6VP_AND_FOOD_VP      => clienttranslate('Gain ${vp6} ${and} May trade ${food} for ${vp2}(once)'),
+  AUC_BONUS_FOOD_FOR_VP          => clienttranslate('May trade ${food} for ${vp2}(once)'),
+  AUC_BONUS_NO_AUCTION           => clienttranslate('No Auction'),
+  AUC_BONUS_TRACK_RAIL_ADV       => clienttranslate('${track} ${and} ${adv_track}'),
+  AUC_BONUS_4DEPT_FREE           => clienttranslate('May pay off up to 4 ${loan}'),
+  AUC_BONUS_3VP_SELL_FREE        => clienttranslate('${vp3} ${and} May sell any number of resources without spending ${trade}'),
+);
+
+$this->build_bonus_strings = array(
+  BUILD_BONUS_PAY_LOAN          => clienttranslate('When built: Pay off ${loan}'),
+  BUILD_BONUS_TRADE             => clienttranslate('When built: Gain ${trade}'),
+  BUILD_BONUS_WORKER            => clienttranslate('When built: Gain ${worker}'),
+  BUILD_BONUS_RAIL_ADVANCE      => clienttranslate('When built: ${adv_track}'),
+  BUILD_BONUS_TRACK_AND_BUILD   => clienttranslate('When built: Receive ${track}<br>You may also build another building of ${any} type'),
+  BUILD_BONUS_TRADE_TRADE       => clienttranslate('When built: ${trade}${trade}'),
+  BUILD_BONUS_SILVER_WORKERS    => clienttranslate('When built: Receive ${silver} per ${worker}<br>When you gain a ${worker} gain a ${silver}'),
+  BUILD_BONUS_PLACE_RESOURCES   => clienttranslate('When built: place ${wood}${food}${steel}${gold}${copper}${cow} on Warehouse'),
+);
+
+$this->stage_strings = array(
+  0                     => '',
+  STAGE_SETTLEMENT      => clienttranslate('Settlement'),
+  STAGE_SETTLEMENT_TOWN => clienttranslate('Settlement / Town'),
+  STAGE_TOWN            => clienttranslate('Town'),
+  STAGE_CITY            => clienttranslate('City'),
+);
+
 $this->resource_info = array(
   'silver' => array(
     'name'   => clienttranslate("Silver"),
@@ -557,6 +590,7 @@ $this->building_info = array_merge(
     'on_b' => BUILD_BONUS_PLACE_RESOURCES,
     'vp'   => 3,
     'inc'  => array('special'=> 1), // This will require special handling by the player, & probably a new state just for this.
+    'inc_s'=> clienttranslate('Take one resource from Warehouse'),
     'amt'  => 1,
    ),
    BLD_POST_OFFICE => array(

@@ -243,7 +243,7 @@
 
 var jstpl_building_stack= '<div id="building_stack_${id}" class="building_zone_diag" style="order: ${order}"></div>';
 var jstpl_buildings='<div id="building_tile_${key}" class="building_tile build_tile_${id}"></div>';
-var jptpl_bld_text = '<div id="building_tile_${key}" class="building_tile build_tile_${id} building_card">${card}</div>';
+var jptpl_bld_text = '<div id="building_tile_${key}" class="building_tile build_tile_${id} building_text">${card}</div>';
 var jstpl_building_slot='<div id="slot_${key}_${slot}" class="worker_slot slot_${id}_${slot} key_${key}"></div>'; 
 var jstpl_tt_building_slot='<div id="slot_${key}_${slot}" class="worker_slot slot_${id}_${slot} key_${key}"></div>'; 
 var jstpl_tt_building_slot_3 = '<div id="slot_${key}_${slot}" class="worker_slot slot_${id}_${slot}"></div>';
@@ -279,8 +279,8 @@ var jstpl_pay_button = '<span id="pay_gold" class="font caps" style="display:non
  <span id="pay_silver_tkn" class="log_silver token_inline"></span>';
 var jstpl_color_log = '<span title="${string}" class="font caps ${color}">${string}</span>';
 var jstpl_color_number_log = '<span class="font ${color}" >${string}</span><span class="biggerFont bold ${color}">${number}</span>';
-var jstpl_resource_inline = '<span title = "${type}" class="log_${type} token_inline"><span amt="${amt}"></span></span>';
-var jstpl_resource_log = '<span title = "${type}" class="log_${type} log_token"><span amt="${amt}"></span></span>';
+var jstpl_resource_inline = '<span title ="${title}" class="log_${type} token_inline"></span>';
+var jstpl_resource_log = '<span title ="${type}" class="log_${type} log_token"></span>';
 var jstpl_player_token_log = '<span title = "${type}_${color}" class="${type}_${color} log_${type}"></span>';
 var jptpl_track_log = '<span title="${type}" class="log_inline_${type}"></span>';
 var jptpl_x_loan= '<span title="pay dept" class="crossout log_inline_loan"></span>';
@@ -295,6 +295,7 @@ var jptpl_tt_break = '<div class="tt_${type}"><span font>${text}</span></div>';
 var jptpl_res_tt = '<div class="tt_container" style="text-align:center;">${value}</br>';
 var jptpl_bld_tt = '${msg}<div class="tt_container building_card"><span class="font bold ${type} tt_left">${name}</span>\
     <p class="alignright"><span aria="${vp}" title="${vp}" class="log_${vp} bld_vp token_inline"></span></p><br>\
+    <p class="font caps tt_left">${stage}</p>\
     <p class="font caps tt_left">${COST} ${cost_vals}</p>${hr}\
     <p class="font tt_center">${desc}</p>${hr}\
     <p class="income tt_center">${INCOME}</p>\

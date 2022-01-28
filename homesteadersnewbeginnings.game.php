@@ -178,11 +178,13 @@ class homesteadersnewbeginnings extends Table
     {
         $cur_p_id = $this->getCurrentPlayerId();    // !! We must only return informations visible by this player !!
         return array(
+            'auction_bonus_strings' => $this->auction_bonus_strings,
             'auctions' => $this->Auction->getAllAuctionsFromDB(),
             'auction_info' => $this->auction_info,
             'players' => $this->getCollectionFromDb( "SELECT `player_id` p_id, `player_score` score, `color_name`, `player_name`, `rail_adv` FROM `player` " ),
             'buildings' => $this->Building->getAllBuildings(),
             'building_info' => $this->building_info,
+            'build_bonus_strings' => $this->build_bonus_strings,
             'bids' => $this->getCollectionFromDB( "SELECT `player_id` p_id, `bid_loc` FROM `bids`" ),
             'can_undo_trades' => (count($this->Log->getLastTransactions($cur_p_id)) > 0 && $this->checkAction('trade', false)),
             'cancel_move_ids' => $this->Log->getCancelMoveIds(),
@@ -199,6 +201,7 @@ class homesteadersnewbeginnings extends Table
             'resource_info' => $this->resource_info,
             'round_number' => $this->getGameStateValue( 'round_number' ),
             'show_player_info' => $this->getShowPlayerInfo(),
+            'stage_strings' => $this->stage_strings,
             'translation_strings' => $this->translation_strings,
             'tracks' => $this->getCollectionFromDb("SELECT `rail_key` r_key, `player_id` p_id FROM `tracks` "),
             'use_events' => $this->getGameStateValue('new_beginning_evt') == ENABLED,

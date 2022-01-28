@@ -454,7 +454,12 @@ function (dojo, declare) {
             const RESOURCE_INFO = [];
             const EVENT_INFO    = [];
             const BUILDING_INFO = [];
+        
+        /* ** translation strings ** */
             const ASSET_STRINGS = [];
+            const STAGE_STRINGS = [];
+            const AUCTION_BONUS_STRINGS = [];
+            const BUILD_BONUS_STRINGS = [];
 
     return declare("bgagame.homesteadersnewbeginnings", ebg.core.gamegui, {
         addMoveToLog: override_addMoveToLog,
@@ -534,13 +539,17 @@ function (dojo, declare) {
             this.use_events = gamedatas.use_events;
             this.events = gamedatas.events;
             this.current_round = Number(gamedatas.round_number);
-            this.fillArray(RESOURCE_INFO, gamedatas.resource_info);
-            this.fillArray(EVENT_INFO, gamedatas.event_info);
+            
             this.rail_no_build = gamedatas.rail_no_build;
             this.loans_paid = gamedatas.loans_paid;
             
+            this.fillArray(RESOURCE_INFO, gamedatas.resource_info);
+            this.fillArray(EVENT_INFO, gamedatas.event_info);
             this.fillArray(BUILDING_INFO, gamedatas.building_info);
             this.fillArray(ASSET_STRINGS, gamedatas.translation_strings);
+            this.fillArray(STAGE_STRINGS, gamedatas.stage_strings);
+            this.fillArray(AUCTION_BONUS_STRINGS, gamedatas.auction_bonus_strings);
+            this.fillArray(BUILD_BONUS_STRINGS, gamedatas.build_bonus_strings)
 
             this.setupResourceTokens();
             // Setting up player boards
@@ -1001,20 +1010,20 @@ function (dojo, declare) {
          */
         setupResourceTokens(){
             for(let type in RESOURCES){
-                TOKEN_HTML[type] = this.format_block( 'jstpl_resource_inline', {type:type, amt:""}, );
-                TOKEN_HTML["big_"+type] = this.format_block( 'jstpl_resource_inline', {type:"big_"+type, amt:""}, );
+                TOKEN_HTML[type] = this.format_block( 'jstpl_resource_inline', {type:type, title:type});
+                TOKEN_HTML["big_"+type] = this.format_block( 'jstpl_resource_inline', {type:"big_"+type, title:type});
                 TOKEN_HTML["x_"+type] = `<span title = "${type}" class="log_${type} crossout token_inline" style="top: 9px;"></span>`;
             }
             let types = ['arrow', 'big_arrow', 'inc_arrow'];
             for(let i in types){
-                TOKEN_HTML[types[i]] = this.format_block( 'jstpl_resource_inline', {type:types[i],amt:""}, );
+                TOKEN_HTML[types[i]] = this.format_block( 'jstpl_resource_inline', {type:types[i], title:types[i]});
             }
             for (let i in VP_TOKENS){
                 let amt = VP_TOKENS[i].charAt(VP_TOKENS.length-1);
-                TOKEN_HTML[VP_TOKENS[i]] = this.format_block( 'jstpl_resource_inline', {type:VP_TOKENS[i], amt:amt},);
-                TOKEN_HTML["bld_"+VP_TOKENS[i]] = this.format_block('jstpl_resource_log', {"type" : VP_TOKENS[i] + " bld_vp", amt:amt});
+                TOKEN_HTML[VP_TOKENS[i]] = this.format_block( 'jstpl_resource_inline', {type:VP_TOKENS[i], title:VP_TOKENS[i]});
+                TOKEN_HTML["bld_"+VP_TOKENS[i]] = this.format_block('jstpl_resource_inline', {"type" : VP_TOKENS[i] + " bld_vp",title:VP_TOKENS[i]});
             }
-            TOKEN_HTML.bld_vp = this.format_block('jstpl_resource_log', {"type" : "vp bld_vp", amt:""});
+            TOKEN_HTML.bld_vp = this.format_block('jstpl_resource_inline', {"type" : "vp bld_vp", title:'vp1'});
             TOKEN_HTML.track = this.getOneResourceHtml('track', 1, true);
             TOKEN_HTML.loan = this.format_block( 'jptpl_track_log', {type:'loan'}, );
             TOKEN_HTML.end = this.format_block('jstpl_color_log', {'string':_("End"), 'color':ASSET_COLORS[6]}); 
@@ -1897,6 +1906,7 @@ function (dojo, declare) {
             return this.format_block('jptpl_bld_tt', {
                 msg: msg,
                 type:  ASSET_COLORS[b_info.type],
+                stage: _(STAGE_STRINGS[b_info.stage]),
                 name: _(b_info.name),
                 vp:   vp,
                 COST: _('cost:'),
@@ -1917,11 +1927,11 @@ function (dojo, declare) {
                 var title = `<span class="font caps bold a1">${round_string} </span><hr>`;
             } else { //order by phase in other auctions
                 if ((a_id-1)%10 <4){
-                    var phase = _("Settlement");
+                    var phase = _(STAGE_STRINGS[1]);
                 } else if ((a_id-1)%10 >7){
-                    var phase = _("City");
+                    var phase = _(STAGE_STRINGS[4]);
                 } else {
-                    var phase = _("Town");
+                    var phase = _(STAGE_STRINGS[3]);
                 }
                 var title = `<span class="font caps bold a${auction_no}">${phase}</span><hr>`
             }
@@ -1947,40 +1957,8 @@ function (dojo, declare) {
                 if (a_info[a_id].build){
                     bonus_html = TOKEN_HTML.and;
                 }
-                switch (a_info[a_id].bonus){
-                    case AUC_BONUS_WORKER:
-                        bonus_html += this.replaceTooltipStrings(_("May hire a ${worker} (for free)"));
-                    break;
-                    case AUC_BONUS_WORKER_RAIL_ADV:
-                        bonus_html += this.replaceTooltipStrings(_("May hire a ${worker} (for free) ${and} ${adv_track}"));
-                    break;
-                    case AUC_BONUS_WOOD_FOR_TRACK:
-                        bonus_html += this.replaceTooltipStrings(_("May trade ${wood} for ${track}(once)"));
-                    break;
-                    case AUC_BONUS_COPPER_FOR_VP:
-                        bonus_html += this.replaceTooltipStrings(_("May trade ${copper} for ${vp4}(once)"));
-                    break;
-                    case AUC_BONUS_COW_FOR_VP:
-                        bonus_html += this.replaceTooltipStrings(_("May trade ${cow} for ${vp4}(once)"));
-                    break;
-                    case AUC_BONUS_6VP_AND_FOOD_VP:
-                        bonus_html += this.replaceTooltipStrings(_("Gain ${vp6} ${and} May trade ${food} for ${vp2}(once)"))
-                    break;
-                    case AUC_BONUS_FOOD_FOR_VP:
-                        bonus_html += this.replaceTooltipStrings(_("May trade ${food} for ${vp2}(once)"));
-                    break;
-                    case AUC_BONUS_NO_AUCTION:
-                        bonus_html += this.replaceTooltipStrings(_("No Auction"));
-                    break;
-                    case AUC_BONUS_TRACK_RAIL_ADV:
-                        bonus_html += this.replaceTooltipStrings(_("${track} ${and} ${adv_track}"));
-                    break;
-                    case AUC_BONUS_4DEPT_FREE:
-                        bonus_html += this.replaceTooltipStrings(_("may pay off up to 4 ${loan}"));
-                    break;
-                    case AUC_BONUS_3VP_SELL_FREE:
-                        bonus_html += this.replaceTooltipStrings(_("${vp3} ${and} May sell any number of resources without spending ${trade}"));
-                    break;
+                if (a_info[a_id].bonus){
+                    bonus_html += this.replaceTooltipStrings(_(AUCTION_BONUS_STRINGS[a_info[a_id].bonus]));
                 }
                 tt += bonus_html;
             }
@@ -2019,36 +1997,16 @@ function (dojo, declare) {
             }
     
             if ('on_b' in b_info){
-                switch(b_info.on_b){
-                    case 1: //BUILD_BONUS_PAY_LOAN
-                        var on_build_desc = this.replaceTooltipStrings(_("When built: Pay off ${loan}"));
-                        break;
-                    case 2: //BUILD_BONUS_TRADE
-                        var on_build_desc = dojo.string.substitute(_("When built: Gain ${token}"),
-                        {token:TOKEN_HTML.trade});
-                        break;
-                    case 3: //BUILD_BONUS_WORKER
-                        var on_build_desc = dojo.string.substitute(_("When built: Gain ${token}"),
-                        {token:TOKEN_HTML.worker});
-                        break;
-                    case 4: //BUILD_BONUS_RAIL_ADVANCE
-                        var on_build_desc = this.replaceTooltipStrings(_('When built: ${adv_track}'));
-                        break;
-                    case 5: //BUILD_BONUS_TRACK_AND_BUILD
-                        var on_build_desc = this.replaceTooltipStrings(_('When built: Receive ${track}<br>You may also build another building of ${any} type'));
-                        break;
-                    case 6: //BUILD_BONUS_TRADE_TRADE
-                        var on_build_desc = this.replaceTooltipStrings(_("When built: ${trade}${trade}"));
-                        break;
-                    case 7: //BUILD_BONUS_SILVER_WORKERS
-                        var on_build_desc = this.replaceTooltipStrings(_('When built: Receive ${silver} per ${worker}<br>When you gain a ${worker} gain a ${silver}'));
-                        break;
-                    case 8: //BUILD_BONUS_PLACE_RESOURCES
-                        var on_build_desc = `<div id="${WAREHOUSE_DESCRIPTION_ID}">` + this.replaceTooltipStrings(_('When built: place ${wood}${food}${steel}${gold}${copper}${cow} on Warehouse')) + '</div>';
+                let on_build_desc = "";
+                if (b_info.on_b){
+                    if (b_info.on_b == 8){ //BUILD_BONUS_PLACE_RESOURCES
+                        on_build_desc += `<div id="${WAREHOUSE_DESCRIPTION_ID}">`;
+                        on_build_desc += this.replaceTooltipStrings(_(BUILD_BONUS_STRINGS[b_info.on_b]));
+                        on_build_desc += `</div>`;
                         on_build_desc += `<div id="${WAREHOUSE_RES_ID}"></div>`;
-                        break;
-                    default:
-                        var on_build_desc = "";
+                    } else {
+                        on_build_desc += this.replaceTooltipStrings(_(BUILD_BONUS_STRINGS[b_info.on_b]));
+                    }
                 }
                 full_desc = on_build_desc +'<br>'+ full_desc;
             }
