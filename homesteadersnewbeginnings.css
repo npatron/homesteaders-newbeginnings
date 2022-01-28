@@ -2120,8 +2120,9 @@ div#auction_tile_40:not(.auction_card) {
    box-shadow: -3px -3px 3px grey inset;
 }
 .building_tile:not(.building_card) {
-   background-image: url('img/buildingTiles_144x196.png');
+   background-image: url('img/buildingTiles_602x821.jpg');
    background-repeat: no-repeat;
+   background-size: 1307px 781px;
 }
 
 .build_tile_1 { /* Yellow Homestead */
