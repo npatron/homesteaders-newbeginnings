@@ -41,6 +41,7 @@
 
         /*********** Place your code below:  ************/
         
+        $template = self::getGameName() . "_" . self::getGameName();
         $this->tpl['ROUND_STRING'] = self::_("Round: ");
         $round_number = $this->game->getGameStateValue('round_number');
         $this->tpl['ROUND_NUMBER'] = $round_number;
@@ -60,8 +61,8 @@
         $this->tpl['FUTURE_BUILDING_TOGGLE']  = self::_('Show Upcoming Buildings');
         $this->tpl['EVENT_DISCARD_TOGGLE']   = self::_("Show Events Discard");
 
-        $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "this_player_zone" );
-        $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "player_zone" );
+        $this->page->begin_block( $template, "this_player_zone" );
+        $this->page->begin_block( $template, "player_zone" );
         foreach($players as $p_id=>$player){
           $color = $this->game->playerColorNames[$player['player_color']];
           if ($current_player_id == $p_id){
@@ -75,7 +76,7 @@
           }
         } 
         
-        $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "bid_slot" );
+        $this->page->begin_block( $template, "bid_slot" );
         
         for ($a=1; $a <= 3; $a++){
           for ($bid=1; $bid < 10; $bid++){          
@@ -83,8 +84,8 @@
           }
         }
 
-        $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "auction_stacks" );
-        $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "future_auction_zones" );
+        $this->page->begin_block( $template, "auction_stacks" );
+        $this->page->begin_block( $template, "future_auction_zones" );
         $auctions = $this->game->getGameStateValue('number_auctions');
         for ($a=1; $a <= $auctions && $a <= 3; $a++){
           $this->page->insert_block( "auction_stacks", array('A'=> $a));
@@ -92,7 +93,7 @@
         }
         if ($auctions == 4){
           $this->page->insert_block( "future_auction_zones", array('A'=> 4, 'AUCTION'=>clienttranslate("Auction"), 'COLOR'=> 'a4'));
-          $this->page->begin_block( $this->getGameName()."_".$this->getGameName(), "bid_slot_auc_4" );
+          $this->page->begin_block( $template, "bid_slot_auc_4" );
           for ($bid=1; $bid < 10; $bid++){          
             $this->page->insert_block( "bid_slot_auc_4", array('B'=> $this->game->Bid->bid_cost_array[$bid]) );
           }
