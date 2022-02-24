@@ -242,7 +242,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} may choose a building to build'),
         "type" => "activeplayer",
         "args" => "argAllowedBuildings",
-        "action" => "stSetupTrade",
+        "action" => "stChooseBuilding",
         "possibleactions" => array( "trade", "buildBuilding", "takeLoan", "doNotBuild", "undoLot" ),
         "transitions" => array( "undoLot"   => STATE_PAY_LOT,
                                 "done"      => STATE_RESOLVE_BUILD, 

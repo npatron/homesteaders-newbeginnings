@@ -1088,6 +1088,11 @@ class homesteadersnewbeginnings extends Table
         $this->gamestate->nextState( $next_state );
     }
 
+    function stChooseBuilding(){
+        $this->Auction->setCurrentAuctionBuildType();
+        $this->Log->allowTrades($this->getActivePlayerId());
+    }
+
     function stResolveBuilding()
     { 
         $active_p_id = $this->getActivePlayerId();
