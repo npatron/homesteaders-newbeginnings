@@ -122,7 +122,8 @@ class HSDEvents extends APP_GameClass
      * material event_info `all_d`
      */
     function eventDiscount(){
-        return $this->eventHaskey('auc_d');
+        $auction_no = $this->game->getGameStateValue('current_auction');
+        return ($this->eventHaskey('auc_d') && $auction_no == 1 );
     }
 
     /**

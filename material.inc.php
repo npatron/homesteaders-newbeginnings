@@ -724,7 +724,7 @@ $this->auction_info = array(
     'build' => array(TYPE_COMMERCIAL, TYPE_SPECIAL),
   ),
   37 => array(
-    'build' => array(TYPE_INDUSTRIAL),
+    'bonus' => AUC_BONUS_WORKER_RAIL_ADV,
   ),
   38 => array(
     'bonus' => AUC_BONUS_4DEPT_FREE,

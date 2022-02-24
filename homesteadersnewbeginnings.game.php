@@ -1120,6 +1120,7 @@ class homesteadersnewbeginnings extends Table
             break;
             case BUILD_BONUS_TRACK_AND_BUILD:
                 $this->Resource->addTrackAndNotify($active_p_id, $b_name, 'building', $b_key);
+                $this->setGameStateValue('build_type_int', 15);
                 $next_state = 'train_station_build';
             break;
             case BUILD_BONUS_WORKER:

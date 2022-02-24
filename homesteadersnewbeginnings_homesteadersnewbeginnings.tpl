@@ -15,7 +15,7 @@
     <div id="eventsBar" class="biggerfont"></div>
 </div>
 
-<div id="main_container" class="container">
+<div id="main_container">
     <div id="currentPlayer" class="noshow"></div>
     <!-- BEGIN this_player_zone -->
     <div id="player_zone_{COLOR}" class="whiteblock border_{COLOR} current_player" style="margin-top:4px;">
