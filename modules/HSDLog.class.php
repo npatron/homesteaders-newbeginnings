@@ -137,7 +137,9 @@ class HSDLog extends APP_GameClass
       $stats[] = [$player_id, "win_auction_$piece_id"];
       $stats[] = [$player_id, 'spent_on_auctions', $args['cost']];
     } else if ($action === 'loanPaid') {
-      $stats[] = [$player_id, 'loans_paid_end'];
+      if ($round == 11){
+        $stats[] = [$player_id, 'loans_paid_end'];
+      }
     }
     if (!empty($stats)) {
       $this->incrementStats($stats);

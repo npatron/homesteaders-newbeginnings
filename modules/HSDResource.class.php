@@ -333,7 +333,7 @@ class HSDResource extends APP_GameClass
         $playerLoan = $this->game->getUniqueValueFromDb("SELECT `loan` FROM `resources` WHERE `player_id`='".$p_id."'");
         $amtPaidOff = min(4, $playerLoan);
         $amtSilverGain = (int) (4-$amtPaidOff) * 2;
-        for ($i = 1; $i <= $playerLoan; $i++) {
+        for ($i = 1; $i <= $amtPaidOff; $i++) {
             $this->game->Log->payOffLoan($p_id);
             $this->updateResource ($p_id, 'loan', -1);
         }
@@ -607,15 +607,15 @@ class HSDResource extends APP_GameClass
         $tradeValues = $this->getTradeValues($p_id, $tradeAction);
         //self::dump('tradeValues',$tradeValues);
         if ($tradeValues['transaction']==='loanTaken'){
+            $this->game->Log->takeLoan($p_id);
             $this->updateResource($p_id, 'silver', 2);
             $this->updateResource($p_id, 'loan', 1);
-            $this->game->Log->takeLoan($p_id);
         } else if ($tradeValues['transaction']==='loanPaid'){
             $type = array_keys($tradeValues['tradeAway'])[0];
             $amt = $tradeValues['tradeAway'][$type];
+            $this->game->Log->payOffLoan($p_id, $type, $amt); 
             $this->updateResource($p_id, $type, -($amt));
             $this->updateResource($p_id, 'loan', -1);
-            $this->game->Log->payOffLoan($p_id, $type, $amt); 
         } else {
             $this->game->Log->tradeResource($p_id, $tradeValues['tradeAway'], $tradeValues['tradeFor']);
             foreach($tradeValues['tradeAway'] as $type=>$amt){
