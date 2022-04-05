@@ -80,6 +80,10 @@ class HSDEvents extends APP_GameClass
         $this->game->DBQuery("UPDATE `events` SET `location`=0 WHERE `position`=$round_number");
     }
 
+    /** 
+     * get the event_id for the event in $round_number
+     * if no value is passed, get current event_id
+     */ 
     function getEvent($round_number = null){
         if ($this->game->getGameStateValue('new_beginning_evt') == DISABLED) return 0;
         $round_number = (is_null($round_number)?$this->game->getGameStateValue( 'round_number' ):$round_number);
@@ -103,7 +107,7 @@ class HSDEvents extends APP_GameClass
      * material event_info `all_b`
      */
     function eventAucBonus(){
-        return $this->eventHaskey('auc_b');
+        return $this->eventHasKey('auc_b');
     }
 
     ///// BEGIN event phase helper methods ////
@@ -113,7 +117,7 @@ class HSDEvents extends APP_GameClass
      * material event_info `all_b`
      */
     function eventPhase(){
-        return $this->eventHaskey('all_b');
+        return $this->eventHasKey('all_b');
     }
 
     /**
@@ -123,25 +127,36 @@ class HSDEvents extends APP_GameClass
      */
     function eventDiscount(){
         $auction_no = $this->game->getGameStateValue('current_auction');
-        return ($this->eventHaskey('auc_d') && $auction_no == 1 );
-    }
-
-    /**
-     * does the current event affect auction?
-     * bool true on yes, false on no.
-     */
-    function eventAuction($auc = AUC_EVT_ALL){
-        if (!$this->auctionPhase()) return false;
-        return ($this->game->event_info[$this->getEvent()]['auc']==$auc);
+        return ($this->eventHasKey('auc_d') && $auction_no == 1 );
     }
 
     function isAuctionAffected($auction = null) {
         if (!$this->eventAucBonus()) return false;
+
+        // set auction if no value passed
         $auction = (is_null($auction)?$this->game->getGameStateValue('current_auction'):$auction);
-        if ($auction ==1) { 
+        // if auction is 1, it is always affected. (both AUC_EVT_ONE & AUC_EVT_ALL)
+        if ($auction == 1) { 
             return true;
         }
-        return ($this->eventAuction());
+        // if 'auc' not defined, just return false. (this should not be called, but is for safety)
+        if (!$this->eventHasKey('auc')) return false;
+        // other auctions will not be affected if AUC_EVT_ONE is set.
+        if ($this->game->event_info[$this->getEvent()]['auc']== AUC_EVT_ONE){
+            return false;
+        }
+        /* bug #62127
+         * handle special case "Rapid Expansion"
+         * where auction bonus could affect this,
+         * but current auction has no build types 
+         *   (ex. 'bonus'=>AUC_BONUS_WORKER_RAIL_ADV)
+         * so it shouldn't instead.
+         */
+        if (($this->getEvent() == EVENT_RAPID_EXPANSION) && !($this->game->Auction->doesCurrentAuctionHaveBuildPhase())){
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -150,7 +165,7 @@ class HSDEvents extends APP_GameClass
      * material event_info `auc`
      */
     function auctionPhase(){
-        return $this->eventHaskey('auc');
+        return $this->eventHasKey('auc');
     }
 
     /**
@@ -159,7 +174,7 @@ class HSDEvents extends APP_GameClass
      * material event_info `all_b`
      */
     function passPhase(){
-        return $this->eventHaskey('pass');
+        return $this->eventHasKey('pass');
     }
 
     /**
@@ -167,7 +182,7 @@ class HSDEvents extends APP_GameClass
      * bool true on yes, false on no.
      * material event_info `all_b`
      */
-    function eventHaskey($key){
+    function eventHasKey($key){
         $value = $this->game->getGameStateValue('new_beginning_evt');
         if ($value == DISABLED) return false;
         
@@ -318,7 +333,7 @@ class HSDEvents extends APP_GameClass
                 $this->showEventTable(array($row_1, $row_2), $event_id);
                 break;
         }
-        self::dump('event next_state', $next_state);
+        //self::dump('event next_state', $next_state);
         $this->game->gamestate->nextState($next_state);
     }
 

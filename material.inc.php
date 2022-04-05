@@ -793,7 +793,7 @@ $this->event_info = array(
   EVENT_RAPID_EXPANSION => array(
     'name'  => clienttranslate('Rapid Expansion'),
     'stage' => STAGE_SETTLEMENT,
-    'tt'    => clienttranslate('All auctions with bulding opportunities also give a second building opportunity of the same type'),
+    'tt'    => clienttranslate('All auctions with building opportunities also give a second building opportunity of the same type'),
     'auc'   => AUC_EVT_ALL,
     'auc_b' => 1,
   ),
