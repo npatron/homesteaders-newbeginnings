@@ -295,25 +295,16 @@ class HSDBuilding extends APP_GameClass
         $this->game->Log->updateBuildingState($p_id, $b_key, $oldState, $state);
     }
 
-    function canPlayerReceiveWarehouseIncome($p_id, $b_key, $type){
-        if (!$this->doesPlayerOwnBuilding($p_id, BLD_WAREHOUSE)) return false; // don't own warehouse
-        if ($this->getBuildingIdFromKey($b_key) != BLD_WAREHOUSE) 
-            throw new BgaUserException( clienttranslate("This building isn't ")); // bad usage.
+    function updateWarehouseStateForIncome($p_id, $b_key, $warehouse_type){
         $warehouseState = $this->getBuildingState($b_key);
-        // if the value in warehouseState includes
-        // checking using bitwise and (see $this->game->warehouse_map for bit_locations)
-        return ($warehouseState & $this->game->warehouse_map[$type] >0);
-    }
-
-    function warehouseIncomeForPlayer($p_id, $b_key, $type){
-        if (!$this->canPlayerReceiveWarehouseIncome($p_id, $b_key, $type)){
+        // checking using bitwise and '&' (see $this->game->warehouse_map for bit_locations)
+        $warehouse_type_key = $this->game->warehouse_map[$warehouse_type];
+        $income_key = $warehouseState & $warehouse_type_key;
+        if (($income_key == 0)){
             throw new BgaUserException( clienttranslate("You cannot select that warehouse income"));
-        } else {
-            $this->game->Resource->updateAndNotifyIncome($p_id, $type, 1, $this->getBuildingNameFromId(BLD_WAREHOUSE), 'building', $b_key);
-            $state = $this->getBuildingState($b_key);
-            $state -= $this->game->warehouse_map[$type];
-            $this->setupWarehouse($p_id, $b_key, $state);
-        }
+        } 
+        $warehouseState -= $income_key;
+        $this->setupWarehouse($p_id, $b_key, $warehouseState);
     }
 
     /** 
@@ -370,22 +361,26 @@ class HSDBuilding extends APP_GameClass
     }
 
     // INCOME
-    function buildingIncomeForPlayer($p_id, $warehouse_type = null) {
+    function buildingIncomeForPlayer($p_id, $warehouse_type_id = null) {
         $p_bld = $this->getAllPlayerBuildings($p_id);
         $player_workers = $this->game->getCollectionFromDB( "SELECT * FROM `workers` WHERE `player_id` = '$p_id'");
         $income_b_id = array();
+        // building income
         foreach( $p_bld as $b_key => $building ) {
             $b_id = $building['b_id'];
             $b_info = $this->game->building_info[$b_id];
             $income_b_id[$b_id] = array ('name' => $b_info['name'], 'key' =>$b_key);
+            // edge cases for building income
             if ($b_id == BLD_BANK){
                 $this->game->Resource->payLoanOrReceiveSilver($p_id, $b_info['name'], 'building', $b_key);
             } else if ($b_id == BLD_RODEO){
                 $rodeoIncome = min(count($player_workers), 5);
                 $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id], 'silver', $rodeoIncome);
             } else if ($b_id == BLD_WAREHOUSE) {
-                if ($warehouse_type != null){
-                    $this->warehouseIncomeForPlayer($p_id, $b_key, $this->game->resource_map[$warehouse_type]);
+                if ($warehouse_type_id != null){
+                    $warehouse_type = $this->game->resource_map[$warehouse_type_id];
+                    $this->updateWarehouseStateForIncome($p_id, $b_key, $warehouse_type);
+                    $income_b_id[$b_id] = $this->game->Resource->updateKeyOrCreate($income_b_id[$b_id], $warehouse_type, 1);
                 }
             } else {
                 foreach ((array_key_exists('inc', $b_info)?$b_info['inc']:array()) as $type => $amt){
@@ -393,6 +388,7 @@ class HSDBuilding extends APP_GameClass
                 }
             }
         }
+        // workers in buildings income
         $riverPortWorkers = 0;
         foreach($player_workers as $worker_key => $worker ) {
             if ($worker['building_key'] != 0){

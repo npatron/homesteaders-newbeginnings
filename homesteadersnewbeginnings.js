@@ -617,7 +617,7 @@ function (dojo, declare) {
         setupPlayerAssets: function (player){
             const current_player_color = player.color_name;
             const p_id = player.p_id;            
-            dojo.removeClass("player_zone_"+current_player_color, "noshow");
+            dojo.query("#player_zone_"+current_player_color).removeClass("noshow");
             if (this.player_id == p_id) {
                 this.isSpectator = false;
             }

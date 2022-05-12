@@ -317,7 +317,8 @@ class homesteadersnewbeginnings extends Table
         if ($this->Building->doesPlayerOwnBuilding($p_id, BLD_WAREHOUSE)){
             if (is_null($warehouse)){
                 throw new BgaUserException( clienttranslate("You must select a warehouse income"));
-            }if (array_key_exists($warehouse, $this->warehouse_map)){
+            }
+            if (!array_key_exists($warehouse, $this->resource_map)){
                 throw new BgaUserException( clienttranslate("You must select a warehouse income"));
             }
         }
