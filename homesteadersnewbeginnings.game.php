@@ -346,9 +346,9 @@ class homesteadersnewbeginnings extends Table
         $this->Event->passBidNextState();
     }
 
-    public function playerDonePassEvent(){
+    public function playerDonePassEvent($loans, $gold){
         $this->checkAction( "payLoanEvent" );
-        $this->gamestate->nextState( "rail" );
+        $this->Event->payLoanPassEvent($loans, $gold);
     }
 
     public function playerBuildBuilding($b_key, $costReplaceArgs){
