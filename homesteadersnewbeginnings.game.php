@@ -692,6 +692,7 @@ class homesteadersnewbeginnings extends Table
 
     public function playerCancelBidPass () {
         $this->checkAction('undoPass');
+        $this->Log->cancelTransactions();
         $this->Bid->cancelPass();
         $this->Log->cancelPass();
         $this->gamestate->nextState('undoPass');

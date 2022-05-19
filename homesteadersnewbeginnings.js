@@ -3943,7 +3943,6 @@ function (dojo, declare) {
                 dojo.style($(BTN_ID_PAY_LESS_LOAN), 'display', 'none');
                 this.silverCost = 0;
                 this.goldCost = 0;
-                this.destroyPaymentBreadcrumb();
             } else {
                 this.silverCost -= 3;
             }
