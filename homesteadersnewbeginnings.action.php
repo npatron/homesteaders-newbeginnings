@@ -199,9 +199,11 @@ class action_homesteadersnewbeginnings extends APP_GameAction
 
     // resolve pending trades
     $trade_action = self::getArg( "trade_action", AT_numberlist, true );
+    $gold = self::getArg("gold", AT_int, true);
+    $loans = self::getArg("loans", AT_int, true);
     $this->game->playerTrade($trade_action, false);
 
-    $this->game->playerDonePassEvent( );
+    $this->game->playerDonePassEvent($loans, $gold);
     self::ajaxResponse( );
   }
   

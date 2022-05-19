@@ -346,9 +346,9 @@ class homesteadersnewbeginnings extends Table
         $this->Event->passBidNextState();
     }
 
-    public function playerDonePassEvent(){
+    public function playerDonePassEvent($loans, $gold){
         $this->checkAction( "payLoanEvent" );
-        $this->gamestate->nextState( "rail" );
+        $this->Event->payLoanPassEvent($loans, $gold);
     }
 
     public function playerBuildBuilding($b_key, $costReplaceArgs){
@@ -692,6 +692,7 @@ class homesteadersnewbeginnings extends Table
 
     public function playerCancelBidPass () {
         $this->checkAction('undoPass');
+        $this->Log->cancelTransactions();
         $this->Bid->cancelPass();
         $this->Log->cancelPass();
         $this->gamestate->nextState('undoPass');

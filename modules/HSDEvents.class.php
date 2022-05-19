@@ -599,7 +599,23 @@ class HSDEvents extends APP_GameClass
         $this->game->gamestate->nextState( $next_state );
     }
 
-    //// END setup Auction ////
+    function payLoanPassEvent($loans, $gold){
+        $p_id = $this->game->getActivePlayerId();
+        if ($loans > 0){
+            $silverCost = ($loans * 3) - ($gold * 5);
+            $paymentGroup = array('loan'=> $loans);
+            if ($silverCost > 0){
+                $paymentGroup['silver'] = $silverCost;
+            }
+            if ($gold > 0){
+                $paymentGroup['gold'] = $gold;
+            }
+            $this->game->Resource->updateAndNotifyPaymentGroup($p_id, $paymentGroup, $this->getEventName(), 'event');
+        }
+        $this->game->Score->updatePlayerScore($p_id);
+        $this->game->gamestate->nextState( "rail" );
+    }
+    //// END pass Bid ////
 
 
     //// BEGIN private HELPER methods for determining effected players & values ////
