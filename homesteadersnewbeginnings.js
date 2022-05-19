@@ -307,6 +307,8 @@ function (dojo, declare) {
         const PAY_SILVER_TOKEN = 'pay_silver_tkn';
         const BTN_ID_PAY_DONE  = 'btn_pay_done';
         const METHOD_DONE_PAY  = 'donePay';
+        const PAY_LOAN_TEXT    = 'pay_loan';
+        const PAY_LOAN_TOKEN   = 'pay_loan_tkn';
     
     /* ** Endgame buttons ** */
         const BTN_ID_DONE             = 'btn_done';
@@ -354,6 +356,7 @@ function (dojo, declare) {
         const SPECIAL_ZONE_ID= 'special_zone';// market + bank
         const MARKET_TEXT_ID = 'market_text';
         const BANK_TEXT_ID   = 'bank_text';
+
 
     const TRADE_BOARD_ACTION_SELECTOR = `#${TRADE_BOARD_ID} .trade_option`;
     const TYPE_SELECTOR = {'bid':'.bid_slot', 'bonus':'.train_bonus', 'worker_slot':'.worker_slot',
@@ -492,7 +495,6 @@ function (dojo, declare) {
 
             this.GOLD_COUNTER = new ebg.counter();
             this.SILVER_COUNTER = new ebg.counter();
-            this.LOAN_COUNTER   = new ebg.counter();
             this.ROUND_COUNTER  = new ebg.counter();
             
             //new vars from expansion,
@@ -1353,35 +1355,33 @@ function (dojo, declare) {
             this.addActionButton( BTN_ID_ON_PASS_EVENT_DONE, _("Done"), METHOD_ON_PASS_EVENT_DONE, null, false, 'blue');
             this.addActionButton( BTN_ID_UNDO_PASS, _(MESSAGE_UNDO_PASS), 'onUndoBidPass', null, false, 'red');
             if (args.event_pass == EVENT_NELSON_ACT){
+                dojo.place(dojo.create("br"), 'generalactions', 'last');
                 this.addActionButton( BTN_ID_PAY_LOAN_3_SILVER, this.replaceTooltipStrings(_('pay off ${loan} for ${silver}${silver}${silver}')), METHOD_PAY_LOAN_3_SILVER, null, false, 'blue');
                 
-                dojo.place(dojo.create("div", {id:'cost_location', style:'display: inline-flex;flex-direction: column;'}), 'generalactions', 'last');
-                dojo.place(dojo.create('span', {id:PAY_LOAN_TEXT, class:'font caps'}), 'cost_location', 'last');
-                dojo.place(dojo.create('span', {id:PAY_LOAN_TOKEN, class:'log_loan token_inline'}), 'cost_location', 'last');
-                $('pay_loan').innerHTML=0;
-                this.loanCount = 0;
-                this.LOAN_COUNTER.create(PAY_SILVER_TEXT);
-                this.LOAN_COUNTER.setValue(this.loanCount);
-                dojo.place(dojo.create('span', {id:PAY_GOLD_TEXT, class:'font caps'}), 'cost_location', 'last');
-                dojo.place(dojo.create('span', {id:PAY_GOLD_TOKEN, class:'log_gold token_inline'}), 'cost_location', 'last');
-                $('pay_gold').innerHTML=0;
-                this.goldCost = 0;
-                this.GOLD_COUNTER.create(PAY_GOLD_TEXT);
-                this.GOLD_COUNTER.setValue(this.goldCost);
-                
-                dojo.place(dojo.create('span', {id:PAY_SILVER_TEXT, class:'font caps'}), 'cost_location', 'last');
-                dojo.place(dojo.create('span', {id:PAY_SILVER_TOKEN, class:'log_silver token_inline'}), 'cost_location', 'last');
-                $('pay_silver').innerHTML=0;
-                this.silverCost = 0;
-                this.SILVER_COUNTER.create(PAY_SILVER_TEXT);
-                this.SILVER_COUNTER.setValue(this.silverCost);
-
                 this.addActionButton( BTN_ID_PAY_LESS_LOAN, this.replaceTooltipStrings(_('pay off less ${loan}')), METHOD_PAY_LESS_LOAN, null, false, 'blue');
                 dojo.style( $( BTN_ID_PAY_LESS_LOAN ), 'display', 'none');
                 this.addActionButton( BTN_ID_MORE_GOLD, this.replaceTooltipStrings( _("Use More ${gold}")), METHOD_MORE_GOLD, null, false, 'gray');
                 dojo.style( $( BTN_ID_MORE_GOLD ), 'display', 'none');
                 this.addActionButton( BTN_ID_LESS_GOLD, this.replaceTooltipStrings( _("Use Less ${gold}")), METHOD_LESS_GOLD, null, false, 'gray');
                 dojo.style( $( BTN_ID_LESS_GOLD ), 'display', 'none');
+
+                dojo.place(dojo.create("div", {id:'cost_location', style:'display: inline-flex; align-content: center;'}), 'generalactions', 'last');
+                this.loanCount = 0;
+                
+                dojo.place(dojo.create('span', {id:PAY_GOLD_TEXT, style:'display: none;', class:'font caps noshow'}), 'cost_location', 'last');
+                dojo.place(dojo.create('span', {id:PAY_GOLD_TOKEN, style:'display: none;', class:'log_gold token_inline noshow'}), 'cost_location', 'last');
+                $(PAY_GOLD_TEXT).innerHTML=0;
+                this.goldCost = 0;
+                this.GOLD_COUNTER.create(PAY_GOLD_TEXT);
+                this.GOLD_COUNTER.setValue(this.goldCost);
+                
+                dojo.place(dojo.create('span', {id:PAY_SILVER_TEXT, style:'display: none;', class:'font caps noshow'}), 'cost_location', 'last');
+                dojo.place(dojo.create('span', {id:PAY_SILVER_TOKEN, style:'display: none;', class:'log_silver token_inline noshow'}), 'cost_location', 'last');
+                $(PAY_SILVER_TEXT).innerHTML=0;
+                this.silverCost = 0;
+                this.SILVER_COUNTER.create(PAY_SILVER_TEXT);
+                this.SILVER_COUNTER.setValue(this.silverCost);
+
             } 
             this.addTradeActionButton();
         },
@@ -2437,10 +2437,20 @@ function (dojo, declare) {
             }
             this.setOffset('gold', gold_offset);
 
+            let loan_offset = this.getOffsetValue('loan');
+            if (this.loanCount){
+                loan_offset -= this.loanCount;
+            }
+            this.setOffset('loan', loan_offset);
+
             this.updateBuildingAffordability();
             this.updateTradeAffordability();
             
-            this.createPaymentBreadcrumb({'silver':Math.min(0,(-1 *this.silverCost)), 'gold':Math.min(0,(-1 *this.goldCost))});
+            this.createPaymentBreadcrumb({
+                'silver':Math.min(0,(-1 *this.silverCost)), 
+                'gold':Math.min(0,(-1 *this.goldCost)),
+                'loan':Math.min(0,(-1 *this.loanCount?? 0)),
+            });
         },
 
         /***** BREADCRUMB METHODS *****/
@@ -3911,11 +3921,12 @@ function (dojo, declare) {
             this.loanCount ++;
             this.silverCost += 3;
             if (this.silverCost >0){
-                dojo.style( $(PAY_SILVER_TEXT), 'display', 'inline-flex');
-                dojo.style( $(PAY_SILVER_TOKEN), 'display', 'inline-flex');
                 dojo.style( $(BTN_ID_MORE_GOLD), 'display', 'inline-flex');
                 this.SILVER_COUNTER.setValue(this.silverCost);
             }
+
+            dojo.style($(BTN_ID_PAY_LESS_LOAN), 'display', 'inline-flex');
+            this.setOffsetForPaymentButtons();
         },
         /** METHOD_PAY_LESS_LOAN
          * players who pass can pay loan for 3 silver.
@@ -3925,22 +3936,26 @@ function (dojo, declare) {
             if (this.loanCount <= 0) return;
 
             this.loanCount --;
-            this.silverCost -= 3;
-            this.SILVER_COUNTER.setValue(Math.max(0 , this.silverCost));
+            if (this.loanCount == 0){
+                dojo.style($(BTN_ID_PAY_LESS_LOAN), 'display', 'none');
+                this.silverCost = 0;
+                this.goldCost = 0;
+            } else {
+                this.silverCost -= 3;
+            }
+
+            this.SILVER_COUNTER.setValue(Math.max(0, this.silverCost));
             if (this.silverCost < -5 && this.goldCost >0){
                 this.silverCost += 5;
                 this.goldCost --;
                 if(this.goldCost == 0){
-                    dojo.style( $(PAY_GOLD_TEXT), 'display', 'none');
-                    dojo.style( $(PAY_GOLD_TOKEN), 'display', 'none');
                     dojo.style( $(BTN_ID_LESS_GOLD), 'display', 'none');
                 }
             }
-            if (this.silverCost <0){
-                dojo.style( $(PAY_SILVER_TEXT), 'display', 'none');
-                dojo.style( $(PAY_SILVER_TOKEN), 'display', 'none');
+            if (this.silverCost <= 0){
                 dojo.style( $(BTN_ID_MORE_GOLD), 'display', 'none');
             }
+            this.setOffsetForPaymentButtons();
         },
 
         onClickOnWorker: function( evt )
