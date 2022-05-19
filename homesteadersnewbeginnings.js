@@ -1249,6 +1249,9 @@ function (dojo, declare) {
                     dojo.removeClass(active_train, 'animated');
                     this.disableTradeIfPossible();
                     break;
+                case 'pass_event':
+                    this.destroyPaymentBreadcrumb();
+                    break;
                 case 'endRound':
                 case 'dummy':
                     break;
@@ -2447,9 +2450,9 @@ function (dojo, declare) {
             this.updateTradeAffordability();
             
             this.createPaymentBreadcrumb({
-                'silver':Math.min(0,(-1 *this.silverCost)), 
-                'gold':Math.min(0,(-1 *this.goldCost)),
-                'loan':Math.min(0,(-1 *this.loanCount?? 0)),
+                'silver':Math.min(0,(-1 * this.silverCost)), 
+                'gold':  Math.min(0,(-1 * this.goldCost)),
+                'loan':  Math.min(0,(-1 * this.loanCount?? 0)),
             });
         },
 
@@ -3940,6 +3943,7 @@ function (dojo, declare) {
                 dojo.style($(BTN_ID_PAY_LESS_LOAN), 'display', 'none');
                 this.silverCost = 0;
                 this.goldCost = 0;
+                this.destroyPaymentBreadcrumb();
             } else {
                 this.silverCost -= 3;
             }
@@ -5068,6 +5072,7 @@ function (dojo, declare) {
                 }, this, function( result ) {
                     this.clearTransactionLog();
                     this.changeStateCleanup();
+                    
                 }, function( is_error) {}); 
             }
         },

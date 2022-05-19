@@ -600,18 +600,15 @@ class HSDEvents extends APP_GameClass
     }
 
     function payLoanPassEvent($loans, $gold){
-        $p_id = $this->game->getCurrentPlayerId();
+        $p_id = $this->game->getActivePlayerId();
         if ($loans > 0){
             $silverCost = ($loans * 3) - ($gold * 5);
-            $paymentGroup = array('loan'=> -$loans);
+            $paymentGroup = array('loan'=> $loans);
             if ($silverCost > 0){
-                $paymentGroup['silver'] = -$silverCost;
+                $paymentGroup['silver'] = $silverCost;
             }
             if ($gold > 0){
-                $paymentGroup['gold'] = -$gold;
-            }
-            for($i = 0; $i < $loans; $i++){
-                $this->game->Log->payOffLoan($p_id);
+                $paymentGroup['gold'] = $gold;
             }
             $this->game->Resource->updateAndNotifyPaymentGroup($p_id, $paymentGroup, $this->getEventName(), 'event');
         }
