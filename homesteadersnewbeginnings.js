@@ -226,8 +226,10 @@ function (dojo, declare) {
     /* ***** Event Bonus buttons ***** */
         /* *** Event Lot buttons *** */
             /* * EVENT_RAILROAD_CONTRACTS * */
-            const BTN_ID_EVENT_SILVER_RAIL_ADVANCE = 'btn_silver_track';
+            const BTN_ID_EVENT_SILVER_RAIL_ADVANCE = 'btn_silver_rail_advance';
             const METHOD_EVENT_SILVER_RAIL_ADVANCE = 'silver2ForRailAdvance';
+            const MESSAGE_EVENT_SILVER_RAIL_ADVANCE = "Pay ${silver}${silver} to ${adv_track}";
+            const MESSAGE_EVENT_SILVER_RAIL_ADVANCE_CONFIRM = "Confirm Trade(s) & Pay 2 ${silver} to ${adv_track}";
             /* * EVENT_INDUSTRIALIZATION * */
             const BTN_ID_EVENT_STEEL_BUILD = 'btn_steel_build';
             const METHOD_EVENT_STEEL_BUILD = 'steelBuildBuilding';
@@ -1632,7 +1634,7 @@ function (dojo, declare) {
             let option = Number(args.event);
             switch (option){
                 case EVENT_RAILROAD_CONTRACTS: // auction winners can pay 2 silver for advance railroad track
-                    this.addActionButton( BTN_ID_EVENT_SILVER_RAIL_ADVANCE, `${TOKEN_HTML.silver}${TOKEN_HTML.silver} ${TOKEN_HTML.arrow} ${TOKEN_HTML.adv_track}`, METHOD_EVENT_SILVER_RAIL_ADVANCE);
+                    this.addActionButton( BTN_ID_EVENT_SILVER_RAIL_ADVANCE,this.replaceTooltipStrings(_(MESSAGE_EVENT_SILVER_RAIL_ADVANCE)) , METHOD_EVENT_SILVER_RAIL_ADVANCE);
                 break;
                 case EVENT_MIGRANT_WORKERS: // Auc 1 also gives worker
                     this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_(MESSAGE_BONUS_WORKER)), 'workerForFreeLotEvent');
@@ -2702,7 +2704,7 @@ function (dojo, declare) {
             let noTrade = TRANSACTION_LOG.length == 0;
             let transitions = [BTN_ID_PAY_DONE, BTN_ID_DONE, BTN_ID_AUCTION_DONE_TRADING,
                                 BTN_ID_EVENT_DONE_TRADING, BTN_ID_EVENT_DONE_HIDDEN_TRADING, BTN_ID_ON_PASS_EVENT_DONE, 
-                                BTN_ID_CONFIRM_WORKERS, BTN_ID_BUILD_BUILDING, BTN_ID_EVENT_STEEL_BUILD,
+                                BTN_ID_CONFIRM_WORKERS, BTN_ID_BUILD_BUILDING, BTN_ID_EVENT_STEEL_BUILD, BTN_ID_EVENT_SILVER_RAIL_ADVANCE,
                                 BTN_ID_FOOD_VP, BTN_ID_GOLD_VP, BTN_ID_COW_VP, BTN_ID_COPPER_VP, BTN_ID_WOOD_TRACK];
             transitions.forEach(button_id=> {
                 if (dojo.query(`#${button_id}`).length == 1){
@@ -2800,6 +2802,14 @@ function (dojo, declare) {
                                 var button_text = this.replaceTooltipStrings(_(MESSAGE_EVENT_STEEL_BUILD_CONFIRM));
                             }
                             var button_method = METHOD_EVENT_STEEL_BUILD;
+                        break;
+                        case BTN_ID_EVENT_SILVER_RAIL_ADVANCE:
+                            if (noTrade) {
+                                var button_text = this.replaceTooltipStrings(_(MESSAGE_EVENT_SILVER_RAIL_ADVANCE));
+                            } else {
+                                var button_text = this.replaceTooltipStrings(_(MESSAGE_EVENT_SILVER_RAIL_ADVANCE_CONFIRM));
+                            }
+                            var button_method = METHOD_EVENT_SILVER_RAIL_ADVANCE;
                         break;
                         case BTN_ID_FOOD_VP:
                             if (noTrade) {
@@ -5019,6 +5029,10 @@ function (dojo, declare) {
         },
         //METHOD_EVENT_SILVER_RAIL_ADVANCE
         silver2ForRailAdvance: function(){
+            if (!this.canAddTrade({silver:-2})){
+                this.showMessage( _("You cannot afford this"), 'error' );
+                return;
+            }
             if (this.checkAction( 'eventLotBonus' )){
                 this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/silver2forRailAdvanceEvent.html", 
                 { //args
