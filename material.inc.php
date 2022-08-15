@@ -786,7 +786,7 @@ $this->event_info = array(
   EVENT_RAILROAD_CONTRACTS => array(
     'name'  => clienttranslate('Railroad Contracts'),
     'stage' => STAGE_SETTLEMENT,
-    'tt'    => clienttranslate('All auctions also give: ${silver}${silver} ${arrow} Advance the Railroad Track'),
+    'tt'    => clienttranslate('All auctions also give: ${silver}${silver} ${arrow} ${adv_track}'),
     'auc'   => AUC_EVT_ALL,
     'auc_b' => 1,
   ),

@@ -585,7 +585,7 @@ class homesteadersnewbeginnings extends Table
         }    
     }
 
-    public function playerSilver2forTrackEvent ( ) 
+    public function playerSilver2forRailAdvance ( ) 
     {
         $this->checkAction( "eventLotBonus" );
         if (!$this->Event->isAuctionAffected()){
@@ -595,8 +595,10 @@ class homesteadersnewbeginnings extends Table
         if ($evt_b != EVENT_RAILROAD_CONTRACTS) {
             throw new BgaVisibleSystemException ( sprintf(clienttranslate("trade 2 Silver for track called, but event bonus is %s"), $evt_b));
         }
-        $this->Resource->specialTrade($this->getActivePlayerId(), array('silver'=>2), array('track'=>1), clienttranslate('Event Reward'), 'event');
-        $this->gamestate->nextState('done');
+        $active_p_id = $this->getActivePlayerId();
+        $this->Resource->updateAndNotifyPayment($active_p_id, 'silver', 2 , clienttranslate('Event Cost'), 'event');
+        $this->Resource->getRailAdv($active_p_id, clienttranslate("Event Reward"), 'event');
+        $this->gamestate->nextState('rail_bonus');
     }
 
     public function playerPassBonusLotEvent() {

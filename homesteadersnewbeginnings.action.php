@@ -345,13 +345,13 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
 
-  public function silver2forTrackEvent (){
+  public function silver2forRailAdvanceEvent (){
     self::setAjaxMode( );
     // resolve pending trades
     $trade_action = self::getArg( "trade_action", AT_numberlist, true );
     $this->game->playerTrade($trade_action, false);
     
-    $this->game->playerSilver2forTrackEvent();
+    $this->game->playerSilver2forRailAdvance();
     self::ajaxResponse( );
   }
 

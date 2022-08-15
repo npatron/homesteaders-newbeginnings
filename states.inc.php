@@ -321,6 +321,7 @@ $machinestates = array(
         "transitions" => array( "undoLot"  => STATE_PAY_LOT,
                                 "evt_build" => STATE_EVT_BUILD_AGAIN, 
                                 "done"      => STATE_CHOOSE_LOT_ACTION,
+                                "rail_bonus"=> STATE_EVT_RAIL_BONUS,
                                 "zombiePass"=> STATE_END_CURRENT_LOT, )
     ),
 

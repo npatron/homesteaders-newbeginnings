@@ -226,8 +226,8 @@ function (dojo, declare) {
     /* ***** Event Bonus buttons ***** */
         /* *** Event Lot buttons *** */
             /* * EVENT_RAILROAD_CONTRACTS * */
-            const BTN_ID_EVENT_SILVER_TRACK = 'btn_silver_track';
-            const METHOD_EVENT_SILVER_TRACK = 'silver2ForTrack';
+            const BTN_ID_EVENT_SILVER_RAIL_ADVANCE = 'btn_silver_track';
+            const METHOD_EVENT_SILVER_RAIL_ADVANCE = 'silver2ForRailAdvance';
             /* * EVENT_INDUSTRIALIZATION * */
             const BTN_ID_EVENT_STEEL_BUILD = 'btn_steel_build';
             const METHOD_EVENT_STEEL_BUILD = 'steelBuildBuilding';
@@ -1014,16 +1014,16 @@ function (dojo, declare) {
          * Create the HTML tokens and put them in TOKEN_HTML
          */
         setupResourceTokens(){
-            for(let type in RESOURCES){
+            for(let type in RESOURCES){ // make the resource tokens (normal/big/x(crossed out))
                 TOKEN_HTML[type] = this.format_block( 'jstpl_resource_inline', {type:type, title:type});
                 TOKEN_HTML["big_"+type] = this.format_block( 'jstpl_resource_inline', {type:"big_"+type, title:type});
                 TOKEN_HTML["x_"+type] = `<span title = "${type}" class="log_${type} crossout token_inline" style="top: 9px;"></span>`;
             }
             let types = ['arrow', 'big_arrow', 'inc_arrow'];
-            for(let i in types){
+            for(let i in types){ // make the arrow tokens
                 TOKEN_HTML[types[i]] = this.format_block( 'jstpl_resource_inline', {type:types[i], title:types[i]});
             }
-            for (let i in VP_TOKENS){
+            for (let i in VP_TOKENS){ // add VP tokens 
                 let amt = VP_TOKENS[i].charAt(VP_TOKENS.length-1);
                 TOKEN_HTML[VP_TOKENS[i]] = this.format_block( 'jstpl_resource_inline', {type:VP_TOKENS[i], title:VP_TOKENS[i]});
                 TOKEN_HTML["bld_"+VP_TOKENS[i]] = this.format_block('jstpl_resource_inline', {"type" : VP_TOKENS[i] + " bld_vp",title:VP_TOKENS[i]});
@@ -1032,21 +1032,21 @@ function (dojo, declare) {
             TOKEN_HTML.track = this.getOneResourceHtml('track', 1, true);
             TOKEN_HTML.loan = this.format_block( 'jptpl_track_log', {type:'loan'}, );
             TOKEN_HTML.end = this.format_block('jstpl_color_log', {'string':_("End"), 'color':ASSET_COLORS[6]}); 
+            
             types = {'and':_("AND"), 'or':_("OR"), 'dot':"•"};
-            for(let i in types){
+            for(let i in types){ // creating the html for tooltip and/or/dot
                 TOKEN_HTML[i] = this.format_block('jptpl_tt_break', {text:types[i], type:'dot'==i?'dot':'break'});
             }
-            types = {0:0, 1:1, 2:2, 3:3, 4:4, 7:7}; // from ASSET_COLORS
-            console.log("ASSET_STRINGS", ASSET_STRINGS);
-            console.log("ASSET_COLORS", ASSET_COLORS);
-            for (let i in types){
-                console.log(`adding ${ASSET_COLORS[i]}`, i);
+            
+            types = {0:0, 1:1, 2:2, 3:3, 4:4, 7:7}; 
+            // from ASSET_COLORS res,com, ind, spe, any, adv_track  
+            for (let i in types){ 
                 TOKEN_HTML[ASSET_COLORS[i]] = this.format_block('jstpl_color_log', 
                 {'string':_(ASSET_STRINGS[i]), 'color':ASSET_COLORS[i]});
-                console.log(`TOKEN_HTML:${ASSET_COLORS[i]}`, TOKEN_HTML[ASSET_COLORS[i]]);
+                // ex TOKEN_HTML.res = translation string for 'Residential' with underline of color
             }
             types = {10:'4', 11:'1', 12:'2', 13:'3'};
-            for (let i in types){
+            for (let i in types){ // 'a1', 'a2', 'a3', 'a4'
                 TOKEN_HTML['a'+types[i]] = this.format_block('jstpl_color_log', 
                 {'string':dojo.string.substitute(_("Auction ${a}"),{a:types[i]}), 'color': 'auc'+types[i]} );
             }
@@ -1631,8 +1631,8 @@ function (dojo, declare) {
         onUpdateActionButtons_bonusChoice_lotEvent: function (args){ 
             let option = Number(args.event);
             switch (option){
-                case EVENT_RAILROAD_CONTRACTS: // auction winners can pay 2 silver for track
-                    this.addActionButton( BTN_ID_EVENT_SILVER_TRACK, `${TOKEN_HTML.silver}${TOKEN_HTML.silver} ${TOKEN_HTML.arrow} ${TOKEN_HTML.track}`, METHOD_EVENT_SILVER_TRACK);
+                case EVENT_RAILROAD_CONTRACTS: // auction winners can pay 2 silver for advance railroad track
+                    this.addActionButton( BTN_ID_EVENT_SILVER_RAIL_ADVANCE, `${TOKEN_HTML.silver}${TOKEN_HTML.silver} ${TOKEN_HTML.arrow} ${TOKEN_HTML.adv_track}`, METHOD_EVENT_SILVER_RAIL_ADVANCE);
                 break;
                 case EVENT_MIGRANT_WORKERS: // Auc 1 also gives worker
                     this.addActionButton( BTN_ID_BONUS_WORKER, this.replaceTooltipStrings(_(MESSAGE_BONUS_WORKER)), 'workerForFreeLotEvent');
@@ -5017,10 +5017,10 @@ function (dojo, declare) {
                 function( result) {this.changeStateCleanup();}, function( is_error) { } );
             }
         },
-
-        silver2ForTrack: function(){
+        //METHOD_EVENT_SILVER_RAIL_ADVANCE
+        silver2ForRailAdvance: function(){
             if (this.checkAction( 'eventLotBonus' )){
-                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/silver2forTrackEvent.html", 
+                this.ajaxcall( "/" + this.game_name + "/" + this.game_name + "/silver2forRailAdvanceEvent.html", 
                 { //args
                     lock: true, 
                     trade_action: TRANSACTION_LOG.join(','),
