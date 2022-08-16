@@ -2797,7 +2797,11 @@ function (dojo, declare) {
             TRANSITION_OBJECTS.forEach(transition_group => {
                 const button_id = transition_group.id;
                 if (dojo.query(`#${button_id}`).length == 1){
-                    const message = noTrade ? transition_group.default : transition_group.confirm;
+                    if (button_id == BTN_ID_ON_PASS_EVENT_DONE){ // for nelson act bug.
+                        var message = (noTrade && !this.loanCount) ? transition_group.default : transition_group.confirm;
+                    } else {
+                        var message = noTrade ? transition_group.default : transition_group.confirm;
+                    }
                     const button_text = this.replaceTooltipStrings(message, transition_group.sub);
                     const button_method = transition_group.method;
                     dojo.query(`#${button_id}`).forEach(dojo.destroy);
