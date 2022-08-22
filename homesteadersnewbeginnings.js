@@ -180,12 +180,10 @@ function (dojo, declare) {
         
         const BTN_ID_HIRE_WORKER  = 'btn_hire_worker';
         const METHOD_HIRE_WORKER  = 'hireWorkerButton';
-        const HIRE_WORKER_ARR     = {'food':-1,'trade':-1};
 
         const BTN_ID_TAKE_LOAN    = 'btn_take_loan';
         const METHOD_TAKE_LOAN    = 'onMoreLoan';
         const MESSAGE_TAKE_LOAN   = "Take Debt";
-        const TAKE_LOAN_ARR       = {'silver':2,'loan':1};
         
         const BLD_ID_MARKET_FOOD  = 'trade_market_wood_food';
         const BLD_ID_MARKET_STEEL = 'trade_market_food_steel';
@@ -195,7 +193,7 @@ function (dojo, declare) {
         const BLD_METHOD_TRADE_BANK = 'onClickOnBankTrade';
         const BTN_ID_TRADE_BANK     = 'btn_trade_bank';
         const METHOD_TRADE_BANK     = 'onClickOnBankTrade';
-        const TRADE_BANK_CHANGE_ARR = {'trade':-1,'silver':1};
+        
     /* ***** Auction Bonus buttons ***** */
         const BTN_ID_FOOD_VP = 'btn_food_vp';
         const METHOD_FOOD_VP = 'foodFor2VP';
@@ -287,12 +285,10 @@ function (dojo, declare) {
             /* * EVENT_SHARECROPPING * */
             const BTN_ID_PAY_LOAN_FOOD = 'btn_pay_loan_food';
             const METHOD_PAY_LOAN_FOOD = 'payLoanWithFood';
-            const PAY_LOAN_FOOD_ARR    = {'food':-1,'loan':-1};
         /* *** on Pass Event button *** */
             /** EVENT_NELSON_ACT **/
             const BTN_ID_PAY_LOAN_3_SILVER = 'btn_loan_3_silver';
             const METHOD_PAY_LOAN_3_SILVER = 'payLoan3Silver';
-            const PAY_LOAN_3_SILVER_ARR    = {'silver':-3,'loan':-1};
             const BTN_ID_PAY_LESS_LOAN     = 'btn_less_loan';
             const METHOD_PAY_LESS_LOAN     = 'payLoan3SilverLess';
 
@@ -345,8 +341,6 @@ function (dojo, declare) {
         const PAY_SILVER_TOKEN = 'pay_silver_tkn';
         const BTN_ID_PAY_DONE  = 'btn_pay_done';
         const METHOD_DONE_PAY  = 'donePay';
-        const PAY_LOAN_TEXT    = 'pay_loan';
-        const PAY_LOAN_TOKEN   = 'pay_loan_tkn';
     
     /* ** Endgame buttons ** */
         const BTN_ID_DONE             = 'btn_done';
@@ -354,10 +348,8 @@ function (dojo, declare) {
         const OBJECT_DONE = {id: BTN_ID_DONE, method: METHOD_ENDGAME_DONE, default : MESSAGE_PASS, confirm : MESSAGE_PASS_CONFIRM };
         const BTN_ID_PAY_LOAN_SILVER  = 'btn_pay_loan_silver';
         const METHOD_PAY_LOAN_SILVER  = 'payLoanSilver'; 
-        const PAY_LOAN_SILVER_ARR     = {'silver':-5,'loan':-1};
         const BTN_ID_PAY_LOAN_GOLD    = 'btn_pay_loan_gold';
         const METHOD_PAY_LOAN_GOLD    = 'payLoanGold';
-        const PAY_LOAN_GOLD_ARR       = {'gold':-1,'loan':-1};
 
         const SPECIAL_TRANSITION_BUTTONS = [
             BTN_ID_PAY_DONE, BTN_ID_BUILD_BUILDING, 
@@ -1346,7 +1338,7 @@ function (dojo, declare) {
             this.addActionButton( BTN_ID_CONFIRM_WORKERS, this.replaceTooltipStrings(_(MESSAGE_CONFIRM_WORKERS)), METHOD_CONFIRM_WORKERS );
             this.addActionButton( BTN_ID_CANCEL, _(MESSAGE_CANCEL_TURN), 'cancelUndoTransactions', null, false, 'red');
             dojo.place(dojo.create('br'),'generalactions','last');
-            let color = this.canAddTrade(HIRE_WORKER_ARR)?'blue':'gray'; 
+            let color = this.canAddTrade({'food':-1,'trade':-1})?'blue':'gray'; 
             this.addActionButton( BTN_ID_HIRE_WORKER, this.replaceTooltipStrings(_("Hire ${worker}")), METHOD_HIRE_WORKER, null, false, color );
 
             this.tradeEnabled = false;
@@ -3266,7 +3258,7 @@ function (dojo, declare) {
         },
 
         addTransaction: function (action, type=''){
-            var transactions;
+            var transactions = {};
             switch(action){
                 case BUY:
                     transactions = {name:_("Buy"), map:TRADE_MAP[`buy_${type}`],
@@ -3282,27 +3274,28 @@ function (dojo, declare) {
                 break;
                 case BANK:
                     transactions = {name:_('Bank'), map:TRADE_MAP.bank,
-                            away:{'trade':-1}, for:{'silver':1}, change:TRADE_BANK_CHANGE_ARR};
+                            away:{'trade':-1}, for:{'silver':1}, change:{'trade':-1,'silver':1}};
                 break;
                 case TAKE_LOAN:
                     transactions = {name:_("Take Dept"), map:TRADE_MAP.loan,
-                            away:{'loan':1}, for:{'silver':2}, change:TAKE_LOAN_ARR};
+                            away:{'loan':1}, for:{'silver':2}, change:{'silver':2,'loan':1}};
                 break;
                 case PAY_LOAN_GOLD:
                     transactions = {name:_("Pay Dept"), map:TRADE_MAP.payLoan_gold,
-                            away:{'gold':-1}, for:{'loan':-1}, change:PAY_LOAN_GOLD_ARR};
+                            away:{'gold':-1}, for:{'loan':-1}, change:{'gold':-1, 'loan':-1}};
                 break;
                 case PAY_LOAN_SILVER:
                     transactions = {name:_("Pay Dept"), map:TRADE_MAP.payLoan_silver,
-                            away:{'silver':-5}, for:{'loan':-1}, change:PAY_LOAN_SILVER_ARR};
+                            away:{'silver':-5}, for:{'loan':-1}, change:{'silver':-5, 'loan':-1}};
                 break;
                 case PAY_LOAN_SILVER_3:
                     transactions = {name:_("Pay Dept"), map:TRADE_MAP.payLoan_3silver,
-                            away:{silver:-3}, for:{loan:-1}, change:PAY_LOAN_3_SILVER_ARR};
+                            away:{'silver':-3}, for:{'loan':-1}, change:{'silver':-3,'loan':-1}};
                 break;
                 case PAY_LOAN_FOOD:
                     transactions = {name:_("Pay Dept"), map:TRADE_MAP.payLoan_food,
-                            away:{'food':-1}, for:{'loan':-1}, change:PAY_LOAN_FOOD_ARR};
+                            away:{'food':-1}, for:{'loan':-1}, change:{'food':-1,'loan':-1}};
+                break;
             }
             if(this.canAddTrade(transactions.change)){
                 this.updateTrade(transactions.change);
@@ -4279,45 +4272,49 @@ function (dojo, declare) {
                 var type = this.getKeyByValue(TRADE_MAP, trade_id).split('_')[1];
 
                 // buy
-                var afford = this.canAddTrade(this.getBuyChange(type))?AFFORDABLE:UNAFFORDABLE;
+                var afford = this.isAffordable(this.getBuyChange(type));
                 this.updateAffordability(`#trade_buy_${type}`, afford);
                 this.updateButtonAffordability(`#btn_buy_${type}`, afford);
                 // sell
-                afford = this.canAddTrade(this.getSellChange(type))?AFFORDABLE:UNAFFORDABLE;
+                afford = this.isAffordable(this.getSellChange(type));
                 this.updateAffordability(`#trade_sell_${type}`, afford);
                 this.updateButtonAffordability(`#btn_sell_${type}`, afford);
             }
             // market
             if (HAS_BUILDING[this.player_id][BLD_MARKET]){
                 // food
-                var afford = this.canAddTrade(this.getMarketChange('food'))?AFFORDABLE:UNAFFORDABLE;
+                var afford = this.isAffordable(this.getMarketChange('food'));
                 this.updateAffordability(`#${PLAYER_BUILDING_ZONE_ID[this.player_id]} .market_food`, afford);
                 this.updateButtonAffordability(`#btn_market_food`, afford);
                 // steel
-                afford = this.canAddTrade(this.getMarketChange('steel'))?AFFORDABLE:UNAFFORDABLE;
+                afford = this.isAffordable(this.getMarketChange('steel'));
                 this.updateAffordability(`#${PLAYER_BUILDING_ZONE_ID[this.player_id]} .market_steel`, afford);
                 this.updateButtonAffordability(`#btn_market_steel`, afford);
             }
             // bank 
             if (HAS_BUILDING[this.player_id][BLD_BANK]){
-                var afford = this.canAddTrade(TRADE_BANK_CHANGE_ARR)?AFFORDABLE:UNAFFORDABLE;
+                var afford = this.canAddTrade({'trade':-1,'silver':1})?AFFORDABLE:UNAFFORDABLE;
                 this.updateAffordability(`#${PLAYER_BUILDING_ZONE_ID[this.player_id]} .bank`, afford);
                 this.updateButtonAffordability(`#${BTN_ID_TRADE_BANK}`, afford);
             }
 
-            var afford = this.canAddTrade(PAY_LOAN_SILVER_ARR)?AFFORDABLE:UNAFFORDABLE;
-            this.updateButtonAffordability(`#${BTN_ID_PAY_LOAN_SILVER}`, afford);
-            afford = this.canAddTrade(PAY_LOAN_GOLD_ARR)?AFFORDABLE:UNAFFORDABLE;
-            this.updateButtonAffordability(`#${BTN_ID_PAY_LOAN_GOLD}`, afford);
+            this.updateButtonAffordability(`#${BTN_ID_PAY_LOAN_SILVER}`, this.isAffordable({'silver':-5, 'loan':-1}));
+            this.updateButtonAffordability(`#${BTN_ID_PAY_LOAN_GOLD}`, this.isAffordable({'gold':-1, 'loan':-1}));
             // BTN_ID_PAY_LOAN_3_SILVER is handled separately
-            afford = this.canAddTrade({loan:-1})?AFFORDABLE:UNAFFORDABLE;
-            this.updateButtonAffordability(`#${BTN_ID_PAY_LOAN_3_SILVER}`, afford);
-            afford = this.canAddTrade({'trade':-1,'food':-1})?AFFORDABLE:UNAFFORDABLE;
-            this.updateButtonAffordability(`#${BTN_ID_HIRE_WORKER}`, afford);
+            this.updateButtonAffordability(`#${BTN_ID_PAY_LOAN_3_SILVER}`, this.isAffordable({loan:-1, 'silver':-3}));
+            this.updateButtonAffordability(`#${BTN_ID_HIRE_WORKER}`, this.isAffordable({'trade':-1, 'food':-1}));
+        },
+
+        /** checks if canAddTrade(change) is true,
+         * and returns AFFORDABLE or UNAFFORDABLE (CONST) 
+         */
+        isAffordable: function (change){
+            return this.canAddTrade(change)?AFFORDABLE:UNAFFORDABLE;
         },
 
         /**
          * applies the class for affordable state to node at locator.
+         * this is mostly used for buildings
          * @param {*} node 
          * @param {*} afford_val 
          */
@@ -4349,6 +4346,11 @@ function (dojo, declare) {
             }
         },
 
+        /**
+         * applies/removes the class 'disabled' from button to denote affordability.
+         * @param {*} button_id 
+         * @param {*} afford_val 
+         */
         updateButtonAffordability: function(button_id, afford_val){
             switch(afford_val){
                 case AFFORDABLE:
@@ -4362,6 +4364,7 @@ function (dojo, declare) {
             }
         },
 
+        /** updates all buildings affordability (based upon projected resources after pending trades) */
         updateBuildingAffordability: function(showIncomeCost = false){
             //console.log('updateBuildingAffordability');
             if (this.isSpectator) return;
