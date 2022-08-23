@@ -399,6 +399,7 @@ class HSDResource extends APP_GameClass
             'player_id' => $p_id,
             'player_name' => $this->game->getPlayerName($p_id),
             'loan' => clienttranslate('debt'),
+            'loans_paid' => $this->game->Log->getLoansPaidAmount($p_id),
             'arrow' => '->',
             'type' => $type,
             'amount' => $amt,
@@ -416,7 +417,8 @@ class HSDResource extends APP_GameClass
         $values = array(  'player_id' => $p_id,
                       'player_name' => $this->game->getPlayerName($p_id),                  
                       'reason_string' => $reason,
-                      'loan' => clienttranslate('debt'),);
+                      'loan' => clienttranslate('debt'),
+                      'loans_paid' => $this->game->Log->getLoansPaidAmount($p_id),);
         $values = $this->updateArrForNotify($values, $origin, $key);
         $this->game->notifyAllPlayers( "loanPaid", clienttranslate( '${reason_string} pays off ${player_name}\'s ${loan}' ), $values);
 
@@ -616,6 +618,8 @@ class HSDResource extends APP_GameClass
             $this->game->Log->payOffLoan($p_id, $type, $amt); 
             $this->updateResource($p_id, $type, -($amt));
             $this->updateResource($p_id, 'loan', -1);
+            $tradeValues['args']['loans_paid'] = $this->game->Log->getLoansPaidAmount($p_id);
+            // this has to be added after the loan is paid, otherwise the getLoansPaidAmount logic will be incorrect.
         } else {
             $this->game->Log->tradeResource($p_id, $tradeValues['tradeAway'], $tradeValues['tradeFor']);
             foreach($tradeValues['tradeAway'] as $type=>$amt){
@@ -714,14 +718,16 @@ class HSDResource extends APP_GameClass
                         'transaction'=>"loanPaid", 
                         'message'=> clienttranslate( '${player_name} pays ${loan} ${arrow} ${type}'),
                         'args'=>array('player_id' => $p_id, 
-                                    'player_name' => $this->game->getPlayerName($p_id),
-                                    'loan' => clienttranslate('debt'), 
-                                    'arrow' => '->',
-                                    'type' => $type, 
                                     'amount'=>$amt,
-                                    'preserve' => [2=>'amount']),
+                                    'arrow' => '->',
+                                    'loan' => clienttranslate('debt'), 
+                                    'player_name' => $this->game->getPlayerName($p_id),
+                                    'type' => $type, 
+                                    'preserve' => [2=>'amount'],
+                                ),
                         'tradeFor'=>array('loan'=> -1), 
-                        'tradeAway'=>array($type=> $amt)));
+                        'tradeAway'=>array($type=> $amt),
+                        ));
             default: 
             throw new BgaVisibleSystemException ( sprintf(clienttranslate('Invalid TradeAction: %s'),$tradeAction));
         }

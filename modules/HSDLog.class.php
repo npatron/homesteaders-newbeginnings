@@ -240,14 +240,13 @@ class HSDLog extends APP_GameClass
     $loans_paid = array();
     $players = $this->game->loadPlayersBasicInfos();
     foreach($players as $p_id=>$player){
-      $loans_paid[$p_id] = $this->getLoansPaidAmount($p_id);
+      $loans_paid[$p_id] = (int)$this->getLoansPaidAmount($p_id);
     }
     return $loans_paid;
   }
 
   public function getLoansPaidAmount($p_id){
-    $loans = $this->getLastActions($p_id, ['loanPaid'], 'allowTrades');
-    return count($loans);
+    return $this->game->getStat( 'loans_paid_end', $p_id );
   }
 
   public function updateBuildingState($p_id, $b_key, $oldState, $newState)
@@ -384,7 +383,9 @@ class HSDLog extends APP_GameClass
       'player_name' => $this->game->getPlayerName($p_id),
       'actions' => $transactions['action'],
       'move_ids' => $transactions['move_ids'],
-      'player_id' => $p_id));
+      'player_id' => $p_id,
+      'loans_paid' => $this->getLoansPaidAmount($p_id),)
+    );
   }
 
   public function cancelHiddenTransactions($p_id){

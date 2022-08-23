@@ -4164,6 +4164,7 @@ function (dojo, declare) {
                 function( result ) {
                     this.showPay = true;
                     this.resetTradeValues();
+                    this.updateTradeAffordability();
                 }, function( is_error) { } ); 
             }
         },
@@ -4823,12 +4824,17 @@ function (dojo, declare) {
         },
     
         calculateBuildingScore: function (p_id) {
-            let bld_static = 0;
-            let bld_type = [0,0,0,0,0,0,0,0,0];// count of bld of types: [res,com,ind,spe]
-            let vp_b =     [0,0,0,0,0,0,0,0,0];//vp_b [Res, Com, Ind, Spe, Wrk, Trk, Bld]
+            let static = 0;
+            // count of amount of each type (for bonus)
+            let type_count = { [VP_B_RESIDENTIAL]:0, [VP_B_COMMERCIAL]:0, [VP_B_INDUSTRIAL]:0, [VP_B_SPECIAL]:0,
+                [VP_B_WORKER]:0, [VP_B_TRACK]: 0, [VP_B_BUILDING]:0, [VP_B_PAID_LOAN]: 0};
+            // count of building bonuses
+            let vp_b =     { [VP_B_RESIDENTIAL]:0, [VP_B_COMMERCIAL]:0, [VP_B_INDUSTRIAL]:0, [VP_B_SPECIAL]:0,
+                [VP_B_WORKER]:0, [VP_B_TRACK]: 0, [VP_B_BUILDING]:0, [VP_B_PAID_LOAN]: 0};
+            
             for(let b_id in HAS_BUILDING[p_id]){
                 if ('vp' in BUILDING_INFO[b_id]){
-                    bld_static += BUILDING_INFO[b_id].vp;
+                    static += BUILDING_INFO[b_id].vp;
                 }
                 if ('vp_b' in BUILDING_INFO[b_id]){
                     if (BUILDING_INFO[b_id].vp_b == VP_B_PAID_LOAN){
@@ -4840,17 +4846,19 @@ function (dojo, declare) {
                         vp_b[BUILDING_INFO[b_id].vp_b]++;
                     }
                 }
-                bld_type[BUILDING_INFO[b_id].type] ++;
-                bld_type[VP_B_BUILDING]++;
+                type_count[BUILDING_INFO[b_id].type] ++;
+                type_count[VP_B_BUILDING]++;
             }
-            bld_type[VP_B_PAID_LOAN] = this.loans_paid[p_id];
-            bld_type[VP_B_WORKER] = this.getPlayerWorkerCount(p_id);
-            bld_type[VP_B_TRACK] = this.getPlayerTrackCount(p_id);
+            type_count[VP_B_PAID_LOAN] = Number(this.loans_paid[p_id]);
+            type_count[VP_B_WORKER] = this.getPlayerWorkerCount(p_id);
+            type_count[VP_B_TRACK] = this.getPlayerTrackCount(p_id);
+
             let bonus = 0;
             for (let i in vp_b){
-                bonus += (bld_type[i] * vp_b[i]);
+                bonus += (type_count[i] * vp_b[i]);
             }
-            return {static:bld_static, bonus:bonus};
+            // console.log ('calculateBuildingScore', {type_count, vp_b, static, bonus});
+            return {static, bonus};
         },
 
         getPlayerWorkerCount:function(p_id){
@@ -5092,6 +5100,7 @@ function (dojo, declare) {
                     if (this.currentState == 'allocateWorkers'){
                         this.setOffsetForIncome();
                     }
+                    this.updateTradeAffordability();
                 }, function( is_error) { } );
             }
         },
@@ -5105,7 +5114,8 @@ function (dojo, declare) {
                 }, this, function( result ) {
                     this.resetTradeValues();
                     this.removeButtons();
-                    this.onUpdateActionButtons_preEventTrade(this.current_args)
+                    this.onUpdateActionButtons_preEventTrade(this.current_args);
+                    this.updateTradeAffordability();
                 }, function( is_error) { } );
             }
         },
@@ -5120,6 +5130,7 @@ function (dojo, declare) {
                     HIDDEN_AWAY_COST.length = 0;
                     this.resetTradeValues();
                     this.disableTradeIfPossible();
+                    this.updateTradeAffordability();
                 }, function( is_error) { } );
             }
         },
@@ -5477,6 +5488,9 @@ function (dojo, declare) {
                 }                
             }
             this.calculateAndUpdateScore(notif.args.player_id);
+            if (p_id == this.player_id){
+                this.updateTradeAffordability();
+            }
         },
 
         // for pay worker action.  Has faux transition to new state, removing action buttons except for `undo`
@@ -5489,6 +5503,9 @@ function (dojo, declare) {
                 }
             }
             this.resetTradeValues();
+            if (p_id == this.player_id){
+                this.updateTradeAffordability();
+            }
         },
 
         // for gaining railroad Track
@@ -5574,6 +5591,9 @@ function (dojo, declare) {
                     }
                 }
             }
+            if (p_id == this.player_id){
+                this.updateTradeAffordability();
+            }
             this.calculateAndUpdateScore(p_id);
         },
 
@@ -5595,6 +5615,9 @@ function (dojo, declare) {
                         }
                     }
                 }   
+            }
+            if (p_id == this.player_id){
+                this.updateTradeAffordability();
             }
             this.calculateAndUpdateScore(p_id);
         },
@@ -5621,6 +5644,9 @@ function (dojo, declare) {
                     this.incResCounter(p_id, notif.args.typeStr, -1);
                 }
             }
+            if (p_id == this.player_id){
+                this.updateTradeAffordability();
+            }
             this.calculateAndUpdateScore(p_id);
         },
 
@@ -5638,6 +5664,9 @@ function (dojo, declare) {
                             this.incResCounter(p_id, type, -1);
                     }
                 }   
+            }
+            if (p_id == this.player_id){
+                this.updateTradeAffordability();
             }
             this.calculateAndUpdateScore(p_id);
         },
@@ -5689,8 +5718,10 @@ function (dojo, declare) {
                     }
                 }
             }
-            if (p_id == this.player_id)
+            if (p_id == this.player_id){
                 this.resetTradeValues();
+                this.updateTradeAffordability();
+            }
             this.calculateAndUpdateScore(p_id);
         },
 
@@ -5708,6 +5739,9 @@ function (dojo, declare) {
             for (let i =0; i < amt_silver; i++){
                 this.slideTemporaryObject(TOKEN_HTML.silver, 'limbo', destination, PLAYER_SCORE_ZONE_ID[p_id], 500 , 50*(delay++) );
                 this.incResCounter(p_id, 'silver', 1);
+            }
+            if (p_id == this.player_id){
+                this.updateTradeAffordability();
             }
             this.calculateAndUpdateScore(p_id);
         },
@@ -5733,7 +5767,11 @@ function (dojo, declare) {
             if (p_id == this.player_id){
                 this.resetTradeValues();
             }
+            this.loans_paid[p_id] = Number(notif.args.loans_paid);
             this.calculateAndUpdateScore(p_id);
+            if (p_id == this.player_id){
+                this.updateTradeAffordability();
+            }
         },
 
         // update player resources when a loan is taken
@@ -5749,6 +5787,9 @@ function (dojo, declare) {
                 this.incResCounter(p_id, 'silver', 2);
             }
             this.calculateAndUpdateScore(p_id);
+            if (p_id == this.player_id){
+                this.updateTradeAffordability();
+            }
         },
 
         // update player score
@@ -5913,11 +5954,15 @@ function (dojo, declare) {
                     break;
                 }
             }
+            this.loans_paid[p_id] = Number(notif.args.loans_paid);
 
             this.resetTradeValues();
             this.cancelNotifications(notif.args.move_ids);
             this.clearTransactionLog();
             this.calculateAndUpdateScore(p_id);
+            if (p_id == this.player_id){
+                this.updateTradeAffordability();
+            }
         },
 
         /**
