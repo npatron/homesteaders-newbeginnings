@@ -1643,6 +1643,7 @@ function (dojo, declare) {
         onUpdateActionButtons_bonusChoice_eventRail: function (args) {
             // 'EVENT_BANK_FAVORS' & 'EVENT_RESIDENTIAL_DOMINANCE' get track adv
             this.setupButtonsForRailBonus(args.args[this.player_id]);
+            // replace the choose_bonus button with event specific choose_bonus button
             dojo.destroy(BTN_ID_CHOOSE_BONUS);
             this.addActionButton( BTN_ID_CHOOSE_BONUS, _(MESSAGE_CHOOSE_BONUS), METHOD_CHOOSE_BONUS_EVENT);
             if (LAST_SELECTED.bonus == ""){

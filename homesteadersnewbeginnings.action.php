@@ -140,6 +140,12 @@ class action_homesteadersnewbeginnings extends APP_GameAction
     self::ajaxResponse( );
   }
 
+  public function wait() {
+    self::setAjaxMode( );
+    $this->game->playerWait();
+    self::ajaxResponse( );
+  }
+
   public function hireWorker() {
     self::setAjaxMode( );
     $this->game->playerHireWorker();

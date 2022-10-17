@@ -54,6 +54,7 @@ class homesteadersnewbeginnings extends Table
             "b_order"           => 18, // for sorting player buildings
             "build_type_int"    => 19, // allowed building types for build
             "lot_state"         => 20, // possible/remaining player actions in lot
+            "next_player"       => 21, // player id of next player that must act
             "show_player_info"  => SHOW_PLAYER_INFO,
             "rail_no_build"     => RAIL_NO_BUILD,
             "new_beginning_bld" => NEW_BEGINNING_BLD,
@@ -129,6 +130,7 @@ class homesteadersnewbeginnings extends Table
         $this->setGameStateInitialValue( 'last_building',  0 );
         $this->setGameStateInitialValue( 'b_order' ,       0 );
         $this->setGameStateInitialValue( 'lot_state',      0 );
+        $this->setGameStateInitialValue( 'next_player', 0 );
           
         $values = array();
         // set colors
@@ -247,6 +249,80 @@ class homesteadersnewbeginnings extends Table
         }
         return ($this->getGameStateValue( 'show_player_info' ) == 0);
     }
+
+    // Waiting toggles, (for muliti-player actions)
+    function setWaiting($p_id, $val=1){
+        $this->DbQuery( "UPDATE `player` SET `waiting`='$val' WHERE `player_id`='$p_id'");
+    }
+
+    function clearAllWaiting(){
+        $this->DbQuery( "UPDATE `player` SET `waiting`='0' ");
+    }
+
+    function isPlayerWaiting($p_id) {
+        $waiting = (int) $this->getUniqueValueFromDB( "SELECT `waiting` FROM `player` WHERE `player_id`='$p_id'" ); 
+        return ($waiting == 1);
+    }
+
+    /** get the next player that is waiting, 
+     * if none are waiting, return -1
+     */
+    function getNextWaitingPlayer() {
+        $first_player = $this->getGameStateValue('first_player');
+        $gamePlayers = $this->loadPlayersBasicInfos();
+        $active_players = (array) $this->gamestate->getActivePlayerList();
+        $next_player = $this->getPlayerAfter($first_player);
+        for ($i = 0; $i < count($gamePlayers); $i++) {
+            // check if $next_player is `waiting` or currently active
+            if ($this->isPlayerWaiting($next_player) || in_array($next_player, $active_players)) {
+                // if so, return $next_player;
+                return $next_player;
+            }
+            // otherwise get next player and check again (until first_player)
+            $next_player = $this->getPlayerAfter($next_player);
+            if ($next_player == $first_player) {
+                return -1;
+            }
+        }
+        // should be redundant, but just in case
+        return -1;
+    }
+
+    /**update the 'next_player' and make the player active if was waiting
+     * will return true if there are players still waiting, false otherwise
+     * @return boolean
+     */
+    function makeNextWaitingPlayerActive(){
+        $next_player = $this->getNextWaitingPlayer();
+        if ($next_player != -1) {
+            $active_players = (array) $this->gamestate->getActivePlayerList();
+            if (!in_array($next_player, $active_players)) {
+                // if not currently active, make active.
+                $this->gamestates->setPlayersMultiactive(array($next_player), '');
+            }
+            $this->setGameStateValue('next_player', $next_player);
+            $this->setWaiting($next_player, 0);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    function setPlayerNonMultiactiveInWaitStep($p_id, $next_state){
+        if ($this->getGameStateValue('next_player') == $p_id) {
+            // player was next_player
+            
+            // if there are still players waiting, make the next player active
+            $more_players = $this->makeNextWaitingPlayerActive();
+            if (!$more_players) {
+                $this->gamestate->nextState($next_state);
+            }
+        } else {
+            // player was not next_player, just set them non-multiactive.
+            $this->gamestate->setPlayerNonMultiactive($p_id, $next_state);
+        }
+    }
+
     
     
 //////////////////////////////////////////////////////////////////////////////
@@ -281,6 +357,12 @@ class homesteadersnewbeginnings extends Table
             $tradeAction = $this->trade_map[$val];
             $this->Resource->trade($p_id, $tradeAction);
         }
+    }
+
+    // for mulit-active allow player to wait for player order.
+    public function playerWait ()
+    {
+        $this->checkAction( 'wait' );
     }
 
     /***  place workers phase ***/
@@ -475,7 +557,8 @@ class homesteadersnewbeginnings extends Table
             $cost = max($cost - (5*$gold), 0);
             $this->Resource->pay($cur_p_id, $cost, $gold, $this->Event->getEventName());
         }
-        $this->gamestate->setPlayerNonMultiactive($cur_p_id, 'done' );
+        // $this->gamestate->setPlayerNonMultiactive($cur_p_id, 'done' );
+        $this->setPlayerNonMultiactiveInWaitStep($cur_p_id, 'done');
     }
 
     public function playerSelectRailBonus($selected_bonus) {
@@ -578,7 +661,8 @@ class homesteadersnewbeginnings extends Table
                 $this->checkAction( "eventBonus" );
                 $cur_p_id = $this->getCurrentPlayerId();
                 $this->Resource->addWorkerAndNotify($cur_p_id, $this->event_info[$event]['name']);
-                $this->gamestate->setPlayerNonMultiactive($cur_p_id, "done");
+                // $this->gamestate->setPlayerNonMultiactive($cur_p_id, "done");
+                $this->setPlayerNonMultiactiveInWaitStep($cur_p_id, "done");
             break;
             default:
                 throw new BgaVisibleSystemException ( sprintf(clienttranslate("Free Hire Worker called, but event is %s"),$this->event_info[$event]['name']));
@@ -646,7 +730,8 @@ class homesteadersnewbeginnings extends Table
         }
         
         $this->Resource->receiveRailBonus($cur_p_id, $selected_bonus);
-        $this->gamestate->setPlayerNonMultiactive($cur_p_id, "done" );
+        $this->setPlayerNonMultiactiveInWaitStep($cur_p_id, 'done');
+        // $this->gamestate->setPlayerNonMultiactive($cur_p_id, "done" );
     }
 
     public function playerDoneTradingAuction(){
@@ -660,7 +745,8 @@ class homesteadersnewbeginnings extends Table
         $this->notifyAllPlayers( "passBonus", clienttranslate( '${player_name} passes on Event Bonus' ), array(
                 'player_id' => $cur_p_id, 
                 'player_name' => $this->getPlayerName($cur_p_id)));
-        $this->gamestate->setPlayerNonMultiactive($cur_p_id, "done");
+        // $this->gamestate->setPlayerNonMultiactive($cur_p_id, "done");
+        $this->setPlayerNonMultiactiveInWaitStep($cur_p_id, "done");
     }
     
     public function playerDoneTradingEvent(){
@@ -945,6 +1031,9 @@ class homesteadersnewbeginnings extends Table
 
     function stPlaceWorkers() {
         $this->Log->allowTradesAllPlayers(); // this will also add extra player time.
+        $first_player =$this->getGameStateValue('first_player');
+        // sets 'waiting_on_player' to first_player, (as they can't wait)
+        $this->setGameStateValue('waiting_on_player', $first_player);
         $this->gamestate->setAllPlayersMultiactive( );
     }
 

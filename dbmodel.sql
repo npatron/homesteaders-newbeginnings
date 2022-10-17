@@ -23,6 +23,7 @@ ALTER TABLE `player` ADD `color_name` VARCHAR(16) NOT NULL DEFAULT ' ';
 ALTER TABLE `player` ADD `rail_adv`   INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'rail_adv 0-5';
 ALTER TABLE `player` ADD `recieve_inc` INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'has recieved Income 0-No, 1-Yes';
 ALTER TABLE `player` ADD `has_paid`   INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'has paid pending cost 0-No, 1-Yes';
+ALTER TABLE `player` ADD `waiting`    INT(1) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'waiting for other players 0-No, 1-Yes';
 ALTER TABLE `player` ADD `cost`       INT(3) UNSIGNED NOT NULL DEFAULT '0' COMMENT 'pending cost (in silver)';
 ALTER TABLE `gamelog` ADD `cancel` TINYINT(1) NOT NULL DEFAULT 0;
 

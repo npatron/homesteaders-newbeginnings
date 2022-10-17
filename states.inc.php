@@ -42,7 +42,7 @@ $machinestates = array(
         "type" => "multipleactiveplayer",
         "action" => "stPlaceWorkers",
         "args" => "argPayWorkers",
-        "possibleactions" => array( "placeWorker", "hireWorker", "updateGold", "trade", "takeLoan", "done", "actionCancel" ),
+        "possibleactions" => array( "placeWorker", "hireWorker", "updateGold", "trade", "takeLoan", "done", "actionCancel", "wait" ),
         "transitions" => array( "auction" => STATE_PAY_WORKERS, )
     ),
 
@@ -82,7 +82,7 @@ $machinestates = array(
         "type" => "multipleactiveplayer",
         "action" => "stEventSetupTrade",
         "args" => "argsEventPreTrade",
-        "possibleactions" => array( "trade", "takeLoan", "event", "actionCancel" ),
+        "possibleactions" => array( "trade", "takeLoan", "event", "actionCancel", "wait" ),
         "transitions" => array( "post" => STATE_EVT_POST_TRADE,
                                 "done" => STATE_BEGIN_AUCTION,)
     ),
@@ -93,7 +93,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} may choose to receive event bonus'),
         "type" => "multipleactiveplayer",
         "action" => "stEventSetupBonus",
-        "possibleactions" => array( "eventBonus" ),
+        "possibleactions" => array( "eventBonus", "wait" ),
         "transitions" => array( "rail_bonus"=> STATE_EVT_BONUS_RAIL,
                                 "done" => STATE_BEGIN_AUCTION,)
     ),
@@ -105,7 +105,7 @@ $machinestates = array(
         "action" => "stEventSetupPay",
         "type" => "multipleactiveplayer",
         "args" => "argEventPay",
-        "possibleactions" => array( "trade", "takeLoan", "updateGold", "done" ),
+        "possibleactions" => array( "trade", "takeLoan", "updateGold", "done", "wait" ),
         "transitions" => array( "done" => STATE_BEGIN_AUCTION,)
     ),
     
@@ -123,7 +123,7 @@ $machinestates = array(
         "descriptionmyturn" => clienttranslate('${you} must choose a railroad advance bonus'),
         "type" => "multipleactiveplayer",
         "args" => "argEventBonus",
-        "possibleactions" => array( "chooseBonus", "eventChooseBonus" ),
+        "possibleactions" => array( "chooseBonus", "eventChooseBonus", "wait" ),
         "transitions" => array( "done" => STATE_BEGIN_AUCTION,)
     ),
 
